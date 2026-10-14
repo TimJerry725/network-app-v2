@@ -1,0 +1,51 @@
+import React from 'react';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import LoginScreen from '../screens/Auth/LoginScreen';
+import TabNavigator from './TabNavigator';
+import StationDetailScreen from '../screens/Station/StationDetailScreen';
+import ScanScreen from '../screens/Charging/ScanScreen';
+import ChargingSessionScreen from '../screens/Charging/ChargingSessionScreen';
+import PaymentScreen from '../screens/Charging/PaymentScreen';
+import FilterScreen from '../screens/Home/FilterScreen';
+import ProfileScreen from '../screens/Profile/ProfileScreen';
+import { useAppTheme } from '../hooks/useAppTheme';
+
+const Stack = createNativeStackNavigator();
+
+export default function RootNavigator() {
+    const { colors, isDark } = useAppTheme();
+    const navigationTheme = {
+        ...(isDark ? DarkTheme : DefaultTheme),
+        colors: {
+            ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+            primary: colors.primary,
+            background: colors.background,
+            card: colors.surface,
+            text: colors.text,
+            border: 'transparent',
+            notification: colors.accent,
+        },
+    };
+
+    return (
+        <NavigationContainer theme={navigationTheme}>
+            <Stack.Navigator
+                screenOptions={{
+                    headerShown: false,
+                    animation: 'slide_from_right',
+                    contentStyle: { backgroundColor: colors.background },
+                }}
+            >
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Main" component={TabNavigator} />
+                <Stack.Screen name="StationDetails" component={StationDetailScreen} />
+                <Stack.Screen name="Scan" component={ScanScreen} />
+                <Stack.Screen name="ChargingSession" component={ChargingSessionScreen} />
+                <Stack.Screen name="Payment" component={PaymentScreen} />
+                <Stack.Screen name="Filter" component={FilterScreen} />
+                <Stack.Screen name="Profile" component={ProfileScreen} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+}
