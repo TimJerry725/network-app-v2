@@ -142,16 +142,22 @@ export const SPACING = {
     xxl: 48,
 };
 
-// Radius tokens with concentric double-bezel curves
+// Radius tokens with unified geometric hierarchy across all components
 export const RADIUS = {
-    input: 12,
-    card: 18,
-    cardLg: 22,
-    bezelOuter: 24,
-    bezelInner: 18,
-    bottomSheet: 28,
+    chip: 8,
+    input: 14,
+    button: 14,
+    card: 16,
+    cardLg: 20,
+    bezelOuter: 20,
+    bezelInner: 16,
+    bottomSheet: 24,
+    modal: 20,
+    tile: 14,
     pill: 999,
-    button: 999, // CRED buttons are iconic full pills
+    circle: 999,
+
+    // Aliases for backward compatibility
     neoBox: 14,
 };
 

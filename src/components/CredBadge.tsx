@@ -78,14 +78,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 10,
         paddingVertical: 5,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         borderWidth: 1,
         alignSelf: 'flex-start',
     },
     statusDot: {
         width: 6,
         height: 6,
-        borderRadius: 3,
+        borderRadius: RADIUS.circle,
         marginRight: 6,
     },
     iconWrap: {

@@ -12,7 +12,7 @@ import * as Haptics from 'expo-haptics';
 import { ThemedText } from './ThemedText';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { Neo3DMorphIcon } from './Neo3DMorphIcon';
-import { FONT_FAMILIES } from '../constants/Tokens';
+import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
 
 export interface Neo3DSelectTileProps {
     label: string;
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     podBase: {
-        borderRadius: 18,
+        borderRadius: RADIUS.tile,
         borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
         right: 8,
         paddingHorizontal: 6,
         paddingVertical: 2,
-        borderRadius: 6,
+        borderRadius: RADIUS.chip,
         borderWidth: 0.5,
     },
     badgeText: {
@@ -422,8 +422,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 8,
         left: 8,
-        width: 5,
-        height: 5,
-        borderRadius: 2.5,
+        width: 6,
+        height: 6,
+        borderRadius: RADIUS.circle,
     },
 });

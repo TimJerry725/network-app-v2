@@ -713,14 +713,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 999,
+        borderRadius: RADIUS.chip,
         borderWidth: 1,
         gap: 6,
     },
     beaconDot: {
         width: 6,
         height: 6,
-        borderRadius: 3,
+        borderRadius: RADIUS.circle,
     },
     beaconText: {
         fontSize: 10,
@@ -777,7 +777,7 @@ const styles = StyleSheet.create({
     telemetryBox: {
         paddingHorizontal: 12,
         paddingVertical: 10,
-        borderRadius: 14,
+        borderRadius: RADIUS.tile,
         borderWidth: 1,
         alignItems: 'flex-end',
     },
@@ -804,7 +804,7 @@ const styles = StyleSheet.create({
     },
     batteryRailOuter: {
         height: 10,
-        borderRadius: 999,
+        borderRadius: RADIUS.pill,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.08)',
@@ -812,7 +812,7 @@ const styles = StyleSheet.create({
     },
     batteryRailInner: {
         height: '100%',
-        borderRadius: 999,
+        borderRadius: RADIUS.pill,
         position: 'relative',
     },
     railSpecular: {
@@ -836,7 +836,7 @@ const styles = StyleSheet.create({
     tactileStatPod: {
         flex: 1,
         padding: 12,
-        borderRadius: RADIUS.bezelInner,
+        borderRadius: RADIUS.card,
         borderWidth: 1,
         borderBottomWidth: 3,
         borderBottomColor: '#070709',
@@ -970,7 +970,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         bottom: 0,
-        borderRadius: 999,
+        borderRadius: RADIUS.button,
     },
     stationChargeBtn: {
         flexDirection: 'row',
@@ -978,7 +978,7 @@ const styles = StyleSheet.create({
         gap: 6,
         paddingHorizontal: 16,
         paddingVertical: 9,
-        borderRadius: 999,
+        borderRadius: RADIUS.button,
     },
     stationChargeBtnText: {
         fontSize: 11,
@@ -993,7 +993,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 14,
-        borderRadius: RADIUS.bezelInner,
+        borderRadius: RADIUS.card,
         borderWidth: 1.5,
         marginBottom: 10,
     },
@@ -1019,7 +1019,7 @@ const styles = StyleSheet.create({
     toggleSwitchPod: {
         width: 44,
         height: 24,
-        borderRadius: 12,
+        borderRadius: RADIUS.circle,
         borderWidth: 1.5,
         padding: 2,
         justifyContent: 'center',
@@ -1027,6 +1027,6 @@ const styles = StyleSheet.create({
     toggleKnob: {
         width: 16,
         height: 16,
-        borderRadius: 8,
+        borderRadius: RADIUS.circle,
     },
 });

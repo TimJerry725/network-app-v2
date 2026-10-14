@@ -1949,7 +1949,7 @@ const styles = StyleSheet.create({
     },
     searchBarWrapper: {
         height: 52,
-        borderRadius: 20,
+        borderRadius: RADIUS.input,
         paddingHorizontal: SPACING.md,
         flexDirection: 'row',
         alignItems: 'center',
@@ -1976,7 +1976,7 @@ const styles = StyleSheet.create({
     profileCircle: {
         width: 34,
         height: 34,
-        borderRadius: 17,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1991,14 +1991,14 @@ const styles = StyleSheet.create({
     filterChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         paddingHorizontal: 14,
         paddingVertical: 8,
     },
     filterIconChip: {
         width: 36,
         height: 36,
-        borderRadius: 18,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -2011,7 +2011,7 @@ const styles = StyleSheet.create({
     markerOuter: {
         width: 34,
         height: 34,
-        borderRadius: 17,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -2026,7 +2026,7 @@ const styles = StyleSheet.create({
     floatingActionButton: {
         width: 44,
         height: 44,
-        borderRadius: 22,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
@@ -2048,14 +2048,14 @@ const styles = StyleSheet.create({
     sheetHandle: {
         width: 40,
         height: 5,
-        borderRadius: 999,
+        borderRadius: RADIUS.pill,
         marginBottom: 8,
     },
     countBadge: {
         minWidth: 48,
         paddingVertical: 6,
         paddingHorizontal: 12,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -2095,7 +2095,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: RADIUS.input,
+        borderRadius: RADIUS.chip,
     },
     typeText: {
         ...FONTS.label,
@@ -2111,7 +2111,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         alignSelf: 'flex-start',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         paddingHorizontal: 10,
         paddingVertical: 7,
     },
@@ -2125,8 +2125,8 @@ const styles = StyleSheet.create({
     },
     detailSheet: {
         maxHeight: '76%',
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
+        borderTopLeftRadius: RADIUS.bottomSheet,
+        borderTopRightRadius: RADIUS.bottomSheet,
     },
     detailSheetHeader: {
         flexDirection: 'row',
@@ -2151,7 +2151,7 @@ const styles = StyleSheet.create({
     detailCloseButton: {
         width: 38,
         height: 38,
-        borderRadius: 19,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -2176,7 +2176,7 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     detailStatusPill: {
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         paddingHorizontal: 12,
         paddingVertical: 8,
         flexDirection: 'row',
@@ -2194,7 +2194,7 @@ const styles = StyleSheet.create({
     },
     detailMetricCard: {
         flex: 1,
-        borderRadius: RADIUS.cardLg,
+        borderRadius: RADIUS.card,
         paddingHorizontal: 12,
         paddingVertical: 12,
     },
@@ -2209,7 +2209,7 @@ const styles = StyleSheet.create({
     },
     aiInsightCard: {
         marginTop: 18,
-        borderRadius: 18,
+        borderRadius: RADIUS.card,
         paddingHorizontal: 12,
         paddingVertical: 10,
     },
@@ -2220,7 +2220,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     aiInsightBadge: {
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         paddingHorizontal: 10,
         paddingVertical: 6,
         flexDirection: 'row',
@@ -2232,7 +2232,7 @@ const styles = StyleSheet.create({
         fontSize: 10,
     },
     aiNotificationBanner: {
-        borderRadius: 14,
+        borderRadius: RADIUS.tile,
         paddingHorizontal: 12,
         paddingVertical: 10,
     },
@@ -2249,7 +2249,7 @@ const styles = StyleSheet.create({
     detailHeroImage: {
         width: '100%',
         height: 180,
-        borderRadius: 22,
+        borderRadius: RADIUS.card,
         marginTop: 18,
     },
     detailTagline: {
@@ -2276,7 +2276,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     amenityChip: {
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         paddingHorizontal: 12,
         paddingVertical: 8,
         flexDirection: 'row',
@@ -2290,7 +2290,7 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     connectorCard: {
-        borderRadius: RADIUS.cardLg,
+        borderRadius: RADIUS.card,
         paddingHorizontal: 14,
         paddingVertical: 14,
     },
@@ -2312,7 +2312,7 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     connectorStatusPill: {
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         paddingHorizontal: 10,
         paddingVertical: 6,
         flexDirection: 'row',
@@ -2359,7 +2359,7 @@ const styles = StyleSheet.create({
     dragHandleBar: {
         width: 40,
         height: 4.5,
-        borderRadius: 3,
+        borderRadius: RADIUS.pill,
         alignSelf: 'center',
         marginBottom: 16,
     },
@@ -2378,7 +2378,7 @@ const styles = StyleSheet.create({
     filterSaveBtn: {
         paddingHorizontal: 20,
         paddingVertical: 9,
-        borderRadius: 12,
+        borderRadius: RADIUS.button,
         borderWidth: 1.5,
         borderBottomWidth: 3.5,
     },
@@ -2403,7 +2403,7 @@ const styles = StyleSheet.create({
     },
     segmentedControl: {
         flexDirection: 'row',
-        borderRadius: 12,
+        borderRadius: RADIUS.button,
         padding: 3,
         borderWidth: 1.5,
         borderBottomWidth: 3,
@@ -2412,7 +2412,7 @@ const styles = StyleSheet.create({
     segmentOption: {
         flex: 1,
         paddingVertical: 7,
-        borderRadius: 9,
+        borderRadius: RADIUS.chip,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -2429,7 +2429,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 14,
         paddingHorizontal: 14,
-        borderRadius: 14,
+        borderRadius: RADIUS.card,
         borderWidth: 1.5,
         borderBottomWidth: 3,
     },
@@ -2445,7 +2445,7 @@ const styles = StyleSheet.create({
     navChevronCircle: {
         width: 28,
         height: 28,
-        borderRadius: 14,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         marginLeft: 8,
@@ -2458,7 +2458,7 @@ const styles = StyleSheet.create({
     brandAvatar: {
         width: 24,
         height: 24,
-        borderRadius: 12,
+        borderRadius: RADIUS.circle,
         borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
@@ -2473,7 +2473,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: 12,
         marginTop: 14,
-        borderRadius: 12,
+        borderRadius: RADIUS.button,
         borderWidth: 1.5,
         borderBottomWidth: 3,
     },
@@ -2486,7 +2486,7 @@ const styles = StyleSheet.create({
     sheetBackCircleBtn: {
         width: 36,
         height: 36,
-        borderRadius: 18,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
@@ -2528,7 +2528,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 10,
         paddingHorizontal: 12,
-        borderRadius: 12,
+        borderRadius: RADIUS.tile,
         borderWidth: 1.5,
         borderBottomWidth: 3,
         marginBottom: 8,
@@ -2542,7 +2542,7 @@ const styles = StyleSheet.create({
     brandItemAvatar: {
         width: 32,
         height: 32,
-        borderRadius: 10,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -2569,7 +2569,7 @@ const styles = StyleSheet.create({
     },
     plugFilterCard: {
         width: '48%',
-        borderRadius: 16,
+        borderRadius: RADIUS.card,
         paddingVertical: 16,
         paddingHorizontal: 12,
         alignItems: 'center',
@@ -2582,7 +2582,7 @@ const styles = StyleSheet.create({
         right: 8,
         width: 20,
         height: 20,
-        borderRadius: 10,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
@@ -2602,7 +2602,7 @@ const styles = StyleSheet.create({
     plugTypeChip: {
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: 6,
+        borderRadius: RADIUS.chip,
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 6,
@@ -2620,7 +2620,7 @@ const styles = StyleSheet.create({
     quickBarBtn: {
         flex: 1,
         paddingVertical: 10,
-        borderRadius: 10,
+        borderRadius: RADIUS.button,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,

@@ -1014,7 +1014,7 @@ const styles = StyleSheet.create({
     backChevronBtn: {
         width: 38,
         height: 38,
-        borderRadius: 19,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 10,
@@ -1043,7 +1043,7 @@ const styles = StyleSheet.create({
 
     // ── 2. HERO BATTERY & TIME STATUS CARD ──
     heroCard: {
-        borderRadius: RADIUS.cardLg,
+        borderRadius: RADIUS.card,
         paddingVertical: 18,
         paddingHorizontal: 16,
         alignItems: 'center',
@@ -1098,7 +1098,7 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingVertical: 10,
         paddingHorizontal: 14,
-        borderRadius: 12,
+        borderRadius: RADIUS.tile,
         marginTop: 16,
         borderWidth: 1,
     },
@@ -1145,7 +1145,7 @@ const styles = StyleSheet.create({
     targetPresetBtn: {
         flex: 1,
         paddingVertical: 10,
-        borderRadius: 12,
+        borderRadius: RADIUS.button,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
@@ -1176,7 +1176,7 @@ const styles = StyleSheet.create({
 
     // ── 3. TELEMETRY DASHBOARD ──
     telemetryCard: {
-        borderRadius: RADIUS.cardLg,
+        borderRadius: RADIUS.card,
         paddingVertical: 12,
         paddingHorizontal: 14,
         borderWidth: 1,
@@ -1228,7 +1228,7 @@ const styles = StyleSheet.create({
 
     // ── 4. POWER INTAKE CURVE CARD ──
     curveCard: {
-        borderRadius: RADIUS.cardLg,
+        borderRadius: RADIUS.card,
         paddingVertical: 12,
         paddingHorizontal: 12,
         borderWidth: 1,
@@ -1252,7 +1252,7 @@ const styles = StyleSheet.create({
     },
     miniToggleWrap: {
         flexDirection: 'row',
-        borderRadius: 10,
+        borderRadius: RADIUS.tile,
         padding: 3,
         backgroundColor: '#0F0F12',
         borderWidth: 1,
@@ -1261,7 +1261,7 @@ const styles = StyleSheet.create({
     miniToggleBtn: {
         paddingVertical: 5,
         paddingHorizontal: 12,
-        borderRadius: 8,
+        borderRadius: RADIUS.chip,
         borderWidth: 1,
     },
     miniToggleBtnActive: {
@@ -1308,7 +1308,7 @@ const styles = StyleSheet.create({
     },
     canvasBox: {
         position: 'relative',
-        borderRadius: 8,
+        borderRadius: RADIUS.chip,
         overflow: 'hidden',
     },
     watermarkWrap: {
@@ -1356,7 +1356,7 @@ const styles = StyleSheet.create({
 
     // ── 5. CONNECTED VEHICLE CARD ──
     vehicleCard: {
-        borderRadius: RADIUS.cardLg,
+        borderRadius: RADIUS.card,
         paddingVertical: 12,
         paddingHorizontal: 14,
         gap: 10,
@@ -1383,7 +1383,7 @@ const styles = StyleSheet.create({
     editPencilBtn: {
         width: 36,
         height: 36,
-        borderRadius: 18,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
@@ -1393,7 +1393,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 12,
-        borderRadius: 10,
+        borderRadius: RADIUS.tile,
         borderWidth: 1,
     },
     autochargeRowActive: {
@@ -1405,7 +1405,7 @@ const styles = StyleSheet.create({
     autochargeDot: {
         width: 7,
         height: 7,
-        borderRadius: 3.5,
+        borderRadius: RADIUS.circle,
         marginRight: 8,
     },
     autochargeRowTitle: {
@@ -1417,7 +1417,7 @@ const styles = StyleSheet.create({
     switchIndicatorBadge: {
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     switchIndicatorText: {
         fontSize: 10,
@@ -1427,7 +1427,7 @@ const styles = StyleSheet.create({
 
     // ── 6. STATION AMENITIES ──
     amenitiesCard: {
-        borderRadius: RADIUS.cardLg,
+        borderRadius: RADIUS.card,
         paddingVertical: 12,
         paddingHorizontal: 14,
         borderWidth: 1,
@@ -1447,7 +1447,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 6,
         paddingHorizontal: 10,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         borderWidth: 1,
     },
     amenityText: {
@@ -1492,7 +1492,7 @@ const styles = StyleSheet.create({
     },
     modalSummaryBox: {
         flexDirection: 'row',
-        borderRadius: 14,
+        borderRadius: RADIUS.tile,
         paddingVertical: 12,
         paddingHorizontal: 14,
         marginBottom: 16,
@@ -1552,7 +1552,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 14,
-        borderRadius: 12,
+        borderRadius: RADIUS.tile,
         borderWidth: 1,
     },
     modalVehName: {
@@ -1569,7 +1569,7 @@ const styles = StyleSheet.create({
     modalCheckBadge: {
         width: 24,
         height: 24,
-        borderRadius: 12,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },

@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     headerBadge: {
         minWidth: 52,
         height: 38,
-        borderRadius: 19,
+        borderRadius: RADIUS.chip,
         paddingHorizontal: 12,
         alignItems: 'center',
         justifyContent: 'center',
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         alignSelf: 'flex-start',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         paddingHorizontal: 10,
         paddingVertical: 8,
     },

@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     paymentMethodPill: {
         paddingHorizontal: 8,
         paddingVertical: 2,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         marginTop: 4,
     },
     paymentMethodText: {
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     connectorPill: {
         paddingHorizontal: 8,
         paddingVertical: 2,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     connectorPillText: {
         fontSize: 10,

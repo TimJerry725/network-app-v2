@@ -328,12 +328,12 @@ export default function FilterScreen() {
                                     backgroundColor: colors.primary,
                                     width: 22,
                                     height: 22,
-                                    borderRadius: 11,
+                                    borderRadius: RADIUS.circle,
                                     borderWidth: 3,
                                     borderColor: isDark ? '#0A0A0B' : '#FFFFFF',
                                 }}
                                 containerStyle={{ height: 38 }}
-                                trackStyle={{ height: 6, borderRadius: 3 }}
+                                trackStyle={{ height: 6, borderRadius: RADIUS.pill }}
                             />
                         </View>
 
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     backButton: {
         width: 40,
         height: 40,
-        borderRadius: 20,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
     },
     sliderCard: {
         padding: 16,
-        borderRadius: RADIUS.bezelInner,
+        borderRadius: RADIUS.card,
         borderWidth: 1,
         marginTop: 4,
     },
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     inputBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 12,
+        borderRadius: RADIUS.input,
         borderWidth: 1,
         paddingHorizontal: 12,
         paddingVertical: 8,

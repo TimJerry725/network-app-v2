@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     scanFrame: {
         width: 220,
         height: 220,
-        borderRadius: 26,
+        borderRadius: RADIUS.cardLg,
         backgroundColor: 'rgba(255,255,255,0.1)',
     },
     scanAgainButton: {

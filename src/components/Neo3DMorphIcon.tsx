@@ -24,6 +24,7 @@ import {
     Zap,
 } from 'lucide-react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { RADIUS } from '../constants/Tokens';
 
 export interface Neo3DMorphIconProps {
     name?: string;
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     plate3DBase: {
-        borderRadius: 12,
+        borderRadius: RADIUS.tile,
         borderWidth: 1.5,
         borderBottomWidth: 3.5,
         alignItems: 'center',
@@ -246,6 +247,6 @@ const styles = StyleSheet.create({
         bottom: 2,
         width: 3,
         height: 3,
-        borderRadius: 1.5,
+        borderRadius: RADIUS.circle,
     },
 });

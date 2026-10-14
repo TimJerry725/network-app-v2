@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     avatar: {
         width: 52,
         height: 52,
-        borderRadius: 26,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: SPACING.sm,
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     badge: {
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     divider: {
         height: StyleSheet.hairlineWidth,
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 8,
         alignItems: 'center',
-        borderRadius: RADIUS.input,
+        borderRadius: RADIUS.button,
     },
     section: {
         marginBottom: SPACING.md,
@@ -366,13 +366,13 @@ const styles = StyleSheet.create({
     toggleContainer: {
         width: 44,
         height: 24,
-        borderRadius: 12,
+        borderRadius: RADIUS.circle,
         justifyContent: 'center',
     },
     toggleKnob: {
         width: 20,
         height: 20,
-        borderRadius: 10,
+        borderRadius: RADIUS.circle,
         position: 'absolute',
     },
     supportCard: {

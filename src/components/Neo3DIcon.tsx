@@ -12,7 +12,7 @@ import * as Haptics from 'expo-haptics';
 import { ScanLine } from 'lucide-react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { getLucideIcon, getOutlinedIcon } from './Neo3DMorphIcon';
-import { FONT_FAMILIES } from '../constants/Tokens';
+import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
 
 export interface Neo3DIconProps {
     name?: string;
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     pod3DBase: {
         width: 50,
         height: 38,
-        borderRadius: 14,
+        borderRadius: RADIUS.tile,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
         bottom: 2.5,
         width: 3.5,
         height: 3.5,
-        borderRadius: 2,
+        borderRadius: RADIUS.circle,
     },
 
     // ── Unselected Base ──
@@ -436,13 +436,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: 68,
         height: 68,
-        borderRadius: 34,
+        borderRadius: RADIUS.circle,
         top: -5,
     },
     heroPlatform3D: {
         width: 58,
         height: 58,
-        borderRadius: 29,
+        borderRadius: RADIUS.circle,
         borderWidth: 2,
         borderBottomWidth: 4,
         alignItems: 'center',
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     heroCore3D: {
         width: 52,
         height: 50,
-        borderRadius: 25,
+        borderRadius: RADIUS.circle,
         borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',

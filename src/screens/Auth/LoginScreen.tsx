@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     logoWrap: {
         width: 68,
         height: 68,
-        borderRadius: 20,
+        borderRadius: RADIUS.cardLg,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,

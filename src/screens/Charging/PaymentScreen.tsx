@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     successIcon: {
         width: 76,
         height: 76,
-        borderRadius: 38,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         gap: 4,
     },
     divider: {

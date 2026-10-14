@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
+import { RADIUS } from '../../constants/Tokens';
 
 type MaterialCardProps = ViewProps & {
     mode?: 'elevated' | 'filled' | 'outlined';
@@ -231,17 +232,17 @@ export function MaterialChip({
 
 const styles = StyleSheet.create({
     card: {
-        borderRadius: 24,
+        borderRadius: RADIUS.card,
         borderWidth: 0,
         padding: 16,
     },
     cardCompact: {
-        borderRadius: 20,
+        borderRadius: RADIUS.card,
         padding: 12,
     },
     button: {
         minHeight: 52,
-        borderRadius: 20,
+        borderRadius: RADIUS.button,
         borderWidth: 0,
         paddingHorizontal: 18,
         flexDirection: 'row',
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     },
     buttonCompact: {
         minHeight: 42,
-        borderRadius: 16,
+        borderRadius: RADIUS.button,
         paddingHorizontal: 14,
     },
     buttonAlignStart: {
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
     iconButton: {
         width: 48,
         height: 48,
-        borderRadius: 16,
+        borderRadius: RADIUS.button,
         borderWidth: 0,
         alignItems: 'center',
         justifyContent: 'center',
@@ -280,10 +281,10 @@ const styles = StyleSheet.create({
     iconButtonCompact: {
         width: 40,
         height: 40,
-        borderRadius: 14,
+        borderRadius: RADIUS.button,
     },
     chip: {
-        borderRadius: 999,
+        borderRadius: RADIUS.chip,
         borderWidth: 0,
         paddingHorizontal: 12,
         paddingVertical: 8,

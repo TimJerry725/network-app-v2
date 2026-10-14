@@ -1205,7 +1205,7 @@ const styles = StyleSheet.create({
     walletBadge: {
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     walletBadgeText: {
         fontSize: 13,
@@ -1247,7 +1247,7 @@ const styles = StyleSheet.create({
     routeDotGreen: {
         width: 10,
         height: 10,
-        borderRadius: 5,
+        borderRadius: RADIUS.circle,
     },
     routeDotLine: {
         width: 2,
@@ -1257,7 +1257,7 @@ const styles = StyleSheet.create({
     routeDotRed: {
         width: 10,
         height: 10,
-        borderRadius: 5,
+        borderRadius: RADIUS.circle,
     },
     routeInputsCol: {
         flex: 1,
@@ -1268,7 +1268,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 14,
         paddingVertical: 10,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.input,
     },
     locationSelectLabel: {
         fontSize: 10,
@@ -1286,7 +1286,7 @@ const styles = StyleSheet.create({
     swapBtn: {
         width: 38,
         height: 38,
-        borderRadius: 19,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1304,7 +1304,7 @@ const styles = StyleSheet.create({
     routeShortcutChip: {
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     routeShortcutText: {
         fontSize: 12,
@@ -1321,7 +1321,7 @@ const styles = StyleSheet.create({
     vehicleCardOption: {
         paddingHorizontal: 12,
         paddingVertical: 8,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.tile,
         minWidth: 130,
     },
     vehicleOptionHeader: {
@@ -1362,7 +1362,7 @@ const styles = StyleSheet.create({
     stepperBtn: {
         width: 30,
         height: 30,
-        borderRadius: 15,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1398,7 +1398,7 @@ const styles = StyleSheet.create({
     mapStartMarker: {
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 12,
+        borderRadius: RADIUS.chip,
     },
     mapStopMarker: {
         flexDirection: 'row',
@@ -1406,7 +1406,7 @@ const styles = StyleSheet.create({
         gap: 3,
         paddingHorizontal: 7,
         paddingVertical: 3,
-        borderRadius: 12,
+        borderRadius: RADIUS.chip,
     },
     mapEndMarker: {
         flexDirection: 'row',
@@ -1414,7 +1414,7 @@ const styles = StyleSheet.create({
         gap: 3,
         paddingHorizontal: 7,
         paddingVertical: 3,
-        borderRadius: 12,
+        borderRadius: RADIUS.chip,
     },
     mapMarkerText: {
         fontSize: 10,
@@ -1436,7 +1436,7 @@ const styles = StyleSheet.create({
     floatingBackBtn: {
         width: 36,
         height: 36,
-        borderRadius: 18,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1455,7 +1455,7 @@ const styles = StyleSheet.create({
     floatingIconBtn: {
         width: 36,
         height: 36,
-        borderRadius: 18,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1482,7 +1482,7 @@ const styles = StyleSheet.create({
     dragHandleBar: {
         width: 40,
         height: 4.5,
-        borderRadius: 2.5,
+        borderRadius: RADIUS.pill,
     },
     sheetHeaderRow: {
         flexDirection: 'row',
@@ -1505,7 +1505,7 @@ const styles = StyleSheet.create({
     sheetExpandToggleBtn: {
         width: 28,
         height: 28,
-        borderRadius: 14,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1524,7 +1524,7 @@ const styles = StyleSheet.create({
         gap: 6,
         paddingVertical: 8,
         paddingHorizontal: 12,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     peekChargersText: {
         fontSize: 12,
@@ -1538,7 +1538,7 @@ const styles = StyleSheet.create({
         gap: 5,
         paddingVertical: 8,
         paddingHorizontal: 14,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
     },
     peekNavBtnText: {
         fontSize: 12,
@@ -1577,7 +1577,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 8,
         paddingHorizontal: 10,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.tile,
     },
     kpiItem: {
         alignItems: 'center',
@@ -1620,7 +1620,7 @@ const styles = StyleSheet.create({
     chargersCountPill: {
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     chargersCountText: {
         fontSize: 11,
@@ -1635,7 +1635,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 10,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.card,
     },
     chargerCardInfo: {
         flexDirection: 'row',
@@ -1647,7 +1647,7 @@ const styles = StyleSheet.create({
     stationAvatar: {
         width: 32,
         height: 32,
-        borderRadius: 16,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1679,7 +1679,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 9,
         paddingVertical: 5,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     inPlanBadgeText: {
         fontSize: 11,
@@ -1692,7 +1692,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 10,
         paddingVertical: 6,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     addStopBtnText: {
         fontSize: 11,
@@ -1712,7 +1712,7 @@ const styles = StyleSheet.create({
     stepDot: {
         width: 14,
         height: 14,
-        borderRadius: 7,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1806,7 +1806,7 @@ const styles = StyleSheet.create({
         marginHorizontal: SPACING.lg,
         paddingHorizontal: 12,
         paddingVertical: 10,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.input,
         gap: 8,
         marginBottom: 10,
     },
@@ -1823,7 +1823,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 12,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.tile,
     },
     cityName: {
         fontSize: 15,

@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     trailingIconCircle: {
         width: 36,
         height: 36,
-        borderRadius: 18,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
         marginLeft: 12,
