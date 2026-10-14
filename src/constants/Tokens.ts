@@ -1,54 +1,77 @@
 import { StyleSheet, TextStyle } from 'react-native';
 
+// CRED Modern Typography Font Stack:
+// - Geometric Grotesque Sans (Gilroy aesthetic via Plus Jakarta Sans) for clean UI, labels, and buttons
+// - High-Contrast Editorial Serif (Cirka aesthetic via Cinzel & Playfair Display) for hero stats and headings
+export const FONT_FAMILIES = {
+    sansRegular: 'PlusJakartaSans_400Regular',
+    sansMedium: 'PlusJakartaSans_500Medium',
+    sansSemiBold: 'PlusJakartaSans_600SemiBold',
+    sansBold: 'PlusJakartaSans_700Bold',
+    sansExtraBold: 'PlusJakartaSans_800ExtraBold',
+
+    serifDisplay: 'Cinzel_700Bold',
+    serifDisplayBlack: 'Cinzel_800ExtraBold',
+    serifHeading: 'PlayfairDisplay_700Bold',
+    serifExtraBold: 'PlayfairDisplay_800ExtraBold',
+};
+
 // Typography tokens with CRED high-contrast editorial hierarchy
 export const FONTS = {
-    // Massive Hero Numbers (Battery %, Amount, Speeds)
+    // Massive Hero Numbers (Battery %, Amount, Speeds) - CRED Editorial Display
     display: {
         fontSize: 42,
         fontWeight: '800' as TextStyle['fontWeight'],
         lineHeight: 48,
         letterSpacing: -1.2,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.serifDisplayBlack,
     },
     heroStat: {
         fontSize: 36,
         fontWeight: '800' as TextStyle['fontWeight'],
         lineHeight: 42,
         letterSpacing: -1.0,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.serifHeading,
+    },
+    editorialTitle: {
+        fontSize: 28,
+        fontWeight: '700' as TextStyle['fontWeight'],
+        lineHeight: 34,
+        letterSpacing: -0.6,
+        fontFamily: FONT_FAMILIES.serifHeading,
     },
     h1: {
         fontSize: 30,
         fontWeight: '800' as TextStyle['fontWeight'],
         lineHeight: 36,
         letterSpacing: -0.8,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
     },
     h2: {
         fontSize: 22,
         fontWeight: '700' as TextStyle['fontWeight'],
         lineHeight: 28,
         letterSpacing: -0.4,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
     },
     h3: {
         fontSize: 17,
         fontWeight: '700' as TextStyle['fontWeight'],
         lineHeight: 23,
         letterSpacing: -0.2,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
     },
     body: {
         fontSize: 15,
         fontWeight: '400' as TextStyle['fontWeight'],
         lineHeight: 22,
-        fontFamily: 'RedHatDisplay_400Regular',
+        fontFamily: FONT_FAMILIES.sansRegular,
     },
     bodyStrong: {
         fontSize: 15,
         fontWeight: '600' as TextStyle['fontWeight'],
         lineHeight: 22,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
     },
     // CRED Signature Micro-Eyebrow Tag
     eyebrow: {
@@ -57,7 +80,7 @@ export const FONTS = {
         lineHeight: 13,
         letterSpacing: 1.6,
         textTransform: 'uppercase' as TextStyle['textTransform'],
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
     },
     label: {
         fontSize: 11,
@@ -65,20 +88,20 @@ export const FONTS = {
         lineHeight: 15,
         letterSpacing: 0.8,
         textTransform: 'uppercase' as TextStyle['textTransform'],
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
     },
     monoVal: {
         fontSize: 16,
         fontWeight: '700' as TextStyle['fontWeight'],
         lineHeight: 21,
         letterSpacing: 0.4,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
     },
     caption: {
         fontSize: 12,
         fontWeight: '500' as TextStyle['fontWeight'],
         lineHeight: 16,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
     },
 };
 

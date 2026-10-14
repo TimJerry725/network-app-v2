@@ -12,6 +12,7 @@ import * as Haptics from 'expo-haptics';
 import { ThemedText } from './ThemedText';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { Neo3DMorphIcon } from './Neo3DMorphIcon';
+import { FONT_FAMILIES } from '../constants/Tokens';
 
 export interface Neo3DSelectTileProps {
     label: string;
@@ -307,8 +308,8 @@ export function Neo3DSelectTile({
                                     ? (isDark ? '#000000' : '#FFFFFF')
                                     : colors.text,
                                 fontFamily: isSelected
-                                    ? 'RedHatDisplay_800ExtraBold'
-                                    : 'RedHatDisplay_600SemiBold',
+                                    ? FONT_FAMILIES.sansExtraBold
+                                    : FONT_FAMILIES.sansSemiBold,
                                 fontWeight: isSelected ? '800' : '600',
                             },
                         ]}
@@ -422,7 +423,7 @@ const styles = StyleSheet.create({
     },
     badgeText: {
         fontSize: 9,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 0.5,
         textTransform: 'uppercase',

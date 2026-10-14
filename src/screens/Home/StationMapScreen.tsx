@@ -63,7 +63,7 @@ import {
     Station,
     getRecommendedConnector,
 } from '../../constants/Stations';
-import { FONTS, RADIUS, SHADOWS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, FONTS, RADIUS, SHADOWS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
@@ -1122,8 +1122,8 @@ export default function StationMapScreen({ navigation }: any) {
                                             fontSize: 12,
                                             fontWeight: isActive ? '800' : '600',
                                             fontFamily: isActive
-                                                ? 'RedHatDisplay_800ExtraBold'
-                                                : 'RedHatDisplay_600SemiBold',
+                                                ? FONT_FAMILIES.sansExtraBold
+                                                : FONT_FAMILIES.sansSemiBold,
                                         }}
                                     >
                                         {filter.label}
@@ -2165,7 +2165,7 @@ const styles = StyleSheet.create({
     },
     filterSheetTitle: {
         fontSize: 20,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     filterSaveBtn: {
@@ -2175,7 +2175,7 @@ const styles = StyleSheet.create({
     },
     filterSaveBtnText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     filterSheetDivider: {
@@ -2190,7 +2190,7 @@ const styles = StyleSheet.create({
     },
     filterRowLabel: {
         fontSize: 17,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     segmentedControl: {
@@ -2209,11 +2209,11 @@ const styles = StyleSheet.create({
     segmentOptionSelected: {},
     segmentText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
     },
     segmentTextSelected: {
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     filterNavRow: {
@@ -2223,12 +2223,12 @@ const styles = StyleSheet.create({
     },
     filterNavTitle: {
         fontSize: 17,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     filterNavSubtitle: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_400Regular',
+        fontFamily: FONT_FAMILIES.sansRegular,
         marginTop: 3,
     },
     brandLogosCluster: {
@@ -2245,7 +2245,7 @@ const styles = StyleSheet.create({
     },
     brandAvatarText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         color: '#FFFFFF',
     },
@@ -2258,7 +2258,7 @@ const styles = StyleSheet.create({
     },
     filterResetText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     brandSheetHeader: {
@@ -2277,7 +2277,7 @@ const styles = StyleSheet.create({
     },
     brandSheetTitle: {
         fontSize: 18,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     brandSaveBtn: {
@@ -2288,7 +2288,7 @@ const styles = StyleSheet.create({
     brandSaveBtnText: {
         color: '#FFFFFF',
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     brandScrollContent: {
@@ -2304,12 +2304,12 @@ const styles = StyleSheet.create({
     },
     brandCountText: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
     },
     brandDeselectText: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     brandItemRow: {
@@ -2333,7 +2333,7 @@ const styles = StyleSheet.create({
     },
     brandItemName: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     sheetHeaderLeft: {
@@ -2348,7 +2348,7 @@ const styles = StyleSheet.create({
     },
     subModalSubtitle: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_400Regular',
+        fontFamily: FONT_FAMILIES.sansRegular,
         marginBottom: 16,
     },
     plugFilterCardsGrid: {
@@ -2386,7 +2386,7 @@ const styles = StyleSheet.create({
     },
     plugFilterCardLabel: {
         fontSize: 16,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         textAlign: 'center',
     },
@@ -2401,7 +2401,7 @@ const styles = StyleSheet.create({
     },
     plugTypeChipText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         letterSpacing: 0.5,
     },
@@ -2415,7 +2415,7 @@ const styles = StyleSheet.create({
     },
     plugsQuickActionText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
 });

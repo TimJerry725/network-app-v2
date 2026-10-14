@@ -41,7 +41,7 @@ import {
     Station,
     getStationById,
 } from '../../constants/Stations';
-import { RADIUS, SHADOWS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, RADIUS, SHADOWS, SPACING } from '../../constants/Tokens';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles } from '../../context/VehicleContext';
 
@@ -667,10 +667,10 @@ const styles = StyleSheet.create({
         marginLeft: -4,
     },
     stationTitle: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: '800',
         color: '#0F291E',
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.serifHeading,
         flexShrink: 1,
     },
     topBarActions: {
@@ -712,7 +712,7 @@ const styles = StyleSheet.create({
     openPillText: {
         fontSize: 12,
         fontWeight: '700',
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         color: '#FFFFFF',
     },
     grayPill: {
@@ -727,13 +727,13 @@ const styles = StyleSheet.create({
     grayPillText: {
         fontSize: 11,
         fontWeight: '500',
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         color: '#374151',
     },
     etaBold: {
         fontSize: 11,
         fontWeight: '700',
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         color: '#111827',
     },
     // Amenities
@@ -790,7 +790,7 @@ const styles = StyleSheet.create({
     chargerBoldLabel: {
         fontSize: 16,
         fontWeight: '800',
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         color: '#111827',
     },
     chargerCode: {
@@ -801,14 +801,14 @@ const styles = StyleSheet.create({
     trackStatusLink: {
         fontSize: 12,
         fontWeight: '600',
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         color: '#FFFFFF',
         textDecorationLine: 'underline',
     },
     stopTrackStatusLink: {
         fontSize: 12,
         fontWeight: '600',
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         color: '#DC2626',
         textDecorationLine: 'underline',
     },
@@ -823,7 +823,7 @@ const styles = StyleSheet.create({
     trackingTimerBold: {
         fontSize: 13,
         fontWeight: '800',
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         color: '#FFFFFF',
     },
     connectorsStack: {
@@ -862,7 +862,7 @@ const styles = StyleSheet.create({
     connectorSublabel: {
         fontSize: 8,
         fontWeight: '700',
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         marginTop: 2,
     },
     powerGroup: {
@@ -887,7 +887,7 @@ const styles = StyleSheet.create({
     acDcBadgeText: {
         fontSize: 10,
         fontWeight: '800',
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         lineHeight: 14,
     },
     dcBadgeText: {
@@ -899,7 +899,7 @@ const styles = StyleSheet.create({
     powerText: {
         fontSize: 15,
         fontWeight: '500',
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         color: '#1E293B',
         minWidth: 50,
     },
@@ -910,7 +910,7 @@ const styles = StyleSheet.create({
     tariffPrice: {
         fontSize: 15,
         fontWeight: '800',
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         color: '#0F172A',
     },
     tariffPriceSelected: {
@@ -920,7 +920,7 @@ const styles = StyleSheet.create({
     tariffUnit: {
         fontSize: 12,
         fontWeight: '400',
-        fontFamily: 'RedHatDisplay_400Regular',
+        fontFamily: FONT_FAMILIES.sansRegular,
         color: '#475569',
     },
     statusColumn: {
@@ -929,17 +929,17 @@ const styles = StyleSheet.create({
     statusText: {
         fontSize: 14,
         fontWeight: '700',
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
     },
     statusPreparing: {
         color: '#D97706',
         fontWeight: '700',
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
     },
     statusAvailable: {
         color: '#000000',
         fontWeight: '800',
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
     },
     // Connector Action Buttons inside the Selected Card
     connectorActionsRow: {
@@ -958,7 +958,7 @@ const styles = StyleSheet.create({
     smartCutoffText: {
         fontSize: 14,
         fontWeight: '600',
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         color: '#FFFFFF',
     },
     startChargingButton: {
@@ -974,7 +974,7 @@ const styles = StyleSheet.create({
     startChargingText: {
         fontSize: 14,
         fontWeight: '600',
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         color: '#FFFFFF',
     },
     // Schedule Link
@@ -988,7 +988,7 @@ const styles = StyleSheet.create({
     tariffScheduleLinkText: {
         fontSize: 13,
         fontWeight: '700',
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         color: '#FFFFFF',
     },
     chevronCircle: {
@@ -1026,7 +1026,7 @@ const styles = StyleSheet.create({
     helpSupportText: {
         fontSize: 14,
         fontWeight: '600',
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         color: '#FFFFFF',
     },
     getDirectionBtn: {
@@ -1042,7 +1042,7 @@ const styles = StyleSheet.create({
     getDirectionText: {
         fontSize: 14,
         fontWeight: '600',
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         color: '#000000',
     },
     walletStrip: {
@@ -1074,12 +1074,12 @@ const styles = StyleSheet.create({
     },
     walletLabelBold: {
         fontWeight: '700',
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         color: '#FFFFFF',
     },
     walletAmount: {
         fontWeight: '700',
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         color: '#FFFFFF',
     },
     addWalletBtn: {
@@ -1094,7 +1094,7 @@ const styles = StyleSheet.create({
     addWalletText: {
         fontSize: 13,
         fontWeight: '600',
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         color: '#FFFFFF',
     },
     // Modals

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
 import { ThemedText } from './ThemedText';
-import { RADIUS } from '../constants/Tokens';
+import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
 import { useAppTheme } from '../hooks/useAppTheme';
 
 export interface CredBadgeProps extends ViewProps {
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     },
     badgeText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1.5,
         textTransform: 'uppercase',

@@ -20,7 +20,7 @@ import { CredButton } from '../../components/CredButton';
 import { Neo3DSelectTile } from '../../components/Neo3DSelectTile';
 import { ThemedText } from '../../components/ThemedText';
 import { Type2Icon } from '../../components/Type2Icon';
-import { CRED_BEZEL, RADIUS, SPACING } from '../../constants/Tokens';
+import { CRED_BEZEL, FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
 export type FilterState = {
@@ -466,15 +466,15 @@ const styles = StyleSheet.create({
     },
     eyebrow: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1.4,
         marginBottom: 2,
     },
     headerTitle: {
         fontSize: 17,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.serifHeading,
+        fontWeight: '800',
     },
     clearHeaderButton: {
         paddingVertical: 6,
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     },
     resetText: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     scrollContent: {
@@ -500,14 +500,14 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1.2,
         opacity: 0.8,
     },
     sectionSubtitle: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
     },
     row: {
         flexDirection: 'row',
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     },
     inputLabel: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         letterSpacing: 0.8,
         marginBottom: 6,
@@ -551,13 +551,13 @@ const styles = StyleSheet.create({
     },
     currencyPrefix: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.serifHeading,
         marginRight: 4,
     },
     textInput: {
         flex: 1,
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         padding: 0,
     },

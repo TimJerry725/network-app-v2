@@ -45,7 +45,7 @@ import {
     getRecommendedConnector,
     getStationById,
 } from '../../constants/Stations';
-import { RADIUS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles, Vehicle } from '../../context/VehicleContext';
 import { useCharging } from '../../context/ChargingContext';
@@ -415,7 +415,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                             style={[
                                                 styles.targetPresetText,
                                                 { color: isSelected ? '#000000' : colors.text },
-                                                isSelected && { fontFamily: 'RedHatDisplay_800ExtraBold', fontWeight: '800' },
+                                                isSelected && { fontFamily: FONT_FAMILIES.sansExtraBold, fontWeight: '800' },
                                             ]}
                                         >
                                             {preset}%{preset === 80 ? ' ★' : ''}
@@ -1026,12 +1026,12 @@ const styles = StyleSheet.create({
     },
     stationTitle: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     stationSub: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 1,
     },
@@ -1074,19 +1074,19 @@ const styles = StyleSheet.create({
     },
     boltRateText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     ringBigPercent: {
-        fontSize: 38,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontSize: 40,
+        fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
-        lineHeight: 44,
+        lineHeight: 46,
         letterSpacing: -1,
     },
     ringRangeAdded: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
         marginTop: 2,
     },
@@ -1105,12 +1105,12 @@ const styles = StyleSheet.create({
     },
     countdownPrimaryText: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     countdownEtaText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginLeft: 4,
     },
@@ -1131,12 +1131,12 @@ const styles = StyleSheet.create({
     },
     targetLimitLabel: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     targetLimitValue: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     targetPresetRow: {
@@ -1164,12 +1164,12 @@ const styles = StyleSheet.create({
     },
     targetPresetText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     bmsAdviceNote: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 8,
         textAlign: 'center',
@@ -1198,22 +1198,22 @@ const styles = StyleSheet.create({
     },
     telemetryLabel: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     telemetryMainVal: {
         fontSize: 18,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
     },
     telemetryUnit: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
     },
     telemetrySubText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
     },
@@ -1242,12 +1242,12 @@ const styles = StyleSheet.create({
     },
     curveCardTitle: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     curveCardSub: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 1,
     },
@@ -1278,7 +1278,7 @@ const styles = StyleSheet.create({
     },
     miniToggleText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
     },
 
@@ -1295,12 +1295,12 @@ const styles = StyleSheet.create({
     },
     yTickText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     yAxisLabel: {
         fontSize: 9,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
         transform: [{ rotate: '-90deg' }],
         width: 60,
@@ -1323,8 +1323,8 @@ const styles = StyleSheet.create({
     },
     watermarkText: {
         fontSize: 42,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.serifDisplayBlack,
+        fontWeight: '800',
         letterSpacing: -1,
     },
     trickleTag: {
@@ -1334,7 +1334,7 @@ const styles = StyleSheet.create({
     },
     trickleTagText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     xAxisRow: {
@@ -1346,12 +1346,12 @@ const styles = StyleSheet.create({
     },
     xTickText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     xAxisLabel: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
 
@@ -1372,12 +1372,12 @@ const styles = StyleSheet.create({
     },
     vehicleModelName: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     vehiclePlateSpecs: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
     },
@@ -1398,7 +1398,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     autochargeRowActive: {
-        borderColor: 'rgba(0, 229, 117, 0.35)',
+        borderColor: 'rgba(255, 255, 255, 0.35)',
     },
     autochargeRowInactive: {
         borderColor: 'rgba(255, 255, 255, 0.06)',
@@ -1411,7 +1411,7 @@ const styles = StyleSheet.create({
     },
     autochargeRowTitle: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
         flex: 1,
     },
@@ -1422,7 +1422,7 @@ const styles = StyleSheet.create({
     },
     switchIndicatorText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
     },
 
@@ -1435,7 +1435,7 @@ const styles = StyleSheet.create({
     },
     amenitiesHeader: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
         marginBottom: 8,
     },
@@ -1453,7 +1453,7 @@ const styles = StyleSheet.create({
     },
     amenityText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
 
@@ -1479,7 +1479,7 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 16,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     modalCloseBtn: {
@@ -1487,7 +1487,7 @@ const styles = StyleSheet.create({
     },
     modalSub: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginBottom: 14,
     },
@@ -1506,13 +1506,13 @@ const styles = StyleSheet.create({
     },
     modalSummaryLabel: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginBottom: 2,
     },
     modalSummaryVal: {
         fontSize: 16,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
     },
     modalActionButtonsRow: {
@@ -1528,7 +1528,7 @@ const styles = StyleSheet.create({
     },
     modalCancelText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     modalConfirmStopBtn: {
@@ -1540,7 +1540,7 @@ const styles = StyleSheet.create({
     },
     modalConfirmStopText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         color: '#FFFFFF',
     },
@@ -1558,12 +1558,12 @@ const styles = StyleSheet.create({
     },
     modalVehName: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     modalVehPlate: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
     },

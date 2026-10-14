@@ -6,7 +6,7 @@ import {
     ChevronDown,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
-import { RADIUS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useCharging, CompletedSessionReceipt } from '../../context/ChargingContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
@@ -188,12 +188,12 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 24,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.serifHeading,
+        fontWeight: '800',
     },
     headerSubtitle: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
     },
@@ -217,12 +217,12 @@ const styles = StyleSheet.create({
     },
     stationName: {
         fontSize: 16,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     sessionSubText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 3,
     },
@@ -231,8 +231,8 @@ const styles = StyleSheet.create({
     },
     amountText: {
         fontSize: 18,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.serifHeading,
+        fontWeight: '800',
     },
     paymentMethodPill: {
         paddingHorizontal: 8,
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     },
     paymentMethodText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     metaRow: {
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     },
     vehicleMetaText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
     },
     connectorPill: {
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     },
     connectorPillText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     cardDivider: {
@@ -281,13 +281,13 @@ const styles = StyleSheet.create({
     },
     statLabel: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginBottom: 2,
     },
     statValue: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     footerContainer: {
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     },
     viewAllText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     emptyContainer: {
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
     },
 });

@@ -41,7 +41,7 @@ import {
     TripStop,
     createTripPlan,
 } from '../../constants/TripPlanner';
-import { RADIUS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles, Vehicle } from '../../context/VehicleContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
@@ -1200,12 +1200,12 @@ const styles = StyleSheet.create({
     },
     pageTitle: {
         fontSize: 22,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.serifHeading,
+        fontWeight: '800',
     },
     pageSubtitle: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
     },
@@ -1216,7 +1216,7 @@ const styles = StyleSheet.create({
     },
     walletBadgeText: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
 
@@ -1234,7 +1234,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         marginBottom: 12,
     },
@@ -1279,14 +1279,14 @@ const styles = StyleSheet.create({
     },
     locationSelectLabel: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
         textTransform: 'uppercase',
         letterSpacing: 0.5,
     },
     locationSelectValue: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         marginTop: 2,
     },
@@ -1299,7 +1299,7 @@ const styles = StyleSheet.create({
     },
     popularRoutesLabel: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
         marginTop: 12,
         marginBottom: 6,
@@ -1315,7 +1315,7 @@ const styles = StyleSheet.create({
     },
     routeShortcutText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
 
@@ -1339,12 +1339,12 @@ const styles = StyleSheet.create({
     },
     vehicleOptionName: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     vehicleOptionSub: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
     },
     minimalRow: {
@@ -1358,7 +1358,7 @@ const styles = StyleSheet.create({
     },
     minimalLabel: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     stepperContainer: {
@@ -1375,7 +1375,7 @@ const styles = StyleSheet.create({
     },
     stepperValueText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         minWidth: 55,
         textAlign: 'center',
@@ -1391,8 +1391,8 @@ const styles = StyleSheet.create({
     },
     planTripPrimaryBtnText: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontWeight: '800',
         color: '#FFFFFF',
     },
 
@@ -1425,7 +1425,7 @@ const styles = StyleSheet.create({
     },
     mapMarkerText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         color: '#FFFFFF',
     },
@@ -1456,7 +1456,7 @@ const styles = StyleSheet.create({
     },
     floatingRoutePillText: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     floatingIconBtn: {
@@ -1500,12 +1500,12 @@ const styles = StyleSheet.create({
     },
     sheetTitle: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     sheetSubtitle: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 1,
     },
@@ -1535,7 +1535,7 @@ const styles = StyleSheet.create({
     },
     peekChargersText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     peekNavBtn: {
@@ -1549,8 +1549,8 @@ const styles = StyleSheet.create({
     },
     peekNavBtnText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontWeight: '800',
         color: '#FFFFFF',
     },
     floatingDragBackPill: {
@@ -1568,7 +1568,7 @@ const styles = StyleSheet.create({
     },
     floatingDragBackText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
 
@@ -1592,14 +1592,14 @@ const styles = StyleSheet.create({
     },
     kpiLabel: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginBottom: 2,
     },
     kpiValue: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.serifHeading,
+        fontWeight: '800',
     },
 
     sheetSectionBlock: {
@@ -1607,12 +1607,12 @@ const styles = StyleSheet.create({
     },
     sheetSectionTitle: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     sheetSectionSub: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
     },
@@ -1631,7 +1631,7 @@ const styles = StyleSheet.create({
     },
     chargersCountText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     chargersList: {
@@ -1660,7 +1660,7 @@ const styles = StyleSheet.create({
     },
     chargerCardName: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     chargerCardMetaRow: {
@@ -1671,7 +1671,7 @@ const styles = StyleSheet.create({
     },
     chargerCardMetaText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
     },
     chargerCardMetaDot: {
@@ -1690,7 +1690,7 @@ const styles = StyleSheet.create({
     },
     inPlanBadgeText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     addStopBtn: {
@@ -1703,7 +1703,7 @@ const styles = StyleSheet.create({
     },
     addStopBtnText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
 
@@ -1741,23 +1741,23 @@ const styles = StyleSheet.create({
     },
     stepStopBadge: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         textTransform: 'uppercase',
     },
     stepChargeDuration: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
     },
     stepTitle: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     stepSubtitle: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
     },
@@ -1774,8 +1774,8 @@ const styles = StyleSheet.create({
     },
     startNavBtnText: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontWeight: '800',
         color: '#FFFFFF',
     },
 
@@ -1801,8 +1801,8 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 17,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.serifHeading,
+        fontWeight: '800',
     },
     modalCloseBtn: {
         padding: 4,
@@ -1820,7 +1820,7 @@ const styles = StyleSheet.create({
     modalSearchInput: {
         flex: 1,
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
     },
     modalCitiesList: {
         paddingHorizontal: SPACING.md,
@@ -1834,12 +1834,12 @@ const styles = StyleSheet.create({
     },
     cityName: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     citySubtitle: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
     },

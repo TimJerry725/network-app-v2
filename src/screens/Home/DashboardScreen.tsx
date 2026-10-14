@@ -26,7 +26,7 @@ import { CredCard } from '../../components/CredCard';
 import { Neo3DSelectTile } from '../../components/Neo3DSelectTile';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
-import { RADIUS } from '../../constants/Tokens';
+import { FONT_FAMILIES, RADIUS } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
@@ -665,14 +665,14 @@ const styles = StyleSheet.create({
     },
     eyebrow: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1.4,
         marginBottom: 3,
     },
     headerTitle: {
         fontSize: 19,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     statusBeacon: {
@@ -691,7 +691,7 @@ const styles = StyleSheet.create({
     },
     beaconText: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1,
     },
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
     },
     cardEyebrow: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1.2,
         marginBottom: 4,
@@ -721,15 +721,15 @@ const styles = StyleSheet.create({
         alignItems: 'baseline',
     },
     heroSocNumber: {
-        fontSize: 52,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontSize: 54,
+        fontFamily: FONT_FAMILIES.serifDisplayBlack,
         fontWeight: '800',
         letterSpacing: -1,
-        lineHeight: 56,
+        lineHeight: 58,
     },
     heroSocUnit: {
         fontSize: 24,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         marginLeft: 2,
     },
@@ -738,7 +738,7 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     rangeBold: {
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     telemetryBox: {
@@ -759,13 +759,13 @@ const styles = StyleSheet.create({
     },
     telemetryLabel: {
         fontSize: 9,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         letterSpacing: 0.8,
     },
     telemetryVal: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         marginTop: 2,
     },
@@ -816,19 +816,19 @@ const styles = StyleSheet.create({
     },
     podBadgeLabel: {
         fontSize: 9,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 0.8,
     },
     podValue: {
         fontSize: 20,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
         marginBottom: 2,
     },
     podSublabel: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
     },
 
     // ── Section Headers ──
@@ -841,18 +841,18 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1.2,
         opacity: 0.85,
     },
     sectionSubtitle: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
     },
     seeAllText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 0.8,
     },
@@ -883,7 +883,7 @@ const styles = StyleSheet.create({
     },
     stationName: {
         fontSize: 16,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         flex: 1,
         marginRight: 8,
@@ -899,14 +899,14 @@ const styles = StyleSheet.create({
     },
     specItem: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
     },
     specDot: {
         fontSize: 12,
     },
     specItemBold: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
     },
     stationFooter: {
@@ -918,17 +918,17 @@ const styles = StyleSheet.create({
     },
     tariffLabel: {
         fontSize: 9,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         letterSpacing: 0.8,
     },
     tariffRate: {
         fontSize: 15,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
     },
     tariffUnit: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_500Medium',
+        fontFamily: FONT_FAMILIES.sansMedium,
     },
     stationChargeBtn: {
         flexDirection: 'row',
@@ -942,7 +942,7 @@ const styles = StyleSheet.create({
     },
     stationChargeBtnText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 0.8,
     },
@@ -969,7 +969,7 @@ const styles = StyleSheet.create({
     },
     automationTitle: {
         fontSize: 13,
-        fontFamily: 'RedHatDisplay_700Bold',
+        fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
     automationDesc: {

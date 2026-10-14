@@ -5,7 +5,19 @@ import { FONTS } from '../constants/Tokens';
 export type ThemedTextProps = TextProps & {
     lightColor?: string;
     darkColor?: string;
-    type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'label' | 'caption' | 'eyebrow' | 'heroStat' | 'display';
+    type?:
+        | 'default'
+        | 'title'
+        | 'defaultSemiBold'
+        | 'subtitle'
+        | 'link'
+        | 'label'
+        | 'caption'
+        | 'eyebrow'
+        | 'heroStat'
+        | 'display'
+        | 'editorial'
+        | 'serif';
 };
 
 export function ThemedText({
@@ -32,6 +44,7 @@ export function ThemedText({
                 type === 'eyebrow' ? styles.eyebrow : undefined,
                 type === 'heroStat' ? styles.heroStat : undefined,
                 type === 'display' ? styles.display : undefined,
+                type === 'editorial' || type === 'serif' ? styles.editorial : undefined,
                 style,
             ]}
             {...rest}
@@ -69,5 +82,8 @@ const styles = StyleSheet.create({
     },
     display: {
         ...FONTS.display,
+    },
+    editorial: {
+        ...FONTS.editorialTitle,
     },
 });

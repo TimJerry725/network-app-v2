@@ -13,6 +13,7 @@ import { ScanLine } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { getOutlinedIcon } from './Neo3DMorphIcon';
+import { FONT_FAMILIES } from '../constants/Tokens';
 
 export interface Neo3DIconProps {
     name?: string;
@@ -270,8 +271,8 @@ export function Neo3DIcon({
                                 {
                                     color: isSelected ? primaryWhite : mutedColor,
                                     fontFamily: isSelected
-                                        ? 'RedHatDisplay_800ExtraBold'
-                                        : 'RedHatDisplay_600SemiBold',
+                                        ? FONT_FAMILIES.sansExtraBold
+                                        : FONT_FAMILIES.sansSemiBold,
                                     fontWeight: isSelected ? '800' : '600',
                                 },
                             ]}
@@ -388,8 +389,8 @@ export function Neo3DIcon({
                             {
                                 color: isSelected ? primaryWhite : mutedColor,
                                 fontFamily: isSelected
-                                    ? 'RedHatDisplay_800ExtraBold'
-                                    : 'RedHatDisplay_600SemiBold',
+                                    ? FONT_FAMILIES.sansExtraBold
+                                    : FONT_FAMILIES.sansSemiBold,
                                 fontWeight: isSelected ? '800' : '600',
                             },
                         ]}

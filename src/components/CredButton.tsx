@@ -10,7 +10,7 @@ import {
 import * as Haptics from 'expo-haptics';
 import { ChevronRight } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
-import { RADIUS } from '../constants/Tokens';
+import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
 import { useAppTheme } from '../hooks/useAppTheme';
 
 export interface CredButtonProps extends TouchableOpacityProps {
@@ -247,13 +247,13 @@ const styles = StyleSheet.create({
     },
     titleText: {
         fontSize: 14,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 0.6,
     },
     subtitleText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
         marginTop: 1,
     },
