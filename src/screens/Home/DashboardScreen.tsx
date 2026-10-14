@@ -1,42 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
+    Platform,
     ScrollView,
     StyleSheet,
     TouchableOpacity,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
+    Activity,
     ArrowRight,
     BatteryCharging,
-    Gift,
+    ChevronRight,
+    Cpu,
+    Gauge,
     MapPinned,
     ScanLine,
-    ShieldCheck,
+    ShieldAlert,
+    SlidersHorizontal,
     Sparkles,
-    Trophy,
+    Zap,
 } from 'lucide-react-native';
-import { GradientButton } from '../../components/GradientButton';
-import { NeoCard } from '../../components/NeoCard';
+
+import { CredBadge } from '../../components/CredBadge';
+import { CredButton } from '../../components/CredButton';
+import { CredCard } from '../../components/CredCard';
+import { Neo3DSelectTile } from '../../components/Neo3DSelectTile';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
+import { RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
-const missions = [
-    { id: 'mission-1', title: 'Start one smart charge', reward: '+35 pts', progress: 1 },
-    { id: 'mission-2', title: 'Use a calm station window', reward: '+20 pts', progress: 0.65 },
-];
-
-const weeklyStats = [
-    { label: 'Streak', value: '6 days', icon: Trophy },
-    { label: 'Green points', value: '1,280', icon: Gift },
-    { label: 'Smart mode', value: '94%', icon: ShieldCheck },
-];
+interface SmartAutomation {
+    id: string;
+    title: string;
+    description: string;
+    active: boolean;
+    badge: string;
+}
 
 export default function DashboardScreen({ navigation }: any) {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const { selectedVehicle } = useVehicles();
     const featuredStation = MOCK_STATIONS[0];
     const recommendedConnector = getRecommendedConnector(
@@ -44,33 +50,41 @@ export default function DashboardScreen({ navigation }: any) {
         selectedVehicle?.connectorType
     );
 
-    const quickActions = [
+    // Smart automations (functional EV settings, zero rewards/points slop)
+    const [automations, setAutomations] = useState<SmartAutomation[]>([
         {
-            id: 'quick-1',
-            label: 'Start charge',
-            sublabel: 'One tap to your best match',
-            icon: BatteryCharging,
-            onPress: () =>
-                navigation.navigate('ChargingSession', {
-                    stationId: featuredStation.id,
-                    connectorId: recommendedConnector.id,
-                }),
+            id: 'auto-1',
+            title: '80% Battery Health Guard',
+            description: 'Preserves lithium cell chemistry on DC Fast Chargers',
+            active: true,
+            badge: 'OPTIMAL',
         },
         {
-            id: 'quick-2',
-            label: 'Trip Planner',
-            sublabel: 'Map and fast filters together',
-            icon: MapPinned,
-            onPress: () => navigation.navigate('Explore'),
+            id: 'auto-2',
+            title: 'Off-Peak Tariff Priority',
+            description: 'Prefers slots when power is under ₹16.00/kWh',
+            active: true,
+            badge: 'SMART GRID',
         },
         {
-            id: 'quick-3',
-            label: 'Scan QR',
-            sublabel: 'Manual start when needed',
-            icon: ScanLine,
-            onPress: () => navigation.navigate('Scan'),
+            id: 'auto-3',
+            title: 'Cabin Climate Pre-conditioning',
+            description: 'Draws power from grid before scheduled departure',
+            active: false,
+            badge: 'COMFORT',
         },
-    ];
+    ]);
+
+    const toggleAutomation = (id: string) => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+        setAutomations((prev) =>
+            prev.map((item) =>
+                item.id === id ? { ...item, active: !item.active } : item
+            )
+        );
+    };
 
     return (
         <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -78,67 +92,113 @@ export default function DashboardScreen({ navigation }: any) {
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
             >
+                {/* ── Top Hardware Status Bar ── */}
                 <View style={styles.header}>
                     <View>
-                        <ThemedText style={[styles.eyebrow, { color: colors.textMuted }]}>
-                            Welcome back
+                        <ThemedText style={[styles.eyebrow, { color: colors.primary }]}>
+                            EV TELEMETRY • SYSTEM ACTIVE
                         </ThemedText>
-                        <ThemedText type="title" style={styles.headerTitle}>
-                            Ready for your next boost?
+                        <ThemedText style={styles.headerTitle}>
+                            {selectedVehicle?.nickname ?? 'Nexon EV Long Range'}
                         </ThemedText>
                     </View>
-                    <View style={[styles.pointsPill, { backgroundColor: colors.primarySoft }]}>
-                        <Sparkles size={16} color={colors.primary} />
-                        <ThemedText style={[styles.pointsText, { color: colors.primaryStrong }]}>
-                            1280 pts
+
+                    {/* Online status indicator beacon */}
+                    <View
+                        style={[
+                            styles.statusBeacon,
+                            {
+                                backgroundColor: isDark ? '#141418' : '#ECECE8',
+                                borderColor: colors.cardBorder,
+                            },
+                        ]}
+                    >
+                        <View style={[styles.beaconDot, { backgroundColor: colors.primary }]} />
+                        <ThemedText style={[styles.beaconText, { color: colors.primary }]}>
+                            ONLINE
                         </ThemedText>
                     </View>
                 </View>
 
-                <LinearGradient colors={colors.heroGradient} style={styles.heroCard}>
+                {/* ── Hero Battery & State of Charge Pod (CRED Double Bezel) ── */}
+                <CredCard variant="neon" style={styles.heroCard}>
                     <View style={styles.heroTopRow}>
-                        <View style={styles.heroContent}>
-                            <ThemedText style={[styles.eyebrow, { color: colors.textMuted }]}>
-                                {selectedVehicle?.nickname ?? 'Primary EV'}
+                        <View style={styles.heroMetrics}>
+                            <ThemedText style={[styles.cardEyebrow, { color: colors.textMuted }]}>
+                                STATE OF CHARGE
                             </ThemedText>
-                            <ThemedText type="title" style={styles.heroBattery}>
-                                {selectedVehicle?.currentBattery ?? 62}%
-                            </ThemedText>
-                            <ThemedText style={[styles.heroSubtext, { color: colors.textMuted }]}>
-                                {selectedVehicle?.estRangeKm ?? 286} km range left
-                            </ThemedText>
-                            <ThemedText style={[styles.heroSubtext, { color: colors.textMuted }]}>
-                                Smart target {selectedVehicle?.chargeTarget ?? 90}% at{' '}
-                                {featuredStation.name}
-                            </ThemedText>
-                        </View>
-                        <View style={[styles.levelBadge, { backgroundColor: colors.overlay }]}>
-                            <ThemedText style={[styles.levelLabel, { color: colors.textMuted }]}>
-                                Level 4
-                            </ThemedText>
-                            <ThemedText style={styles.levelTitle}>Eco Sprinter</ThemedText>
-                            <ThemedText style={[styles.levelMeta, { color: colors.textMuted }]}>
-                                70 pts to next badge
+                            <View style={styles.socRow}>
+                                <ThemedText style={styles.heroSocNumber}>
+                                    {selectedVehicle?.currentBattery ?? 62}
+                                </ThemedText>
+                                <ThemedText style={[styles.heroSocUnit, { color: colors.primary }]}>
+                                    %
+                                </ThemedText>
+                            </View>
+                            <ThemedText style={[styles.heroRangeText, { color: colors.textMuted }]}>
+                                <ThemedText style={[styles.rangeBold, { color: colors.text }]}>
+                                    {selectedVehicle?.estRangeKm ?? 286} km
+                                </ThemedText>{' '}
+                                estimated range
                             </ThemedText>
                         </View>
-                    </View>
 
-                    <View style={styles.progressRail}>
+                        {/* Hardware Telemetry Badge */}
                         <View
                             style={[
-                                styles.progressFill,
+                                styles.telemetryBox,
                                 {
-                                    backgroundColor: colors.primary,
-                                    width: '72%',
+                                    backgroundColor: isDark ? '#0A0A0E' : '#ECECE8',
+                                    borderColor: colors.cardBorder,
                                 },
                             ]}
-                        />
+                        >
+                            <View style={styles.telemetryItem}>
+                                <ThemedText style={[styles.telemetryLabel, { color: colors.textMuted }]}>
+                                    RECOMMENDED
+                                </ThemedText>
+                                <ThemedText style={styles.telemetryVal}>
+                                    {recommendedConnector.type}
+                                </ThemedText>
+                            </View>
+                            <View style={styles.telemetryDivider} />
+                            <View style={styles.telemetryItem}>
+                                <ThemedText style={[styles.telemetryLabel, { color: colors.textMuted }]}>
+                                    MAX RATE
+                                </ThemedText>
+                                <ThemedText style={[styles.telemetryVal, { color: colors.primary }]}>
+                                    {recommendedConnector.power} kW
+                                </ThemedText>
+                            </View>
+                        </View>
                     </View>
 
-                    <View style={styles.heroActionRow}>
-                        <GradientButton
-                            title="Charge now"
-                            style={styles.heroPrimaryButton}
+                    {/* Concentric Double-Rail Battery Gauge */}
+                    <View
+                        style={[
+                            styles.batteryRailOuter,
+                            { backgroundColor: isDark ? '#0A0A0D' : '#E8E8E4' },
+                        ]}
+                    >
+                        <View
+                            style={[
+                                styles.batteryRailInner,
+                                {
+                                    width: `${selectedVehicle?.currentBattery ?? 62}%`,
+                                    backgroundColor: colors.primary,
+                                },
+                            ]}
+                        >
+                            {/* Top specular highlight in the rail */}
+                            <View style={styles.railSpecular} />
+                        </View>
+                    </View>
+
+                    {/* Hero CTA Button */}
+                    <View style={styles.heroCtaWrap}>
+                        <CredButton
+                            title="START CHARGE"
+                            variant="neon"
                             onPress={() =>
                                 navigation.navigate('ChargingSession', {
                                     stationId: featuredStation.id,
@@ -146,82 +206,134 @@ export default function DashboardScreen({ navigation }: any) {
                                 })
                             }
                         />
-                        <TouchableOpacity
-                            style={[
-                                styles.heroSecondaryButton,
-                                {
-                                    backgroundColor: colors.surface,
-                                },
-                            ]}
-                            onPress={() =>
-                                navigation.navigate('StationDetails', {
-                                    stationId: featuredStation.id,
-                                })
-                            }
-                        >
-                            <ThemedText style={{ color: colors.primaryStrong }}>
-                                View nearby hub
-                            </ThemedText>
-                        </TouchableOpacity>
                     </View>
-                </LinearGradient>
+                </CredCard>
 
+                {/* ── 3D Hardware Telemetry Pods ── */}
                 <View style={styles.statsRow}>
-                    {weeklyStats.map(({ label, value, icon: Icon }) => (
-                        <NeoCard key={label} style={styles.statCard}>
-                            <Icon size={18} color={colors.primary} />
-                            <ThemedText style={[styles.statValue, { marginTop: 12 }]}>
-                                {value}
+                    <View
+                        style={[
+                            styles.tactileStatPod,
+                            {
+                                backgroundColor: colors.surface,
+                                borderColor: colors.cardBorder,
+                            },
+                        ]}
+                    >
+                        <View style={styles.podIconHeader}>
+                            <Cpu size={16} color={colors.primary} />
+                            <ThemedText style={[styles.podBadgeLabel, { color: colors.primary }]}>
+                                HEALTH
                             </ThemedText>
-                            <ThemedText style={[styles.statLabel, { color: colors.textMuted }]}>
-                                {label}
+                        </View>
+                        <ThemedText style={styles.podValue}>98%</ThemedText>
+                        <ThemedText style={[styles.podSublabel, { color: colors.textMuted }]}>
+                            Cell state optimal
+                        </ThemedText>
+                    </View>
+
+                    <View
+                        style={[
+                            styles.tactileStatPod,
+                            {
+                                backgroundColor: colors.surface,
+                                borderColor: colors.cardBorder,
+                            },
+                        ]}
+                    >
+                        <View style={styles.podIconHeader}>
+                            <Gauge size={16} color={colors.accent} />
+                            <ThemedText style={[styles.podBadgeLabel, { color: colors.accent }]}>
+                                EFFICIENCY
                             </ThemedText>
-                        </NeoCard>
-                    ))}
+                        </View>
+                        <ThemedText style={styles.podValue}>7.2</ThemedText>
+                        <ThemedText style={[styles.podSublabel, { color: colors.textMuted }]}>
+                            km/kWh avg
+                        </ThemedText>
+                    </View>
+
+                    <View
+                        style={[
+                            styles.tactileStatPod,
+                            {
+                                backgroundColor: colors.surface,
+                                borderColor: colors.cardBorder,
+                            },
+                        ]}
+                    >
+                        <View style={styles.podIconHeader}>
+                            <Zap size={16} color={colors.primary} />
+                            <ThemedText style={[styles.podBadgeLabel, { color: colors.primary }]}>
+                                TARIFF
+                            </ThemedText>
+                        </View>
+                        <ThemedText style={styles.podValue}>₹16.5</ThemedText>
+                        <ThemedText style={[styles.podSublabel, { color: colors.textMuted }]}>
+                            Off-peak rate
+                        </ThemedText>
+                    </View>
                 </View>
 
+                {/* ── Quick Action Hardware Dock (3D Neo-Brutalist Tiles) ── */}
                 <View style={styles.sectionHeader}>
-                    <ThemedText type="subtitle">Quick actions</ThemedText>
-                    <ThemedText style={{ color: colors.textMuted }}>
-                        Low-click shortcuts
+                    <ThemedText style={styles.sectionTitle}>TACTILE SHORTCUTS</ThemedText>
+                    <ThemedText style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+                        Direct hardware controls
                     </ThemedText>
                 </View>
 
                 <View style={styles.actionGrid}>
-                    {quickActions.map(({ id, label, sublabel, icon: Icon, onPress }) => (
-                        <TouchableOpacity
-                            key={id}
-                            style={[
-                                styles.actionTile,
-                                {
-                                    backgroundColor: colors.surface,
-                                },
-                            ]}
-                            activeOpacity={0.85}
-                            onPress={onPress}
-                        >
-                            <View
-                                style={[
-                                    styles.actionIconWrap,
-                                    { backgroundColor: colors.primarySoft },
-                                ]}
-                            >
-                                <Icon size={20} color={colors.primary} />
-                            </View>
-                            <ThemedText style={styles.actionTitle}>{label}</ThemedText>
-                            <ThemedText
-                                style={[styles.actionSubtitle, { color: colors.textMuted }]}
-                            >
-                                {sublabel}
-                            </ThemedText>
-                        </TouchableOpacity>
-                    ))}
+                    <Neo3DSelectTile
+                        label="Start Charge"
+                        sublabel="Nearest DC Hub"
+                        width="48%"
+                        isSelected={false}
+                        badge="FAST"
+                        onPress={() =>
+                            navigation.navigate('ChargingSession', {
+                                stationId: featuredStation.id,
+                                connectorId: recommendedConnector.id,
+                            })
+                        }
+                        icon={<BatteryCharging size={24} color={colors.primary} />}
+                    />
+                    <Neo3DSelectTile
+                        label="Trip Planner"
+                        sublabel="Elevation & Stops"
+                        width="48%"
+                        isSelected={false}
+                        onPress={() => navigation.navigate('Explore')}
+                        icon={<MapPinned size={24} color={colors.primary} />}
+                    />
+                    <Neo3DSelectTile
+                        label="Scan QR"
+                        sublabel="Optical Reader"
+                        width="48%"
+                        isSelected={false}
+                        onPress={() => navigation.navigate('Scan')}
+                        icon={<ScanLine size={24} color={colors.primary} />}
+                    />
+                    <Neo3DSelectTile
+                        label="Filter Hubs"
+                        sublabel="CCS2 & Power"
+                        width="48%"
+                        isSelected={false}
+                        onPress={() => navigation.navigate('Filter')}
+                        icon={<SlidersHorizontal size={24} color={colors.primary} />}
+                    />
                 </View>
 
+                {/* ── Best Nearby Charging Hubs ── */}
                 <View style={styles.sectionHeader}>
-                    <ThemedText type="subtitle">Best nearby stations</ThemedText>
-                    <TouchableOpacity onPress={() => navigation.navigate('Map')}>
-                        <ThemedText style={{ color: colors.primary }}>See all</ThemedText>
+                    <ThemedText style={styles.sectionTitle}>FEATURED DC FAST HUBS</ThemedText>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('Map')}
+                        activeOpacity={0.7}
+                    >
+                        <ThemedText style={[styles.seeAllText, { color: colors.primary }]}>
+                            EXPLORE ALL
+                        </ThemedText>
                     </TouchableOpacity>
                 </View>
 
@@ -232,50 +344,87 @@ export default function DashboardScreen({ navigation }: any) {
                     );
 
                     return (
-                        <NeoCard key={station.id} style={styles.stationCard}>
+                        <CredCard key={station.id} style={styles.stationCard}>
                             <View style={styles.stationTopRow}>
                                 <View style={styles.stationInfo}>
-                                    <ThemedText style={styles.stationTitle}>
-                                        {station.name}
-                                    </ThemedText>
+                                    <View style={styles.stationTitleRow}>
+                                        <ThemedText style={styles.stationName}>
+                                            {station.name}
+                                        </ThemedText>
+                                        <CredBadge
+                                            label={station.occupancyLabel}
+                                            variant={
+                                                station.occupancyLabel === 'Calm'
+                                                    ? 'neon'
+                                                    : 'muted'
+                                            }
+                                        />
+                                    </View>
+
                                     <ThemedText
-                                        style={[styles.stationSubtitle, { color: colors.textMuted }]}
+                                        style={[styles.stationAddress, { color: colors.textMuted }]}
+                                        numberOfLines={1}
                                     >
-                                        {station.distanceKm} km away • {station.etaMinutes} min •{' '}
-                                        {station.occupancyLabel}
+                                        {station.address}
                                     </ThemedText>
-                                    <ThemedText
-                                        style={[styles.stationSubtitle, { color: colors.textMuted }]}
-                                    >
-                                        {connector.power} kW • ₹{connector.pricePerKWh.toFixed(2)}/kWh
-                                    </ThemedText>
-                                </View>
-                                <View
-                                    style={[
-                                        styles.rewardTag,
-                                        { backgroundColor: colors.primarySoft },
-                                    ]}
-                                >
-                                    <Gift size={14} color={colors.primary} />
-                                    <ThemedText
-                                        style={[
-                                            styles.rewardText,
-                                            { color: colors.primaryStrong },
-                                        ]}
-                                    >
-                                        +{station.rewardBoost}
-                                    </ThemedText>
+
+                                    <View style={styles.specsRow}>
+                                        <ThemedText style={[styles.specItem, { color: colors.text }]}>
+                                            {station.distanceKm} km
+                                        </ThemedText>
+                                        <ThemedText style={[styles.specDot, { color: colors.textMuted }]}>
+                                            •
+                                        </ThemedText>
+                                        <ThemedText style={[styles.specItem, { color: colors.text }]}>
+                                            {station.etaMinutes} min ETA
+                                        </ThemedText>
+                                        <ThemedText style={[styles.specDot, { color: colors.textMuted }]}>
+                                            •
+                                        </ThemedText>
+                                        <ThemedText
+                                            style={[styles.specItemBold, { color: colors.primary }]}
+                                        >
+                                            {connector.power} kW DC
+                                        </ThemedText>
+                                    </View>
                                 </View>
                             </View>
 
-                            <View style={styles.stationFooterRow}>
+                            <View
+                                style={[
+                                    styles.stationFooter,
+                                    {
+                                        borderTopColor: colors.cardBorder,
+                                    },
+                                ]}
+                            >
                                 <View>
-                                    <ThemedText style={[styles.stationTagline, { color: colors.textMuted }]}>
-                                        {station.tagline}
+                                    <ThemedText
+                                        style={[styles.tariffLabel, { color: colors.textMuted }]}
+                                    >
+                                        TARIFF
+                                    </ThemedText>
+                                    <ThemedText style={styles.tariffRate}>
+                                        ₹{connector.pricePerKWh.toFixed(2)}
+                                        <ThemedText
+                                            style={[
+                                                styles.tariffUnit,
+                                                { color: colors.textMuted },
+                                            ]}
+                                        >
+                                            /kWh
+                                        </ThemedText>
                                     </ThemedText>
                                 </View>
+
                                 <TouchableOpacity
-                                    style={styles.inlineAction}
+                                    style={[
+                                        styles.stationChargeBtn,
+                                        {
+                                            backgroundColor: colors.primary,
+                                        },
+                                    ]}
+                                    activeOpacity={0.82}
                                     onPress={() =>
                                         navigation.navigate('ChargingSession', {
                                             stationId: station.id,
@@ -283,56 +432,97 @@ export default function DashboardScreen({ navigation }: any) {
                                         })
                                     }
                                 >
-                                    <ThemedText style={{ color: colors.primary }}>
-                                        Start now
+                                    <ThemedText style={styles.stationChargeBtnText}>
+                                        CHARGE NOW
                                     </ThemedText>
-                                    <ArrowRight size={16} color={colors.primary} />
+                                    <ArrowRight size={14} color="#000000" />
                                 </TouchableOpacity>
                             </View>
-                        </NeoCard>
+                        </CredCard>
                     );
                 })}
 
+                {/* ── Smart Automations (Replacing Gamified Rewards) ── */}
                 <View style={styles.sectionHeader}>
-                    <ThemedText type="subtitle">Daily missions</ThemedText>
-                    <ThemedText style={{ color: colors.textMuted }}>
-                        Earn more with small wins
+                    <ThemedText style={styles.sectionTitle}>SMART BATTERY AUTOMATIONS</ThemedText>
+                    <ThemedText style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+                        Hardware protection profiles
                     </ThemedText>
                 </View>
 
-                {missions.map((mission) => (
-                    <NeoCard key={mission.id} style={styles.missionCard}>
-                        <View style={styles.missionTopRow}>
-                            <View>
-                                <ThemedText style={styles.missionTitle}>{mission.title}</ThemedText>
-                                <ThemedText style={{ color: colors.textMuted }}>
-                                    Reward {mission.reward}
+                {automations.map((item) => (
+                    <TouchableOpacity
+                        key={item.id}
+                        activeOpacity={0.85}
+                        onPress={() => toggleAutomation(item.id)}
+                        style={[
+                            styles.automationCard,
+                            {
+                                backgroundColor: colors.surface,
+                                borderColor: item.active ? colors.primary : colors.cardBorder,
+                                borderBottomColor: item.active
+                                    ? '#008F47'
+                                    : isDark
+                                    ? '#060608'
+                                    : '#D0D0D0',
+                                borderBottomWidth: item.active ? 2 : 3.5,
+                                transform: [{ translateY: item.active ? 2 : 0 }],
+                            },
+                        ]}
+                    >
+                        <View style={styles.automationLeft}>
+                            <View style={styles.automationTitleRow}>
+                                <ThemedText style={styles.automationTitle}>
+                                    {item.title}
                                 </ThemedText>
+                                <CredBadge
+                                    label={item.badge}
+                                    variant={item.active ? 'neon' : 'muted'}
+                                />
                             </View>
-                            <View
+                            <ThemedText
                                 style={[
-                                    styles.missionBadge,
-                                    { backgroundColor: colors.surfaceMuted },
+                                    styles.automationDesc,
+                                    { color: colors.textMuted },
                                 ]}
                             >
-                                <Trophy size={14} color={colors.accent} />
-                                <ThemedText style={{ color: colors.accent }}>
-                                    {Math.round(mission.progress * 100)}%
-                                </ThemedText>
-                            </View>
+                                {item.description}
+                            </ThemedText>
                         </View>
-                        <View style={[styles.progressRail, { marginTop: 16 }]}>
+
+                        {/* 3D Tactile Toggle Switch Pod */}
+                        <View
+                            style={[
+                                styles.toggleSwitchPod,
+                                {
+                                    backgroundColor: item.active
+                                        ? colors.primary
+                                        : isDark
+                                        ? '#1E1E24'
+                                        : '#E0E0DC',
+                                    borderColor: item.active
+                                        ? '#008F47'
+                                        : colors.cardBorder,
+                                },
+                            ]}
+                        >
                             <View
                                 style={[
-                                    styles.progressFill,
+                                    styles.toggleKnob,
                                     {
-                                        backgroundColor: colors.primary,
-                                        width: `${mission.progress * 100}%` as `${number}%`,
+                                        backgroundColor: item.active
+                                            ? '#000000'
+                                            : isDark
+                                            ? '#FFFFFF'
+                                            : '#333333',
+                                        alignSelf: item.active
+                                            ? 'flex-end'
+                                            : 'flex-start',
                                     },
                                 ]}
                             />
                         </View>
-                    </NeoCard>
+                    </TouchableOpacity>
                 ))}
             </ScrollView>
         </SafeAreaView>
@@ -345,218 +535,339 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 20,
-        paddingBottom: 140,
+        paddingBottom: 120,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        alignItems: 'center',
+        marginBottom: 18,
     },
     eyebrow: {
-        fontSize: 14,
-        fontWeight: '600',
-        marginBottom: 4,
+        fontSize: 10,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 1.4,
+        marginBottom: 3,
     },
     headerTitle: {
-        maxWidth: 240,
-    },
-    pointsPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        borderRadius: 999,
-        gap: 6,
-    },
-    pointsText: {
-        fontSize: 14,
+        fontSize: 19,
+        fontFamily: 'RedHatDisplay_700Bold',
         fontWeight: '700',
     },
+    statusBeacon: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 999,
+        borderWidth: 1,
+        gap: 6,
+    },
+    beaconDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+    },
+    beaconText: {
+        fontSize: 10,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 1,
+    },
+
+    // ── Hero Battery Card ──
     heroCard: {
-        borderRadius: 30,
-        padding: 24,
-        marginTop: 24,
+        marginBottom: 16,
     },
     heroTopRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: 16,
+        alignItems: 'flex-start',
+        marginBottom: 16,
     },
-    heroContent: {
+    heroMetrics: {
         flex: 1,
     },
-    heroBattery: {
-        marginBottom: 10,
+    cardEyebrow: {
+        fontSize: 10,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 1.2,
+        marginBottom: 4,
     },
-    heroSubtext: {
-        fontSize: 14,
-        lineHeight: 21,
+    socRow: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
     },
-    levelBadge: {
-        width: 130,
-        borderRadius: 24,
-        padding: 16,
-        justifyContent: 'space-between',
+    heroSocNumber: {
+        fontSize: 52,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: -1,
+        lineHeight: 56,
     },
-    levelLabel: {
-        fontSize: 12,
-        fontWeight: '600',
+    heroSocUnit: {
+        fontSize: 24,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        marginLeft: 2,
     },
-    levelTitle: {
-        fontSize: 18,
+    heroRangeText: {
+        fontSize: 13,
+        marginTop: 4,
+    },
+    rangeBold: {
+        fontFamily: 'RedHatDisplay_700Bold',
         fontWeight: '700',
-        marginVertical: 8,
     },
-    levelMeta: {
-        fontSize: 12,
-        lineHeight: 18,
+    telemetryBox: {
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderRadius: 14,
+        borderWidth: 1,
+        alignItems: 'flex-end',
     },
-    progressRail: {
-        height: 8,
+    telemetryItem: {
+        alignItems: 'flex-end',
+    },
+    telemetryDivider: {
+        height: 1,
+        width: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+        marginVertical: 6,
+    },
+    telemetryLabel: {
+        fontSize: 9,
+        fontFamily: 'RedHatDisplay_700Bold',
+        fontWeight: '700',
+        letterSpacing: 0.8,
+    },
+    telemetryVal: {
+        fontSize: 13,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        marginTop: 2,
+    },
+    batteryRailOuter: {
+        height: 10,
         borderRadius: 999,
-        backgroundColor: 'rgba(255, 255, 255, 0.18)',
         overflow: 'hidden',
-        marginTop: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+        marginBottom: 16,
     },
-    progressFill: {
+    batteryRailInner: {
         height: '100%',
         borderRadius: 999,
+        position: 'relative',
     },
-    heroActionRow: {
-        flexDirection: 'row',
-        gap: 12,
-        marginTop: 22,
+    railSpecular: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        backgroundColor: 'rgba(255, 255, 255, 0.4)',
     },
-    heroPrimaryButton: {
-        flex: 1,
+    heroCtaWrap: {
+        marginTop: 4,
     },
-    heroSecondaryButton: {
-        flex: 1,
-        minHeight: 54,
-        borderRadius: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+
+    // ── Telemetry Pods ──
     statsRow: {
         flexDirection: 'row',
-        gap: 12,
-        marginTop: 18,
+        gap: 10,
+        marginBottom: 24,
     },
-    statCard: {
+    tactileStatPod: {
         flex: 1,
-        minHeight: 118,
+        padding: 12,
+        borderRadius: RADIUS.bezelInner,
+        borderWidth: 1,
+        borderBottomWidth: 3,
+        borderBottomColor: '#070709',
     },
-    statValue: {
-        fontSize: 18,
-        fontWeight: '700',
+    podIconHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
     },
-    statLabel: {
-        marginTop: 4,
-        fontSize: 13,
+    podBadgeLabel: {
+        fontSize: 9,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 0.8,
     },
+    podValue: {
+        fontSize: 20,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        marginBottom: 2,
+    },
+    podSublabel: {
+        fontSize: 10,
+        fontFamily: 'RedHatDisplay_500Medium',
+    },
+
+    // ── Section Headers ──
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 28,
         marginBottom: 12,
+        marginTop: 8,
     },
+    sectionTitle: {
+        fontSize: 11,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 1.2,
+        opacity: 0.85,
+    },
+    sectionSubtitle: {
+        fontSize: 11,
+        fontFamily: 'RedHatDisplay_500Medium',
+    },
+    seeAllText: {
+        fontSize: 11,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 0.8,
+    },
+
+    // ── Quick Action Dock ──
     actionGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        justifyContent: 'space-between',
+        marginBottom: 16,
     },
-    actionTile: {
-        width: '48%',
-        borderRadius: 24,
-        padding: 18,
-        minHeight: 150,
-    },
-    actionIconWrap: {
-        width: 42,
-        height: 42,
-        borderRadius: 14,
-        alignItems: 'center',
-        justifyContent: 'center',
+
+    // ── Station Cards ──
+    stationCard: {
         marginBottom: 14,
     },
-    actionTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-    },
-    actionSubtitle: {
-        marginTop: 8,
-        fontSize: 13,
-        lineHeight: 20,
-    },
-    stationCard: {
-        marginBottom: 12,
-    },
     stationTopRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 16,
+        marginBottom: 12,
     },
     stationInfo: {
         flex: 1,
     },
-    stationTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 6,
-    },
-    stationSubtitle: {
-        fontSize: 13,
+    stationTitleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 4,
     },
-    rewardTag: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        borderRadius: 999,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        alignSelf: 'flex-start',
-    },
-    rewardText: {
-        fontSize: 12,
-        fontWeight: '700',
-    },
-    stationFooterRow: {
-        marginTop: 18,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 12,
-    },
-    stationTagline: {
-        fontSize: 13,
-    },
-    inlineAction: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
-    missionCard: {
-        marginBottom: 12,
-    },
-    missionTopRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 12,
-    },
-    missionTitle: {
+    stationName: {
         fontSize: 16,
+        fontFamily: 'RedHatDisplay_700Bold',
         fontWeight: '700',
+        flex: 1,
+        marginRight: 8,
+    },
+    stationAddress: {
+        fontSize: 12,
+        marginBottom: 8,
+    },
+    specsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    specItem: {
+        fontSize: 12,
+        fontFamily: 'RedHatDisplay_600SemiBold',
+    },
+    specDot: {
+        fontSize: 12,
+    },
+    specItemBold: {
+        fontSize: 12,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+    },
+    stationFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingTop: 12,
+        borderTopWidth: 1,
+    },
+    tariffLabel: {
+        fontSize: 9,
+        fontFamily: 'RedHatDisplay_700Bold',
+        letterSpacing: 0.8,
+    },
+    tariffRate: {
+        fontSize: 15,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+    },
+    tariffUnit: {
+        fontSize: 11,
+        fontFamily: 'RedHatDisplay_500Medium',
+    },
+    stationChargeBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 999,
+        borderWidth: 1,
+        borderColor: '#006633',
+    },
+    stationChargeBtnText: {
+        color: '#000000',
+        fontSize: 11,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 0.8,
+    },
+
+    // ── Automations ──
+    automationCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 14,
+        borderRadius: RADIUS.bezelInner,
+        borderWidth: 1.5,
+        marginBottom: 10,
+    },
+    automationLeft: {
+        flex: 1,
+        marginRight: 12,
+    },
+    automationTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
         marginBottom: 4,
     },
-    missionBadge: {
-        flexDirection: 'row',
-        gap: 6,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderRadius: 999,
-        alignItems: 'center',
+    automationTitle: {
+        fontSize: 13,
+        fontFamily: 'RedHatDisplay_700Bold',
+        fontWeight: '700',
+    },
+    automationDesc: {
+        fontSize: 11,
+        lineHeight: 16,
+    },
+    toggleSwitchPod: {
+        width: 44,
+        height: 24,
+        borderRadius: 12,
+        borderWidth: 1.5,
+        padding: 2,
+        justifyContent: 'center',
+    },
+    toggleKnob: {
+        width: 16,
+        height: 16,
+        borderRadius: 8,
     },
 });

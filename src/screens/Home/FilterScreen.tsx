@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, DimensionValue, TextInput } from 'react-native';
-import { ThemedText } from '../../components/ThemedText';
-import { useAppTheme } from '../../hooks/useAppTheme';
-import { FONTS, RADIUS, SHADOWS, SPACING } from '../../constants/Tokens';
+import {
+    Dimensions,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import { MapPin, Zap, Check, ArrowLeft } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
+import { ArrowLeft, ChevronRight, MapPin, Zap } from 'lucide-react-native';
+
 import { Ccs2Icon } from '../../components/Ccs2Icon';
-import { Type2Icon } from '../../components/Type2Icon';
 import { ChademoIcon } from '../../components/ChademoIcon';
+import { CredButton } from '../../components/CredButton';
+import { Neo3DSelectTile } from '../../components/Neo3DSelectTile';
+import { ThemedText } from '../../components/ThemedText';
+import { Type2Icon } from '../../components/Type2Icon';
+import { CRED_BEZEL, RADIUS, SPACING } from '../../constants/Tokens';
+import { useAppTheme } from '../../hooks/useAppTheme';
 
 export type FilterState = {
     chargerTypes: string[];
@@ -35,7 +47,7 @@ const DEFAULT_FILTERS: FilterState = {
 };
 
 export default function FilterScreen() {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const navigation = useNavigation();
     const route = useRoute<RouteProp<RootStackParamList, 'Filter'>>();
     const insets = useSafeAreaInsets();
@@ -44,222 +56,418 @@ export default function FilterScreen() {
         route.params?.initialFilters || DEFAULT_FILTERS
     );
 
-    const toggleSelection = (key: keyof Omit<FilterState, 'tariffRange' | 'peakPower'>, value: string) => {
-        setFilters(prev => {
+    const toggleSelection = (
+        key: keyof Omit<FilterState, 'tariffRange' | 'peakPower'>,
+        value: string
+    ) => {
+        setFilters((prev) => {
             const list = prev[key] as string[];
             if (list.includes(value)) {
-                return { ...prev, [key]: list.filter(item => item !== value) };
+                return { ...prev, [key]: list.filter((item) => item !== value) };
             }
             return { ...prev, [key]: [...list, value] };
         });
     };
 
     const setPeakPower = (value: string) => {
-        setFilters(prev => ({
+        setFilters((prev) => ({
             ...prev,
             peakPower: prev.peakPower === value ? 'Any' : value,
         }));
     };
 
-    const isSelected = (key: keyof Omit<FilterState, 'tariffRange' | 'peakPower'>, value: string) => {
+    const isSelected = (
+        key: keyof Omit<FilterState, 'tariffRange' | 'peakPower'>,
+        value: string
+    ) => {
         return (filters[key] as string[]).includes(value);
     };
 
     const isPeakPowerSelected = (value: string) => filters.peakPower === value;
 
     const handleClear = () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
         setFilters(DEFAULT_FILTERS);
     };
 
     const handleApply = () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        }
         if (route.params?.onApply) {
             route.params.onApply(filters);
         }
         navigation.goBack();
     };
 
-    const renderToggleButton = (key: keyof Omit<FilterState, 'tariffRange' | 'peakPower'>, value: string, label: string, icon?: React.ReactNode, width?: DimensionValue) => {
-        const selected = isSelected(key, value);
-        return (
-            <TouchableOpacity
-                style={[
-                    styles.toggleButton,
-                    { width: width || '48%' },
-                    { backgroundColor: selected ? colors.primarySoft : colors.surface },
-                ]}
-                onPress={() => toggleSelection(key, value)}
-                activeOpacity={0.7}
-            >
-                {icon}
-                <ThemedText style={[styles.toggleText, { color: selected ? colors.primaryStrong : colors.text }]}>
-                    {label}
-                </ThemedText>
-            </TouchableOpacity>
-        );
-    };
-
-    const renderPeakPowerButton = (value: string, label: string) => {
-        const selected = isPeakPowerSelected(value);
-        return (
-            <TouchableOpacity
-                style={[
-                    styles.toggleButton,
-                    { width: '48%' },
-                    { backgroundColor: selected ? colors.primarySoft : colors.surface },
-                ]}
-                onPress={() => setPeakPower(value)}
-                activeOpacity={0.7}
-            >
-                <ThemedText style={[styles.toggleText, { color: selected ? colors.primaryStrong : colors.text }]}>
-                    {label}
-                </ThemedText>
-            </TouchableOpacity>
-        );
-    };
+    const showDC =
+        filters.chargerTypes.length === 0 || filters.chargerTypes.includes('DC');
+    const showAC =
+        filters.chargerTypes.length === 0 || filters.chargerTypes.includes('AC');
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <ArrowLeft size={24} color={colors.text} />
+            {/* Header */}
+            <View
+                style={[
+                    styles.header,
+                    {
+                        paddingTop: Math.max(insets.top, 16),
+                        borderBottomColor: colors.cardBorder,
+                    },
+                ]}
+            >
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={[
+                        styles.backButton,
+                        {
+                            backgroundColor: colors.surface,
+                            borderColor: colors.cardBorder,
+                        },
+                    ]}
+                    activeOpacity={0.7}
+                >
+                    <ArrowLeft size={20} color={colors.text} />
                 </TouchableOpacity>
-                <ThemedText style={styles.headerTitle}>Filter Options</ThemedText>
-                <View style={{ width: 24 }} />
+
+                <View style={styles.headerTitleWrap}>
+                    <ThemedText style={[styles.eyebrow, { color: colors.primary }]}>
+                        HARDWARE FILTERS
+                    </ThemedText>
+                    <ThemedText style={styles.headerTitle}>Filter Options</ThemedText>
+                </View>
+
+                <TouchableOpacity
+                    onPress={handleClear}
+                    style={styles.clearHeaderButton}
+                    activeOpacity={0.7}
+                >
+                    <ThemedText style={[styles.resetText, { color: colors.textMuted }]}>
+                        Reset
+                    </ThemedText>
+                </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
                 {/* Charger Type */}
                 <View style={styles.section}>
-                    <ThemedText style={styles.sectionTitle}>Select Charger Type</ThemedText>
+                    <View style={styles.sectionHeaderRow}>
+                        <ThemedText style={styles.sectionTitle}>CHARGER TYPE</ThemedText>
+                        <ThemedText style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+                            Fast DC or Destination AC
+                        </ThemedText>
+                    </View>
                     <View style={styles.row}>
-                        {renderToggleButton('chargerTypes', 'DC', 'DC Chargers', <MapPin size={16} color={isSelected('chargerTypes', 'DC') ? colors.primaryStrong : colors.text} style={{ marginRight: 6 }} />)}
-                        {renderToggleButton('chargerTypes', 'AC', 'AC Chargers', <MapPin size={16} color={isSelected('chargerTypes', 'AC') ? colors.primaryStrong : colors.text} style={{ marginRight: 6 }} />)}
+                        <Neo3DSelectTile
+                            label="DC Fast Chargers"
+                            sublabel="Up to 350 kW"
+                            width="48%"
+                            isSelected={isSelected('chargerTypes', 'DC')}
+                            onPress={() => toggleSelection('chargerTypes', 'DC')}
+                            icon={
+                                <Zap
+                                    size={20}
+                                    color={
+                                        isSelected('chargerTypes', 'DC')
+                                            ? colors.primary
+                                            : colors.textMuted
+                                    }
+                                />
+                            }
+                        />
+                        <Neo3DSelectTile
+                            label="AC Destination"
+                            sublabel="Up to 22 kW"
+                            width="48%"
+                            isSelected={isSelected('chargerTypes', 'AC')}
+                            onPress={() => toggleSelection('chargerTypes', 'AC')}
+                            icon={
+                                <MapPin
+                                    size={20}
+                                    color={
+                                        isSelected('chargerTypes', 'AC')
+                                            ? colors.primary
+                                            : colors.textMuted
+                                    }
+                                />
+                            }
+                        />
                     </View>
                 </View>
 
                 {/* Connector Type */}
                 <View style={styles.section}>
-                    <ThemedText style={styles.sectionTitle}>Select Connector Type</ThemedText>
+                    <View style={styles.sectionHeaderRow}>
+                        <ThemedText style={styles.sectionTitle}>CONNECTOR INTERFACE</ThemedText>
+                        <ThemedText style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+                            Select matching vehicle port
+                        </ThemedText>
+                    </View>
                     <View style={styles.connectorRow}>
-                        {(() => {
-                            const showDC = filters.chargerTypes.length === 0 || filters.chargerTypes.includes('DC');
-                            const showAC = filters.chargerTypes.length === 0 || filters.chargerTypes.includes('AC');
-                            return (
-                                <>
-                                {showDC && (
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.squareButton,
-                                            { backgroundColor: isSelected('connectorTypes', 'CCS2') ? colors.primarySoft : colors.surface },
-                                        ]}
-                                        onPress={() => toggleSelection('connectorTypes', 'CCS2')}
-                                    >
-                                        <Ccs2Icon size={32} color={isSelected('connectorTypes', 'CCS2') ? colors.primaryStrong : colors.text} />
-                                        <ThemedText style={[styles.squareText, { color: isSelected('connectorTypes', 'CCS2') ? colors.primaryStrong : colors.text }]}>CCS2</ThemedText>
-                                    </TouchableOpacity>
-                                )}
+                        {showDC && (
+                            <Neo3DSelectTile
+                                label="CCS2"
+                                sublabel="Fast DC"
+                                width="31%"
+                                badge="POPULAR"
+                                isSelected={isSelected('connectorTypes', 'CCS2')}
+                                onPress={() => toggleSelection('connectorTypes', 'CCS2')}
+                                icon={
+                                    <Ccs2Icon
+                                        size={32}
+                                        color={
+                                            isSelected('connectorTypes', 'CCS2')
+                                                ? colors.primary
+                                                : colors.textMuted
+                                        }
+                                    />
+                                }
+                            />
+                        )}
 
-                                {showAC && (
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.squareButton,
-                                            { backgroundColor: isSelected('connectorTypes', 'Type II') ? colors.primarySoft : colors.surface },
-                                        ]}
-                                        onPress={() => toggleSelection('connectorTypes', 'Type II')}
-                                    >
-                                        <Type2Icon size={32} color={isSelected('connectorTypes', 'Type II') ? colors.primaryStrong : colors.text} />
-                                        <ThemedText style={[styles.squareText, { color: isSelected('connectorTypes', 'Type II') ? colors.primaryStrong : colors.text }]}>Type II</ThemedText>
-                                    </TouchableOpacity>
-                                )}
+                        {showAC && (
+                            <Neo3DSelectTile
+                                label="Type 2"
+                                sublabel="Standard AC"
+                                width="31%"
+                                isSelected={isSelected('connectorTypes', 'Type II')}
+                                onPress={() => toggleSelection('connectorTypes', 'Type II')}
+                                icon={
+                                    <Type2Icon
+                                        size={32}
+                                        color={
+                                            isSelected('connectorTypes', 'Type II')
+                                                ? colors.primary
+                                                : colors.textMuted
+                                        }
+                                    />
+                                }
+                            />
+                        )}
 
-                                {showDC && (
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.squareButton,
-                                            { backgroundColor: isSelected('connectorTypes', 'CHAdeMo') ? colors.primarySoft : colors.surface },
-                                        ]}
-                                        onPress={() => toggleSelection('connectorTypes', 'CHAdeMo')}
-                                    >
-                                        <ChademoIcon size={32} color={isSelected('connectorTypes', 'CHAdeMo') ? colors.primaryStrong : colors.text} />
-                                        <ThemedText style={[styles.squareText, { color: isSelected('connectorTypes', 'CHAdeMo') ? colors.primaryStrong : colors.text }]}>CHAdeMo</ThemedText>
-                                    </TouchableOpacity>
-                                )}
-                                </>
-                            );
-                        })()}
+                        {showDC && (
+                            <Neo3DSelectTile
+                                label="CHAdeMO"
+                                sublabel="DC Japan"
+                                width="31%"
+                                isSelected={isSelected('connectorTypes', 'CHAdeMo')}
+                                onPress={() => toggleSelection('connectorTypes', 'CHAdeMo')}
+                                icon={
+                                    <ChademoIcon
+                                        size={32}
+                                        color={
+                                            isSelected('connectorTypes', 'CHAdeMo')
+                                                ? colors.primary
+                                                : colors.textMuted
+                                        }
+                                    />
+                                }
+                            />
+                        )}
                     </View>
                 </View>
 
                 {/* Peak Power */}
                 <View style={styles.section}>
-                    <ThemedText style={styles.sectionTitle}>Peak Power</ThemedText>
-                    <View style={styles.row}>
-                        {renderPeakPowerButton('Any', 'Any')}
-                        {renderPeakPowerButton('<22kW', '<22kW')}
+                    <View style={styles.sectionHeaderRow}>
+                        <ThemedText style={styles.sectionTitle}>MINIMUM POWER THRESHOLD</ThemedText>
+                        <ThemedText style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+                            Output rating kW
+                        </ThemedText>
                     </View>
-                    <View style={[styles.row, { marginTop: SPACING.sm }]}>
-                        {renderPeakPowerButton('60kW+', '60kW+')}
-                        {renderPeakPowerButton('120kW+', '120kW+')}
+                    <View style={styles.row}>
+                        <Neo3DSelectTile
+                            label="Any Power"
+                            compact
+                            width="48%"
+                            isSelected={isPeakPowerSelected('Any')}
+                            onPress={() => setPeakPower('Any')}
+                        />
+                        <Neo3DSelectTile
+                            label="< 22 kW"
+                            sublabel="Standard AC"
+                            compact
+                            width="48%"
+                            isSelected={isPeakPowerSelected('<22kW')}
+                            onPress={() => setPeakPower('<22kW')}
+                        />
+                    </View>
+                    <View style={styles.row}>
+                        <Neo3DSelectTile
+                            label="60 kW+"
+                            sublabel="DC Rapid"
+                            compact
+                            width="48%"
+                            isSelected={isPeakPowerSelected('60kW+')}
+                            onPress={() => setPeakPower('60kW+')}
+                        />
+                        <Neo3DSelectTile
+                            label="120 kW+"
+                            sublabel="Ultra Flash"
+                            compact
+                            width="48%"
+                            badge="ULTRA"
+                            isSelected={isPeakPowerSelected('120kW+')}
+                            onPress={() => setPeakPower('120kW+')}
+                        />
                     </View>
                 </View>
 
                 {/* Tariff Range */}
                 <View style={styles.section}>
-                    <ThemedText style={styles.sectionTitle}>Tariff Range</ThemedText>
-                    <View style={{ alignItems: 'center', marginBottom: SPACING.md }}>
-                        <MultiSlider
-                            values={[filters.tariffRange[0], filters.tariffRange[1]]}
-                            sliderLength={SCREEN_WIDTH - SPACING.xl * 2}
-                            onValuesChange={(values) => setFilters({ ...filters, tariffRange: [values[0], values[1]] })}
-                            min={0}
-                            max={50}
-                            step={1}
-                            selectedStyle={{ backgroundColor: colors.primary }}
-                            unselectedStyle={{ backgroundColor: '#E0E0E0' }}
-                            markerStyle={{ backgroundColor: colors.primary, width: 24, height: 24, borderRadius: 12, marginTop: 4 }}
-                            containerStyle={{ height: 40 }}
-                            trackStyle={{ height: 6, borderRadius: 3 }}
-                        />
+                    <View style={styles.sectionHeaderRow}>
+                        <ThemedText style={styles.sectionTitle}>TARIFF RANGE (₹/KWH)</ThemedText>
+                        <ThemedText style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+                            ₹{filters.tariffRange[0]} — ₹{filters.tariffRange[1]} per kWh
+                        </ThemedText>
                     </View>
-                    <View style={styles.row}>
-                        <View style={styles.inputContainer}>
-                            <ThemedText style={styles.inputLabel}>From (₹)</ThemedText>
-                            <TextInput
-                                style={[styles.textInput, { backgroundColor: colors.surface, color: colors.text }]}
-                                keyboardType="numeric"
-                                value={filters.tariffRange[0].toString()}
-                                onChangeText={(text) => {
-                                    const val = parseInt(text) || 0;
-                                    setFilters({ ...filters, tariffRange: [val, filters.tariffRange[1]] });
+
+                    <View
+                        style={[
+                            styles.sliderCard,
+                            {
+                                backgroundColor: colors.surface,
+                                borderColor: colors.cardBorder,
+                            },
+                        ]}
+                    >
+                        <View style={styles.sliderWrap}>
+                            <MultiSlider
+                                values={[filters.tariffRange[0], filters.tariffRange[1]]}
+                                sliderLength={SCREEN_WIDTH - SPACING.xl * 2 - 32}
+                                onValuesChange={(values) =>
+                                    setFilters({
+                                        ...filters,
+                                        tariffRange: [values[0], values[1]],
+                                    })
+                                }
+                                min={0}
+                                max={50}
+                                step={1}
+                                selectedStyle={{ backgroundColor: colors.primary }}
+                                unselectedStyle={{
+                                    backgroundColor: isDark
+                                        ? 'rgba(255, 255, 255, 0.1)'
+                                        : 'rgba(0, 0, 0, 0.1)',
                                 }}
+                                markerStyle={{
+                                    backgroundColor: colors.primary,
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: 11,
+                                    borderWidth: 3,
+                                    borderColor: isDark ? '#0A0A0B' : '#FFFFFF',
+                                }}
+                                containerStyle={{ height: 38 }}
+                                trackStyle={{ height: 6, borderRadius: 3 }}
                             />
                         </View>
-                        <View style={{ width: SPACING.md }} />
-                        <View style={styles.inputContainer}>
-                            <ThemedText style={styles.inputLabel}>To (₹)</ThemedText>
-                            <TextInput
-                                style={[styles.textInput, { backgroundColor: colors.surface, color: colors.text }]}
-                                keyboardType="numeric"
-                                value={filters.tariffRange[1].toString()}
-                                onChangeText={(text) => {
-                                    const val = parseInt(text) || 0;
-                                    setFilters({ ...filters, tariffRange: [filters.tariffRange[0], val] });
-                                }}
-                            />
+
+                        <View style={styles.inputsRow}>
+                            <View style={styles.inputContainer}>
+                                <ThemedText
+                                    style={[styles.inputLabel, { color: colors.textMuted }]}
+                                >
+                                    MIN TARIFF
+                                </ThemedText>
+                                <View
+                                    style={[
+                                        styles.inputBox,
+                                        {
+                                            backgroundColor: isDark ? '#141418' : '#F4F4F2',
+                                            borderColor: colors.cardBorder,
+                                        },
+                                    ]}
+                                >
+                                    <ThemedText
+                                        style={[styles.currencyPrefix, { color: colors.textMuted }]}
+                                    >
+                                        ₹
+                                    </ThemedText>
+                                    <TextInput
+                                        style={[
+                                            styles.textInput,
+                                            { color: colors.text },
+                                        ]}
+                                        keyboardType="numeric"
+                                        value={filters.tariffRange[0].toString()}
+                                        onChangeText={(text) => {
+                                            const val = parseInt(text, 10) || 0;
+                                            setFilters({
+                                                ...filters,
+                                                tariffRange: [val, filters.tariffRange[1]],
+                                            });
+                                        }}
+                                    />
+                                </View>
+                            </View>
+
+                            <View style={{ width: SPACING.md }} />
+
+                            <View style={styles.inputContainer}>
+                                <ThemedText
+                                    style={[styles.inputLabel, { color: colors.textMuted }]}
+                                >
+                                    MAX TARIFF
+                                </ThemedText>
+                                <View
+                                    style={[
+                                        styles.inputBox,
+                                        {
+                                            backgroundColor: isDark ? '#141418' : '#F4F4F2',
+                                            borderColor: colors.cardBorder,
+                                        },
+                                    ]}
+                                >
+                                    <ThemedText
+                                        style={[styles.currencyPrefix, { color: colors.textMuted }]}
+                                    >
+                                        ₹
+                                    </ThemedText>
+                                    <TextInput
+                                        style={[
+                                            styles.textInput,
+                                            { color: colors.text },
+                                        ]}
+                                        keyboardType="numeric"
+                                        value={filters.tariffRange[1].toString()}
+                                        onChangeText={(text) => {
+                                            const val = parseInt(text, 10) || 0;
+                                            setFilters({
+                                                ...filters,
+                                                tariffRange: [filters.tariffRange[0], val],
+                                            });
+                                        }}
+                                    />
+                                </View>
+                            </View>
                         </View>
                     </View>
                 </View>
             </ScrollView>
 
-            <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, SPACING.lg) }]}>
-                <TouchableOpacity onPress={handleClear} style={[styles.clearBtn, { backgroundColor: colors.surfaceMuted }]}>
-                    <ThemedText style={[styles.clearText, { color: colors.primary }]}>Clear</ThemedText>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.applyBtn, { backgroundColor: colors.primary }]} onPress={handleApply}>
-                    <ThemedText style={styles.applyText}>Apply</ThemedText>
-                </TouchableOpacity>
+            {/* Bottom Dock CTA */}
+            <View
+                style={[
+                    styles.footer,
+                    {
+                        paddingBottom: Math.max(insets.bottom, SPACING.md) + 4,
+                        backgroundColor: colors.surface,
+                        borderTopColor: colors.cardBorder,
+                    },
+                ]}
+            >
+                <CredButton
+                    title="APPLY FILTERS"
+                    variant="neon"
+                    onPress={handleApply}
+                />
             </View>
         </View>
     );
@@ -275,37 +483,63 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: SPACING.lg,
         paddingBottom: SPACING.md,
-    },
-    headerTitle: {
-        ...FONTS.h3,
-        fontWeight: '700',
+        borderBottomWidth: 1,
     },
     backButton: {
-        padding: 4,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+    },
+    headerTitleWrap: {
+        alignItems: 'center',
+    },
+    eyebrow: {
+        fontSize: 10,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 1.4,
+        marginBottom: 2,
+    },
+    headerTitle: {
+        fontSize: 17,
+        fontFamily: 'RedHatDisplay_700Bold',
+        fontWeight: '700',
+    },
+    clearHeaderButton: {
+        paddingVertical: 6,
+        paddingHorizontal: 8,
+    },
+    resetText: {
+        fontSize: 13,
+        fontFamily: 'RedHatDisplay_600SemiBold',
+        fontWeight: '600',
     },
     scrollContent: {
         padding: SPACING.lg,
-        paddingBottom: 20,
+        paddingBottom: 40,
     },
     section: {
-        marginBottom: SPACING.md,
+        marginBottom: SPACING.lg,
+    },
+    sectionHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: SPACING.sm,
     },
     sectionTitle: {
-        ...FONTS.body,
-        fontWeight: '700',
-        marginBottom: SPACING.sm,
-        color: '#333333',
+        fontSize: 11,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+        letterSpacing: 1.2,
+        opacity: 0.8,
     },
-    chip: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    chipText: {
-        ...FONTS.caption,
-        fontWeight: '600',
+    sectionSubtitle: {
+        fontSize: 11,
+        fontFamily: 'RedHatDisplay_500Medium',
     },
     row: {
         flexDirection: 'row',
@@ -313,103 +547,55 @@ const styles = StyleSheet.create({
     },
     connectorRow: {
         flexDirection: 'row',
-        justifyContent: 'flex-start',
-        gap: SPACING.md,
+        justifyContent: 'space-between',
+    },
+    sliderCard: {
+        padding: 16,
+        borderRadius: RADIUS.bezelInner,
+        borderWidth: 1,
+        marginTop: 4,
+    },
+    sliderWrap: {
+        alignItems: 'center',
+        marginVertical: 4,
+    },
+    inputsRow: {
+        flexDirection: 'row',
+        marginTop: 8,
     },
     inputContainer: {
         flex: 1,
     },
     inputLabel: {
-        ...FONTS.caption,
-        fontWeight: '600',
-        marginBottom: 8,
+        fontSize: 10,
+        fontFamily: 'RedHatDisplay_700Bold',
+        fontWeight: '700',
+        letterSpacing: 0.8,
+        marginBottom: 6,
+    },
+    inputBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 12,
+        borderWidth: 1,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+    },
+    currencyPrefix: {
+        fontSize: 14,
+        fontFamily: 'RedHatDisplay_700Bold',
+        marginRight: 4,
     },
     textInput: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: RADIUS.button,
-        ...FONTS.body,
-        fontWeight: '600',
-    },
-    toggleButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 10,
-        borderRadius: RADIUS.button,
-    },
-    toggleText: {
-        ...FONTS.caption,
-        fontWeight: '600',
-    },
-    squareButton: {
-        width: '30%',
-        paddingVertical: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: RADIUS.button,
-    },
-    squareText: {
-        ...FONTS.caption,
-        fontWeight: '600',
-        marginTop: 6,
-    },
-    tariffHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-    },
-    tariffBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        borderRadius: 4,
-    },
-    tariffBadgeText: {
-        color: '#FFFFFF',
-        fontWeight: '600',
-        fontSize: 12,
-    },
-    tariffResultBadge: {
-        position: 'absolute',
-        right: 0,
-        top: -10,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        backgroundColor: '#FFFFFF',
+        flex: 1,
+        fontSize: 14,
+        fontFamily: 'RedHatDisplay_700Bold',
+        fontWeight: '700',
+        padding: 0,
     },
     footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         paddingHorizontal: SPACING.lg,
         paddingTop: SPACING.md,
-        backgroundColor: '#FFFFFF',
-    },
-    clearBtn: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 16,
-        marginRight: SPACING.md,
-        borderRadius: RADIUS.button,
-    },
-    clearText: {
-        fontWeight: '700',
-        fontSize: 15,
-    },
-    applyBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 16,
-        borderRadius: RADIUS.button,
-    },
-    applyText: {
-        color: '#FFFFFF',
-        fontWeight: '700',
-        fontSize: 16,
+        borderTopWidth: 1,
     },
 });

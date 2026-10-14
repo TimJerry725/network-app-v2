@@ -16,6 +16,7 @@ import {
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
+import * as Haptics from 'expo-haptics';
 import {
     ArrowLeft,
     ArrowRight,
@@ -1079,29 +1080,48 @@ export default function StationMapScreen({ navigation }: any) {
                             return (
                                 <TouchableOpacity
                                     key={filter.id}
-                                    activeOpacity={0.8}
+                                    activeOpacity={0.82}
                                     style={[
                                         styles.filterChip,
-                                        {
-                                            backgroundColor: isActive ? colors.primary : colors.surface,
-                                        },
+                                        isActive
+                                            ? {
+                                                  backgroundColor: colors.primary,
+                                                  borderColor: '#008F47',
+                                                  borderWidth: 1.5,
+                                                  borderBottomWidth: 1.5,
+                                                  borderBottomColor: '#008F47',
+                                                  transform: [{ translateY: 1.5 }],
+                                              }
+                                            : {
+                                                  backgroundColor: colors.surface,
+                                                  borderColor: colors.cardBorder,
+                                                  borderWidth: 1,
+                                                  borderBottomWidth: 3,
+                                                  borderBottomColor: isDark ? '#070709' : '#D0D0D0',
+                                              },
                                     ]}
                                     onPress={() => {
-                                        setActiveFilter(prev => prev === filter.id ? '' : filter.id);
+                                        if (Platform.OS !== 'web') {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        }
+                                        setActiveFilter((prev) => (prev === filter.id ? '' : filter.id));
                                     }}
                                 >
                                     <FontAwesome6
                                         name={filter.icon}
                                         size={11}
-                                        color={isActive ? '#FFFFFF' : colors.primary}
+                                        color={isActive ? '#000000' : colors.primary}
                                         style={{ marginRight: 6 }}
                                         solid
                                     />
                                     <ThemedText
                                         style={{
-                                            color: isActive ? '#FFFFFF' : colors.text,
-                                            ...FONTS.caption,
-                                            fontWeight: '600',
+                                            color: isActive ? '#000000' : colors.text,
+                                            fontSize: 12,
+                                            fontWeight: isActive ? '800' : '600',
+                                            fontFamily: isActive
+                                                ? 'RedHatDisplay_800ExtraBold'
+                                                : 'RedHatDisplay_600SemiBold',
                                         }}
                                     >
                                         {filter.label}
@@ -1507,14 +1527,32 @@ export default function StationMapScreen({ navigation }: any) {
                                         return (
                                             <TouchableOpacity
                                                 key={item.id}
-                                                activeOpacity={0.75}
+                                                activeOpacity={0.82}
                                                 style={[
                                                     styles.plugFilterCard,
-                                                    {
-                                                        backgroundColor: selected ? colors.primarySoft : (isDark ? colors.surfaceMuted : colors.backgroundAlt),
-                                                    },
+                                                    selected
+                                                        ? {
+                                                              backgroundColor: isDark ? '#141418' : '#F0F0EE',
+                                                              borderColor: colors.primary,
+                                                              borderWidth: 1.5,
+                                                              borderBottomWidth: 2,
+                                                              borderBottomColor: '#008F47',
+                                                              transform: [{ translateY: 2 }],
+                                                          }
+                                                        : {
+                                                              backgroundColor: isDark ? colors.surface : colors.backgroundAlt,
+                                                              borderColor: colors.cardBorder,
+                                                              borderWidth: 1.5,
+                                                              borderBottomWidth: 3.5,
+                                                              borderBottomColor: isDark ? '#060608' : '#D0D0D0',
+                                                          },
                                                 ]}
-                                                onPress={() => toggleConnector(item)}
+                                                onPress={() => {
+                                                    if (Platform.OS !== 'web') {
+                                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                                    }
+                                                    toggleConnector(item);
+                                                }}
                                             >
                                                 {/* Selection Checkmark Badge */}
                                                 <View

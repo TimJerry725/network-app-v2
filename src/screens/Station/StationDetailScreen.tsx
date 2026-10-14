@@ -5,6 +5,7 @@ import {
     Image,
     Linking,
     Modal,
+    Platform,
     ScrollView,
     Share,
     StyleSheet,
@@ -12,6 +13,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 import {
     ChevronLeft,
     Heart,
@@ -357,8 +359,13 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                         return (
                                             <TouchableOpacity
                                                 key={connector.id}
-                                                activeOpacity={0.9}
-                                                onPress={() => setSelectedConnectorId(connector.id)}
+                                                activeOpacity={0.85}
+                                                onPress={() => {
+                                                    if (Platform.OS !== 'web') {
+                                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                                    }
+                                                    setSelectedConnectorId(connector.id);
+                                                }}
                                                 style={[
                                                     styles.connectorWholeCard,
                                                     isSelected
@@ -480,7 +487,17 @@ export default function StationDetailScreen({ route, navigation }: any) {
             </ScrollView>
 
             {/* ── Bottom Floating Bar (Help Support | Get Direction | Wallet Pill) ── */}
-            <View style={[styles.bottomBarWrap, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+            <View
+                style={[
+                    styles.bottomBarWrap,
+                    {
+                        backgroundColor: colors.surface,
+                        borderTopColor: colors.cardBorder,
+                        borderTopWidth: 1,
+                        paddingBottom: Math.max(insets.bottom, 12),
+                    },
+                ]}
+            >
                 {/* 2-CTA Row */}
                 <View style={styles.bottomCtaRow}>
                     <TouchableOpacity
@@ -814,15 +831,24 @@ const styles = StyleSheet.create({
     },
     // Whole Connector Card (Selected wraps both info row + buttons!)
     connectorWholeCard: {
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+        borderRadius: 16,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        marginBottom: 8,
+        borderWidth: 1.5,
     },
     connectorCardSelected: {
-        backgroundColor: '#DCFCE7',
+        backgroundColor: '#16221A',
+        borderColor: '#00E575',
+        borderBottomWidth: 2,
+        borderBottomColor: '#008F47',
+        transform: [{ translateY: 2 }],
     },
     connectorCardUnselected: {
-        backgroundColor: '#F5F7F9',
+        backgroundColor: '#121216',
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+        borderBottomWidth: 3.5,
+        borderBottomColor: '#070709',
     },
     connectorInfoRow: {
         flexDirection: 'row',
