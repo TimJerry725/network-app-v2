@@ -23,7 +23,13 @@ export default function VehicleListScreen() {
             <View
                 style={[
                     styles.sessionCard,
-                    { backgroundColor: isDark ? colors.surfaceMuted : colors.surface },
+                    {
+                        backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
+                        borderWidth: 1,
+                        borderBottomWidth: 2.5,
+                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                    },
                 ]}
             >
                 {/* Top Row: Station Name & Total Amount */}
@@ -62,14 +68,16 @@ export default function VehicleListScreen() {
                         style={[
                             styles.connectorPill,
                             {
-                                backgroundColor: isDark ? 'rgba(34, 197, 94, 0.22)' : '#DCFCE7',
+                                backgroundColor: isDark ? '#1E1E26' : '#F0F0F4',
+                                borderColor: colors.cardBorder,
+                                borderWidth: 1,
                             },
                         ]}
                     >
                         <ThemedText
                             style={[
                                 styles.connectorPillText,
-                                { color: isDark ? '#4ADE80' : '#15803D' },
+                                { color: colors.text, fontFamily: FONT_FAMILIES.bold, fontSize: 10 },
                             ]}
                         >
                             {item.connectorType}

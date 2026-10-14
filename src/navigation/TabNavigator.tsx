@@ -45,8 +45,9 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 style={[
                     styles.barContainer,
                     {
-                        backgroundColor: isDark ? '#0D0D10' : colors.surface,
-                        borderTopColor: colors.cardBorder,
+                        backgroundColor: isDark ? '#0D0D10' : '#FFFFFF',
+                        borderTopColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+                        borderTopWidth: 1.5,
                         paddingBottom: Math.max(10, insets.bottom),
                         height: 70 + Math.max(10, insets.bottom),
                     },

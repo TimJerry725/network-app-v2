@@ -58,7 +58,7 @@ export function Neo3DIcon({
 }: Neo3DIconProps) {
     const { colors, isDark } = useAppTheme();
     const primaryWhite = activeColor ?? (isDark ? '#FFFFFF' : '#000000');
-    const mutedColor = inactiveColor ?? (isDark ? '#8E8E93' : '#6B6B70');
+    const mutedColor = inactiveColor ?? (isDark ? '#8E8E93' : '#55555C');
 
     // Motion animation references
     const pressScale = useRef(new Animated.Value(1)).current;

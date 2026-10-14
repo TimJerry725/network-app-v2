@@ -1,18 +1,19 @@
 import React from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Heart, MapPin, Navigation, Star, Zap } from 'lucide-react-native';
-import { NeoCard } from '../../components/NeoCard';
+import { Heart, MapPin, Star, Zap } from 'lucide-react-native';
+import { CredButton } from '../../components/CredButton';
+import { CredCard } from '../../components/CredCard';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
-import { FONTS, RADIUS, SHADOWS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
 const favoriteStationIds = ['1', '3', '4'];
 
 export default function FavoritesScreen({ navigation }: any) {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const { selectedVehicle } = useVehicles();
 
     const favoriteStations = favoriteStationIds
@@ -32,10 +33,26 @@ export default function FavoritesScreen({ navigation }: any) {
                             Your saved chargers and quick-return stops
                         </ThemedText>
                     </View>
-                    <View style={[styles.headerBadge, { backgroundColor: colors.primarySoft }]}>
-                        <Heart size={16} color={colors.primary} fill={colors.primary} />
-                        <ThemedText style={{ color: colors.primaryStrong, ...FONTS.caption, fontWeight: '700' }}>
-                            {favoriteStations.length}
+                    <View
+                        style={[
+                            styles.headerBadge,
+                            {
+                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
+                                borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                            },
+                        ]}
+                    >
+                        <Heart size={14} color={colors.primary} fill={colors.primary} />
+                        <ThemedText
+                            style={{
+                                color: colors.text,
+                                ...FONTS.caption,
+                                fontFamily: FONT_FAMILIES.bold,
+                                letterSpacing: 0.5,
+                            }}
+                        >
+                            {favoriteStations.length} SAVED
                         </ThemedText>
                     </View>
                 </View>
@@ -47,7 +64,7 @@ export default function FavoritesScreen({ navigation }: any) {
                     );
 
                     return (
-                        <NeoCard key={station.id} gradientBorder style={styles.card}>
+                        <CredCard key={station.id} variant="default" style={styles.card}>
                             <View style={styles.cardHeader}>
                                 <View style={styles.stationInfo}>
                                     <ThemedText style={styles.stationName}>{station.name}</ThemedText>
@@ -60,14 +77,23 @@ export default function FavoritesScreen({ navigation }: any) {
                                     <View style={styles.metaRow}>
                                         <Zap size={14} color={colors.primary} />
                                         <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                                            {connector.type} • {connector.power} kW • $
+                                            {connector.type} • {connector.power} kW • ₹
                                             {connector.pricePerKWh.toFixed(2)}/kWh
                                         </ThemedText>
                                     </View>
                                 </View>
-                                <View style={[styles.ratingBadge, { backgroundColor: colors.surfaceMuted }]}>
-                                    <Star size={14} color={colors.accent} fill={colors.accent} />
-                                    <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
+                                <View
+                                    style={[
+                                        styles.ratingBadge,
+                                        {
+                                            backgroundColor: isDark ? '#141418' : '#F4F4F6',
+                                            borderColor: colors.cardBorder,
+                                            borderWidth: 1,
+                                        },
+                                    ]}
+                                >
+                                    <Star size={13} color={colors.text} fill={colors.text} />
+                                    <ThemedText style={{ color: colors.text, ...FONTS.caption, fontWeight: '700' }}>
                                         {station.rating.toFixed(1)}
                                     </ThemedText>
                                 </View>
@@ -78,35 +104,27 @@ export default function FavoritesScreen({ navigation }: any) {
                             </ThemedText>
 
                             <View style={styles.actionRow}>
-                                <TouchableOpacity
-                                    style={[
-                                        styles.secondaryAction,
-                                        {
-                                            backgroundColor: colors.surface,
-                                        },
-                                    ]}
+                                <CredButton
+                                    title="DETAILS"
+                                    variant="outline"
+                                    containerStyle={{ flex: 1 }}
                                     onPress={() =>
                                         navigation.navigate('StationDetails', { stationId: station.id })
                                     }
-                                >
-                                    <ThemedText style={{ color: colors.primaryStrong, ...FONTS.bodyStrong }}>
-                                        Details
-                                    </ThemedText>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.primaryAction, { backgroundColor: colors.primary }]}
+                                />
+                                <CredButton
+                                    title="CHARGE"
+                                    variant="neon"
+                                    containerStyle={{ flex: 1 }}
                                     onPress={() =>
                                         navigation.navigate('ChargingSession', {
                                             stationId: station.id,
                                             connectorId: connector.id,
                                         })
                                     }
-                                >
-                                    <Navigation size={16} color="#FFFFFF" />
-                                    <ThemedText style={styles.primaryLabel}>Go</ThemedText>
-                                </TouchableOpacity>
+                                />
                             </View>
-                        </NeoCard>
+                        </CredCard>
                     );
                 })}
             </ScrollView>

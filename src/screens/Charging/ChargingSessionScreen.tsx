@@ -246,7 +246,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 totalEnergy: receipt.energyDeliveredKwh,
                 totalTime: Math.max(1, Math.floor(elapsedSecondsTotal / 60)),
                 cost: receipt.totalAmountPaid,
-                earnedPoints: Math.round(deliveredKwh * 3 + 20),
                 endingSoc: receipt.endSoc,
             });
         }

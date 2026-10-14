@@ -8,20 +8,23 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Zap } from 'lucide-react-native';
-import { GradientButton } from '../../components/GradientButton';
-import { NeoCard } from '../../components/NeoCard';
+import * as Haptics from 'expo-haptics';
+import { Zap, ShieldCheck } from 'lucide-react-native';
+import { CredButton } from '../../components/CredButton';
+import { CredCard } from '../../components/CredCard';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
-import { FONTS, RADIUS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
 
 export default function LoginScreen({ navigation }: any) {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleContinue = () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        }
         navigation.replace('Main', {
             screen: 'Map',
             params: { showGracePeriod: true },
@@ -30,11 +33,6 @@ export default function LoginScreen({ navigation }: any) {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <LinearGradient
-                colors={colors.heroGradient}
-                style={StyleSheet.absoluteFill}
-                pointerEvents="none"
-            />
             <SafeAreaView style={styles.safeArea}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -45,25 +43,48 @@ export default function LoginScreen({ navigation }: any) {
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
-                        <NeoCard gradientBorder style={styles.loginCard}>
-                            <View style={[styles.logoWrap, { backgroundColor: colors.primarySoft }]}>
-                                <Zap size={30} color={colors.primary} />
+                        {/* Header Branding */}
+                        <View style={styles.brandHeader}>
+                            <View
+                                style={[
+                                    styles.logoWrap,
+                                    {
+                                        backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                        borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)',
+                                        borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                    },
+                                ]}
+                            >
+                                <Zap size={28} color={isDark ? '#FFFFFF' : '#121214'} strokeWidth={2.5} />
+                            </View>
+                            <ThemedText style={[styles.brandTitle, { color: colors.text }]}>
+                                IRIS NETWORK
+                            </ThemedText>
+                            <ThemedText style={[styles.brandSubtitle, { color: colors.textMuted }]}>
+                                SECURE EV CHARGING PROTOCOL
+                            </ThemedText>
+                        </View>
+
+                        <CredCard variant="default" style={styles.loginCard}>
+                            <View style={styles.cardHeaderRow}>
+                                <ShieldCheck size={16} color={colors.primary} />
+                                <ThemedText style={[styles.cardHeaderTitle, { color: colors.text }]}>
+                                    DRIVER AUTHENTICATION
+                                </ThemedText>
                             </View>
 
-                            <ThemedText type="subtitle" style={styles.title}>
-                                Login
-                            </ThemedText>
-
-                            {/* NeonInput-style email field */}
+                            {/* Email input field */}
                             <View style={styles.inputGroup}>
-                                <ThemedText type="label" style={[styles.inputLabel, { color: colors.textMuted }]}>
-                                    EMAIL
+                                <ThemedText style={[styles.inputLabel, { color: colors.textMuted }]}>
+                                    REGISTERED EMAIL
                                 </ThemedText>
                                 <View
                                     style={[
                                         styles.inputWrap,
                                         {
-                                            backgroundColor: colors.inputBackground,
+                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                                            borderBottomColor: isDark ? '#08080C' : '#D0D0D8',
                                         },
                                     ]}
                                 >
@@ -71,7 +92,7 @@ export default function LoginScreen({ navigation }: any) {
                                         style={[styles.input, { color: colors.text }]}
                                         value={email}
                                         onChangeText={setEmail}
-                                        placeholder="Enter your email"
+                                        placeholder="driver@irisnetwork.in"
                                         placeholderTextColor={colors.textSoft}
                                         autoCapitalize="none"
                                         keyboardType="email-address"
@@ -80,16 +101,18 @@ export default function LoginScreen({ navigation }: any) {
                                 </View>
                             </View>
 
-                            {/* NeonInput-style password field */}
+                            {/* Password input field */}
                             <View style={styles.inputGroup}>
-                                <ThemedText type="label" style={[styles.inputLabel, { color: colors.textMuted }]}>
-                                    PASSWORD
+                                <ThemedText style={[styles.inputLabel, { color: colors.textMuted }]}>
+                                    ACCESS KEY
                                 </ThemedText>
                                 <View
                                     style={[
                                         styles.inputWrap,
                                         {
-                                            backgroundColor: colors.inputBackground,
+                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                                            borderBottomColor: isDark ? '#08080C' : '#D0D0D8',
                                         },
                                     ]}
                                 >
@@ -97,7 +120,7 @@ export default function LoginScreen({ navigation }: any) {
                                         style={[styles.input, { color: colors.text }]}
                                         value={password}
                                         onChangeText={setPassword}
-                                        placeholder="Enter your password"
+                                        placeholder="••••••••••••"
                                         placeholderTextColor={colors.textSoft}
                                         secureTextEntry
                                         returnKeyType="done"
@@ -105,12 +128,13 @@ export default function LoginScreen({ navigation }: any) {
                                 </View>
                             </View>
 
-                            <GradientButton
-                                title="Login"
-                                style={styles.loginButton}
+                            <CredButton
+                                title="AUTHENTICATE & ENTER"
+                                variant="neon"
+                                containerStyle={styles.loginButton}
                                 onPress={handleContinue}
                             />
-                        </NeoCard>
+                        </CredCard>
                     </ScrollView>
                 </KeyboardAvoidingView>
             </SafeAreaView>
@@ -133,37 +157,67 @@ const styles = StyleSheet.create({
         padding: SPACING.lg,
         justifyContent: 'center',
     },
-    loginCard: {
-        paddingTop: 28,
+    brandHeader: {
+        alignItems: 'center',
+        marginBottom: 28,
     },
     logoWrap: {
-        width: 64,
-        height: 64,
+        width: 68,
+        height: 68,
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        alignSelf: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3.5,
+        marginBottom: 16,
     },
-    title: {
-        textAlign: 'center',
-        marginTop: 18,
-        marginBottom: 22,
+    brandTitle: {
+        fontFamily: FONT_FAMILIES.bold,
+        fontSize: 22,
+        letterSpacing: 2,
+        textTransform: 'uppercase',
+    },
+    brandSubtitle: {
+        fontFamily: FONT_FAMILIES.semiBold,
+        fontSize: 10,
+        letterSpacing: 1.5,
+        marginTop: 4,
+    },
+    loginCard: {
+        paddingTop: SPACING.md,
+    },
+    cardHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 20,
+    },
+    cardHeaderTitle: {
+        fontFamily: FONT_FAMILIES.bold,
+        fontSize: 11,
+        letterSpacing: 1.5,
     },
     inputGroup: {
-        marginBottom: 14,
+        marginBottom: 18,
     },
     inputLabel: {
-        marginBottom: 6,
-        marginLeft: 4,
+        fontFamily: FONT_FAMILIES.bold,
+        fontSize: 10,
+        letterSpacing: 1.2,
+        marginBottom: 8,
+        marginLeft: 2,
     },
     inputWrap: {
         borderRadius: RADIUS.input,
-        minHeight: 56,
+        minHeight: 52,
         justifyContent: 'center',
         paddingHorizontal: SPACING.md,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     input: {
-        ...FONTS.body,
+        fontFamily: FONT_FAMILIES.medium,
+        fontSize: 14,
     },
     loginButton: {
         marginTop: SPACING.sm,

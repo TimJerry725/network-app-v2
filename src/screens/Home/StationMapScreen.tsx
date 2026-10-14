@@ -43,7 +43,6 @@ import {
     User,
     Filter,
 } from 'lucide-react-native';
-import { GradientButton } from '../../components/GradientButton';
 import { ThemedText } from '../../components/ThemedText';
 import { DcPinIcon } from '../../components/DcPinIcon';
 import { CarPinIcon } from '../../components/CarPinIcon';
@@ -1041,7 +1040,9 @@ export default function StationMapScreen({ navigation }: any) {
                         style={[
                             styles.searchBarWrapper,
                             {
-                                backgroundColor: colors.surface,
+                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
+                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
                             },
                         ]}
                     >
@@ -1174,18 +1175,32 @@ export default function StationMapScreen({ navigation }: any) {
                         <TouchableOpacity
                             style={[
                                 styles.floatingActionButton,
-                                { backgroundColor: colors.surface }
+                                {
+                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
+                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                },
                             ]}
-                            onPress={handleLocateMe}
+                            activeOpacity={0.82}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                handleLocateMe();
+                            }}
                         >
-                            <Navigation size={20} color={colors.text} fill={colors.text} />
+                            <Navigation size={18} color={colors.text} fill={colors.text} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[
                                 styles.floatingActionButton,
-                                { backgroundColor: colors.surface }
+                                {
+                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
+                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                },
                             ]}
+                            activeOpacity={0.82}
                             onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                 setTempFilterCriteria({ ...filterCriteria });
                                 setIsFilterSheetVisible(true);
                             }}
@@ -1195,18 +1210,34 @@ export default function StationMapScreen({ navigation }: any) {
                         <TouchableOpacity
                             style={[
                                 styles.floatingActionButton,
-                                { backgroundColor: colors.surface }
+                                {
+                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
+                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                },
                             ]}
-                            onPress={() => {}}
+                            activeOpacity={0.82}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            }}
                         >
-                            <Bell size={20} color={colors.text} fill={colors.text} />
+                            <Bell size={18} color={colors.text} fill={colors.text} />
                         </TouchableOpacity>
                     </View>
                         <View style={styles.sheetHeader}>
-                            <View style={[styles.countBadge, { backgroundColor: colors.primarySoft }]}>
+                            <View
+                                style={[
+                                    styles.countBadge,
+                                    {
+                                        backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
+                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                    },
+                                ]}
+                            >
                                 <MapPinned size={14} color={colors.primary} />
-                                <ThemedText style={{ color: colors.primaryStrong, ...FONTS.caption, fontWeight: '700' }}>
-                                    {nearbyStations.length}
+                                <ThemedText style={{ color: colors.text, ...FONTS.caption, fontFamily: FONT_FAMILIES.bold, letterSpacing: 0.8 }}>
+                                    {nearbyStations.length} STATIONS NEARBY
                                 </ThemedText>
                             </View>
                         </View>
@@ -1231,13 +1262,27 @@ export default function StationMapScreen({ navigation }: any) {
                                         activeOpacity={0.85}
                                         style={[
                                             styles.stationRow,
-                                            {
-                                                backgroundColor: isSelected
-                                                    ? (isDark ? '#1C1C22' : '#EBEBEF')
-                                                    : colors.surface,
-                                            },
+                                            isSelected
+                                                ? {
+                                                      backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                      borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                      borderWidth: 1.5,
+                                                      borderBottomWidth: 4,
+                                                      borderBottomColor: isDark ? '#A0A0A8' : '#000000',
+                                                      transform: [{ translateY: -1 }],
+                                                  }
+                                                : {
+                                                      backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
+                                                      borderWidth: 1,
+                                                      borderBottomWidth: 2.5,
+                                                      borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                                  },
                                         ]}
                                         onPress={() => {
+                                            if (Platform.OS !== 'web') {
+                                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                            }
                                             handleSelectStation(station, {
                                                 openSheet: true,
                                             });
@@ -1361,14 +1406,24 @@ export default function StationMapScreen({ navigation }: any) {
                                 <View style={styles.filterSheetHeader}>
                                     <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>Filter</ThemedText>
                                     <TouchableOpacity
-                                        style={[styles.filterSaveBtn, { backgroundColor: colors.primary }]}
+                                        style={[
+                                            styles.filterSaveBtn,
+                                            {
+                                                backgroundColor: colors.primary,
+                                                borderColor: colors.primary,
+                                                borderBottomColor: isDark ? '#A0A0A8' : '#222228',
+                                            },
+                                        ]}
                                         activeOpacity={0.8}
                                         onPress={() => {
+                                            if (Platform.OS !== 'web') {
+                                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                                            }
                                             setFilterCriteria({ ...tempFilterCriteria });
                                             setIsFilterSheetVisible(false);
                                         }}
                                     >
-                                        <ThemedText style={[styles.filterSaveBtnText, { color: '#FFFFFF' }]}>Save</ThemedText>
+                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>Save</ThemedText>
                                     </TouchableOpacity>
                                 </View>
 
@@ -1749,10 +1804,12 @@ const styles = StyleSheet.create({
     },
     searchBarWrapper: {
         height: 52,
-        borderRadius: 26,
+        borderRadius: 20,
         paddingHorizontal: SPACING.md,
         flexDirection: 'row',
         alignItems: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3.5,
     },
     searchInput: {
         flex: 1,
@@ -1827,6 +1884,8 @@ const styles = StyleSheet.create({
         borderRadius: 22,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     bottomOverlay: {
         position: 'absolute',
@@ -1856,6 +1915,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
+        borderWidth: 1,
+        borderBottomWidth: 2,
     },
     listContent: {
         paddingLeft: 20,
@@ -1865,9 +1926,9 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     stationRow: {
-        width: 240,
-        borderRadius: RADIUS.cardLg,
-        padding: 12,
+        width: 250,
+        borderRadius: RADIUS.card,
+        padding: 14,
     },
     stationRowTop: {
         flexDirection: 'row',
@@ -2171,6 +2232,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 8,
         borderRadius: RADIUS.button,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     filterSaveBtnText: {
         fontSize: 14,

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 import {
     ChevronLeft,
     Moon,
@@ -12,18 +13,17 @@ import {
     Shield,
     PhoneCall,
     Info,
-    Sparkles,
     Accessibility,
 } from 'lucide-react-native';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
-import { NeoCard } from '../../components/NeoCard';
-import { GradientButton } from '../../components/GradientButton';
-import { FONTS, SPACING, SHADOWS, RADIUS } from '../../constants/Tokens';
+import { CredCard } from '../../components/CredCard';
+import { CredButton } from '../../components/CredButton';
+import { FONT_FAMILIES, FONTS, SPACING, SHADOWS, RADIUS } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 
 export default function ProfileScreen() {
-    const { colors, theme, setTheme } = useAppTheme();
+    const { colors, theme, setTheme, isDark } = useAppTheme();
     const { user, topUpWallet, toggleSeniorMode } = useVehicles();
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
@@ -31,6 +31,7 @@ export default function ProfileScreen() {
     const [topUpAmount, setTopUpAmount] = useState('500');
 
     const handleThemeToggle = () => {
+        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setTheme(theme === 'dark' ? 'light' : 'dark');
     };
 
@@ -40,6 +41,7 @@ export default function ProfileScreen() {
             Alert.alert('Invalid amount', 'Please enter a valid amount to recharge your wallet.');
             return;
         }
+        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         topUpWallet(val);
         Alert.alert('Wallet Recharged', `₹${val.toFixed(2)} added to your Iris EV Wallet successfully.`);
     };
@@ -57,7 +59,7 @@ export default function ProfileScreen() {
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* User Card */}
-                <NeoCard gradientBorder style={styles.profileCard}>
+                <CredCard variant="default" style={styles.profileCard}>
                     <View style={styles.userTopRow}>
                         <View style={[styles.avatar, { backgroundColor: colors.primarySoft }]}>
                             <User size={28} color={colors.primary} />
@@ -89,10 +91,10 @@ export default function ProfileScreen() {
                             {user.rfidTag}
                         </ThemedText>
                     </View>
-                </NeoCard>
+                </CredCard>
 
                 {/* Iris EV Wallet Balance Card */}
-                <NeoCard style={styles.walletCard}>
+                <CredCard variant="recessed" style={styles.walletCard}>
                     <View style={styles.walletHeader}>
                         <View style={styles.walletTitleRow}>
                             <Wallet size={20} color={colors.primary} />
@@ -107,31 +109,58 @@ export default function ProfileScreen() {
                     </ThemedText>
 
                     <View style={styles.topUpRow}>
-                        {['200', '500', '1000'].map((amt) => (
-                            <TouchableOpacity
-                                key={amt}
-                                style={[
-                                    styles.quickTopUpPill,
-                                    { backgroundColor: colors.surfaceMuted },
-                                ]}
-                                onPress={() => setTopUpAmount(amt)}
-                            >
-                                <ThemedText style={{ color: colors.text, ...FONTS.caption, fontWeight: '700' }}>
-                                    +₹{amt}
-                                </ThemedText>
-                            </TouchableOpacity>
-                        ))}
+                        {['200', '500', '1000'].map((amt) => {
+                            const isSelected = topUpAmount === amt;
+                            return (
+                                <TouchableOpacity
+                                    key={amt}
+                                    style={[
+                                        styles.quickTopUpPill,
+                                        isSelected
+                                            ? {
+                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                  borderWidth: 1.5,
+                                                  borderBottomWidth: 3,
+                                                  borderBottomColor: isDark ? '#A0A0A8' : '#222228',
+                                              }
+                                            : {
+                                                  backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
+                                                  borderWidth: 1,
+                                                  borderBottomWidth: 2,
+                                                  borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                              },
+                                    ]}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setTopUpAmount(amt);
+                                    }}
+                                >
+                                    <ThemedText
+                                        style={{
+                                            color: isSelected ? (isDark ? '#000000' : '#FFFFFF') : colors.text,
+                                            ...FONTS.caption,
+                                            fontWeight: '800',
+                                        }}
+                                    >
+                                        +₹{amt}
+                                    </ThemedText>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
 
-                    <GradientButton
-                        title={`Quick Add ₹${topUpAmount} to Wallet`}
-                        style={{ marginTop: 12 }}
+                    <CredButton
+                        title={`ADD ₹${topUpAmount} TO WALLET`}
+                        variant="neon"
+                        containerStyle={{ marginTop: 14 }}
                         onPress={handleTopUp}
                     />
-                </NeoCard>
+                </CredCard>
 
                 {/* Accessibility & Preferences */}
-                <View style={[styles.section, { backgroundColor: colors.surface }]}>
+                <CredCard variant="default" style={styles.section}>
                     <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
                         Display & Accessibility
                     </ThemedText>
@@ -156,7 +185,11 @@ export default function ProfileScreen() {
                         <TouchableOpacity
                             style={[
                                 styles.toggleContainer,
-                                { backgroundColor: theme === 'dark' ? colors.primary : colors.surfaceMuted },
+                                {
+                                    backgroundColor: theme === 'dark' ? colors.primary : colors.surfaceMuted,
+                                    borderWidth: 1,
+                                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                                },
                             ]}
                             onPress={handleThemeToggle}
                             activeOpacity={0.8}
@@ -189,7 +222,11 @@ export default function ProfileScreen() {
                         <TouchableOpacity
                             style={[
                                 styles.toggleContainer,
-                                { backgroundColor: user.isSeniorMode ? colors.primary : colors.surfaceMuted },
+                                {
+                                    backgroundColor: user.isSeniorMode ? colors.primary : colors.surfaceMuted,
+                                    borderWidth: 1,
+                                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                                },
                             ]}
                             onPress={toggleSeniorMode}
                             activeOpacity={0.8}
@@ -205,10 +242,10 @@ export default function ProfileScreen() {
                             />
                         </TouchableOpacity>
                     </View>
-                </View>
+                </CredCard>
 
                 {/* 24/7 Driver Support Card */}
-                <NeoCard style={styles.supportCard}>
+                <CredCard variant="default" style={styles.supportCard}>
                     <View style={styles.supportRow}>
                         <PhoneCall size={20} color={colors.primary} />
                         <View style={{ flex: 1 }}>
@@ -218,7 +255,7 @@ export default function ProfileScreen() {
                             </ThemedText>
                         </View>
                     </View>
-                </NeoCard>
+                </CredCard>
             </ScrollView>
         </View>
     );
@@ -305,8 +342,6 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.input,
     },
     section: {
-        borderRadius: RADIUS.card,
-        padding: SPACING.md,
         marginBottom: SPACING.md,
     },
     sectionTitle: {
@@ -341,7 +376,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
     },
     supportCard: {
-        padding: SPACING.md,
+        marginBottom: SPACING.md,
     },
     supportRow: {
         flexDirection: 'row',

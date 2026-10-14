@@ -6,14 +6,13 @@ import {
     ScrollView,
     StyleSheet,
     TextInput,
-    TouchableOpacity,
     View,
 } from 'react-native';
 import { CameraView, Camera } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScanLine, ShieldCheck, Sparkles } from 'lucide-react-native';
-import { GradientButton } from '../../components/GradientButton';
-import { NeoCard } from '../../components/NeoCard';
+import { ScanLine, ShieldCheck, Zap } from 'lucide-react-native';
+import { CredButton } from '../../components/CredButton';
+import { CredCard } from '../../components/CredCard';
 import { ThemedText } from '../../components/ThemedText';
 import {
     MOCK_STATIONS,
@@ -21,12 +20,12 @@ import {
     getRecommendedConnector,
     getStationById,
 } from '../../constants/Stations';
-import { FONTS, RADIUS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
 export default function ScanScreen({ navigation, route }: any) {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const { selectedVehicle } = useVehicles();
     const preselectedStation = getStationById(route.params?.stationId);
     const preselectedMatch = findStationByConnector(route.params?.connectorId);
@@ -107,15 +106,32 @@ export default function ScanScreen({ navigation, route }: any) {
                                 Start with the best connector or scan when needed
                             </ThemedText>
                         </View>
-                        <View style={[styles.headerBadge, { backgroundColor: colors.primarySoft }]}>
-                            <Sparkles size={16} color={colors.primary} />
-                            <ThemedText style={{ color: colors.primaryStrong, ...FONTS.caption, fontWeight: '700' }}>
-                                +{initialStation.rewardBoost} pts
+                        <View
+                            style={[
+                                styles.headerBadge,
+                                {
+                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
+                                    borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                },
+                            ]}
+                        >
+                            <Zap size={13} color={colors.primary} fill={colors.primary} />
+                            <ThemedText
+                                style={{
+                                    color: colors.text,
+                                    fontSize: 10,
+                                    fontWeight: '800',
+                                    fontFamily: FONT_FAMILIES.sansExtraBold,
+                                    letterSpacing: 0.8,
+                                }}
+                            >
+                                FAST CHARGE READY
                             </ThemedText>
                         </View>
                     </View>
 
-                    <NeoCard gradientBorder style={styles.recommendedCard}>
+                    <CredCard variant="default" style={styles.recommendedCard}>
                         <ThemedText type="label" style={{ color: colors.textMuted }}>
                             Suggested for {selectedVehicle?.nickname ?? 'your EV'}
                         </ThemedText>
@@ -125,23 +141,24 @@ export default function ScanScreen({ navigation, route }: any) {
                             ₹{suggestedConnector.pricePerKWh.toFixed(2)}/kWh
                         </ThemedText>
                         <View style={styles.cardMetaRow}>
-                            <View style={[styles.metaPill, { backgroundColor: colors.surfaceMuted }]}>
+                            <View style={[styles.metaPill, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.backgroundAlt }]}>
                                 <ShieldCheck size={14} color={colors.primary} />
                                 <ThemedText style={FONTS.caption}>Vehicle matched</ThemedText>
                             </View>
-                            <View style={[styles.metaPill, { backgroundColor: colors.surfaceMuted }]}>
+                            <View style={[styles.metaPill, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.backgroundAlt }]}>
                                 <ScanLine size={14} color={colors.primary} />
                                 <ThemedText style={FONTS.caption}>Manual QR optional</ThemedText>
                             </View>
                         </View>
-                        <GradientButton
-                            title="Start smart charge"
-                            style={{ marginTop: 18 }}
+                        <CredButton
+                            title="START SMART CHARGE"
+                            variant="neon"
+                            containerStyle={{ marginTop: 18 }}
                             onPress={() => startSession(suggestedConnector.id)}
                         />
-                    </NeoCard>
+                    </CredCard>
 
-                    <NeoCard style={styles.manualCard}>
+                    <CredCard variant="recessed" style={styles.manualCard}>
                         <ThemedText style={styles.cardTitle}>Use charger code</ThemedText>
                         <ThemedText style={{ color: colors.textMuted, marginTop: 6, ...FONTS.body }}>
                             Enter or scan the code from the connector to start manually
@@ -150,7 +167,9 @@ export default function ScanScreen({ navigation, route }: any) {
                             style={[
                                 styles.codeInputWrap,
                                 {
-                                    backgroundColor: colors.inputBackground,
+                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
+                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
                                 },
                             ]}
                         >
@@ -165,25 +184,26 @@ export default function ScanScreen({ navigation, route }: any) {
                             />
                         </View>
                         <View style={styles.buttonRow}>
-                            <GradientButton
-                                title="Start with code"
-                                style={styles.flexButton}
+                            <CredButton
+                                title="START WITH CODE"
+                                variant="neon"
+                                containerStyle={styles.flexButton}
                                 onPress={() => startSession()}
                             />
-                            <GradientButton
-                                title={scannerOpen ? 'Close scanner' : 'Open scanner'}
-                                variant="secondary"
-                                style={styles.flexButton}
+                            <CredButton
+                                title={scannerOpen ? 'CLOSE SCANNER' : 'OPEN SCANNER'}
+                                variant="outline"
+                                containerStyle={styles.flexButton}
                                 onPress={() => {
                                     setScanned(false);
                                     setScannerOpen((current) => !current);
                                 }}
                             />
                         </View>
-                    </NeoCard>
+                    </CredCard>
 
                     {scannerOpen && (
-                        <NeoCard style={styles.scannerCard}>
+                        <CredCard variant="default" style={styles.scannerCard}>
                             <ThemedText style={styles.cardTitle}>Scan QR code</ThemedText>
                             <ThemedText style={{ color: colors.textMuted, marginTop: 6, ...FONTS.body }}>
                                 Keep the charger QR inside the frame
@@ -214,19 +234,14 @@ export default function ScanScreen({ navigation, route }: any) {
                             </View>
 
                             {scanned && (
-                                <TouchableOpacity
-                                    style={[
-                                        styles.scanAgainButton,
-                                        { backgroundColor: colors.surfaceMuted },
-                                    ]}
+                                <CredButton
+                                    title="SCAN AGAIN"
+                                    variant="outline"
+                                    containerStyle={{ marginTop: SPACING.md }}
                                     onPress={() => setScanned(false)}
-                                >
-                                    <ThemedText style={{ color: colors.primaryStrong, ...FONTS.bodyStrong }}>
-                                        Scan again
-                                    </ThemedText>
-                                </TouchableOpacity>
+                                />
                             )}
-                        </NeoCard>
+                        </CredCard>
                     )}
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -286,6 +301,8 @@ const styles = StyleSheet.create({
         minHeight: 56,
         justifyContent: 'center',
         paddingHorizontal: SPACING.md,
+        borderWidth: 1.5,
+        borderBottomWidth: 3.5,
     },
     codeInput: {
         ...FONTS.h3,
