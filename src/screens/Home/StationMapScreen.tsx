@@ -1391,7 +1391,8 @@ export default function StationMapScreen({ navigation }: any) {
                         style={[
                             styles.filterSheetContainer,
                             {
-                                backgroundColor: colors.surface,
+                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
                                 maxHeight: filterSheetView === 'brands' ? '90%' : filterSheetView === 'plugs' ? '82%' : undefined,
                                 paddingBottom: Math.max(insets.bottom, 24),
                             },
@@ -1404,17 +1405,19 @@ export default function StationMapScreen({ navigation }: any) {
                             <>
                                 {/* Sheet Header: Filter title & Save button */}
                                 <View style={styles.filterSheetHeader}>
-                                    <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>Filter</ThemedText>
+                                    <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>
+                                        Filter
+                                    </ThemedText>
                                     <TouchableOpacity
                                         style={[
                                             styles.filterSaveBtn,
                                             {
-                                                backgroundColor: colors.primary,
-                                                borderColor: colors.primary,
-                                                borderBottomColor: isDark ? '#A0A0A8' : '#222228',
+                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
                                             },
                                         ]}
-                                        activeOpacity={0.8}
+                                        activeOpacity={0.82}
                                         onPress={() => {
                                             if (Platform.OS !== 'web') {
                                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -1423,17 +1426,30 @@ export default function StationMapScreen({ navigation }: any) {
                                             setIsFilterSheetVisible(false);
                                         }}
                                     >
-                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>Save</ThemedText>
+                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                                            SAVE
+                                        </ThemedText>
                                     </TouchableOpacity>
                                 </View>
 
                                 {/* Thin divider */}
-                                <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]} />
+                                <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
                                 {/* 1. Charger Segmented Row (AC or DC) */}
                                 <View style={styles.filterRowItem}>
-                                    <ThemedText style={[styles.filterRowLabel, { color: colors.text }]}>Charger</ThemedText>
-                                    <View style={[styles.segmentedControl, { width: 140, backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
+                                    <ThemedText style={[styles.filterRowLabel, { color: colors.text }]}>
+                                        Charger
+                                    </ThemedText>
+                                    <View
+                                        style={[
+                                            styles.segmentedControl,
+                                            {
+                                                backgroundColor: isDark ? '#1C1C24' : '#F2F2F6',
+                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                                                borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                            },
+                                        ]}
+                                    >
                                         {(['AC', 'DC'] as const).map((type) => {
                                             const isSelected = tempFilterCriteria.chargerTypeFilter === type;
                                             return (
@@ -1441,11 +1457,18 @@ export default function StationMapScreen({ navigation }: any) {
                                                     key={type}
                                                     style={[
                                                         styles.segmentOption,
-                                                        { flex: 1 },
-                                                        isSelected && [styles.segmentOptionSelected, { backgroundColor: colors.primary }],
+                                                        isSelected && [
+                                                            styles.segmentOptionSelected,
+                                                            {
+                                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                            },
+                                                        ],
                                                     ]}
-                                                    activeOpacity={0.8}
+                                                    activeOpacity={0.82}
                                                     onPress={() => {
+                                                        if (Platform.OS !== 'web') {
+                                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                        }
                                                         setTempFilterCriteria((prev) => ({
                                                             ...prev,
                                                             chargerTypeFilter: prev.chargerTypeFilter === type ? 'Any' : type,
@@ -1455,7 +1478,11 @@ export default function StationMapScreen({ navigation }: any) {
                                                     <ThemedText
                                                         style={[
                                                             styles.segmentText,
-                                                            { color: isSelected ? '#FFFFFF' : colors.textMuted },
+                                                            {
+                                                                color: isSelected
+                                                                    ? (isDark ? '#000000' : '#FFFFFF')
+                                                                    : colors.textMuted,
+                                                            },
                                                             isSelected && styles.segmentTextSelected,
                                                         ]}
                                                     >
@@ -1467,11 +1494,21 @@ export default function StationMapScreen({ navigation }: any) {
                                     </View>
                                 </View>
 
-                                {/* 2. Plugs Row (Tappable with Chevron) */}
+                                {/* 2. Plugs Row (Tappable Tactile Card) */}
                                 <TouchableOpacity
-                                    style={styles.filterNavRow}
-                                    activeOpacity={0.7}
-                                    onPress={() => setFilterSheetView('plugs')}
+                                    style={[
+                                        styles.filterNavCard,
+                                        {
+                                            backgroundColor: isDark ? '#181820' : '#F6F6F8',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                        },
+                                    ]}
+                                    activeOpacity={0.82}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setFilterSheetView('plugs');
+                                    }}
                                 >
                                     <View style={{ flex: 1 }}>
                                         <ThemedText style={[styles.filterNavTitle, { color: colors.text }]}>Plugs</ThemedText>
@@ -1481,14 +1518,27 @@ export default function StationMapScreen({ navigation }: any) {
                                                  : 'All plugs (CCS2, Type 2, CHAdeMO, GB/T)'}
                                         </ThemedText>
                                     </View>
-                                    <ChevronRight size={18} color={colors.textMuted} />
+                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
+                                        <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
+                                    </View>
                                 </TouchableOpacity>
 
-                                {/* 3. Chargers Row (Network Logos + Chevron) */}
+                                {/* 3. Chargers Row (Tappable Tactile Card with Avatars) */}
                                 <TouchableOpacity
-                                    style={styles.filterNavRow}
-                                    activeOpacity={0.7}
-                                    onPress={() => setFilterSheetView('brands')}
+                                    style={[
+                                        styles.filterNavCard,
+                                        {
+                                            backgroundColor: isDark ? '#181820' : '#F6F6F8',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                            marginTop: 10,
+                                        },
+                                    ]}
+                                    activeOpacity={0.82}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setFilterSheetView('brands');
+                                    }}
                                 >
                                     <View style={{ flex: 1 }}>
                                         <ThemedText style={[styles.filterNavTitle, { color: colors.text }]}>Chargers</ThemedText>
@@ -1501,37 +1551,49 @@ export default function StationMapScreen({ navigation }: any) {
 
                                     {/* Overlapping Brand Logo Avatars */}
                                     <View style={styles.brandLogosCluster}>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF' }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF', borderColor: isDark ? '#181820' : '#F6F6F8' }]}>
                                             <Zap size={9} color="#000" fill="#000" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>EZ</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#009A44', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#009A44', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>bp</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#F59E0B', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#F59E0B', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
                                             <Zap size={10} color="#FFF" fill="#FFF" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#2563EB', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#2563EB', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>Z</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#10B981', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#10B981', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
                                             <Zap size={9} color="#FFF" fill="#FFF" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>A</ThemedText>
                                         </View>
                                     </View>
 
-                                    <ChevronRight size={18} color={colors.textMuted} />
+                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
+                                        <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
+                                    </View>
                                 </TouchableOpacity>
 
                                 {/* Reset All Filters Button */}
                                 <TouchableOpacity
-                                    style={styles.filterResetBtn}
-                                    activeOpacity={0.7}
+                                    style={[
+                                        styles.filterResetBtn,
+                                        {
+                                            backgroundColor: isDark ? 'rgba(239, 68, 68, 0.12)' : '#FEE2E2',
+                                            borderColor: '#EF4444',
+                                            borderBottomColor: '#B91C1C',
+                                        },
+                                    ]}
+                                    activeOpacity={0.82}
                                     onPress={() => {
+                                        if (Platform.OS !== 'web') {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                        }
                                         setTempFilterCriteria({
                                             chargerTypes: [],
                                             connectorTypes: [],
@@ -1542,7 +1604,9 @@ export default function StationMapScreen({ navigation }: any) {
                                         });
                                     }}
                                 >
-                                    <ThemedText style={[styles.filterResetText, { color: colors.error }]}>Reset All</ThemedText>
+                                    <ThemedText style={styles.filterResetText}>
+                                        RESET ALL FILTERS
+                                    </ThemedText>
                                 </TouchableOpacity>
                             </>
                         )}
@@ -1553,24 +1617,48 @@ export default function StationMapScreen({ navigation }: any) {
                                 <View style={styles.filterSheetHeader}>
                                     <View style={styles.sheetHeaderLeft}>
                                         <TouchableOpacity
-                                            style={styles.sheetBackBtn}
-                                            activeOpacity={0.7}
-                                            onPress={() => setFilterSheetView('main')}
+                                            style={[
+                                                styles.sheetBackCircleBtn,
+                                                {
+                                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                },
+                                            ]}
+                                            activeOpacity={0.8}
+                                            onPress={() => {
+                                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                setFilterSheetView('main');
+                                            }}
                                         >
-                                            <ArrowLeft size={20} color={colors.text} />
+                                            <ArrowLeft size={18} color={colors.text} strokeWidth={2.5} />
                                         </TouchableOpacity>
-                                        <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>Select Plugs</ThemedText>
+                                        <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>
+                                            Select Plugs
+                                        </ThemedText>
                                     </View>
                                     <TouchableOpacity
-                                        style={[styles.filterSaveBtn, { backgroundColor: colors.primary }]}
-                                        activeOpacity={0.8}
-                                        onPress={() => setFilterSheetView('main')}
+                                        style={[
+                                            styles.filterSaveBtn,
+                                            {
+                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
+                                            },
+                                        ]}
+                                        activeOpacity={0.82}
+                                        onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                                            setFilterSheetView('main');
+                                        }}
                                     >
-                                        <ThemedText style={[styles.filterSaveBtnText, { color: '#FFFFFF' }]}>Done</ThemedText>
+                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                                            DONE
+                                        </ThemedText>
                                     </TouchableOpacity>
                                 </View>
 
-                                <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]} />
+                                <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
                                 <ThemedText style={[styles.subModalSubtitle, { color: colors.textMuted }]}>
                                     Choose connector types compatible with your vehicle
@@ -1579,28 +1667,29 @@ export default function StationMapScreen({ navigation }: any) {
                                 <View style={styles.plugFilterCardsGrid}>
                                     {CONNECTOR_ITEMS.map((item) => {
                                         const selected = isConnectorSelected(item);
-                                        const iconColor = selected ? (isDark ? colors.primary : colors.primaryStrong) : (isDark ? '#E5E7EB' : '#374151');
+                                        const iconColor = selected
+                                            ? (isDark ? '#FFFFFF' : '#000000')
+                                            : (isDark ? '#8E8E93' : '#4B4B52');
                                         return (
                                             <TouchableOpacity
                                                 key={item.id}
-                                                activeOpacity={0.82}
+                                                activeOpacity={0.85}
                                                 style={[
                                                     styles.plugFilterCard,
                                                     selected
                                                         ? {
-                                                              backgroundColor: isDark ? '#141418' : '#F0F0EE',
-                                                              borderColor: colors.primary,
-                                                              borderWidth: 1.5,
-                                                              borderBottomWidth: 2,
-                                                              borderBottomColor: isDark ? '#B0B0B8' : '#333338',
-                                                              transform: [{ translateY: 2 }],
+                                                              backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                              borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                              borderWidth: 2,
+                                                              borderBottomWidth: 4.5,
+                                                              borderBottomColor: isDark ? '#9E9EA8' : '#000000',
                                                           }
                                                         : {
-                                                              backgroundColor: isDark ? colors.surface : colors.backgroundAlt,
-                                                              borderColor: colors.cardBorder,
+                                                              backgroundColor: isDark ? '#121216' : '#F6F6F8',
+                                                              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                                                               borderWidth: 1.5,
-                                                              borderBottomWidth: 3.5,
-                                                              borderBottomColor: isDark ? '#060608' : '#D0D0D0',
+                                                              borderBottomWidth: 3,
+                                                              borderBottomColor: isDark ? '#050508' : '#D0D0D8',
                                                           },
                                                 ]}
                                                 onPress={() => {
@@ -1614,12 +1703,18 @@ export default function StationMapScreen({ navigation }: any) {
                                                 <View
                                                     style={[
                                                         styles.plugCardCheckmarkBadge,
-                                                        {
-                                                            backgroundColor: selected ? colors.primary : 'transparent',
-                                                        },
+                                                        selected
+                                                            ? {
+                                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                              }
+                                                            : {
+                                                                  backgroundColor: 'transparent',
+                                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.15)',
+                                                              },
                                                     ]}
                                                 >
-                                                    {selected && <Check size={11} color="#FFFFFF" strokeWidth={3} />}
+                                                    {selected && <Check size={11} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={3} />}
                                                 </View>
 
                                                 {/* Connector SVG Icon */}
@@ -1631,22 +1726,20 @@ export default function StationMapScreen({ navigation }: any) {
                                                 <ThemedText
                                                     style={[
                                                         styles.plugFilterCardLabel,
-                                                        { color: selected ? (isDark ? colors.primary : colors.primaryStrong) : colors.text },
+                                                        { color: colors.text },
                                                     ]}
                                                 >
                                                     {item.label}
                                                 </ThemedText>
 
-                                                {/* AC / DC Chip - Light & High-Contrast */}
+                                                {/* AC / DC Chip */}
                                                 <View
                                                     style={[
                                                         styles.plugTypeChip,
                                                         {
                                                             backgroundColor: isDark
-                                                                ? 'rgba(255, 255, 255, 0.12)'
-                                                                : (selected
-                                                                    ? '#000000'
-                                                                    : '#E5E5EA'),
+                                                                ? 'rgba(255, 255, 255, 0.14)'
+                                                                : (selected ? '#000000' : '#E5E5EA'),
                                                         },
                                                     ]}
                                                 >
@@ -1670,26 +1763,48 @@ export default function StationMapScreen({ navigation }: any) {
 
                                 <View style={styles.plugsQuickBar}>
                                     <TouchableOpacity
-                                        activeOpacity={0.7}
+                                        activeOpacity={0.8}
+                                        style={[
+                                            styles.quickBarBtn,
+                                            {
+                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                            },
+                                        ]}
                                         onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                             setTempFilterCriteria((prev) => ({
                                                 ...prev,
                                                 connectorTypes: CONNECTOR_ITEMS.map((c) => c.id),
                                             }));
                                         }}
                                     >
-                                        <ThemedText style={[styles.plugsQuickActionText, { color: colors.primary }]}>Select All</ThemedText>
+                                        <ThemedText style={[styles.plugsQuickActionText, { color: colors.text }]}>
+                                            SELECT ALL
+                                        </ThemedText>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        activeOpacity={0.7}
+                                        activeOpacity={0.8}
+                                        style={[
+                                            styles.quickBarBtn,
+                                            {
+                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                            },
+                                        ]}
                                         onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                             setTempFilterCriteria((prev) => ({
                                                 ...prev,
                                                 connectorTypes: [],
                                             }));
                                         }}
                                     >
-                                        <ThemedText style={[styles.plugsQuickActionText, { color: colors.textMuted }]}>Clear</ThemedText>
+                                        <ThemedText style={[styles.plugsQuickActionText, { color: colors.textMuted }]}>
+                                            CLEAR ALL
+                                        </ThemedText>
                                     </TouchableOpacity>
                                 </View>
                             </>
@@ -1702,28 +1817,45 @@ export default function StationMapScreen({ navigation }: any) {
                                 <View style={styles.brandSheetHeader}>
                                     <TouchableOpacity
                                         style={[
-                                            styles.brandBackBtn,
-                                            { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt },
+                                            styles.sheetBackCircleBtn,
+                                            {
+                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                            },
                                         ]}
-                                        activeOpacity={0.7}
-                                        onPress={() => setFilterSheetView('main')}
+                                        activeOpacity={0.8}
+                                        onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            setFilterSheetView('main');
+                                        }}
                                     >
-                                        <ChevronLeft size={22} color={colors.text} />
+                                        <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                                     </TouchableOpacity>
 
                                     <ThemedText style={[styles.brandSheetTitle, { color: colors.text }]}>
-                                        Chargers
+                                        Charger Brands
                                     </ThemedText>
 
                                     <TouchableOpacity
-                                        style={[styles.brandSaveBtn, { backgroundColor: colors.primary }]}
-                                        activeOpacity={0.8}
+                                        style={[
+                                            styles.filterSaveBtn,
+                                            {
+                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
+                                            },
+                                        ]}
+                                        activeOpacity={0.82}
                                         onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                                             setFilterCriteria({ ...tempFilterCriteria });
                                             setFilterSheetView('main');
                                         }}
                                     >
-                                        <ThemedText style={styles.brandSaveBtnText}>Save</ThemedText>
+                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                                            SAVE
+                                        </ThemedText>
                                     </TouchableOpacity>
                                 </View>
 
@@ -1753,9 +1885,19 @@ export default function StationMapScreen({ navigation }: any) {
                                         return (
                                             <TouchableOpacity
                                                 key={brand.id}
-                                                style={styles.brandItemRow}
-                                                activeOpacity={0.75}
-                                                onPress={() => toggleBrand(brand.name)}
+                                                style={[
+                                                    styles.brandItemCard,
+                                                    {
+                                                        backgroundColor: isDark ? '#181820' : '#FFFFFF',
+                                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                                        borderBottomColor: isDark ? '#050508' : '#D4D4DC',
+                                                    },
+                                                ]}
+                                                activeOpacity={0.8}
+                                                onPress={() => {
+                                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                    toggleBrand(brand.name);
+                                                }}
                                             >
                                                 <View style={styles.brandItemLeft}>
                                                     <View style={[styles.brandItemAvatar, { backgroundColor: brand.bgColor }]}>
@@ -1767,13 +1909,16 @@ export default function StationMapScreen({ navigation }: any) {
                                                 </View>
                                                 <Switch
                                                     value={selected}
-                                                    onValueChange={() => toggleBrand(brand.name)}
-                                                    trackColor={{
-                                                        false: isDark ? '#334155' : '#E2E8F0',
-                                                        true: colors.primary,
+                                                    onValueChange={() => {
+                                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                        toggleBrand(brand.name);
                                                     }}
-                                                    thumbColor="#FFFFFF"
-                                                    ios_backgroundColor={isDark ? '#334155' : '#E2E8F0'}
+                                                    trackColor={{
+                                                        false: isDark ? '#33333E' : '#E2E8F0',
+                                                        true: isDark ? '#FFFFFF' : '#000000',
+                                                    }}
+                                                    thumbColor={selected ? (isDark ? '#000000' : '#FFFFFF') : '#FFFFFF'}
+                                                    ios_backgroundColor={isDark ? '#33333E' : '#E2E8F0'}
                                                 />
                                             </TouchableOpacity>
                                         );
@@ -2207,13 +2352,14 @@ const styles = StyleSheet.create({
     filterSheetContainer: {
         borderTopLeftRadius: RADIUS.bottomSheet,
         borderTopRightRadius: RADIUS.bottomSheet,
-        paddingHorizontal: 22,
+        borderTopWidth: 2,
+        paddingHorizontal: 20,
         paddingTop: 12,
     },
     dragHandleBar: {
-        width: 38,
-        height: 4,
-        borderRadius: 2,
+        width: 40,
+        height: 4.5,
+        borderRadius: 3,
         alignSelf: 'center',
         marginBottom: 16,
     },
@@ -2221,107 +2367,130 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 4,
+        paddingVertical: 6,
     },
     filterSheetTitle: {
-        fontSize: 20,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontSize: 18,
+        fontFamily: FONT_FAMILIES.bold,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
     },
     filterSaveBtn: {
         paddingHorizontal: 20,
-        paddingVertical: 8,
-        borderRadius: RADIUS.button,
+        paddingVertical: 9,
+        borderRadius: 12,
         borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderBottomWidth: 3.5,
     },
     filterSaveBtnText: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: 0.8,
     },
     filterSheetDivider: {
         height: 1,
-        marginVertical: 18,
+        marginVertical: 14,
     },
     filterRowItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 14,
+        paddingVertical: 10,
     },
     filterRowLabel: {
-        fontSize: 17,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontSize: 15,
+        fontFamily: FONT_FAMILIES.bold,
     },
     segmentedControl: {
         flexDirection: 'row',
-        borderRadius: RADIUS.button,
+        borderRadius: 12,
         padding: 3,
-        alignItems: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
+        width: 140,
     },
     segmentOption: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: RADIUS.button - 3,
+        flex: 1,
+        paddingVertical: 7,
+        borderRadius: 9,
         alignItems: 'center',
         justifyContent: 'center',
     },
     segmentOptionSelected: {},
     segmentText: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.medium,
     },
     segmentTextSelected: {
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.extraBold,
     },
-    filterNavRow: {
+    filterNavCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
+        paddingVertical: 14,
+        paddingHorizontal: 14,
+        borderRadius: 14,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     filterNavTitle: {
-        fontSize: 17,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontSize: 15,
+        fontFamily: FONT_FAMILIES.bold,
     },
     filterNavSubtitle: {
         fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansRegular,
-        marginTop: 3,
+        fontFamily: FONT_FAMILIES.medium,
+        marginTop: 2,
+    },
+    navChevronCircle: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 8,
     },
     brandLogosCluster: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: 4,
     },
     brandAvatar: {
-        width: 26,
-        height: 26,
-        borderRadius: 13,
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
     },
     brandAvatarText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontSize: 8,
+        fontFamily: FONT_FAMILIES.bold,
         color: '#FFFFFF',
     },
     filterResetBtn: {
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 12,
-        marginTop: 8,
-        borderRadius: RADIUS.button,
+        marginTop: 14,
+        borderRadius: 12,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     filterResetText: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.extraBold,
+        color: '#DC2626',
+        letterSpacing: 0.8,
+    },
+    sheetBackCircleBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     brandSheetHeader: {
         flexDirection: 'row',
@@ -2330,28 +2499,9 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         marginBottom: 8,
     },
-    brandBackBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     brandSheetTitle: {
-        fontSize: 18,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    brandSaveBtn: {
-        paddingHorizontal: 18,
-        paddingVertical: 8,
-        borderRadius: RADIUS.button,
-    },
-    brandSaveBtnText: {
-        color: '#FFFFFF',
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontSize: 17,
+        fontFamily: FONT_FAMILIES.bold,
     },
     brandScrollContent: {
         paddingBottom: 24,
@@ -2361,69 +2511,66 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginTop: 8,
-        marginBottom: 8,
+        marginBottom: 10,
         paddingVertical: 4,
     },
     brandCountText: {
-        fontSize: 13,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.medium,
     },
     brandDeselectText: {
-        fontSize: 13,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.bold,
     },
-    brandItemRow: {
+    brandItemCard: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 12,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
+        marginBottom: 8,
     },
     brandItemLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 14,
+        gap: 12,
         flex: 1,
     },
     brandItemAvatar: {
-        width: 34,
-        height: 34,
-        borderRadius: 17,
+        width: 32,
+        height: 32,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
     },
     brandItemName: {
-        fontSize: 15,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
+        fontSize: 14,
+        fontFamily: FONT_FAMILIES.semiBold,
     },
     sheetHeaderLeft: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
     },
-    sheetBackBtn: {
-        padding: 6,
-        marginLeft: -4,
-        borderRadius: RADIUS.button,
-    },
     subModalSubtitle: {
-        fontSize: 13,
-        fontFamily: FONT_FAMILIES.sansRegular,
-        marginBottom: 16,
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.medium,
+        marginBottom: 14,
     },
     plugFilterCardsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 12,
         justifyContent: 'space-between',
-        marginBottom: 16,
+        marginBottom: 12,
     },
     plugFilterCard: {
         width: '48%',
-        borderRadius: RADIUS.button,
-        paddingVertical: 18,
+        borderRadius: 16,
+        paddingVertical: 16,
         paddingHorizontal: 12,
         alignItems: 'center',
         justifyContent: 'center',
@@ -2431,53 +2578,57 @@ const styles = StyleSheet.create({
     },
     plugCardCheckmarkBadge: {
         position: 'absolute',
-        top: 10,
-        right: 10,
+        top: 8,
+        right: 8,
         width: 20,
         height: 20,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
     },
     plugFilterCardIconContainer: {
-        width: 48,
-        height: 48,
+        width: 44,
+        height: 44,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 8,
     },
     plugFilterCardLabel: {
-        fontSize: 16,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontSize: 15,
+        fontFamily: FONT_FAMILIES.bold,
         textAlign: 'center',
     },
     plugTypeChip: {
-        paddingHorizontal: 10,
+        paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 6,
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 6,
-        minWidth: 38,
     },
     plugTypeChipText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.bold,
         letterSpacing: 0.5,
     },
     plugsQuickBar: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        gap: 10,
+        marginTop: 8,
+    },
+    quickBarBtn: {
+        flex: 1,
+        paddingVertical: 10,
+        borderRadius: 10,
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 4,
-        marginTop: 4,
+        justifyContent: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     plugsQuickActionText: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.bold,
+        letterSpacing: 0.6,
     },
 });

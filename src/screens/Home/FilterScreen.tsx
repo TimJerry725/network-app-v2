@@ -137,7 +137,7 @@ export default function FilterScreen() {
                     <ThemedText style={[styles.eyebrow, { color: colors.primary }]}>
                         HARDWARE FILTERS
                     </ThemedText>
-                    <ThemedText style={styles.headerTitle}>Filter Options</ThemedText>
+                    <ThemedText style={[styles.headerTitle, { color: colors.text }]}>Filter Options</ThemedText>
                 </View>
 
                 <TouchableOpacity
