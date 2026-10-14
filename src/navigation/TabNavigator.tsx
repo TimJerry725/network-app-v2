@@ -20,9 +20,9 @@ type TabConfig = {
 };
 
 const TAB_CONFIG: TabConfig[] = [
-    { name: 'Map', icon: 'map-location-dot', label: 'Map' },
-    { name: 'Explore', icon: 'compass', label: 'Trip Planner' },
-    { name: 'Scan', icon: 'bolt-lightning', label: 'Scan' },
+    { name: 'Map', icon: 'location-dot', label: 'Map' },
+    { name: 'Explore', icon: 'route', label: 'Trip Planner' },
+    { name: 'Scan', icon: 'qrcode', label: 'Scan' },
     { name: 'Favorite', icon: 'heart', label: 'Favorites' },
     { name: 'Vehicles', icon: 'clock-rotate-left', label: 'Sessions' },
 ];
@@ -45,8 +45,8 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 style={[
                     styles.barContainer,
                     {
-                        backgroundColor: isDark ? '#0D0D10' : colors.surface,
-                        borderTopColor: colors.cardBorder,
+                        backgroundColor: isDark ? '#070709' : '#FFFFFF',
+                        borderTopColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         paddingBottom: Math.max(10, insets.bottom),
                         height: 70 + Math.max(10, insets.bottom),
                     },
