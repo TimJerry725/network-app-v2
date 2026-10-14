@@ -58,28 +58,13 @@ function ConnectorBadge({
     isDark?: boolean;
     compact?: boolean;
 }) {
-    const iconColor = isSelected
-        ? (isDark ? '#FFFFFF' : '#000000')
-        : (isDark ? '#8E8E93' : '#4B4B52');
-    const iconSize = compact ? 22 : 24;
+    const iconColor = isDark
+        ? (isSelected ? '#FFFFFF' : '#E5E5EA')
+        : (isSelected ? '#000000' : '#1C1C22');
+    const iconSize = 26;
 
     return (
-        <View
-            style={[
-                styles.connectorIconContainer,
-                {
-                    backgroundColor: isSelected
-                        ? (isDark ? '#262632' : '#ECECF0')
-                        : (isDark ? '#16161C' : '#EFEFF2'),
-                    borderColor: isSelected
-                        ? (isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.2)')
-                        : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
-                    borderBottomColor: isSelected
-                        ? (isDark ? '#050508' : '#C0C0C8')
-                        : (isDark ? '#050508' : '#D0D0D8'),
-                },
-            ]}
-        >
+        <View style={styles.connectorIconContainer}>
             {type === 'CCS2' ? (
                 <Ccs2Icon size={iconSize} color={iconColor} />
             ) : type === 'Type 2' ? (
@@ -1158,18 +1143,16 @@ const styles = StyleSheet.create({
     connectorIconContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        width: 44,
-        height: 44,
-        borderRadius: RADIUS.tile,
-        marginRight: 10,
-        borderWidth: 1.5,
-        borderBottomWidth: 2.5,
+        marginRight: 12,
+        minWidth: 38,
     },
     connectorSublabel: {
-        fontSize: 7.5,
-        fontFamily: FONT_FAMILIES.bold,
-        marginTop: 2,
+        fontSize: 8.5,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+        marginTop: 3,
         textTransform: 'uppercase',
+        letterSpacing: 0.3,
     },
     powerGroup: {
         flexDirection: 'row',
