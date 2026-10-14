@@ -30,6 +30,7 @@ import {
     Wallet,
     Plus,
     X,
+    Check,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
 import { Ccs2Icon } from '../../components/Ccs2Icon';
@@ -41,24 +42,44 @@ import {
     Station,
     getStationById,
 } from '../../constants/Stations';
-import { FONT_FAMILIES, RADIUS, SHADOWS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles } from '../../context/VehicleContext';
 
-// Helper to render connector icon with type badge
+// Helper to render connector icon with type badge pod
 function ConnectorBadge({
     type,
-    isGreen = true,
+    isSelected = false,
+    isDark = false,
     compact = false,
 }: {
     type: Connector['type'];
-    isGreen?: boolean;
+    isSelected?: boolean;
+    isDark?: boolean;
     compact?: boolean;
 }) {
-    const iconColor = isGreen ? '#FFFFFF' : '#737373';
-    const iconSize = compact ? 24 : 28;
+    const iconColor = isSelected
+        ? (isDark ? '#FFFFFF' : '#000000')
+        : (isDark ? '#8E8E93' : '#4B4B52');
+    const iconSize = compact ? 22 : 24;
+
     return (
-        <View style={styles.connectorIconContainer}>
+        <View
+            style={[
+                styles.connectorIconContainer,
+                {
+                    backgroundColor: isSelected
+                        ? (isDark ? '#262632' : '#ECECF0')
+                        : (isDark ? '#16161C' : '#EFEFF2'),
+                    borderColor: isSelected
+                        ? (isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.2)')
+                        : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
+                    borderBottomColor: isSelected
+                        ? (isDark ? '#050508' : '#C0C0C8')
+                        : (isDark ? '#050508' : '#D0D0D8'),
+                },
+            ]}
+        >
             {type === 'CCS2' ? (
                 <Ccs2Icon size={iconSize} color={iconColor} />
             ) : type === 'Type 2' ? (
@@ -93,7 +114,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
     );
     const [cutoffPercent, setCutoffPercent] = useState('80%');
 
-    // Track Charger Status state per charger group (default first charger tracked as in screenshot)
+    // Track Charger Status state per charger group
     const [trackedChargers, setTrackedChargers] = useState<Record<string, number>>({
         CP1233: 59 * 60 + 30, // 59 min 30 sec
     });
@@ -117,6 +138,9 @@ export default function StationDetailScreen({ route, navigation }: any) {
     }, []);
 
     const toggleTrackCharger = (key: string) => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
         setTrackedChargers((prev) => {
             const copy = { ...prev };
             if (copy[key]) {
@@ -146,13 +170,16 @@ export default function StationDetailScreen({ route, navigation }: any) {
         });
         return Object.entries(groups).map(([chargerId, connectors], index) => ({
             groupKey: `${chargerId}-${index}`,
-            displayId: 'CP1233', // Matches screenshot label or actual chargerId
+            displayId: chargerId,
             chargerId,
             connectors,
         }));
     }, [station.connectors]);
 
     const handleShare = async () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
         try {
             await Share.share({
                 title: station.name,
@@ -205,11 +232,21 @@ export default function StationDetailScreen({ route, navigation }: any) {
                 {/* ── Top App Bar ── */}
                 <View style={styles.topBar}>
                     <TouchableOpacity
-                        onPress={() => navigation.goBack()}
-                        style={styles.backButton}
-                        activeOpacity={0.7}
+                        onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            navigation.goBack();
+                        }}
+                        style={[
+                            styles.tactileCircleBtn,
+                            {
+                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                            },
+                        ]}
+                        activeOpacity={0.8}
                     >
-                        <ChevronLeft size={24} color={colors.text} />
+                        <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                     </TouchableOpacity>
 
                     <ThemedText style={[styles.stationTitle, { color: colors.text }]} numberOfLines={1}>
@@ -218,52 +255,103 @@ export default function StationDetailScreen({ route, navigation }: any) {
 
                     <View style={styles.topBarActions}>
                         <TouchableOpacity
-                            onPress={() => setIsFavorite(!isFavorite)}
-                            style={styles.actionIconBtn}
-                            activeOpacity={0.7}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setIsFavorite(!isFavorite);
+                            }}
+                            style={[
+                                styles.tactileCircleBtn,
+                                {
+                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                },
+                            ]}
+                            activeOpacity={0.8}
                         >
                             <Heart
-                                size={23}
-                                color={colors.text}
-                                fill={isFavorite ? colors.text : 'none'}
+                                size={18}
+                                color={isFavorite ? '#EF4444' : colors.text}
+                                fill={isFavorite ? '#EF4444' : 'none'}
                             />
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             onPress={handleShare}
-                            style={styles.actionIconBtn}
-                            activeOpacity={0.7}
+                            style={[
+                                styles.tactileCircleBtn,
+                                {
+                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                },
+                            ]}
+                            activeOpacity={0.8}
                         >
-                            <Share2 size={22} color={colors.text} />
+                            <Share2 size={17} color={colors.text} />
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 {/* ── Subtitle / Address ── */}
                 <View style={styles.addressRow}>
-                    <MapPin size={13} color="#9CA3AF" style={{ marginTop: 1 }} />
-                    <ThemedText style={styles.addressText} numberOfLines={1}>
+                    <MapPin size={13} color={colors.primary} style={{ marginTop: 1 }} />
+                    <ThemedText style={[styles.addressText, { color: colors.textMuted }]} numberOfLines={1}>
                         {station.address}
                     </ThemedText>
                 </View>
 
                 {/* ── Meta Pills (Open | Timing | Kms & ETA) ── */}
                 <View style={styles.pillsRow}>
-                    <View style={styles.openPill}>
-                        <ThemedText style={styles.openPillText}>Open</ThemedText>
+                    <View
+                        style={[
+                            styles.openPill,
+                            {
+                                backgroundColor: isDark ? 'rgba(34, 197, 94, 0.15)' : '#DCFCE7',
+                                borderColor: isDark ? 'rgba(34, 197, 94, 0.35)' : '#86EFAC',
+                                borderBottomColor: isDark ? '#15803D' : '#4ADE80',
+                            },
+                        ]}
+                    >
+                        <ThemedText
+                            style={[
+                                styles.openPillText,
+                                { color: isDark ? '#4ADE80' : '#14532D' },
+                            ]}
+                        >
+                            OPEN
+                        </ThemedText>
                     </View>
 
-                    <View style={styles.grayPill}>
-                        <Clock size={12} color="#374151" />
-                        <ThemedText style={styles.grayPillText}>
+                    <View
+                        style={[
+                            styles.grayPill,
+                            {
+                                backgroundColor: isDark ? '#16161C' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                            },
+                        ]}
+                    >
+                        <Clock size={12} color={colors.text} />
+                        <ThemedText style={[styles.grayPillText, { color: colors.text }]}>
                             {station.openTime} - {station.closeTime}
                         </ThemedText>
                     </View>
 
-                    <View style={styles.grayPill}>
-                        <Navigation size={12} color="#374151" />
-                        <ThemedText style={styles.grayPillText}>
-                            {station.distanceKm} Kms | <ThemedText style={styles.etaBold}>ETA:</ThemedText> {station.etaMinutes} Mins
+                    <View
+                        style={[
+                            styles.grayPill,
+                            {
+                                backgroundColor: isDark ? '#16161C' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                            },
+                        ]}
+                    >
+                        <Navigation size={12} color={colors.text} />
+                        <ThemedText style={[styles.grayPillText, { color: colors.text }]}>
+                            {station.distanceKm} Kms | <ThemedText style={[styles.etaBold, { color: colors.text }]}>ETA:</ThemedText> {station.etaMinutes} Mins
                         </ThemedText>
                     </View>
                 </View>
@@ -277,9 +365,19 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             IconComp = Users;
                         }
                         return (
-                            <View key={index} style={styles.amenityItem}>
-                                <IconComp size={14} color="#9CA3AF" />
-                                <ThemedText style={styles.amenityText}>{item}</ThemedText>
+                            <View
+                                key={index}
+                                style={[
+                                    styles.amenityItem,
+                                    {
+                                        backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                        borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                    },
+                                ]}
+                            >
+                                <IconComp size={13} color={colors.textMuted} />
+                                <ThemedText style={[styles.amenityText, { color: colors.text }]}>{item}</ThemedText>
                             </View>
                         );
                     })}
@@ -292,12 +390,22 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     contentContainerStyle={styles.galleryScroll}
                 >
                     {gallery.map((imgUri, idx) => (
-                        <Image
+                        <View
                             key={idx}
-                            source={{ uri: imgUri }}
-                            style={styles.galleryImage}
-                            resizeMode="cover"
-                        />
+                            style={[
+                                styles.galleryImageWrap,
+                                {
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                    borderBottomColor: isDark ? '#050508' : '#C0C0C8',
+                                },
+                            ]}
+                        >
+                            <Image
+                                source={{ uri: imgUri }}
+                                style={styles.galleryImage}
+                                resizeMode="cover"
+                            />
+                        </View>
                     ))}
                 </ScrollView>
 
@@ -308,27 +416,54 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         const isTracking = Boolean(trackingSecs && trackingSecs > 0);
 
                         return (
-                            <View key={group.groupKey} style={styles.chargerCard}>
+                            <View
+                                key={group.groupKey}
+                                style={[
+                                    styles.chargerCard,
+                                    {
+                                        backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                                        borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                    },
+                                ]}
+                            >
                                 {/* Card Header */}
                                 <View style={styles.chargerHeader}>
                                     <View style={styles.chargerTitleGroup}>
-                                        <ThemedText style={styles.chargerBoldLabel}>Charger</ThemedText>
-                                        <ThemedText style={styles.chargerCode}>{group.chargerId}</ThemedText>
+                                        <ThemedText style={[styles.chargerBoldLabel, { color: colors.text }]}>
+                                            Charger
+                                        </ThemedText>
+                                        <ThemedText style={[styles.chargerCode, { color: colors.textMuted }]}>
+                                            {group.chargerId}
+                                        </ThemedText>
                                     </View>
 
                                     <TouchableOpacity
                                         onPress={() => toggleTrackCharger(group.chargerId)}
-                                        activeOpacity={0.7}
+                                        activeOpacity={0.8}
+                                        style={[
+                                            styles.trackStatusBtn,
+                                            isTracking
+                                                ? {
+                                                      backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2',
+                                                      borderColor: '#EF4444',
+                                                      borderBottomColor: '#B91C1C',
+                                                  }
+                                                : {
+                                                      backgroundColor: isDark ? '#1C1C24' : '#F6F6F8',
+                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                                                      borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                  },
+                                        ]}
                                     >
                                         <ThemedText
-                                            style={
-                                                isTracking
-                                                    ? styles.stopTrackStatusLink
-                                                    : styles.trackStatusLink
-                                            }
+                                            style={[
+                                                styles.trackStatusBtnText,
+                                                { color: isTracking ? '#DC2626' : colors.text },
+                                            ]}
                                         >
                                             {isTracking
-                                                ? 'Stop tracking charger status'
+                                                ? 'Stop Tracking'
                                                 : 'Track Charger Status'}
                                         </ThemedText>
                                     </TouchableOpacity>
@@ -336,10 +471,19 @@ export default function StationDetailScreen({ route, navigation }: any) {
 
                                 {/* Availability Tracking Countdown Banner */}
                                 {isTracking && (
-                                    <View style={styles.trackingBanner}>
-                                        <ThemedText style={styles.trackingBannerText}>
-                                            Your availability tracking ends in{' '}
-                                            <ThemedText style={styles.trackingTimerBold}>
+                                    <View
+                                        style={[
+                                            styles.trackingBanner,
+                                            {
+                                                backgroundColor: isDark ? '#1A1A22' : '#F4F4F6',
+                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                            },
+                                        ]}
+                                    >
+                                        <ThemedText style={[styles.trackingBannerText, { color: colors.textMuted }]}>
+                                            Availability tracking ends in{' '}
+                                            <ThemedText style={[styles.trackingTimerBold, { color: colors.text }]}>
                                                 {formatCountdown(trackingSecs)}
                                             </ThemedText>
                                         </ThemedText>
@@ -359,7 +503,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                         return (
                                             <TouchableOpacity
                                                 key={connector.id}
-                                                activeOpacity={0.85}
+                                                activeOpacity={0.88}
                                                 onPress={() => {
                                                     if (Platform.OS !== 'web') {
                                                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -369,15 +513,30 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                 style={[
                                                     styles.connectorWholeCard,
                                                     isSelected
-                                                        ? styles.connectorCardSelected
-                                                        : styles.connectorCardUnselected,
+                                                        ? [
+                                                              styles.connectorCardSelected,
+                                                              {
+                                                                  backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                                  borderBottomColor: isDark ? '#9E9EA8' : '#000000',
+                                                              },
+                                                          ]
+                                                        : [
+                                                              styles.connectorCardUnselected,
+                                                              {
+                                                                  backgroundColor: isDark ? '#101014' : '#F7F7F9',
+                                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                                                                  borderBottomColor: isDark ? '#050508' : '#D4D4DC',
+                                                              },
+                                                          ],
                                                 ]}
                                             >
                                                 {/* Top Info Row inside the Connector Card */}
                                                 <View style={styles.connectorInfoRow}>
                                                     <ConnectorBadge
                                                         type={connector.type}
-                                                        isGreen={isAvailable || isPreparing}
+                                                        isSelected={isSelected}
+                                                        isDark={isDark}
                                                         compact={isSelected}
                                                     />
 
@@ -386,48 +545,52 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                             style={[
                                                                 styles.acDcBadge,
                                                                 currentType === 'DC'
-                                                                    ? styles.dcBadge
-                                                                    : styles.acBadge,
+                                                                    ? {
+                                                                          backgroundColor: isDark ? 'rgba(34, 197, 94, 0.18)' : '#DCFCE7',
+                                                                          borderColor: isDark ? 'rgba(34, 197, 94, 0.35)' : '#86EFAC',
+                                                                      }
+                                                                    : {
+                                                                          backgroundColor: isDark ? 'rgba(56, 189, 248, 0.18)' : '#E0F2FE',
+                                                                          borderColor: isDark ? 'rgba(56, 189, 248, 0.35)' : '#7DD3FC',
+                                                                      },
                                                             ]}
                                                         >
                                                             <ThemedText
                                                                 style={[
                                                                     styles.acDcBadgeText,
-                                                                    currentType === 'DC'
-                                                                        ? styles.dcBadgeText
-                                                                        : styles.acBadgeText,
+                                                                    {
+                                                                        color: currentType === 'DC'
+                                                                            ? (isDark ? '#4ADE80' : '#15803D')
+                                                                            : (isDark ? '#38BDF8' : '#0369A1'),
+                                                                    },
                                                                 ]}
                                                             >
                                                                 {currentType}
                                                             </ThemedText>
                                                         </View>
-                                                        <ThemedText
-                                                            style={[
-                                                                styles.powerText,
-                                                                isSelected && styles.powerTextSelected,
-                                                            ]}
-                                                        >
+                                                        <ThemedText style={[styles.powerText, { color: colors.text }]}>
                                                             {connector.power} kW
                                                         </ThemedText>
                                                     </View>
 
-                                                    <ThemedText
-                                                        style={[
-                                                            styles.tariffPrice,
-                                                            isSelected && styles.tariffPriceSelected,
-                                                        ]}
-                                                    >
+                                                    <ThemedText style={[styles.tariffPrice, { color: colors.text }]}>
                                                         ₹{connector.pricePerKWh.toFixed(0)}
-                                                        <ThemedText style={styles.tariffUnit}>/kWh</ThemedText>
+                                                        <ThemedText style={[styles.tariffUnit, { color: colors.textMuted }]}>
+                                                            /kWh
+                                                        </ThemedText>
                                                     </ThemedText>
 
                                                     <View style={styles.statusColumn}>
                                                         <ThemedText
                                                             style={[
                                                                 styles.statusText,
-                                                                isPreparing
-                                                                    ? styles.statusPreparing
-                                                                    : styles.statusAvailable,
+                                                                {
+                                                                    color: isAvailable
+                                                                        ? (isDark ? '#4ADE80' : '#15803D')
+                                                                        : isPreparing
+                                                                        ? '#D97706'
+                                                                        : colors.textMuted,
+                                                                },
                                                             ]}
                                                         >
                                                             {connector.status}
@@ -435,27 +598,47 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                     </View>
                                                 </View>
 
-                                                {/* Action Buttons INSIDE the same Green Bordered Card when selected */}
+                                                {/* Action Buttons INSIDE the same Selected Card */}
                                                 {isSelected && (
                                                     <View style={styles.connectorActionsRow}>
                                                         <TouchableOpacity
-                                                            style={styles.smartCutoffButton}
-                                                            onPress={() => setSmartCutoffModal(true)}
-                                                            activeOpacity={0.8}
+                                                            style={[
+                                                                styles.smartCutoffButton,
+                                                                {
+                                                                    backgroundColor: isDark ? '#22222A' : '#FFFFFF',
+                                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : '#000000',
+                                                                    borderBottomColor: isDark ? '#050508' : '#000000',
+                                                                },
+                                                            ]}
+                                                            onPress={() => {
+                                                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                                setSmartCutoffModal(true);
+                                                            }}
+                                                            activeOpacity={0.82}
                                                         >
-                                                            <ThemedText style={styles.smartCutoffText}>
+                                                            <ThemedText style={[styles.smartCutoffText, { color: colors.text }]}>
                                                                 Smart Cut-off
                                                             </ThemedText>
                                                         </TouchableOpacity>
 
                                                         <TouchableOpacity
-                                                            style={styles.startChargingButton}
-                                                            onPress={() => handleStartCharging(connector)}
-                                                            activeOpacity={0.8}
+                                                            style={[
+                                                                styles.startChargingButton,
+                                                                {
+                                                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                                    borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                                    borderBottomColor: isDark ? '#B0B0B8' : '#333338',
+                                                                },
+                                                            ]}
+                                                            onPress={() => {
+                                                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                                                                handleStartCharging(connector);
+                                                            }}
+                                                            activeOpacity={0.82}
                                                         >
-                                                            <Zap size={16} color="#FFFFFF" fill="#FFFFFF" />
-                                                            <ThemedText style={styles.startChargingText}>
-                                                                Start Charging
+                                                            <Zap size={15} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />
+                                                            <ThemedText style={[styles.startChargingText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                                                                START CHARGING
                                                             </ThemedText>
                                                         </TouchableOpacity>
                                                     </View>
@@ -471,19 +654,29 @@ export default function StationDetailScreen({ route, navigation }: any) {
 
                 {/* ── View full tariff and penalty schedule Link ── */}
                 <TouchableOpacity
-                    style={styles.tariffScheduleLinkRow}
-                    onPress={() => setShowTariffModal(true)}
-                    activeOpacity={0.7}
+                    style={[
+                        styles.tariffScheduleLinkRow,
+                        {
+                            backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                        },
+                    ]}
+                    onPress={() => {
+                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        setShowTariffModal(true);
+                    }}
+                    activeOpacity={0.82}
                 >
                     <ThemedText style={[styles.tariffScheduleLinkText, { color: colors.text }]}>
                         View full tariff and penalty schedule
                     </ThemedText>
-                    <View style={[styles.chevronCircle, { backgroundColor: colors.primary }]}>
+                    <View style={[styles.chevronCircle, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]}>
                         <ChevronRight size={13} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={3} />
                     </View>
                 </TouchableOpacity>
 
-                <View style={{ height: 20 }} />
+                <View style={{ height: 24 }} />
             </ScrollView>
 
             {/* ── Bottom Floating Bar (Help Support | Get Direction | Wallet Pill) ── */}
@@ -491,9 +684,9 @@ export default function StationDetailScreen({ route, navigation }: any) {
                 style={[
                     styles.bottomBarWrap,
                     {
-                        backgroundColor: colors.surface,
-                        borderTopColor: colors.cardBorder,
-                        borderTopWidth: 1,
+                        backgroundColor: isDark ? '#0D0D10' : '#FFFFFF',
+                        borderTopColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+                        borderTopWidth: 1.5,
                         paddingBottom: Math.max(insets.bottom, 12),
                     },
                 ]}
@@ -504,25 +697,42 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.helpSupportBtn,
                             {
-                                backgroundColor: isDark ? '#16161B' : '#EFEFF4',
-                                borderColor: colors.cardBorder,
-                                borderBottomColor: isDark ? '#070709' : '#D0D0D5',
+                                backgroundColor: isDark ? '#181820' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.18)' : '#000000',
+                                borderBottomColor: isDark ? '#050508' : '#000000',
                             },
                         ]}
-                        onPress={handleHelpSupport}
-                        activeOpacity={0.8}
+                        onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            handleHelpSupport();
+                        }}
+                        activeOpacity={0.82}
                     >
-                        <PhoneCall size={17} color={colors.text} />
-                        <ThemedText style={[styles.helpSupportText, { color: colors.text }]}>Help Support</ThemedText>
+                        <PhoneCall size={17} color={colors.text} strokeWidth={2.2} />
+                        <ThemedText style={[styles.helpSupportText, { color: colors.text }]}>
+                            Help Support
+                        </ThemedText>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={styles.getDirectionBtn}
-                        onPress={handleGetDirections}
-                        activeOpacity={0.8}
+                        style={[
+                            styles.getDirectionBtn,
+                            {
+                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                borderColor: isDark ? '#FFFFFF' : '#000000',
+                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
+                            },
+                        ]}
+                        onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                            handleGetDirections();
+                        }}
+                        activeOpacity={0.82}
                     >
-                        <Navigation size={17} color="#000000" fill="#000000" />
-                        <ThemedText style={styles.getDirectionText}>Get Direction</ThemedText>
+                        <Navigation size={17} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />
+                        <ThemedText style={[styles.getDirectionText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                            Get Direction
+                        </ThemedText>
                     </TouchableOpacity>
                 </View>
 
@@ -531,15 +741,15 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     style={[
                         styles.walletStrip,
                         {
-                            backgroundColor: isDark ? '#141418' : '#F4F4F6',
-                            borderColor: colors.cardBorder,
-                            borderWidth: 1,
+                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
                         },
                     ]}
                 >
                     <View style={styles.walletLeft}>
                         <View style={[styles.walletGreenIcon, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]}>
-                            <Wallet size={15} color={isDark ? '#000000' : '#FFFFFF'} />
+                            <Wallet size={15} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={2} />
                         </View>
                         <ThemedText style={[styles.walletLabel, { color: colors.textMuted }]}>
                             Available <ThemedText style={[styles.walletLabelBold, { color: colors.text }]}>wallet</ThemedText> balance is{' '}
@@ -548,15 +758,25 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.addWalletBtn, { backgroundColor: colors.primarySoft }]}
+                        style={[
+                            styles.addWalletBtn,
+                            {
+                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                borderColor: isDark ? '#FFFFFF' : '#000000',
+                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
+                            },
+                        ]}
                         onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             topUpWallet(500);
                             Alert.alert('Wallet Recharged', '₹500 added to your Iris EV Wallet.');
                         }}
-                        activeOpacity={0.8}
+                        activeOpacity={0.82}
                     >
-                        <Plus size={15} color={colors.text} strokeWidth={2.5} />
-                        <ThemedText style={[styles.addWalletText, { color: colors.text }]}>Add</ThemedText>
+                        <Plus size={14} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={2.5} />
+                        <ThemedText style={[styles.addWalletText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                            Add
+                        </ThemedText>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -569,35 +789,56 @@ export default function StationDetailScreen({ route, navigation }: any) {
                 onRequestClose={() => setShowTariffModal(false)}
             >
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalSheet}>
-                        <View style={styles.modalHandle} />
+                    <View
+                        style={[
+                            styles.modalSheet,
+                            {
+                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
+                            },
+                        ]}
+                    >
+                        <View style={[styles.modalHandle, { backgroundColor: isDark ? '#33333C' : '#D1D5DB' }]} />
                         <View style={styles.modalHeader}>
-                            <ThemedText style={styles.modalTitle}>Tariff & Penalty Schedule</ThemedText>
+                            <ThemedText style={[styles.modalTitle, { color: colors.text }]}>
+                                Tariff & Penalty Schedule
+                            </ThemedText>
                             <TouchableOpacity
                                 onPress={() => setShowTariffModal(false)}
                                 style={styles.modalClose}
                             >
-                                <X size={18} color="#6B7280" />
+                                <X size={20} color={colors.textMuted} />
                             </TouchableOpacity>
                         </View>
 
-                        <ThemedText style={styles.modalSub}>{station.name}</ThemedText>
+                        <ThemedText style={[styles.modalSub, { color: colors.textMuted }]}>
+                            {station.name}
+                        </ThemedText>
 
-                        <View style={styles.modalTariffBox}>
+                        <View
+                            style={[
+                                styles.modalTariffBox,
+                                {
+                                    backgroundColor: isDark ? '#1C1C24' : '#F6F6F8',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                    borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                },
+                            ]}
+                        >
                             <View style={styles.tariffLine}>
-                                <ThemedText style={styles.tariffKey}>Base Energy Tariff</ThemedText>
-                                <ThemedText style={styles.tariffVal}>₹10.00 / kWh</ThemedText>
+                                <ThemedText style={[styles.tariffKey, { color: colors.textMuted }]}>Base Energy Tariff</ThemedText>
+                                <ThemedText style={[styles.tariffVal, { color: colors.text }]}>₹10.00 / kWh</ThemedText>
                             </View>
                             <View style={styles.tariffLine}>
-                                <ThemedText style={styles.tariffKey}>GST on Energy</ThemedText>
-                                <ThemedText style={styles.tariffVal}>18% (Included)</ThemedText>
+                                <ThemedText style={[styles.tariffKey, { color: colors.textMuted }]}>GST on Energy</ThemedText>
+                                <ThemedText style={[styles.tariffVal, { color: colors.text }]}>18% (Included)</ThemedText>
                             </View>
                             <View style={styles.tariffLine}>
-                                <ThemedText style={styles.tariffKey}>Idle Fee Grace Period</ThemedText>
-                                <ThemedText style={styles.tariffVal}>15 Minutes Free</ThemedText>
+                                <ThemedText style={[styles.tariffKey, { color: colors.textMuted }]}>Idle Fee Grace Period</ThemedText>
+                                <ThemedText style={[styles.tariffVal, { color: colors.text }]}>15 Minutes Free</ThemedText>
                             </View>
                             <View style={styles.tariffLine}>
-                                <ThemedText style={styles.tariffKey}>Idle Penalty Rate</ThemedText>
+                                <ThemedText style={[styles.tariffKey, { color: colors.textMuted }]}>Idle Penalty Rate</ThemedText>
                                 <ThemedText style={[styles.tariffVal, { color: '#EF4444' }]}>
                                     ₹5.00 / min thereafter
                                 </ThemedText>
@@ -605,10 +846,24 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         </View>
 
                         <TouchableOpacity
-                            style={styles.modalConfirmBtn}
+                            style={[
+                                styles.modalConfirmBtn,
+                                {
+                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                    borderColor: isDark ? '#FFFFFF' : '#000000',
+                                    borderBottomColor: isDark ? '#A0A0A8' : '#333338',
+                                },
+                            ]}
                             onPress={() => setShowTariffModal(false)}
                         >
-                            <ThemedText style={styles.modalConfirmText}>Understood</ThemedText>
+                            <ThemedText
+                                style={[
+                                    styles.modalConfirmText,
+                                    { color: isDark ? '#000000' : '#FFFFFF' },
+                                ]}
+                            >
+                                UNDERSTOOD
+                            </ThemedText>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -622,39 +877,68 @@ export default function StationDetailScreen({ route, navigation }: any) {
                 onRequestClose={() => setSmartCutoffModal(false)}
             >
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalSheet}>
-                        <View style={styles.modalHandle} />
+                    <View
+                        style={[
+                            styles.modalSheet,
+                            {
+                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
+                            },
+                        ]}
+                    >
+                        <View style={[styles.modalHandle, { backgroundColor: isDark ? '#33333C' : '#D1D5DB' }]} />
                         <View style={styles.modalHeader}>
-                            <ThemedText style={styles.modalTitle}>Smart Cut-Off Settings</ThemedText>
+                            <ThemedText style={[styles.modalTitle, { color: colors.text }]}>
+                                Smart Cut-Off Settings
+                            </ThemedText>
                             <TouchableOpacity
                                 onPress={() => setSmartCutoffModal(false)}
                                 style={styles.modalClose}
                             >
-                                <X size={18} color="#6B7280" />
+                                <X size={20} color={colors.textMuted} />
                             </TouchableOpacity>
                         </View>
 
-                        <ThemedText style={styles.modalSub}>
+                        <ThemedText style={[styles.modalSub, { color: colors.textMuted }]}>
                             Auto-stop charging to prevent battery degradation and idle fees.
                         </ThemedText>
 
                         {['80% (Recommended for battery health)', '90% (Extended trip)', '100% (Full battery)'].map(
-                            (option, i) => (
-                                <TouchableOpacity
-                                    key={i}
-                                    style={[
-                                        styles.cutoffOption,
-                                        cutoffPercent.startsWith(option.slice(0, 3)) &&
-                                            styles.cutoffOptionActive,
-                                    ]}
-                                    onPress={() => {
-                                        setCutoffPercent(option);
-                                        setSmartCutoffModal(false);
-                                    }}
-                                >
-                                    <ThemedText style={styles.cutoffOptionText}>{option}</ThemedText>
-                                </TouchableOpacity>
-                            )
+                            (option, i) => {
+                                const isOptionActive = cutoffPercent.startsWith(option.slice(0, 3));
+                                return (
+                                    <TouchableOpacity
+                                        key={i}
+                                        style={[
+                                            styles.cutoffOption,
+                                            isOptionActive
+                                                ? {
+                                                      backgroundColor: isDark ? '#1E1E26' : '#FFFFFF',
+                                                      borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                      borderBottomColor: isDark ? '#9E9EA8' : '#000000',
+                                                  }
+                                                : {
+                                                      backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                                                      borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                                  },
+                                        ]}
+                                        onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            setCutoffPercent(option);
+                                            setSmartCutoffModal(false);
+                                        }}
+                                        activeOpacity={0.82}
+                                    >
+                                        <ThemedText style={[styles.cutoffOptionText, { color: colors.text }]}>
+                                            {option}
+                                        </ThemedText>
+                                        {isOptionActive && (
+                                            <Check size={18} color={colors.primary} strokeWidth={2.5} />
+                                        )}
+                                    </TouchableOpacity>
+                                );
+                            }
                         )}
                     </View>
                 </View>
@@ -668,7 +952,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: 145,
+        paddingBottom: 160,
     },
     // Top Bar
     topBar: {
@@ -677,38 +961,39 @@ const styles = StyleSheet.create({
         paddingHorizontal: SPACING.md,
         paddingTop: SPACING.xs,
         paddingBottom: 4,
+        gap: 10,
     },
-    backButton: {
-        paddingRight: 4,
-        marginLeft: -4,
+    tactileCircleBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     stationTitle: {
-        fontSize: 22,
-        fontWeight: '800',
-        color: '#FFFFFF',
-        fontFamily: FONT_FAMILIES.serifHeading,
-        flexShrink: 1,
+        fontSize: 18,
+        fontFamily: FONT_FAMILIES.bold,
+        letterSpacing: -0.3,
+        flex: 1,
     },
     topBarActions: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: 'auto',
-        gap: 14,
-    },
-    actionIconBtn: {
-        padding: 2,
+        gap: 8,
     },
     // Address
     addressRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: SPACING.md,
-        marginTop: 4,
-        gap: 4,
+        marginTop: 6,
+        gap: 6,
     },
     addressText: {
         fontSize: 12,
-        color: '#9CA3AF',
+        fontFamily: FONT_FAMILIES.medium,
         flex: 1,
     },
     // Pills
@@ -716,58 +1001,60 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: SPACING.md,
-        marginTop: 10,
+        marginTop: 12,
         gap: 8,
     },
     openPill: {
-        backgroundColor: '#E8F7EC',
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         paddingVertical: 5,
-        borderRadius: 6,
+        borderRadius: 8,
+        borderWidth: 1.5,
+        borderBottomWidth: 2.5,
     },
     openPillText: {
-        fontSize: 12,
-        fontWeight: '700',
-        fontFamily: FONT_FAMILIES.sansBold,
-        color: '#FFFFFF',
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.bold,
+        letterSpacing: 0.5,
     },
     grayPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#EAECEF',
         paddingHorizontal: 10,
         paddingVertical: 5,
-        borderRadius: 6,
+        borderRadius: 8,
+        borderWidth: 1.5,
+        borderBottomWidth: 2.5,
         gap: 5,
     },
     grayPillText: {
         fontSize: 11,
-        fontWeight: '500',
-        fontFamily: FONT_FAMILIES.sansMedium,
-        color: '#374151',
+        fontFamily: FONT_FAMILIES.medium,
     },
     etaBold: {
         fontSize: 11,
-        fontWeight: '700',
-        fontFamily: FONT_FAMILIES.sansBold,
-        color: '#111827',
+        fontFamily: FONT_FAMILIES.bold,
     },
     // Amenities
     amenitiesRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: SPACING.md,
-        marginTop: 10,
-        gap: 14,
+        marginTop: 12,
+        gap: 8,
     },
     amenityItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderBottomWidth: 2,
     },
     amenityText: {
-        fontSize: 12,
-        color: '#9CA3AF',
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.medium,
     },
     // Photo Gallery
     galleryScroll: {
@@ -775,28 +1062,35 @@ const styles = StyleSheet.create({
         marginTop: 14,
         gap: 12,
     },
-    galleryImage: {
+    galleryImageWrap: {
         width: 155,
         height: 130,
-        borderRadius: 14,
-        backgroundColor: '#E5E7EB',
+        borderRadius: 16,
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        borderBottomWidth: 3.5,
+    },
+    galleryImage: {
+        width: '100%',
+        height: '100%',
     },
     // Charger Cards
     chargersSection: {
         paddingHorizontal: SPACING.md,
-        marginTop: 16,
+        marginTop: 18,
         gap: 14,
     },
     chargerCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 14,
+        borderRadius: 20,
+        padding: 16,
+        borderWidth: 1.5,
+        borderBottomWidth: 4,
     },
     chargerHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 12,
     },
     chargerTitleGroup: {
         flexDirection: 'row',
@@ -805,66 +1099,57 @@ const styles = StyleSheet.create({
     },
     chargerBoldLabel: {
         fontSize: 16,
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        color: '#111827',
+        fontFamily: FONT_FAMILIES.bold,
     },
     chargerCode: {
         fontSize: 16,
-        fontWeight: '400',
-        color: '#111827',
+        fontFamily: FONT_FAMILIES.medium,
     },
-    trackStatusLink: {
-        fontSize: 12,
-        fontWeight: '600',
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        color: '#FFFFFF',
-        textDecorationLine: 'underline',
+    trackStatusBtn: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderBottomWidth: 2,
     },
-    stopTrackStatusLink: {
-        fontSize: 12,
-        fontWeight: '600',
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        color: '#DC2626',
-        textDecorationLine: 'underline',
+    trackStatusBtnText: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.bold,
     },
     trackingBanner: {
         alignItems: 'center',
-        marginBottom: 10,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderBottomWidth: 2,
+        marginBottom: 12,
     },
     trackingBannerText: {
-        fontSize: 12,
-        color: '#FFFFFF',
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.medium,
     },
     trackingTimerBold: {
-        fontSize: 13,
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        color: '#FFFFFF',
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.bold,
     },
     connectorsStack: {
         gap: 10,
     },
-    // Whole Connector Card (Selected wraps both info row + buttons!)
+    // Whole Connector Card
     connectorWholeCard: {
         borderRadius: 16,
         paddingHorizontal: 14,
         paddingVertical: 12,
-        marginBottom: 8,
         borderWidth: 1.5,
     },
     connectorCardSelected: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#FFFFFF',
-        borderBottomWidth: 2,
-        borderBottomColor: '#B0B0B8',
-        transform: [{ translateY: 2 }],
+        borderWidth: 2,
+        borderBottomWidth: 4.5,
     },
     connectorCardUnselected: {
-        backgroundColor: '#121216',
-        borderColor: 'rgba(255, 255, 255, 0.08)',
-        borderBottomWidth: 3.5,
-        borderBottomColor: '#070709',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     connectorInfoRow: {
         flexDirection: 'row',
@@ -872,14 +1157,19 @@ const styles = StyleSheet.create({
     },
     connectorIconContainer: {
         alignItems: 'center',
-        width: 42,
-        marginRight: 8,
+        justifyContent: 'center',
+        width: 44,
+        height: 44,
+        borderRadius: 10,
+        marginRight: 10,
+        borderWidth: 1.5,
+        borderBottomWidth: 2.5,
     },
     connectorSublabel: {
-        fontSize: 8,
-        fontWeight: '700',
-        fontFamily: FONT_FAMILIES.sansBold,
+        fontSize: 7.5,
+        fontFamily: FONT_FAMILIES.bold,
         marginTop: 2,
+        textTransform: 'uppercase',
     },
     powerGroup: {
         flexDirection: 'row',
@@ -888,141 +1178,95 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     acDcBadge: {
-        paddingHorizontal: 7,
+        paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: 6,
+        borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    dcBadge: {
-        backgroundColor: '#E8F7EC',
-    },
-    acBadge: {
-        backgroundColor: '#E0F2FE',
-    },
     acDcBadgeText: {
-        fontSize: 10,
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        lineHeight: 14,
-    },
-    dcBadgeText: {
-        color: '#000000',
-    },
-    acBadgeText: {
-        color: '#0284C7',
+        fontSize: 9,
+        fontFamily: FONT_FAMILIES.bold,
+        lineHeight: 12,
     },
     powerText: {
-        fontSize: 15,
-        fontWeight: '500',
-        fontFamily: FONT_FAMILIES.sansMedium,
-        color: '#1E293B',
+        fontSize: 14,
+        fontFamily: FONT_FAMILIES.bold,
         minWidth: 50,
-    },
-    powerTextSelected: {
-        fontSize: 13,
-        color: '#000000',
     },
     tariffPrice: {
         fontSize: 15,
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        color: '#0F172A',
-    },
-    tariffPriceSelected: {
-        fontSize: 13,
-        color: '#000000',
+        fontFamily: FONT_FAMILIES.extraBold,
     },
     tariffUnit: {
-        fontSize: 12,
-        fontWeight: '400',
-        fontFamily: FONT_FAMILIES.sansRegular,
-        color: '#475569',
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.medium,
     },
     statusColumn: {
         marginLeft: 'auto',
     },
     statusText: {
-        fontSize: 14,
-        fontWeight: '700',
-        fontFamily: FONT_FAMILIES.sansBold,
-    },
-    statusPreparing: {
-        color: '#D97706',
-        fontWeight: '700',
-        fontFamily: FONT_FAMILIES.sansBold,
-    },
-    statusAvailable: {
-        color: '#000000',
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.bold,
     },
     // Connector Action Buttons inside the Selected Card
     connectorActionsRow: {
         flexDirection: 'row',
         gap: 10,
-        marginTop: 10,
+        marginTop: 12,
     },
     smartCutoffButton: {
         flex: 1,
-        backgroundColor: '#1E1E24',
         borderRadius: 12,
-        paddingVertical: 10,
+        paddingVertical: 11,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        borderColor: 'rgba(255, 255, 255, 0.25)',
         borderBottomWidth: 3.5,
-        borderBottomColor: '#070709',
     },
     smartCutoffText: {
-        fontSize: 13,
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        color: '#FFFFFF',
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.bold,
         letterSpacing: 0.5,
     },
     startChargingButton: {
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        paddingVertical: 10,
+        paddingVertical: 11,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
         borderWidth: 1.5,
-        borderColor: '#000000',
         borderBottomWidth: 3.5,
-        borderBottomColor: '#333338',
     },
     startChargingText: {
-        fontSize: 13,
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        color: '#000000',
-        textTransform: 'uppercase',
-        letterSpacing: 0.8,
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: 0.6,
     },
     // Schedule Link
     tariffScheduleLinkRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: SPACING.md,
+        justifyContent: 'space-between',
+        marginHorizontal: SPACING.md,
         marginTop: 16,
-        gap: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        borderRadius: 14,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     tariffScheduleLinkText: {
         fontSize: 13,
-        fontWeight: '700',
-        fontFamily: FONT_FAMILIES.sansBold,
-        color: '#FFFFFF',
+        fontFamily: FONT_FAMILIES.bold,
     },
     chevronCircle: {
-        width: 18,
-        height: 18,
-        borderRadius: 9,
-        backgroundColor: '#FFFFFF',
+        width: 22,
+        height: 22,
+        borderRadius: 11,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1032,34 +1276,27 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#FFFFFF',
         paddingHorizontal: SPACING.md,
         paddingTop: 12,
     },
     bottomCtaRow: {
         flexDirection: 'row',
-        gap: 12,
+        gap: 10,
     },
     helpSupportBtn: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#16161B',
         borderRadius: 12,
         height: 48,
         gap: 8,
         borderWidth: 1.5,
-        borderColor: 'rgba(255, 255, 255, 0.25)',
         borderBottomWidth: 4,
-        borderBottomColor: '#070709',
     },
     helpSupportText: {
-        fontSize: 13,
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        color: '#FFFFFF',
-        textTransform: 'uppercase',
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.bold,
         letterSpacing: 0.6,
     },
     getDirectionBtn: {
@@ -1067,32 +1304,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FFFFFF',
         borderRadius: 12,
         height: 48,
         gap: 8,
         borderWidth: 1.5,
-        borderColor: '#000000',
         borderBottomWidth: 4,
-        borderBottomColor: '#333338',
     },
     getDirectionText: {
-        fontSize: 13,
-        fontWeight: '800',
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        color: '#000000',
-        textTransform: 'uppercase',
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.extraBold,
         letterSpacing: 0.6,
     },
     walletStrip: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#141418',
-        borderRadius: 10,
+        borderRadius: 12,
         paddingHorizontal: 12,
         paddingVertical: 8,
         marginTop: 10,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     walletLeft: {
         flexDirection: 'row',
@@ -1102,60 +1334,53 @@ const styles = StyleSheet.create({
     walletGreenIcon: {
         width: 28,
         height: 28,
-        borderRadius: 6,
-        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
     },
     walletLabel: {
-        fontSize: 12,
-        color: '#8E8E93',
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.medium,
     },
     walletLabelBold: {
-        fontWeight: '700',
-        fontFamily: FONT_FAMILIES.sansBold,
-        color: '#FFFFFF',
+        fontFamily: FONT_FAMILIES.bold,
     },
     walletAmount: {
-        fontWeight: '700',
-        fontFamily: FONT_FAMILIES.sansBold,
-        color: '#FFFFFF',
+        fontFamily: FONT_FAMILIES.bold,
     },
     addWalletBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
         borderRadius: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        gap: 3,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        gap: 4,
+        borderWidth: 1,
+        borderBottomWidth: 2.5,
     },
     addWalletText: {
-        fontSize: 13,
-        fontWeight: '600',
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        color: '#FFFFFF',
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.bold,
     },
     // Modals
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
         justifyContent: 'flex-end',
     },
     modalSheet: {
-        backgroundColor: '#FFFFFF',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
+        borderTopWidth: 2,
         padding: SPACING.lg,
         paddingBottom: 36,
     },
     modalHandle: {
         width: 36,
         height: 4,
-        backgroundColor: '#D1D5DB',
         borderRadius: 2,
         alignSelf: 'center',
-        marginBottom: 12,
+        marginBottom: 14,
     },
     modalHeader: {
         flexDirection: 'row',
@@ -1163,64 +1388,65 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalTitle: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: '#111827',
+        fontSize: 17,
+        fontFamily: FONT_FAMILIES.bold,
     },
     modalClose: {
         padding: 4,
     },
     modalSub: {
         fontSize: 12,
-        color: '#6B7280',
+        fontFamily: FONT_FAMILIES.medium,
         marginTop: 4,
         marginBottom: 14,
     },
     modalTariffBox: {
-        backgroundColor: '#F9FAFB',
-        borderRadius: 12,
-        padding: 12,
-        gap: 10,
+        borderRadius: 14,
+        padding: 14,
+        gap: 12,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     tariffLine: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
     },
     tariffKey: {
         fontSize: 13,
-        color: '#4B5563',
+        fontFamily: FONT_FAMILIES.medium,
     },
     tariffVal: {
         fontSize: 13,
-        fontWeight: '700',
-        color: '#111827',
+        fontFamily: FONT_FAMILIES.bold,
     },
     modalConfirmBtn: {
-        backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        height: 46,
+        height: 48,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 16,
+        marginTop: 18,
+        borderWidth: 1.5,
+        borderBottomWidth: 3.5,
     },
     modalConfirmText: {
-        color: '#000000',
-        fontWeight: '700',
-        fontSize: 14,
+        fontFamily: FONT_FAMILIES.bold,
+        fontSize: 13,
+        letterSpacing: 0.8,
     },
     cutoffOption: {
-        paddingVertical: 12,
-        paddingHorizontal: 12,
-        borderRadius: 10,
-        backgroundColor: '#F3F4F6',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 14,
+        borderRadius: 12,
         marginVertical: 4,
-    },
-    cutoffOptionActive: {
-        backgroundColor: '#DCFCE7',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     cutoffOptionText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#111827',
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.semiBold,
     },
 });
