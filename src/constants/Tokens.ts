@@ -1,23 +1,41 @@
 import { StyleSheet, TextStyle } from 'react-native';
 
-// Typography tokens using Red Hat Display
+// Typography tokens with CRED high-contrast editorial hierarchy
 export const FONTS = {
-    h1: {
-        fontSize: 32,
+    // Massive Hero Numbers (Battery %, Amount, Speeds)
+    display: {
+        fontSize: 42,
         fontWeight: '800' as TextStyle['fontWeight'],
-        lineHeight: 38,
+        lineHeight: 48,
+        letterSpacing: -1.2,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+    },
+    heroStat: {
+        fontSize: 36,
+        fontWeight: '800' as TextStyle['fontWeight'],
+        lineHeight: 42,
+        letterSpacing: -1.0,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+    },
+    h1: {
+        fontSize: 30,
+        fontWeight: '800' as TextStyle['fontWeight'],
+        lineHeight: 36,
+        letterSpacing: -0.8,
         fontFamily: 'RedHatDisplay_800ExtraBold',
     },
     h2: {
         fontSize: 22,
         fontWeight: '700' as TextStyle['fontWeight'],
         lineHeight: 28,
+        letterSpacing: -0.4,
         fontFamily: 'RedHatDisplay_700Bold',
     },
     h3: {
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: '700' as TextStyle['fontWeight'],
-        lineHeight: 24,
+        lineHeight: 23,
+        letterSpacing: -0.2,
         fontFamily: 'RedHatDisplay_700Bold',
     },
     body: {
@@ -32,12 +50,28 @@ export const FONTS = {
         lineHeight: 22,
         fontFamily: 'RedHatDisplay_600SemiBold',
     },
+    // CRED Signature Micro-Eyebrow Tag
+    eyebrow: {
+        fontSize: 10,
+        fontWeight: '800' as TextStyle['fontWeight'],
+        lineHeight: 13,
+        letterSpacing: 1.6,
+        textTransform: 'uppercase' as TextStyle['textTransform'],
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+    },
     label: {
         fontSize: 11,
         fontWeight: '700' as TextStyle['fontWeight'],
-        lineHeight: 14,
+        lineHeight: 15,
         letterSpacing: 0.8,
         textTransform: 'uppercase' as TextStyle['textTransform'],
+        fontFamily: 'RedHatDisplay_700Bold',
+    },
+    monoVal: {
+        fontSize: 16,
+        fontWeight: '700' as TextStyle['fontWeight'],
+        lineHeight: 21,
+        letterSpacing: 0.4,
         fontFamily: 'RedHatDisplay_700Bold',
     },
     caption: {
@@ -48,7 +82,7 @@ export const FONTS = {
     },
 };
 
-// Spacing tokens
+// Spacing tokens with generous macro-rhythm
 export const SPACING = {
     xs: 4,
     sm: 8,
@@ -58,17 +92,43 @@ export const SPACING = {
     xxl: 48,
 };
 
-// Radius tokens
+// Radius tokens with concentric double-bezel curves
 export const RADIUS = {
     input: 12,
-    card: 16,
-    cardLg: 18,
-    bottomSheet: 24,
+    card: 18,
+    cardLg: 22,
+    bezelOuter: 24,
+    bezelInner: 18,
+    bottomSheet: 28,
     pill: 999,
-    button: 14,
+    button: 999, // CRED buttons are iconic full pills
 };
 
-// Shadow tokens - Flat Design (no drop shadows or elevation)
+// CRED Double-Bezel (Doppelrand) Architecture Styles
+export const CRED_BEZEL = StyleSheet.create({
+    outerShell: {
+        borderRadius: RADIUS.bezelOuter,
+        padding: 2,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+        backgroundColor: '#141418',
+    },
+    innerCore: {
+        borderRadius: RADIUS.bezelInner,
+        padding: 16,
+        backgroundColor: '#0E0E12',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.04)',
+    },
+    neonGlowBorder: {
+        borderColor: 'rgba(0, 229, 117, 0.35)',
+    },
+    goldGlowBorder: {
+        borderColor: 'rgba(245, 166, 35, 0.35)',
+    },
+});
+
+// Flat design shadows (zero drop shadows or blur artifacts)
 export const SHADOWS = StyleSheet.create({
     card: {
         shadowOffset: { width: 0, height: 0 },

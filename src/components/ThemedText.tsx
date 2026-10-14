@@ -5,7 +5,7 @@ import { FONTS } from '../constants/Tokens';
 export type ThemedTextProps = TextProps & {
     lightColor?: string;
     darkColor?: string;
-    type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'label' | 'caption';
+    type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'label' | 'caption' | 'eyebrow' | 'heroStat' | 'display';
 };
 
 export function ThemedText({
@@ -29,6 +29,9 @@ export function ThemedText({
                 type === 'link' ? styles.link : undefined,
                 type === 'label' ? styles.label : undefined,
                 type === 'caption' ? styles.caption : undefined,
+                type === 'eyebrow' ? styles.eyebrow : undefined,
+                type === 'heroStat' ? styles.heroStat : undefined,
+                type === 'display' ? styles.display : undefined,
                 style,
             ]}
             {...rest}
@@ -57,5 +60,14 @@ const styles = StyleSheet.create({
     },
     caption: {
         ...FONTS.caption,
+    },
+    eyebrow: {
+        ...FONTS.eyebrow,
+    },
+    heroStat: {
+        ...FONTS.heroStat,
+    },
+    display: {
+        ...FONTS.display,
     },
 });

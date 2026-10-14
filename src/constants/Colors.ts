@@ -14,6 +14,12 @@ export type AppTheme = {
   card: string;
   inputBackground: string;
   border: string;
+  cardBorder: string;
+  cardHighlight: string;
+  neon: string;
+  gold: string;
+  obsidian: string;
+  onyx: string;
   overlay: string;
   text: string;
   textMuted: string;
@@ -33,70 +39,89 @@ export type AppTheme = {
   rewardGradient: GradientColors;
 };
 
-const lightPrimary = '#1E9731';
-const darkPrimary = '#5BC272';
+// CRED Signature Palette
+const credNeonGreen = '#00E575';
+const credNeonMint = '#05DF72';
+const credGold = '#F5A623';
+const credDarkObsidian = '#0A0A0B';
+const credDarkOnyx = '#121215';
 
 export const Colors: Record<ThemeName, AppTheme> = {
-  light: {
-    primary: lightPrimary,
-    primaryStrong: '#127A25',
-    primarySoft: 'rgba(30, 151, 49, 0.12)',
-    secondary: '#38B14F',
-    accent: '#CC921E',
-    background: '#F4F8F1',
-    backgroundAlt: '#ECF3E7',
-    surface: '#FFFFFF',
-    surfaceMuted: '#EEF4EA',
-    card: '#FFFFFF',
-    inputBackground: '#FBFDF8',
-    border: '#D7E2D2',
-    overlay: 'rgba(16, 34, 23, 0.06)',
-    text: '#132218',
-    textMuted: '#5B7361',
-    textSoft: '#849488',
-    icon: '#6A8170',
-    tint: lightPrimary,
-    tabIconDefault: '#7A8E7F',
-    tabIconSelected: lightPrimary,
-    tabBar: 'rgba(255, 255, 255, 0.94)',
-    tabBarBorder: 'rgba(30, 151, 49, 0.16)',
-    success: '#1E9731',
-    warning: '#B97D15',
-    error: '#C84F47',
-    shadow: 'rgba(19, 34, 24, 0.16)',
-    heroGradient: ['#FAFDF7', '#F0F7EC', '#E7F2E1'],
-    primaryGradient: ['#1E9731', '#30A944'],
-    rewardGradient: ['#F6E3A6', '#E0B24C'],
-  },
+  // CRED Dark Luxury (Hero Default)
   dark: {
-    primary: darkPrimary,
-    primaryStrong: '#41995A',
-    primarySoft: 'rgba(91, 194, 114, 0.14)',
-    secondary: '#7BE08F',
-    accent: '#F4C95D',
-    background: '#121212',
-    backgroundAlt: '#181818',
-    surface: '#1E1E1E',
-    surfaceMuted: '#2A2A2A',
-    card: '#1F1F1F',
-    inputBackground: '#252525',
-    border: '#333333',
-    overlay: 'rgba(0, 0, 0, 0.4)',
-    text: '#F3FBF5',
-    textMuted: '#A4C1AA',
-    textSoft: '#78917D',
-    icon: '#9CBBA3',
-    tint: darkPrimary,
-    tabIconDefault: '#6E8D74',
-    tabIconSelected: darkPrimary,
-    tabBar: 'rgba(0, 0, 0, 0.96)',
-    tabBarBorder: 'rgba(91, 194, 114, 0.12)',
-    success: '#5BC272',
-    warning: '#E2B24A',
-    error: '#EC726B',
-    shadow: 'rgba(0, 0, 0, 0.5)',
-    heroGradient: ['#121212', '#161917', '#121212'],
-    primaryGradient: ['#5BC272', '#4EAD66'],
-    rewardGradient: ['#E0BF6A', '#C9922B'],
+    primary: credNeonGreen,
+    primaryStrong: '#00BF5E',
+    primarySoft: 'rgba(0, 229, 117, 0.12)',
+    secondary: credNeonMint,
+    accent: credGold,
+    background: credDarkObsidian,
+    backgroundAlt: '#060607',
+    surface: credDarkOnyx,
+    surfaceMuted: '#17171C',
+    card: '#131316',
+    inputBackground: '#16161B',
+    border: 'rgba(255, 255, 255, 0.08)',
+    cardBorder: 'rgba(255, 255, 255, 0.08)',
+    cardHighlight: 'rgba(255, 255, 255, 0.12)',
+    neon: credNeonGreen,
+    gold: credGold,
+    obsidian: credDarkObsidian,
+    onyx: credDarkOnyx,
+    overlay: 'rgba(0, 0, 0, 0.78)',
+    text: '#FFFFFF',
+    textMuted: '#8E8E93',
+    textSoft: '#636366',
+    icon: '#A1A1A6',
+    tint: credNeonGreen,
+    tabIconDefault: '#636366',
+    tabIconSelected: credNeonGreen,
+    tabBar: 'rgba(10, 10, 11, 0.98)',
+    tabBarBorder: 'rgba(255, 255, 255, 0.06)',
+    success: credNeonGreen,
+    warning: credGold,
+    error: '#FF3B30',
+    shadow: 'rgba(0, 0, 0, 0.8)',
+    heroGradient: ['#0A0A0B', '#121216', '#0A0A0B'],
+    primaryGradient: ['#00E575', '#00BF5E'],
+    rewardGradient: ['#F5A623', '#D48806'],
+  },
+
+  // CRED High-Contrast Bone White (Alternative)
+  light: {
+    primary: '#00B85C',
+    primaryStrong: '#008F47',
+    primarySoft: 'rgba(0, 184, 92, 0.10)',
+    secondary: '#00E575',
+    accent: '#D48806',
+    background: '#F6F6F4',
+    backgroundAlt: '#EDEDEB',
+    surface: '#FFFFFF',
+    surfaceMuted: '#F0F0EE',
+    card: '#FFFFFF',
+    inputBackground: '#FFFFFF',
+    border: 'rgba(0, 0, 0, 0.08)',
+    cardBorder: 'rgba(0, 0, 0, 0.08)',
+    cardHighlight: 'rgba(255, 255, 255, 0.8)',
+    neon: credNeonGreen,
+    gold: credGold,
+    obsidian: credDarkObsidian,
+    onyx: credDarkOnyx,
+    overlay: 'rgba(0, 0, 0, 0.15)',
+    text: '#0A0A0B',
+    textMuted: '#6B6B70',
+    textSoft: '#8E8E93',
+    icon: '#6B6B70',
+    tint: '#00B85C',
+    tabIconDefault: '#8E8E93',
+    tabIconSelected: '#00B85C',
+    tabBar: 'rgba(255, 255, 255, 0.96)',
+    tabBarBorder: 'rgba(0, 0, 0, 0.06)',
+    success: '#00B85C',
+    warning: '#D48806',
+    error: '#D32F2F',
+    shadow: 'rgba(0, 0, 0, 0.12)',
+    heroGradient: ['#FFFFFF', '#F6F6F4', '#EDEDEB'],
+    primaryGradient: ['#00B85C', '#00964B'],
+    rewardGradient: ['#F5A623', '#D48806'],
   },
 };

@@ -17,6 +17,8 @@ export function NeoCard({ children, style, gradientBorder = false, ...otherProps
             styles.card,
             {
                 backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+                borderWidth: 1,
             },
             style
         ]} {...otherProps}>
