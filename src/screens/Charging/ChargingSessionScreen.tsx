@@ -3,6 +3,7 @@ import {
     Alert,
     Dimensions,
     Modal,
+    Platform,
     ScrollView,
     StyleSheet,
     TouchableOpacity,
@@ -18,6 +19,7 @@ import Svg, {
     Rect,
     Stop,
 } from 'react-native-svg';
+import * as Haptics from 'expo-haptics';
 import {
     BatteryCharging,
     Check,
@@ -34,6 +36,8 @@ import {
     Zap,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
+import { CredButton } from '../../components/CredButton';
+import { CredBadge } from '../../components/CredBadge';
 import {
     MOCK_STATIONS,
     Station,
@@ -109,8 +113,11 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
         }
     }, [activeSession, connector, selectedVehicle, startChargingSession, station, targetSoc]);
 
-    // Handle updating charge limit
+    // Handle updating charge limit with haptics
     const handleSelectTargetSoc = (newTarget: number) => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }
         setTargetSoc(newTarget);
         setContextTargetSoc(newTarget);
     };
@@ -247,14 +254,23 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
 
     return (
         <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-            {/* ── 1. Top Navigation Bar ── */}
+            {/* ── 1. Top Navigation Bar with CRED Precision ── */}
             <View style={styles.topBar}>
                 <TouchableOpacity
-                    style={[styles.backChevronBtn, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}
+                    style={[
+                        styles.backChevronBtn,
+                        {
+                            backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                            borderColor: colors.cardBorder,
+                        },
+                    ]}
                     activeOpacity={0.75}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        navigation.goBack();
+                    }}
                 >
-                    <ChevronLeft size={22} color={colors.text} />
+                    <ChevronLeft size={20} color={colors.text} />
                 </TouchableOpacity>
 
                 <View style={styles.stationInfoWrap}>
@@ -266,21 +282,24 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     </ThemedText>
                 </View>
 
-                {/* Live Pulse Badge */}
-                <View style={[styles.activeStatusPill, { backgroundColor: isDark ? 'rgba(91, 194, 114, 0.15)' : '#DCFCE7' }]}>
-                    <View style={[styles.liveDot, { backgroundColor: colors.primary }]} />
-                    <ThemedText style={[styles.activeStatusText, { color: colors.primary }]}>
-                        Charging
-                    </ThemedText>
-                </View>
+                {/* Live CRED Pulse Badge */}
+                <CredBadge label="CHARGING" variant="neon" dot />
             </View>
 
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 28 }]}
             >
-                {/* ── 2. HERO BATTERY & TIME STATUS CARD ── */}
-                <View style={[styles.heroCard, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
+                {/* ── 2. HERO BATTERY & TIME STATUS CARD (CRED DOUBLE-BEZEL) ── */}
+                <View
+                    style={[
+                        styles.heroCard,
+                        {
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
+                        },
+                    ]}
+                >
                     {/* Ring Container */}
                     <View style={styles.ringCenterWrap}>
                         <Svg width={RING_SIZE} height={RING_SIZE}>
@@ -313,7 +332,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                 cx={targetMarkerX}
                                 cy={targetMarkerY}
                                 r={5}
-                                fill={isDark ? '#F59E0B' : '#D97706'}
+                                fill={isDark ? '#F5A623' : '#D97706'}
                             />
                             <Circle
                                 cx={targetMarkerX}
@@ -326,7 +345,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         {/* Inside Ring Content */}
                         <View style={styles.ringInterior} pointerEvents="none">
                             <View style={styles.boltPill}>
-                                <Zap size={14} color={colors.primary} fill={colors.primary} />
+                                <Zap size={13} color={colors.primary} fill={colors.primary} />
                                 <ThemedText style={[styles.boltRateText, { color: colors.primary }]}>
                                     {currentPower} kW
                                 </ThemedText>
@@ -343,8 +362,16 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     </View>
 
                     {/* Time Remaining & Target ETA Banner */}
-                    <View style={[styles.timeCountdownBanner, { backgroundColor: isDark ? colors.surfaceMuted : '#F8FAFC' }]}>
-                        <Clock size={16} color={colors.primary} style={{ marginRight: 6 }} />
+                    <View
+                        style={[
+                            styles.timeCountdownBanner,
+                            {
+                                backgroundColor: isDark ? '#18181F' : '#F8FAFC',
+                                borderColor: colors.cardBorder,
+                            },
+                        ]}
+                    >
+                        <Clock size={15} color={colors.primary} style={{ marginRight: 6 }} />
                         <ThemedText style={[styles.countdownPrimaryText, { color: colors.text }]}>
                             ~{estMinutesRemaining} mins remaining
                         </ThemedText>
@@ -353,7 +380,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         </ThemedText>
                     </View>
 
-                    {/* Target Limit Selector */}
+                    {/* Target Limit Selector with 3D Neo-Brutalist Mechanical Push-Tiles */}
                     <View style={styles.targetLimitSection}>
                         <View style={styles.targetLimitHeaderRow}>
                             <ThemedText style={[styles.targetLimitLabel, { color: colors.textMuted }]}>
@@ -364,7 +391,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             </ThemedText>
                         </View>
 
-                        {/* Quick Presets: 70%, 80%, 90%, 100% */}
+                        {/* 3D Mechanical Preset Tiles */}
                         <View style={styles.targetPresetRow}>
                             {[70, 80, 90, 100].map((preset) => {
                                 const isSelected = targetSoc === preset;
@@ -373,11 +400,13 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                         key={`preset-${preset}`}
                                         style={[
                                             styles.targetPresetBtn,
-                                            {
-                                                backgroundColor: isSelected
-                                                    ? colors.primary
-                                                    : (isDark ? colors.surfaceMuted : '#F1F5F9'),
-                                            },
+                                            isSelected ? [
+                                                styles.targetPresetBtnActive,
+                                                { backgroundColor: colors.primary },
+                                            ] : [
+                                                styles.targetPresetBtnInactive,
+                                                { backgroundColor: isDark ? '#16161B' : '#F1F5F9' },
+                                            ],
                                         ]}
                                         activeOpacity={0.8}
                                         onPress={() => handleSelectTargetSoc(preset)}
@@ -385,8 +414,8 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                         <ThemedText
                                             style={[
                                                 styles.targetPresetText,
-                                                { color: isSelected ? '#FFFFFF' : colors.text },
-                                                isSelected && { fontFamily: 'RedHatDisplay_700Bold', fontWeight: '700' },
+                                                { color: isSelected ? '#000000' : colors.text },
+                                                isSelected && { fontFamily: 'RedHatDisplay_800ExtraBold', fontWeight: '800' },
                                             ]}
                                         >
                                             {preset}%{preset === 80 ? ' ★' : ''}
@@ -402,8 +431,16 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     </View>
                 </View>
 
-                {/* ── 3. TELEMETRY DASHBOARD (2×2 UNIFIED QUADRANT) ── */}
-                <View style={[styles.telemetryCard, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
+                {/* ── 3. TELEMETRY DASHBOARD (CRED 2×2 QUADRANT) ── */}
+                <View
+                    style={[
+                        styles.telemetryCard,
+                        {
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
+                        },
+                    ]}
+                >
                     <View style={styles.telemetryRow}>
                         {/* 3A. Charging Speed */}
                         <View style={styles.telemetryQuadrant}>
@@ -479,9 +516,15 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     </View>
                 </View>
 
-                {/* ── 4. POWER INTAKE CURVE CARD ── */}
+                {/* ── 4. POWER INTAKE CURVE CARD (CRED DOUBLE-BEZEL) ── */}
                 <View
-                    style={[styles.curveCard, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}
+                    style={[
+                        styles.curveCard,
+                        {
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
+                        },
+                    ]}
                     onLayout={(e) => {
                         const w = e.nativeEvent.layout.width - 20;
                         if (w > 0) setCardContentWidth(w);
@@ -497,23 +540,23 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             </ThemedText>
                         </View>
 
-                        {/* Segmented Toggle: Speed vs Time */}
-                        <View style={[styles.miniToggleWrap, { backgroundColor: isDark ? colors.surfaceMuted : '#F1F5F9' }]}>
+                        {/* 3D Neo-Brutalist Tactile Rocker Switch: Speed vs Time */}
+                        <View style={styles.miniToggleWrap}>
                             <TouchableOpacity
                                 style={[
                                     styles.miniToggleBtn,
-                                    curveType === 'speed' && [
-                                        styles.miniToggleBtnActive,
-                                        { backgroundColor: isDark ? 'rgba(91, 194, 114, 0.2)' : '#DCFCE7' },
-                                    ],
+                                    curveType === 'speed' ? styles.miniToggleBtnActive : styles.miniToggleBtnInactive,
                                 ]}
                                 activeOpacity={0.8}
-                                onPress={() => setCurveType('speed')}
+                                onPress={() => {
+                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setCurveType('speed');
+                                }}
                             >
                                 <ThemedText
                                     style={[
                                         styles.miniToggleText,
-                                        { color: curveType === 'speed' ? colors.primary : colors.textMuted },
+                                        { color: curveType === 'speed' ? '#000000' : colors.textMuted },
                                     ]}
                                 >
                                     SoC %
@@ -523,18 +566,18 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             <TouchableOpacity
                                 style={[
                                     styles.miniToggleBtn,
-                                    curveType === 'time' && [
-                                        styles.miniToggleBtnActive,
-                                        { backgroundColor: isDark ? 'rgba(91, 194, 114, 0.2)' : '#DCFCE7' },
-                                    ],
+                                    curveType === 'time' ? styles.miniToggleBtnActive : styles.miniToggleBtnInactive,
                                 ]}
                                 activeOpacity={0.8}
-                                onPress={() => setCurveType('time')}
+                                onPress={() => {
+                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setCurveType('time');
+                                }}
                             >
                                 <ThemedText
                                     style={[
                                         styles.miniToggleText,
-                                        { color: curveType === 'time' ? colors.primary : colors.textMuted },
+                                        { color: curveType === 'time' ? '#000000' : colors.textMuted },
                                     ]}
                                 >
                                     Time
@@ -575,7 +618,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                         y={padTop}
                                         width={chartW - taperX}
                                         height={usableH}
-                                        fill={isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(30, 151, 49, 0.05)'}
+                                        fill={isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 229, 117, 0.05)'}
                                     />
                                 )}
 
@@ -586,7 +629,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                         y1={padTop}
                                         x2={taperX}
                                         y2={yBase}
-                                        stroke={isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(30, 151, 49, 0.2)'}
+                                        stroke={isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 229, 117, 0.2)'}
                                         strokeWidth={1.5}
                                     />
                                 )}
@@ -647,7 +690,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                 <ThemedText
                                     style={[
                                         styles.watermarkText,
-                                        { color: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(30, 151, 49, 0.14)' },
+                                        { color: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 229, 117, 0.14)' },
                                     ]}
                                 >
                                     {curveType === 'speed' ? `${soc}%` : `${elapsedMinutes}m`}
@@ -686,7 +729,15 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 </View>
 
                 {/* ── 5. CONNECTED VEHICLE & AUTOCHARGE CARD ── */}
-                <View style={[styles.vehicleCard, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
+                <View
+                    style={[
+                        styles.vehicleCard,
+                        {
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
+                        },
+                    ]}
+                >
                     <View style={styles.vehicleCardMainRow}>
                         <View style={styles.vehicleInfoCol}>
                             <ThemedText style={[styles.vehicleModelName, { color: colors.text }]}>
@@ -698,54 +749,76 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         </View>
 
                         <TouchableOpacity
-                            style={[styles.editPencilBtn, { backgroundColor: isDark ? colors.surfaceMuted : '#F8FAFC' }]}
+                            style={[
+                                styles.editPencilBtn,
+                                {
+                                    backgroundColor: isDark ? '#1C1C22' : '#F8FAFC',
+                                    borderColor: colors.cardBorder,
+                                },
+                            ]}
                             activeOpacity={0.7}
-                            onPress={() => setIsVehicleModalVisible(true)}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setIsVehicleModalVisible(true);
+                            }}
                         >
-                            <Pencil size={17} color={colors.text} />
+                            <Pencil size={16} color={colors.text} />
                         </TouchableOpacity>
                     </View>
 
-                    {/* Autocharge Strip inside Vehicle Card */}
+                    {/* 3D Neo-Brutalist Autocharge Switch */}
                     <TouchableOpacity
                         style={[
                             styles.autochargeRow,
-                            {
-                                backgroundColor: isAutochargeEnabled
-                                    ? (isDark ? 'rgba(91, 194, 114, 0.12)' : '#F0FDF4')
-                                    : (isDark ? colors.surfaceMuted : '#F8FAFC'),
-                            },
+                            isAutochargeEnabled
+                                ? [styles.autochargeRowActive, { backgroundColor: isDark ? 'rgba(0, 229, 117, 0.12)' : '#F0FDF4' }]
+                                : [styles.autochargeRowInactive, { backgroundColor: isDark ? '#16161B' : '#F8FAFC' }],
                         ]}
                         activeOpacity={0.8}
-                        onPress={() => setIsAutochargeEnabled((prev) => !prev)}
+                        onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            setIsAutochargeEnabled((prev) => !prev);
+                        }}
                     >
                         <View style={[styles.autochargeDot, { backgroundColor: isAutochargeEnabled ? colors.primary : '#94A3B8' }]} />
                         <ThemedText style={[styles.autochargeRowTitle, { color: colors.text }]}>
                             {isAutochargeEnabled ? 'Autocharge Active — Plug & Charge enabled' : 'Tap to enable Autocharge'}
                         </ThemedText>
-                        <ChevronRight size={16} color={colors.textMuted} />
+                        <View style={[styles.switchIndicatorBadge, { backgroundColor: isAutochargeEnabled ? colors.primary : '#2C2C32' }]}>
+                            <ThemedText style={[styles.switchIndicatorText, { color: isAutochargeEnabled ? '#000000' : '#8E8E93' }]}>
+                                {isAutochargeEnabled ? 'ON' : 'OFF'}
+                            </ThemedText>
+                        </View>
                     </TouchableOpacity>
                 </View>
 
                 {/* ── 6. STATION AMENITIES WHILE WAITING ── */}
-                <View style={[styles.amenitiesCard, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
+                <View
+                    style={[
+                        styles.amenitiesCard,
+                        {
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
+                        },
+                    ]}
+                >
                     <ThemedText style={[styles.amenitiesHeader, { color: colors.textMuted }]}>
                         Amenities at this station
                     </ThemedText>
                     <View style={styles.amenitiesRow}>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? colors.surfaceMuted : '#F8FAFC' }]}>
+                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
                             <Coffee size={13} color={colors.primary} style={{ marginRight: 5 }} />
                             <ThemedText style={[styles.amenityText, { color: colors.text }]}>
                                 Coffee Lounge
                             </ThemedText>
                         </View>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? colors.surfaceMuted : '#F8FAFC' }]}>
+                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
                             <Wifi size={13} color={colors.primary} style={{ marginRight: 5 }} />
                             <ThemedText style={[styles.amenityText, { color: colors.text }]}>
                                 Free Wi-Fi
                             </ThemedText>
                         </View>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? colors.surfaceMuted : '#F8FAFC' }]}>
+                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
                             <ThemedText style={[styles.amenityText, { color: colors.text }]}>
                                 🚻 Restrooms
                             </ThemedText>
@@ -753,16 +826,13 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     </View>
                 </View>
 
-                {/* ── 7. STOP CHARGING ACTION BUTTON ── */}
-                <TouchableOpacity
-                    style={[styles.stopChargingBtn, { backgroundColor: colors.primary }]}
-                    activeOpacity={0.85}
+                {/* ── 7. CRED SIGNATURE STOP CHARGING BUTTON ── */}
+                <CredButton
+                    title="Stop Charging"
+                    subtitle={`Tap to disconnect at ${soc}% & view receipt`}
+                    variant="neon"
                     onPress={() => setIsStopConfirmVisible(true)}
-                >
-                    <ThemedText style={styles.stopChargingBtnText}>
-                        Stop Charging
-                    </ThemedText>
-                </TouchableOpacity>
+                />
             </ScrollView>
 
             {/* ── 8. SAFE STOP CHARGING CONFIRMATION MODAL ── */}
@@ -781,7 +851,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         style={[
                             styles.modalSheet,
                             {
-                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
                                 paddingBottom: insets.bottom + 16,
                             },
                         ]}
@@ -804,7 +874,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         </ThemedText>
 
                         {/* Session Snapshot in Modal */}
-                        <View style={[styles.modalSummaryBox, { backgroundColor: isDark ? colors.surfaceMuted : '#F8FAFC' }]}>
+                        <View style={[styles.modalSummaryBox, { backgroundColor: isDark ? '#1C1C22' : '#F8FAFC' }]}>
                             <View style={styles.modalSummaryItem}>
                                 <ThemedText style={[styles.modalSummaryLabel, { color: colors.textMuted }]}>Battery</ThemedText>
                                 <ThemedText style={[styles.modalSummaryVal, { color: colors.text }]}>{soc}%</ThemedText>
@@ -821,7 +891,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
 
                         <View style={styles.modalActionButtonsRow}>
                             <TouchableOpacity
-                                style={[styles.modalCancelBtn, { backgroundColor: isDark ? colors.surfaceMuted : '#F1F5F9' }]}
+                                style={[styles.modalCancelBtn, { backgroundColor: isDark ? '#222228' : '#F1F5F9' }]}
                                 activeOpacity={0.8}
                                 onPress={() => setIsStopConfirmVisible(false)}
                             >
@@ -860,7 +930,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         style={[
                             styles.modalSheet,
                             {
-                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
                                 paddingBottom: insets.bottom + 16,
                             },
                         ]}
@@ -892,12 +962,14 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                             styles.modalVehicleItem,
                                             {
                                                 backgroundColor: isCurrent
-                                                    ? (isDark ? 'rgba(91, 194, 114, 0.12)' : '#F0FDF4')
-                                                    : (isDark ? colors.surfaceMuted : '#F8FAFC'),
+                                                    ? (isDark ? 'rgba(0, 229, 117, 0.12)' : '#F0FDF4')
+                                                    : (isDark ? '#1C1C22' : '#F8FAFC'),
+                                                borderColor: isCurrent ? colors.primary : colors.cardBorder,
                                             },
                                         ]}
                                         activeOpacity={0.75}
                                         onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                             selectVehicle(veh.id);
                                             setIsVehicleModalVisible(false);
                                         }}
@@ -913,7 +985,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
 
                                         {isCurrent && (
                                             <View style={[styles.modalCheckBadge, { backgroundColor: colors.primary }]}>
-                                                <Check size={14} color="#FFFFFF" strokeWidth={3} />
+                                                <Check size={14} color="#000000" strokeWidth={3} />
                                             </View>
                                         )}
                                     </TouchableOpacity>
@@ -947,6 +1019,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 10,
+        borderWidth: 1,
     },
     stationInfoWrap: {
         flex: 1,
@@ -962,24 +1035,6 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         marginTop: 1,
     },
-    activeStatusPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        paddingHorizontal: 9,
-        paddingVertical: 5,
-        borderRadius: RADIUS.pill,
-    },
-    liveDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-    },
-    activeStatusText: {
-        fontSize: 11,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
-    },
 
     content: {
         paddingHorizontal: SPACING.md,
@@ -989,10 +1044,11 @@ const styles = StyleSheet.create({
 
     // ── 2. HERO BATTERY & TIME STATUS CARD ──
     heroCard: {
-        borderRadius: RADIUS.card,
+        borderRadius: RADIUS.cardLg,
         paddingVertical: 18,
         paddingHorizontal: 16,
         alignItems: 'center',
+        borderWidth: 1,
     },
     ringCenterWrap: {
         position: 'relative',
@@ -1043,8 +1099,9 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingVertical: 10,
         paddingHorizontal: 14,
-        borderRadius: 10,
+        borderRadius: 12,
         marginTop: 16,
+        borderWidth: 1,
     },
     countdownPrimaryText: {
         fontSize: 13,
@@ -1058,19 +1115,19 @@ const styles = StyleSheet.create({
         marginLeft: 4,
     },
 
-    // Target Limit Controls
+    // Target Limit Controls with 3D Neo-Brutalist Mechanical Push-Tiles
     targetLimitSection: {
         width: '100%',
         marginTop: 14,
         paddingTop: 14,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(0, 0, 0, 0.04)',
+        borderTopColor: 'rgba(255, 255, 255, 0.06)',
     },
     targetLimitHeaderRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 10,
     },
     targetLimitLabel: {
         fontSize: 12,
@@ -1088,15 +1145,26 @@ const styles = StyleSheet.create({
     },
     targetPresetBtn: {
         flex: 1,
-        paddingVertical: 8,
-        borderRadius: 8,
+        paddingVertical: 10,
+        borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1.5,
+    },
+    targetPresetBtnActive: {
+        borderColor: '#00E575',
+        borderBottomWidth: 1,
+        transform: [{ translateY: 2 }],
+    },
+    targetPresetBtnInactive: {
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+        borderBottomColor: '#0A0A0D',
+        borderBottomWidth: 3.5, // 3D physical bevel extrusion
     },
     targetPresetText: {
         fontSize: 12,
-        fontFamily: 'RedHatDisplay_600SemiBold',
-        fontWeight: '600',
+        fontFamily: 'RedHatDisplay_700Bold',
+        fontWeight: '700',
     },
     bmsAdviceNote: {
         fontSize: 10,
@@ -1108,9 +1176,10 @@ const styles = StyleSheet.create({
 
     // ── 3. TELEMETRY DASHBOARD ──
     telemetryCard: {
-        borderRadius: RADIUS.card,
+        borderRadius: RADIUS.cardLg,
         paddingVertical: 12,
         paddingHorizontal: 14,
+        borderWidth: 1,
     },
     telemetryRow: {
         flexDirection: 'row',
@@ -1133,8 +1202,8 @@ const styles = StyleSheet.create({
     },
     telemetryMainVal: {
         fontSize: 18,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
     },
     telemetryUnit: {
         fontSize: 12,
@@ -1159,9 +1228,10 @@ const styles = StyleSheet.create({
 
     // ── 4. POWER INTAKE CURVE CARD ──
     curveCard: {
-        borderRadius: RADIUS.card,
+        borderRadius: RADIUS.cardLg,
         paddingVertical: 12,
         paddingHorizontal: 12,
+        borderWidth: 1,
     },
     curveHeader: {
         flexDirection: 'row',
@@ -1182,21 +1252,32 @@ const styles = StyleSheet.create({
     },
     miniToggleWrap: {
         flexDirection: 'row',
-        borderRadius: 8,
-        padding: 2,
+        borderRadius: 10,
+        padding: 3,
+        backgroundColor: '#0F0F12',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.06)',
     },
     miniToggleBtn: {
-        paddingVertical: 4,
-        paddingHorizontal: 10,
-        borderRadius: 6,
+        paddingVertical: 5,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        borderWidth: 1,
     },
     miniToggleBtnActive: {
-        // active background applied inline
+        backgroundColor: '#00E575',
+        borderColor: '#00E575',
+        borderBottomWidth: 1,
+        transform: [{ translateY: 1 }],
+    },
+    miniToggleBtnInactive: {
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
     },
     miniToggleText: {
         fontSize: 11,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
     },
 
     chartContainer: {
@@ -1226,7 +1307,7 @@ const styles = StyleSheet.create({
     },
     canvasBox: {
         position: 'relative',
-        borderRadius: 6,
+        borderRadius: 8,
         overflow: 'hidden',
     },
     watermarkWrap: {
@@ -1274,10 +1355,11 @@ const styles = StyleSheet.create({
 
     // ── 5. CONNECTED VEHICLE CARD ──
     vehicleCard: {
-        borderRadius: RADIUS.card,
+        borderRadius: RADIUS.cardLg,
         paddingVertical: 12,
         paddingHorizontal: 14,
         gap: 10,
+        borderWidth: 1,
     },
     vehicleCardMainRow: {
         flexDirection: 'row',
@@ -1303,13 +1385,21 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
     },
     autochargeRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 10,
+        borderWidth: 1,
+    },
+    autochargeRowActive: {
+        borderColor: 'rgba(0, 229, 117, 0.35)',
+    },
+    autochargeRowInactive: {
+        borderColor: 'rgba(255, 255, 255, 0.06)',
     },
     autochargeDot: {
         width: 7,
@@ -1323,12 +1413,23 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         flex: 1,
     },
+    switchIndicatorBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: RADIUS.pill,
+    },
+    switchIndicatorText: {
+        fontSize: 10,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
+    },
 
     // ── 6. STATION AMENITIES ──
     amenitiesCard: {
-        borderRadius: RADIUS.card,
+        borderRadius: RADIUS.cardLg,
         paddingVertical: 12,
         paddingHorizontal: 14,
+        borderWidth: 1,
     },
     amenitiesHeader: {
         fontSize: 11,
@@ -1346,6 +1447,7 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         paddingHorizontal: 10,
         borderRadius: RADIUS.pill,
+        borderWidth: 1,
     },
     amenityText: {
         fontSize: 11,
@@ -1353,25 +1455,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 
-    // ── 7. STOP BUTTON ──
-    stopChargingBtn: {
-        paddingVertical: 15,
-        borderRadius: RADIUS.button,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 4,
-    },
-    stopChargingBtnText: {
-        fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
-        color: '#FFFFFF',
-    },
-
     // ── 8. MODALS ──
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
         justifyContent: 'flex-end',
     },
     modalSheet: {
@@ -1379,6 +1466,8 @@ const styles = StyleSheet.create({
         borderTopRightRadius: RADIUS.bottomSheet,
         paddingHorizontal: SPACING.md,
         paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255, 255, 255, 0.1)',
     },
     modalHeader: {
         flexDirection: 'row',
@@ -1402,10 +1491,12 @@ const styles = StyleSheet.create({
     },
     modalSummaryBox: {
         flexDirection: 'row',
-        borderRadius: 12,
+        borderRadius: 14,
         paddingVertical: 12,
         paddingHorizontal: 14,
         marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
     },
     modalSummaryItem: {
         flex: 1,
@@ -1418,9 +1509,9 @@ const styles = StyleSheet.create({
         marginBottom: 2,
     },
     modalSummaryVal: {
-        fontSize: 15,
-        fontFamily: 'RedHatDisplay_700Bold',
-        fontWeight: '700',
+        fontSize: 16,
+        fontFamily: 'RedHatDisplay_800ExtraBold',
+        fontWeight: '800',
     },
     modalActionButtonsRow: {
         flexDirection: 'row',
@@ -1461,6 +1552,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 14,
         borderRadius: 12,
+        borderWidth: 1,
     },
     modalVehName: {
         fontSize: 14,
