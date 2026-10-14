@@ -190,9 +190,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.5, height: 1.5 },
-        textShadowRadius: 0,
     },
     headerSubtitle: {
         fontSize: 13,
@@ -236,9 +233,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.5, height: 1.5 },
-        textShadowRadius: 0,
     },
     paymentMethodPill: {
         paddingHorizontal: 8,
@@ -318,9 +312,6 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         textTransform: 'uppercase',
         letterSpacing: 0.8,
-        textShadowColor: 'rgba(0, 0, 0, 0.2)',
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 0,
     },
     emptyContainer: {
         alignItems: 'center',

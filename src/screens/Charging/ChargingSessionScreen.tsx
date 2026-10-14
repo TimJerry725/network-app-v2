@@ -1083,9 +1083,6 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         lineHeight: 48,
         letterSpacing: -1,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 3.5, height: 3.5 },
-        textShadowRadius: 0,
     },
     ringRangeAdded: {
         fontSize: 12,
@@ -1169,9 +1166,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
-        textShadowColor: 'rgba(0, 0, 0, 0.4)',
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 0,
     },
     bmsAdviceNote: {
         fontSize: 10,
@@ -1211,9 +1205,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.5, height: 1.5 },
-        textShadowRadius: 0,
     },
     telemetryUnit: {
         fontSize: 12,

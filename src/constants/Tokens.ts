@@ -1,86 +1,93 @@
 import { StyleSheet, TextStyle } from 'react-native';
 
-// CRED Modern Typography Font Stack:
-// - Geometric Grotesque Sans (Gilroy aesthetic via Plus Jakarta Sans) for clean UI, labels, and buttons
-// - High-Contrast Editorial Serif (Cirka aesthetic via Cinzel & Playfair Display) for hero stats and headings
+// Modern Montserrat Font Stack (Single-Lined, Clean, Solid Geometric Grotesque)
 export const FONT_FAMILIES = {
-    sansRegular: 'PlusJakartaSans_400Regular',
-    sansMedium: 'PlusJakartaSans_500Medium',
-    sansSemiBold: 'PlusJakartaSans_600SemiBold',
-    sansBold: 'PlusJakartaSans_700Bold',
-    sansExtraBold: 'PlusJakartaSans_800ExtraBold',
+    regular: 'Montserrat_400Regular',
+    medium: 'Montserrat_500Medium',
+    semiBold: 'Montserrat_600SemiBold',
+    bold: 'Montserrat_700Bold',
+    extraBold: 'Montserrat_800ExtraBold',
+    black: 'Montserrat_900Black',
 
-    serifDisplay: 'Cinzel_700Bold',
-    serifDisplayBlack: 'Cinzel_800ExtraBold',
-    serifHeading: 'PlayfairDisplay_700Bold',
-    serifExtraBold: 'PlayfairDisplay_800ExtraBold',
+    // Grotesque Aliases
+    sansRegular: 'Montserrat_400Regular',
+    sansMedium: 'Montserrat_500Medium',
+    sansSemiBold: 'Montserrat_600SemiBold',
+    sansBold: 'Montserrat_700Bold',
+    sansExtraBold: 'Montserrat_800ExtraBold',
+
+    // Pure Montserrat for headings/display (No double-lined/inline serif fonts)
+    serifDisplay: 'Montserrat_800ExtraBold',
+    serifDisplayBlack: 'Montserrat_900Black',
+    serifHeading: 'Montserrat_800ExtraBold',
+    serifExtraBold: 'Montserrat_900Black',
 };
 
-// Typography tokens with CRED high-contrast editorial hierarchy
+// Typography tokens with Montserrat hierarchy
 export const FONTS = {
-    // Massive Hero Numbers (Battery %, Amount, Speeds) - CRED Editorial Display
+    // Massive Hero Numbers (Battery %, Amount, Speeds)
     display: {
         fontSize: 42,
-        fontWeight: '800' as TextStyle['fontWeight'],
+        fontWeight: '900' as TextStyle['fontWeight'],
         lineHeight: 48,
-        letterSpacing: -1.2,
-        fontFamily: FONT_FAMILIES.serifDisplayBlack,
+        letterSpacing: -1,
+        fontFamily: FONT_FAMILIES.black,
     },
     heroStat: {
         fontSize: 36,
         fontWeight: '800' as TextStyle['fontWeight'],
         lineHeight: 42,
-        letterSpacing: -1.0,
-        fontFamily: FONT_FAMILIES.serifHeading,
+        letterSpacing: -0.8,
+        fontFamily: FONT_FAMILIES.extraBold,
     },
     editorialTitle: {
-        fontSize: 28,
-        fontWeight: '700' as TextStyle['fontWeight'],
-        lineHeight: 34,
-        letterSpacing: -0.6,
-        fontFamily: FONT_FAMILIES.serifHeading,
+        fontSize: 26,
+        fontWeight: '800' as TextStyle['fontWeight'],
+        lineHeight: 32,
+        letterSpacing: -0.5,
+        fontFamily: FONT_FAMILIES.extraBold,
     },
     h1: {
-        fontSize: 30,
+        fontSize: 28,
         fontWeight: '800' as TextStyle['fontWeight'],
-        lineHeight: 36,
-        letterSpacing: -0.8,
-        fontFamily: FONT_FAMILIES.sansExtraBold,
+        lineHeight: 34,
+        letterSpacing: -0.6,
+        fontFamily: FONT_FAMILIES.extraBold,
     },
     h2: {
         fontSize: 22,
         fontWeight: '700' as TextStyle['fontWeight'],
         lineHeight: 28,
-        letterSpacing: -0.4,
-        fontFamily: FONT_FAMILIES.sansBold,
+        letterSpacing: -0.3,
+        fontFamily: FONT_FAMILIES.bold,
     },
     h3: {
         fontSize: 17,
         fontWeight: '700' as TextStyle['fontWeight'],
         lineHeight: 23,
         letterSpacing: -0.2,
-        fontFamily: FONT_FAMILIES.sansBold,
+        fontFamily: FONT_FAMILIES.bold,
     },
     body: {
         fontSize: 15,
         fontWeight: '400' as TextStyle['fontWeight'],
         lineHeight: 22,
-        fontFamily: FONT_FAMILIES.sansRegular,
+        fontFamily: FONT_FAMILIES.regular,
     },
     bodyStrong: {
         fontSize: 15,
         fontWeight: '600' as TextStyle['fontWeight'],
         lineHeight: 22,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
+        fontFamily: FONT_FAMILIES.semiBold,
     },
-    // CRED Signature Micro-Eyebrow Tag
+    // Signature Micro-Eyebrow Tag
     eyebrow: {
         fontSize: 10,
         fontWeight: '800' as TextStyle['fontWeight'],
         lineHeight: 13,
-        letterSpacing: 1.6,
+        letterSpacing: 1.4,
         textTransform: 'uppercase' as TextStyle['textTransform'],
-        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontFamily: FONT_FAMILIES.extraBold,
     },
     label: {
         fontSize: 11,
@@ -88,49 +95,40 @@ export const FONTS = {
         lineHeight: 15,
         letterSpacing: 0.8,
         textTransform: 'uppercase' as TextStyle['textTransform'],
-        fontFamily: FONT_FAMILIES.sansBold,
+        fontFamily: FONT_FAMILIES.bold,
     },
     monoVal: {
         fontSize: 16,
         fontWeight: '700' as TextStyle['fontWeight'],
         lineHeight: 21,
-        letterSpacing: 0.4,
-        fontFamily: FONT_FAMILIES.sansBold,
+        letterSpacing: 0.2,
+        fontFamily: FONT_FAMILIES.bold,
     },
     caption: {
         fontSize: 12,
         fontWeight: '500' as TextStyle['fontWeight'],
         lineHeight: 16,
-        fontFamily: FONT_FAMILIES.sansMedium,
+        fontFamily: FONT_FAMILIES.medium,
     },
-    // Neo-Brutalist 3D Pop Typography (Zero-Blur Hard Extrusion)
+    // Solid, Punchy Montserrat Headings (Clean single-line)
     neo3d: {
         fontSize: 18,
         fontWeight: '800' as TextStyle['fontWeight'],
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        letterSpacing: 0.8,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 0,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: 0.5,
     },
     neo3dHero: {
         fontSize: 48,
-        fontWeight: '800' as TextStyle['fontWeight'],
-        fontFamily: FONT_FAMILIES.serifDisplayBlack,
+        fontWeight: '900' as TextStyle['fontWeight'],
+        fontFamily: FONT_FAMILIES.black,
         letterSpacing: -1,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 4, height: 4 },
-        textShadowRadius: 0,
     },
     neo3dButton: {
         fontSize: 14,
         fontWeight: '800' as TextStyle['fontWeight'],
-        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontFamily: FONT_FAMILIES.extraBold,
         letterSpacing: 1.2,
         textTransform: 'uppercase' as TextStyle['textTransform'],
-        textShadowColor: 'rgba(0, 0, 0, 0.35)',
-        textShadowOffset: { width: 1.5, height: 1.5 },
-        textShadowRadius: 0,
     },
 };
 
@@ -167,33 +165,33 @@ export const NEO_BRUTALISM = {
     shadowColorLight: '#070709',
     textShadow: {
         sm: {
-            textShadowColor: '#000000',
-            textShadowOffset: { width: 1.5, height: 1.5 },
+            textShadowColor: 'transparent',
+            textShadowOffset: { width: 0, height: 0 },
             textShadowRadius: 0,
         },
         md: {
-            textShadowColor: '#000000',
-            textShadowOffset: { width: 2.5, height: 2.5 },
+            textShadowColor: 'transparent',
+            textShadowOffset: { width: 0, height: 0 },
             textShadowRadius: 0,
         },
         lg: {
-            textShadowColor: '#000000',
-            textShadowOffset: { width: 4, height: 4 },
+            textShadowColor: 'transparent',
+            textShadowOffset: { width: 0, height: 0 },
             textShadowRadius: 0,
         },
         hero: {
-            textShadowColor: '#000000',
-            textShadowOffset: { width: 5, height: 5 },
+            textShadowColor: 'transparent',
+            textShadowOffset: { width: 0, height: 0 },
             textShadowRadius: 0,
         },
         lightSm: {
-            textShadowColor: '#FFFFFF',
-            textShadowOffset: { width: 1.5, height: 1.5 },
+            textShadowColor: 'transparent',
+            textShadowOffset: { width: 0, height: 0 },
             textShadowRadius: 0,
         },
         lightMd: {
-            textShadowColor: '#FFFFFF',
-            textShadowOffset: { width: 2.5, height: 2.5 },
+            textShadowColor: 'transparent',
+            textShadowOffset: { width: 0, height: 0 },
             textShadowRadius: 0,
         },
     },

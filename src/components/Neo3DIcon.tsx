@@ -9,12 +9,16 @@ import {
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { ScanLine } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { getOutlinedIcon } from './Neo3DMorphIcon';
 import { FONT_FAMILIES } from '../constants/Tokens';
 
 export interface Neo3DIconProps {
     name?: string;
+    outlineIcon?: React.ReactNode;
+    selected3DIcon?: React.ReactNode;
     label?: string;
     isSelected: boolean;
     onPress?: () => void;
@@ -26,15 +30,24 @@ export interface Neo3DIconProps {
 }
 
 /**
- * CRED Modern Bottom Navigation Bar Icon Component
- * 
- * Features:
- * - Unselected: Clean, frameless, solid icon with zero outlines or borders
- * - Selected: Elevates into a 3D Neo-Brutalist tactile pod with physical depth,
- *   3D layered glyph extrusion, specular highlight, and spring physics.
+ * Returns a crisp outlined icon from lucide-react-native for unselected resting state
+ */
+function getFallbackOutlineIcon(name: string, size: number, color: string) {
+    if (name === 'bolt-lightning' || name === 'scan') {
+        return <ScanLine size={size + 4} color={color} strokeWidth={1.9} />;
+    }
+    return getOutlinedIcon(name, size + 2, color);
+}
+
+/**
+ * CRED Dynamic Icon Architecture:
+ * - Unselected: Clean, sleek, minimal wireframe OUTLINED icon package
+ * - Selected: Transforms into a tactile 3D Neo-Brutalist extruded pod with solid depth
  */
 export function Neo3DIcon({
     name = 'circle',
+    outlineIcon,
+    selected3DIcon,
     label,
     isSelected,
     onPress,
@@ -221,39 +234,33 @@ export function Neo3DIcon({
                                         ]}
                                     >
                                         <FontAwesome6
-                                            name={name}
+                                            name="bolt-lightning"
                                             size={size + 4}
                                             color="rgba(0, 0, 0, 0.25)"
                                             style={styles.iconShadowLayer}
-                                            solid
                                         />
                                         <FontAwesome6
-                                            name={name}
+                                            name="bolt-lightning"
                                             size={size + 4}
                                             color={isDark ? '#000000' : '#FFFFFF'}
                                             style={styles.iconFrontLayer}
-                                            solid
                                         />
                                     </Animated.View>
                                 </View>
                             </View>
                         </>
                     ) : (
-                        /* Unselected: Clean, Solid, Frameless Hero Button (Zero Outlines) */
+                        /* Unselected: Clean Minimal Outlined Wireframe Ring */
                         <View
                             style={[
-                                styles.heroUnselectedWrap,
+                                styles.heroOutlineRing,
                                 {
-                                    backgroundColor: isDark ? '#16161B' : '#ECECF0',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)',
+                                    backgroundColor: isDark ? '#111116' : '#F6F6F8',
                                 },
                             ]}
                         >
-                            <FontAwesome6
-                                name={name}
-                                size={size + 4}
-                                color={mutedColor}
-                                solid
-                            />
+                            <ScanLine size={size + 4} color={mutedColor} strokeWidth={1.8} />
                         </View>
                     )}
 
@@ -331,22 +338,24 @@ export function Neo3DIcon({
                                 { transform: [{ scale: selectBounce }] },
                             ]}
                         >
-                            {/* Offset shadow layer for 3D depth */}
-                            <FontAwesome6
-                                name={name}
-                                size={size}
-                                color="rgba(0, 0, 0, 0.28)"
-                                style={styles.iconShadowLayer}
-                                solid
-                            />
-                            {/* Solid foreground layer */}
-                            <FontAwesome6
-                                name={name}
-                                size={size}
-                                color={isDark ? '#000000' : '#FFFFFF'}
-                                style={styles.iconFrontLayer}
-                                solid
-                            />
+                            {selected3DIcon ?? (
+                                <>
+                                    {/* Offset shadow layer for 3D depth */}
+                                    <FontAwesome6
+                                        name={name}
+                                        size={size}
+                                        color="rgba(0, 0, 0, 0.28)"
+                                        style={styles.iconShadowLayer}
+                                    />
+                                    {/* Solid foreground layer */}
+                                    <FontAwesome6
+                                        name={name}
+                                        size={size}
+                                        color={isDark ? '#000000' : '#FFFFFF'}
+                                        style={styles.iconFrontLayer}
+                                    />
+                                </>
+                            )}
                         </Animated.View>
 
                         {/* Micro Active Indicator Dot */}
@@ -358,18 +367,21 @@ export function Neo3DIcon({
                         />
                     </View>
                 ) : (
-                    /* ── UNSELECTED: CLEAN SOLID ICON (ZERO OUTLINE BORDERS) ── */
-                    <View style={styles.podUnselectedBase}>
-                        <FontAwesome6
-                            name={name}
-                            size={size + 1}
-                            color={mutedColor}
-                            solid
-                        />
+                    /* ── UNSELECTED: OUTLINED ICON (WIREFRAME SLEEK MINIMAL) ── */
+                    <View
+                        style={[
+                            styles.podOutlineBase,
+                            {
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'transparent',
+                            },
+                        ]}
+                    >
+                        {outlineIcon ?? getFallbackOutlineIcon(name, size, mutedColor)}
                     </View>
                 )}
 
-                {/* Label below icon */}
+                {/* Label below pod */}
                 {label && (
                     <ThemedText
                         style={[
@@ -442,14 +454,14 @@ const styles = StyleSheet.create({
         borderRadius: 2,
     },
 
-    // ── Unselected Clean Solid Base (Zero Outline) ──
-    podUnselectedBase: {
+    // ── Unselected Outlined Capsule ──
+    podOutlineBase: {
         width: 48,
         height: 38,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'transparent',
-        borderWidth: 0,
+        borderWidth: 1,
     },
 
     podLabel: {
@@ -459,7 +471,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
 
-    // ── Hero 3D Center Button (Scan) ──
+    // ── Hero 3D Button (Scan) ──
     heroButtonOuter: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -495,14 +507,13 @@ const styles = StyleSheet.create({
         position: 'relative',
         overflow: 'hidden',
     },
-    // Unselected Hero Center Button (Frameless, Zero Outline)
-    heroUnselectedWrap: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
+    heroOutlineRing: {
+        width: 54,
+        height: 54,
+        borderRadius: 27,
+        borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 0,
     },
     heroLabel: {
         fontSize: 10,

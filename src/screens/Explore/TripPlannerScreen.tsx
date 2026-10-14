@@ -1195,9 +1195,6 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.5, height: 1.5 },
-        textShadowRadius: 0,
     },
     pageSubtitle: {
         fontSize: 12,
@@ -1596,9 +1593,6 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.2, height: 1.2 },
-        textShadowRadius: 0,
     },
 
     sheetSectionBlock: {

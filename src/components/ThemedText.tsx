@@ -35,13 +35,6 @@ export function ThemedText({
     const { theme, colors } = useAppTheme();
     const color = theme === 'light' ? lightColor ?? colors.text : darkColor ?? colors.text;
 
-    const neo3dOffset = typeof neo3d === 'number' ? neo3d : 2;
-    const neo3dStyle = neo3d ? {
-        textShadowColor: '#000000',
-        textShadowOffset: { width: neo3dOffset, height: neo3dOffset },
-        textShadowRadius: 0,
-    } : undefined;
-
     return (
         <Text
             style={[
@@ -60,7 +53,6 @@ export function ThemedText({
                 type === 'neo3d' ? styles.neo3d : undefined,
                 type === 'neo3dHero' ? styles.neo3dHero : undefined,
                 type === 'neo3dButton' ? styles.neo3dButton : undefined,
-                neo3dStyle,
                 style,
             ]}
             {...rest}

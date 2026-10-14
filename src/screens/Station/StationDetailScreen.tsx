@@ -672,9 +672,6 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontFamily: FONT_FAMILIES.serifHeading,
         flexShrink: 1,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.5, height: 1.5 },
-        textShadowRadius: 0,
     },
     topBarActions: {
         flexDirection: 'row',
@@ -990,9 +987,6 @@ const styles = StyleSheet.create({
         color: '#000000',
         textTransform: 'uppercase',
         letterSpacing: 0.8,
-        textShadowColor: 'rgba(0, 0, 0, 0.2)',
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 0,
     },
     // Schedule Link
     tariffScheduleLinkRow: {
@@ -1051,9 +1045,6 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         textTransform: 'uppercase',
         letterSpacing: 0.6,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 0,
     },
     getDirectionBtn: {
         flex: 1,
@@ -1076,9 +1067,6 @@ const styles = StyleSheet.create({
         color: '#000000',
         textTransform: 'uppercase',
         letterSpacing: 0.6,
-        textShadowColor: 'rgba(0, 0, 0, 0.2)',
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 0,
     },
     walletStrip: {
         flexDirection: 'row',

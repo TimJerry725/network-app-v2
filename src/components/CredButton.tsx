@@ -132,13 +132,6 @@ export function CredButton({
         return isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)';
     };
 
-    const get3DTextShadowColor = () => {
-        if (disabled) return 'transparent';
-        if (variant === 'neon') return 'rgba(0, 0, 0, 0.2)';
-        if (variant === 'danger') return 'rgba(0, 0, 0, 0.7)';
-        return isDark ? 'rgba(0, 0, 0, 0.95)' : 'rgba(0, 0, 0, 0.25)';
-    };
-
     const textColor = getTextColor();
 
     return (
@@ -212,9 +205,6 @@ export function CredButton({
                                     styles.titleText,
                                     {
                                         color: textColor,
-                                        textShadowColor: get3DTextShadowColor(),
-                                        textShadowOffset: { width: 1.5, height: 1.5 },
-                                        textShadowRadius: 0,
                                     },
                                 ]}
                             >

@@ -180,9 +180,6 @@ function StationChargeButton({ onPress }: { onPress: () => void }) {
                             styles.stationChargeBtnText,
                             {
                                 color: textColor,
-                                textShadowColor: isDark ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.8)',
-                                textShadowOffset: { width: 1, height: 1 },
-                                textShadowRadius: 0,
                             },
                         ]}
                     >
@@ -762,18 +759,12 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         letterSpacing: -1,
         lineHeight: 58,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 3.5, height: 3.5 },
-        textShadowRadius: 0,
     },
     heroSocUnit: {
         fontSize: 24,
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         marginLeft: 2,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 0,
     },
     heroRangeText: {
         fontSize: 13,
@@ -810,9 +801,6 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         marginTop: 2,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.2, height: 1.2 },
-        textShadowRadius: 0,
     },
     batteryRailOuter: {
         height: 10,
@@ -870,9 +858,6 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
         marginBottom: 2,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.5, height: 1.5 },
-        textShadowRadius: 0,
     },
     podSublabel: {
         fontSize: 10,
@@ -893,9 +878,6 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         letterSpacing: 1.2,
         opacity: 0.9,
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 0,
     },
     sectionSubtitle: {
         fontSize: 11,
@@ -976,9 +958,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
-        textShadowColor: '#000000',
-        textShadowOffset: { width: 1.5, height: 1.5 },
-        textShadowRadius: 0,
     },
     tariffUnit: {
         fontSize: 11,

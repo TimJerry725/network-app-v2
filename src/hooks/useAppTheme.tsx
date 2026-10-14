@@ -8,7 +8,7 @@ type ThemeContextType = {
     setTheme: (theme: ThemeName) => void;
 };
 
-const DEFAULT_THEME: ThemeName = 'dark' as ThemeName;
+const DEFAULT_THEME: ThemeName = 'light' as ThemeName;
 
 const ThemeContext = createContext<ThemeContextType>({
     theme: DEFAULT_THEME,
