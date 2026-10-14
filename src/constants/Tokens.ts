@@ -103,6 +103,35 @@ export const FONTS = {
         lineHeight: 16,
         fontFamily: FONT_FAMILIES.sansMedium,
     },
+    // Neo-Brutalist 3D Pop Typography (Zero-Blur Hard Extrusion)
+    neo3d: {
+        fontSize: 18,
+        fontWeight: '800' as TextStyle['fontWeight'],
+        fontFamily: FONT_FAMILIES.sansExtraBold,
+        letterSpacing: 0.8,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 2, height: 2 },
+        textShadowRadius: 0,
+    },
+    neo3dHero: {
+        fontSize: 48,
+        fontWeight: '800' as TextStyle['fontWeight'],
+        fontFamily: FONT_FAMILIES.serifDisplayBlack,
+        letterSpacing: -1,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 4, height: 4 },
+        textShadowRadius: 0,
+    },
+    neo3dButton: {
+        fontSize: 14,
+        fontWeight: '800' as TextStyle['fontWeight'],
+        fontFamily: FONT_FAMILIES.sansExtraBold,
+        letterSpacing: 1.2,
+        textTransform: 'uppercase' as TextStyle['textTransform'],
+        textShadowColor: 'rgba(0, 0, 0, 0.35)',
+        textShadowOffset: { width: 1.5, height: 1.5 },
+        textShadowRadius: 0,
+    },
 };
 
 // Spacing tokens with generous macro-rhythm
@@ -125,6 +154,49 @@ export const RADIUS = {
     bottomSheet: 28,
     pill: 999,
     button: 999, // CRED buttons are iconic full pills
+    neoBox: 14,
+};
+
+// Neo-Brutalist 3D Spatial Architecture
+export const NEO_BRUTALISM = {
+    buttonDepth: 4,
+    buttonDepthLg: 6,
+    borderWidth: 2,
+    borderWidthThick: 2.5,
+    shadowColorDark: '#000000',
+    shadowColorLight: '#070709',
+    textShadow: {
+        sm: {
+            textShadowColor: '#000000',
+            textShadowOffset: { width: 1.5, height: 1.5 },
+            textShadowRadius: 0,
+        },
+        md: {
+            textShadowColor: '#000000',
+            textShadowOffset: { width: 2.5, height: 2.5 },
+            textShadowRadius: 0,
+        },
+        lg: {
+            textShadowColor: '#000000',
+            textShadowOffset: { width: 4, height: 4 },
+            textShadowRadius: 0,
+        },
+        hero: {
+            textShadowColor: '#000000',
+            textShadowOffset: { width: 5, height: 5 },
+            textShadowRadius: 0,
+        },
+        lightSm: {
+            textShadowColor: '#FFFFFF',
+            textShadowOffset: { width: 1.5, height: 1.5 },
+            textShadowRadius: 0,
+        },
+        lightMd: {
+            textShadowColor: '#FFFFFF',
+            textShadowOffset: { width: 2.5, height: 2.5 },
+            textShadowRadius: 0,
+        },
+    },
 };
 
 // CRED Double-Bezel (Doppelrand) Architecture Styles

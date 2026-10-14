@@ -1899,6 +1899,9 @@ const styles = StyleSheet.create({
     stationName: {
         ...FONTS.h3,
         marginBottom: 2,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 0,
     },
     stationInsightChip: {
         marginTop: 12,
@@ -1942,6 +1945,9 @@ const styles = StyleSheet.create({
         ...FONTS.h2,
         fontSize: 26,
         lineHeight: 30,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1.5, height: 1.5 },
+        textShadowRadius: 0,
     },
     detailCloseButton: {
         width: 38,

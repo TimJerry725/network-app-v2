@@ -102,21 +102,22 @@ function AnimatedToggleSwitch({
  */
 function StationChargeButton({ onPress }: { onPress: () => void }) {
     const { isDark } = useAppTheme();
-    const scaleAnim = useRef(new Animated.Value(1)).current;
+    const depth = 3;
+    const pressAnim = useRef(new Animated.Value(0)).current;
 
     const handlePressIn = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 0.94,
-            tension: 300,
-            friction: 15,
+        Animated.spring(pressAnim, {
+            toValue: depth,
+            tension: 400,
+            friction: 14,
             useNativeDriver: true,
         }).start();
     };
 
     const handlePressOut = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 1,
-            tension: 200,
+        Animated.spring(pressAnim, {
+            toValue: 0,
+            tension: 300,
             friction: 10,
             useNativeDriver: true,
         }).start();
@@ -124,38 +125,73 @@ function StationChargeButton({ onPress }: { onPress: () => void }) {
 
     const handlePress = () => {
         if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         }
         onPress();
     };
 
+    const btnBg = isDark ? '#FFFFFF' : '#000000';
+    const textColor = isDark ? '#000000' : '#FFFFFF';
+    const borderColor = isDark ? '#FFFFFF' : '#000000';
+
     return (
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-            <TouchableOpacity
+        <View style={styles.stationChargeBtnContainer}>
+            {/* 3D Extruded Shadow Slab Base */}
+            <View
                 style={[
-                    styles.stationChargeBtn,
+                    styles.stationChargeBtnShadow,
                     {
-                        backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                        borderColor: isDark ? '#FFFFFF' : '#000000',
-                        borderBottomColor: isDark ? '#B0B0B8' : '#333338',
+                        top: depth,
+                        left: depth,
+                        backgroundColor: '#000000',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.4)' : '#000000',
+                        borderWidth: 1.5,
                     },
                 ]}
-                activeOpacity={0.9}
-                onPressIn={handlePressIn}
-                onPressOut={handlePressOut}
-                onPress={handlePress}
+            />
+
+            {/* Elevated Button Face */}
+            <Animated.View
+                style={{
+                    marginRight: depth,
+                    marginBottom: depth,
+                    transform: [
+                        { translateX: pressAnim },
+                        { translateY: pressAnim },
+                    ],
+                }}
             >
-                <ThemedText
+                <TouchableOpacity
                     style={[
-                        styles.stationChargeBtnText,
-                        { color: isDark ? '#000000' : '#FFFFFF' },
+                        styles.stationChargeBtn,
+                        {
+                            backgroundColor: btnBg,
+                            borderColor: borderColor,
+                            borderWidth: 1.5,
+                        },
                     ]}
+                    activeOpacity={1}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                    onPress={handlePress}
                 >
-                    CHARGE NOW
-                </ThemedText>
-                <ArrowRight size={13} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={2.8} />
-            </TouchableOpacity>
-        </Animated.View>
+                    <ThemedText
+                        style={[
+                            styles.stationChargeBtnText,
+                            {
+                                color: textColor,
+                                textShadowColor: isDark ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.8)',
+                                textShadowOffset: { width: 1, height: 1 },
+                                textShadowRadius: 0,
+                            },
+                        ]}
+                    >
+                        CHARGE NOW
+                    </ThemedText>
+                    <ArrowRight size={13} color={textColor} strokeWidth={2.8} />
+                </TouchableOpacity>
+            </Animated.View>
+        </View>
     );
 }
 
@@ -726,12 +762,18 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         letterSpacing: -1,
         lineHeight: 58,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 3.5, height: 3.5 },
+        textShadowRadius: 0,
     },
     heroSocUnit: {
         fontSize: 24,
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         marginLeft: 2,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 2, height: 2 },
+        textShadowRadius: 0,
     },
     heroRangeText: {
         fontSize: 13,
@@ -768,6 +810,9 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         marginTop: 2,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1.2, height: 1.2 },
+        textShadowRadius: 0,
     },
     batteryRailOuter: {
         height: 10,
@@ -825,6 +870,9 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
         marginBottom: 2,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1.5, height: 1.5 },
+        textShadowRadius: 0,
     },
     podSublabel: {
         fontSize: 10,
@@ -844,7 +892,10 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1.2,
-        opacity: 0.85,
+        opacity: 0.9,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 0,
     },
     sectionSubtitle: {
         fontSize: 11,
@@ -925,20 +976,30 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1.5, height: 1.5 },
+        textShadowRadius: 0,
     },
     tariffUnit: {
         fontSize: 11,
         fontFamily: FONT_FAMILIES.sansMedium,
+    },
+    stationChargeBtnContainer: {
+        position: 'relative',
+    },
+    stationChargeBtnShadow: {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+        borderRadius: 999,
     },
     stationChargeBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
         paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingVertical: 9,
         borderRadius: 999,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
     },
     stationChargeBtnText: {
         fontSize: 11,

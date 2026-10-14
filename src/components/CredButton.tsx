@@ -2,15 +2,17 @@ import React, { useRef } from 'react';
 import {
     Animated,
     Platform,
+    StyleProp,
     StyleSheet,
+    Text,
     TouchableOpacity,
     TouchableOpacityProps,
     View,
+    ViewStyle,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { ChevronRight } from 'lucide-react-native';
-import { ThemedText } from './ThemedText';
-import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
+import { FONT_FAMILIES, NEO_BRUTALISM, RADIUS } from '../constants/Tokens';
 import { useAppTheme } from '../hooks/useAppTheme';
 
 export interface CredButtonProps extends TouchableOpacityProps {
@@ -20,12 +22,19 @@ export interface CredButtonProps extends TouchableOpacityProps {
     variant?: 'neon' | 'gold' | 'dark' | 'outline' | 'danger';
     showTrailingIcon?: boolean;
     trailingIcon?: React.ReactNode;
+    depth?: number;
+    containerStyle?: StyleProp<ViewStyle>;
 }
 
 /**
- * CRED Signature Button-in-Button Island CTA with Spring Motion Physics
- * Features high-contrast stark monochrome typography, specular top highlight,
- * and physical spring compression on press.
+ * CRED Signature 3D Neo-Brutalist Tactile Button
+ * 
+ * Features:
+ * - Physical 3D extruded shadow slab with solid contrast border
+ * - Mechanical spring depression: button physically translates (+depth, +depth) on press
+ * - Hard zero-blur 3D text shadow on typography
+ * - Specular top surface reflection
+ * - Heavy haptic feedback on actuation
  */
 export function CredButton({
     title,
@@ -34,67 +43,52 @@ export function CredButton({
     variant = 'neon',
     showTrailingIcon = true,
     trailingIcon,
+    depth = NEO_BRUTALISM.buttonDepth,
     style,
+    containerStyle,
     onPress,
     disabled,
     ...props
 }: CredButtonProps) {
     const { colors, isDark } = useAppTheme();
 
-    // Motion animation values
-    const scaleAnim = useRef(new Animated.Value(1)).current;
-    const translateYAnim = useRef(new Animated.Value(0)).current;
+    // 3D Press depression animation (translates from 0 to depth)
+    const pressAnim = useRef(new Animated.Value(0)).current;
 
     const handlePressIn = () => {
         if (disabled) return;
-        Animated.parallel([
-            Animated.spring(scaleAnim, {
-                toValue: 0.96,
-                tension: 300,
-                friction: 15,
-                useNativeDriver: true,
-            }),
-            Animated.spring(translateYAnim, {
-                toValue: 2,
-                tension: 300,
-                friction: 15,
-                useNativeDriver: true,
-            }),
-        ]).start();
+        Animated.spring(pressAnim, {
+            toValue: depth,
+            tension: 400,
+            friction: 14,
+            useNativeDriver: true,
+        }).start();
     };
 
     const handlePressOut = () => {
         if (disabled) return;
-        Animated.parallel([
-            Animated.spring(scaleAnim, {
-                toValue: 1,
-                tension: 200,
-                friction: 10,
-                useNativeDriver: true,
-            }),
-            Animated.spring(translateYAnim, {
-                toValue: 0,
-                tension: 200,
-                friction: 10,
-                useNativeDriver: true,
-            }),
-        ]).start();
+        Animated.spring(pressAnim, {
+            toValue: 0,
+            tension: 300,
+            friction: 10,
+            useNativeDriver: true,
+        }).start();
     };
 
     const handlePress = (e: any) => {
         if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         }
         onPress?.(e);
     };
 
-    // Color definitions for Stark Black & White luxury theme
+    // ── Face & Text Colors ──
     const getBgColor = () => {
         if (disabled) return isDark ? '#222227' : '#E2E2E0';
-        if (variant === 'neon') return '#FFFFFF'; // Pure Stark White
+        if (variant === 'neon') return '#FFFFFF'; // Stark chalk white
         if (variant === 'gold') return isDark ? '#E5E5EA' : '#2C2C2E';
-        if (variant === 'danger') return '#FF453A';
-        if (variant === 'outline') return 'transparent';
+        if (variant === 'danger') return '#FF3B30';
+        if (variant === 'outline') return isDark ? '#101014' : '#FFFFFF';
         return isDark ? '#1C1C22' : '#FFFFFF';
     };
 
@@ -107,120 +101,185 @@ export function CredButton({
     };
 
     const getBorderColor = () => {
-        if (variant === 'outline')
-            return isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.2)';
-        if (variant === 'dark')
-            return isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)';
-        return 'transparent';
+        if (disabled) return isDark ? '#333338' : '#C7C7CC';
+        if (variant === 'neon') return '#000000';
+        if (variant === 'danger') return '#000000';
+        if (variant === 'outline') return isDark ? '#FFFFFF' : '#000000';
+        return isDark ? '#FFFFFF' : '#000000';
+    };
+
+    // ── 3D Extruded Shadow Slab Colors ──
+    const getShadowBgColor = () => {
+        if (disabled) return isDark ? '#16161A' : '#C7C7CC';
+        if (variant === 'neon') return '#000000';
+        if (variant === 'gold') return '#000000';
+        if (variant === 'danger') return '#660000';
+        if (variant === 'outline') return isDark ? '#000000' : '#000000';
+        return '#000000';
+    };
+
+    const getShadowBorderColor = () => {
+        if (disabled) return isDark ? '#222227' : '#AEAEB2';
+        if (variant === 'outline') return isDark ? 'rgba(255, 255, 255, 0.4)' : '#000000';
+        if (variant === 'dark') return isDark ? 'rgba(255, 255, 255, 0.4)' : '#000000';
+        return '#000000';
     };
 
     const getInnerIconBg = () => {
-        if (variant === 'neon') return 'rgba(0, 0, 0, 0.1)';
+        if (variant === 'neon') return 'rgba(0, 0, 0, 0.08)';
         if (variant === 'gold') return 'rgba(0, 0, 0, 0.12)';
         if (variant === 'danger') return 'rgba(255, 255, 255, 0.2)';
         return isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)';
     };
 
+    const get3DTextShadowColor = () => {
+        if (disabled) return 'transparent';
+        if (variant === 'neon') return 'rgba(0, 0, 0, 0.2)';
+        if (variant === 'danger') return 'rgba(0, 0, 0, 0.7)';
+        return isDark ? 'rgba(0, 0, 0, 0.95)' : 'rgba(0, 0, 0, 0.25)';
+    };
+
     const textColor = getTextColor();
 
     return (
-        <Animated.View
-            style={[
-                {
-                    transform: [
-                        { scale: scaleAnim },
-                        { translateY: translateYAnim },
-                    ],
-                },
-            ]}
-        >
-            <TouchableOpacity
+        <View style={[styles.outerWrapper, containerStyle]}>
+            {/* 3D Extruded Shadow Slab Base (Anchored) */}
+            <View
                 style={[
-                    styles.buttonBase,
+                    styles.shadowSlab,
                     {
-                        backgroundColor: getBgColor(),
-                        borderColor: getBorderColor(),
-                        borderWidth: getBorderColor() !== 'transparent' ? 1 : 0,
+                        top: depth,
+                        left: depth,
+                        borderRadius: RADIUS.button,
+                        backgroundColor: getShadowBgColor(),
+                        borderColor: getShadowBorderColor(),
+                        borderWidth: 2,
                     },
-                    style,
                 ]}
-                activeOpacity={0.9}
-                onPressIn={handlePressIn}
-                onPressOut={handlePressOut}
-                onPress={handlePress}
-                disabled={disabled}
-                {...props}
+            />
+
+            {/* Elevated Face: Physically depresses into the slab when pressed */}
+            <Animated.View
+                style={[
+                    styles.faceWrapper,
+                    {
+                        marginRight: depth,
+                        marginBottom: depth,
+                        transform: [
+                            { translateX: pressAnim },
+                            { translateY: pressAnim },
+                        ],
+                    },
+                ]}
             >
-                {/* Specular Top Light Reflection */}
-                <View
+                <TouchableOpacity
                     style={[
-                        styles.specularLine,
+                        styles.buttonFace,
                         {
-                            backgroundColor:
-                                variant === 'neon'
-                                    ? 'rgba(255, 255, 255, 0.8)'
-                                    : 'rgba(255, 255, 255, 0.12)',
+                            backgroundColor: getBgColor(),
+                            borderColor: getBorderColor(),
+                            borderWidth: 2,
+                            borderRadius: RADIUS.button,
                         },
+                        style,
                     ]}
-                />
+                    activeOpacity={1}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                    onPress={handlePress}
+                    disabled={disabled}
+                    {...props}
+                >
+                    {/* Specular Top Light Reflection */}
+                    <View
+                        style={[
+                            styles.specularLine,
+                            {
+                                backgroundColor:
+                                    variant === 'neon'
+                                        ? 'rgba(255, 255, 255, 0.95)'
+                                        : 'rgba(255, 255, 255, 0.16)',
+                            },
+                        ]}
+                    />
 
-                <View style={styles.contentRow}>
-                    {icon && <View style={styles.leadingIconWrap}>{icon}</View>}
+                    <View style={styles.contentRow}>
+                        {icon && <View style={styles.leadingIconWrap}>{icon}</View>}
 
-                    <View style={styles.textContainer}>
-                        <ThemedText
-                            style={[
-                                styles.titleText,
-                                { color: textColor },
-                            ]}
-                        >
-                            {title}
-                        </ThemedText>
-
-                        {subtitle && (
-                            <ThemedText
+                        <View style={styles.textContainer}>
+                            <Text
                                 style={[
-                                    styles.subtitleText,
+                                    styles.titleText,
                                     {
-                                        color:
-                                            variant === 'neon' || variant === 'gold'
-                                                ? 'rgba(0, 0, 0, 0.65)'
-                                                : isDark
-                                                ? '#8E8E93'
-                                                : '#636366',
+                                        color: textColor,
+                                        textShadowColor: get3DTextShadowColor(),
+                                        textShadowOffset: { width: 1.5, height: 1.5 },
+                                        textShadowRadius: 0,
                                     },
                                 ]}
                             >
-                                {subtitle}
-                            </ThemedText>
-                        )}
-                    </View>
+                                {title}
+                            </Text>
 
-                    {showTrailingIcon && (
-                        <View
-                            style={[
-                                styles.trailingIconCircle,
-                                { backgroundColor: getInnerIconBg() },
-                            ]}
-                        >
-                            {trailingIcon ?? (
-                                <ChevronRight
-                                    size={18}
-                                    color={textColor}
-                                    strokeWidth={3}
-                                />
+                            {subtitle && (
+                                <Text
+                                    style={[
+                                        styles.subtitleText,
+                                        {
+                                            color:
+                                                variant === 'neon' || variant === 'gold'
+                                                    ? 'rgba(0, 0, 0, 0.65)'
+                                                    : isDark
+                                                    ? '#8E8E93'
+                                                    : '#636366',
+                                        },
+                                    ]}
+                                >
+                                    {subtitle}
+                                </Text>
                             )}
                         </View>
-                    )}
-                </View>
-            </TouchableOpacity>
-        </Animated.View>
+
+                        {showTrailingIcon && (
+                            <View
+                                style={[
+                                    styles.trailingIconCircle,
+                                    {
+                                        backgroundColor: getInnerIconBg(),
+                                        borderColor: textColor,
+                                        borderWidth: 1.5,
+                                    },
+                                ]}
+                            >
+                                {trailingIcon ?? (
+                                    <ChevronRight
+                                        size={18}
+                                        color={textColor}
+                                        strokeWidth={3}
+                                    />
+                                )}
+                            </View>
+                        )}
+                    </View>
+                </TouchableOpacity>
+            </Animated.View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    buttonBase: {
-        borderRadius: RADIUS.button,
+    outerWrapper: {
+        position: 'relative',
+    },
+    shadowSlab: {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+    },
+    faceWrapper: {
+        position: 'relative',
+    },
+    buttonFace: {
         paddingVertical: 14,
         paddingLeft: 20,
         paddingRight: 10,
@@ -233,7 +292,7 @@ const styles = StyleSheet.create({
         top: 0,
         left: 20,
         right: 20,
-        height: 1,
+        height: 1.5,
     },
     contentRow: {
         flexDirection: 'row',
@@ -249,18 +308,19 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
-        letterSpacing: 0.6,
+        letterSpacing: 1.2,
+        textTransform: 'uppercase',
     },
     subtitleText: {
         fontSize: 11,
         fontFamily: FONT_FAMILIES.sansSemiBold,
         fontWeight: '600',
-        marginTop: 1,
+        marginTop: 2,
     },
     trailingIconCircle: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
         marginLeft: 12,

@@ -33,6 +33,7 @@ import {
     Zap,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
+import { CredButton } from '../../components/CredButton';
 import {
     POPULAR_ROUTES,
     TRIP_LOCATIONS,
@@ -779,17 +780,13 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 </View>
                             </View>
 
-                            {/* Start Navigation Primary Button */}
-                            <TouchableOpacity
-                                style={[styles.startNavBtn, { backgroundColor: colors.primary }]}
-                                activeOpacity={0.85}
+                            {/* Start Navigation 3D Neo-Brutalist Primary Button */}
+                            <CredButton
+                                title="START NAVIGATION"
+                                subtitle="Turn-by-turn route via Google Maps"
+                                icon={<Navigation size={18} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />}
                                 onPress={handleStartNavigation}
-                            >
-                                <Navigation size={18} color="#FFFFFF" fill="#FFFFFF" />
-                                <ThemedText style={styles.startNavBtnText}>
-                                    Start Navigation (Google Maps)
-                                </ThemedText>
-                            </TouchableOpacity>
+                            />
 
                             <View style={{ height: 24 }} />
                         </ScrollView>
@@ -1076,16 +1073,12 @@ export default function TripPlannerScreen({ navigation }: any) {
                 {/* ═════════════════════════════════════════════════════════════
                     3. PLAN TRIP BUTTON
                 ═════════════════════════════════════════════════════════════ */}
-                <TouchableOpacity
-                    style={[styles.planTripPrimaryBtn, { backgroundColor: colors.primary }]}
-                    activeOpacity={0.85}
+                <CredButton
+                    title="PLAN TRIP"
+                    subtitle="Calculate route stops & elevation impact"
+                    icon={<Zap size={18} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />}
                     onPress={handlePlanTrip}
-                >
-                    <Zap size={18} color="#FFFFFF" fill="#FFFFFF" />
-                    <ThemedText style={styles.planTripPrimaryBtnText}>
-                        Plan Trip
-                    </ThemedText>
-                </TouchableOpacity>
+                />
 
                 <View style={{ height: 80 }} />
             </ScrollView>
@@ -1202,6 +1195,9 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1.5, height: 1.5 },
+        textShadowRadius: 0,
     },
     pageSubtitle: {
         fontSize: 12,
@@ -1600,6 +1596,9 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1.2, height: 1.2 },
+        textShadowRadius: 0,
     },
 
     sheetSectionBlock: {

@@ -475,6 +475,9 @@ const styles = StyleSheet.create({
         fontSize: 17,
         fontFamily: FONT_FAMILIES.serifHeading,
         fontWeight: '800',
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1.5, height: 1.5 },
+        textShadowRadius: 0,
     },
     clearHeaderButton: {
         paddingVertical: 6,
@@ -503,7 +506,10 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 1.2,
-        opacity: 0.8,
+        opacity: 0.9,
+        textShadowColor: '#000000',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 0,
     },
     sectionSubtitle: {
         fontSize: 11,
