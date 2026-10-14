@@ -3,6 +3,7 @@ import {
     Animated,
     Platform,
     StyleSheet,
+    Text,
     TouchableOpacity,
     View,
     ViewStyle,
@@ -10,7 +11,6 @@ import {
 import * as Haptics from 'expo-haptics';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { ScanLine } from 'lucide-react-native';
-import { ThemedText } from './ThemedText';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { getOutlinedIcon } from './Neo3DMorphIcon';
 import { FONT_FAMILIES } from '../constants/Tokens';
@@ -226,19 +226,13 @@ export function Neo3DIcon({
                                 >
                                     <View style={styles.specularTopLine} />
 
-                                    {/* 3D Layered Solid Glyph (Shadow + Solid Foreground) */}
+                                    {/* Solid Glyph with Spring Pop */}
                                     <Animated.View
                                         style={[
                                             styles.layeredIconWrap,
                                             { transform: [{ scale: selectBounce }] },
                                         ]}
                                     >
-                                        <FontAwesome6
-                                            name="bolt-lightning"
-                                            size={size + 4}
-                                            color="rgba(0, 0, 0, 0.25)"
-                                            style={styles.iconShadowLayer}
-                                        />
                                         <FontAwesome6
                                             name="bolt-lightning"
                                             size={size + 4}
@@ -250,35 +244,26 @@ export function Neo3DIcon({
                             </View>
                         </>
                     ) : (
-                        /* Unselected: Clean Minimal Outlined Wireframe Ring */
-                        <View
-                            style={[
-                                styles.heroOutlineRing,
-                                {
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)',
-                                    backgroundColor: isDark ? '#111116' : '#F6F6F8',
-                                },
-                            ]}
-                        >
+                        /* Unselected: Clean Minimal Outlined Icon without surrounding ring border */
+                        <View style={styles.heroOutlineRing}>
                             <ScanLine size={size + 4} color={mutedColor} strokeWidth={1.8} />
                         </View>
                     )}
 
                     {label && (
-                        <ThemedText
+                        <Text
                             style={[
                                 styles.heroLabel,
                                 {
                                     color: isSelected ? primaryWhite : mutedColor,
                                     fontFamily: isSelected
-                                        ? FONT_FAMILIES.sansExtraBold
-                                        : FONT_FAMILIES.sansSemiBold,
-                                    fontWeight: isSelected ? '800' : '600',
+                                        ? FONT_FAMILIES.bold
+                                        : FONT_FAMILIES.medium,
                                 },
                             ]}
                         >
                             {label}
-                        </ThemedText>
+                        </Text>
                     )}
                 </TouchableOpacity>
             </Animated.View>
@@ -331,7 +316,7 @@ export function Neo3DIcon({
                             ]}
                         />
 
-                        {/* 3D Layered Solid Glyph (Shadow + Foreground) with Spring Pop */}
+                        {/* Solid Glyph with Spring Pop */}
                         <Animated.View
                             style={[
                                 styles.layeredIconWrap,
@@ -339,22 +324,12 @@ export function Neo3DIcon({
                             ]}
                         >
                             {selected3DIcon ?? (
-                                <>
-                                    {/* Offset shadow layer for 3D depth */}
-                                    <FontAwesome6
-                                        name={name}
-                                        size={size}
-                                        color="rgba(0, 0, 0, 0.28)"
-                                        style={styles.iconShadowLayer}
-                                    />
-                                    {/* Solid foreground layer */}
-                                    <FontAwesome6
-                                        name={name}
-                                        size={size}
-                                        color={isDark ? '#000000' : '#FFFFFF'}
-                                        style={styles.iconFrontLayer}
-                                    />
-                                </>
+                                <FontAwesome6
+                                    name={name}
+                                    size={size}
+                                    color={isDark ? '#000000' : '#FFFFFF'}
+                                    style={styles.iconFrontLayer}
+                                />
                             )}
                         </Animated.View>
 
@@ -367,36 +342,27 @@ export function Neo3DIcon({
                         />
                     </View>
                 ) : (
-                    /* ── UNSELECTED: OUTLINED ICON (WIREFRAME SLEEK MINIMAL) ── */
-                    <View
-                        style={[
-                            styles.podOutlineBase,
-                            {
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'transparent',
-                            },
-                        ]}
-                    >
+                    /* ── UNSELECTED: OUTLINED ICON (NO BORDER CAPSULE OVER FONTS) ── */
+                    <View style={styles.podOutlineBase}>
                         {outlineIcon ?? getFallbackOutlineIcon(name, size, mutedColor)}
                     </View>
                 )}
 
                 {/* Label below pod */}
                 {label && (
-                    <ThemedText
+                    <Text
                         style={[
                             styles.podLabel,
                             {
                                 color: isSelected ? primaryWhite : mutedColor,
                                 fontFamily: isSelected
-                                    ? FONT_FAMILIES.sansExtraBold
-                                    : FONT_FAMILIES.sansSemiBold,
-                                fontWeight: isSelected ? '800' : '600',
+                                    ? FONT_FAMILIES.bold
+                                    : FONT_FAMILIES.medium,
                             },
                         ]}
                     >
                         {label}
-                    </ThemedText>
+                    </Text>
                 )}
             </TouchableOpacity>
         </Animated.View>
@@ -454,14 +420,12 @@ const styles = StyleSheet.create({
         borderRadius: 2,
     },
 
-    // ── Unselected Outlined Capsule ──
+    // ── Unselected Base ──
     podOutlineBase: {
         width: 48,
         height: 38,
-        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1,
     },
 
     podLabel: {
@@ -510,8 +474,6 @@ const styles = StyleSheet.create({
     heroOutlineRing: {
         width: 54,
         height: 54,
-        borderRadius: 27,
-        borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
     },

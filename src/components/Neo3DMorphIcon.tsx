@@ -241,24 +241,13 @@ export function Neo3DMorphIcon({
             ]}
         >
             {selected3DIcon ?? (
-                <>
-                    {/* Offset Shadow Layer for 3D depth */}
-                    <FontAwesome6
-                        name={solidGlyph}
-                        size={size}
-                        color="rgba(0, 0, 0, 0.32)"
-                        style={styles.shadowGlyph}
-                        solid
-                    />
-                    {/* Front Crisp Solid Layer */}
-                    <FontAwesome6
-                        name={solidGlyph}
-                        size={size}
-                        color={primaryActive}
-                        style={styles.frontGlyph}
-                        solid
-                    />
-                </>
+                <FontAwesome6
+                    name={solidGlyph}
+                    size={size}
+                    color={primaryActive}
+                    style={styles.frontGlyph}
+                    solid
+                />
             )}
         </Animated.View>
     );
