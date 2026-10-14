@@ -9,10 +9,9 @@ import {
     ViewStyle,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { FontAwesome6 } from '@expo/vector-icons';
 import { ScanLine } from 'lucide-react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
-import { getOutlinedIcon } from './Neo3DMorphIcon';
+import { getLucideIcon, getOutlinedIcon } from './Neo3DMorphIcon';
 import { FONT_FAMILIES } from '../constants/Tokens';
 
 export interface Neo3DIconProps {
@@ -233,12 +232,7 @@ export function Neo3DIcon({
                                             { transform: [{ scale: selectBounce }] },
                                         ]}
                                     >
-                                        <FontAwesome6
-                                            name="bolt-lightning"
-                                            size={size + 4}
-                                            color={isDark ? '#000000' : '#FFFFFF'}
-                                            style={styles.iconFrontLayer}
-                                        />
+                                        {getLucideIcon('scan', size + 4, isDark ? '#000000' : '#FFFFFF', true)}
                                     </Animated.View>
                                 </View>
                             </View>
@@ -323,14 +317,7 @@ export function Neo3DIcon({
                                 { transform: [{ scale: selectBounce }] },
                             ]}
                         >
-                            {selected3DIcon ?? (
-                                <FontAwesome6
-                                    name={name}
-                                    size={size}
-                                    color={isDark ? '#000000' : '#FFFFFF'}
-                                    style={styles.iconFrontLayer}
-                                />
-                            )}
+                            {selected3DIcon ?? getLucideIcon(name, size, isDark ? '#000000' : '#FFFFFF', true)}
                         </Animated.View>
 
                         {/* Micro Active Indicator Dot */}

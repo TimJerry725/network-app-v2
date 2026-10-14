@@ -39,8 +39,10 @@ import {
     Navigation,
     Wallet,
     Plus,
+    Plug,
+    User,
+    Filter,
 } from 'lucide-react-native';
-import { FontAwesome6 } from '@expo/vector-icons';
 import { GradientButton } from '../../components/GradientButton';
 import { ThemedText } from '../../components/ThemedText';
 import { DcPinIcon } from '../../components/DcPinIcon';
@@ -122,7 +124,7 @@ const CONNECTOR_ITEMS: ConnectorFilterItem[] = [
         id: 'GB/T',
         label: 'GB/T',
         currentType: 'DC',
-        renderIcon: (color: string) => <FontAwesome6 name="plug" size={32} color={color} />,
+        renderIcon: (color: string) => <Plug size={32} color={color} />,
     },
 ];
 
@@ -138,7 +140,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
         id: 'iris_network',
         name: 'Iris Network',
         bgColor: '#FFFFFF',
-        renderIcon: () => <FontAwesome6 name="bolt" size={13} color="#000000" solid />,
+        renderIcon: () => <Zap size={13} color="#000000" fill="#000000" />,
     },
     {
         id: 'tata_power',
@@ -168,7 +170,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
         id: 'chargezone',
         name: 'ChargeZone',
         bgColor: '#10B981',
-        renderIcon: () => <FontAwesome6 name="bolt" size={13} color="#FFFFFF" solid />,
+        renderIcon: () => <Zap size={13} color="#FFFFFF" fill="#FFFFFF" />,
     },
     {
         id: 'ather_grid',
@@ -264,7 +266,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
         id: 'electreefi',
         name: 'ElectreeFi',
         bgColor: '#222228',
-        renderIcon: () => <FontAwesome6 name="plug" size={13} color="#FFFFFF" />,
+        renderIcon: () => <Plug size={13} color="#FFFFFF" />,
     },
 ];
 
@@ -1062,7 +1064,7 @@ export default function StationMapScreen({ navigation }: any) {
                                 onPress={() => navigation.navigate('Profile' as never)}
                             >
                                 <View style={[styles.profileCircle, { backgroundColor: colors.primarySoft }]}>
-                                    <FontAwesome6 name="user" size={13} color={colors.primary} solid />
+                                    <User size={14} color={colors.primary} />
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -1145,12 +1147,10 @@ export default function StationMapScreen({ navigation }: any) {
                             ]}
                             onPress={() => navigation.navigate('Profile' as never)}
                         >
-                            <FontAwesome6
-                                name="wallet"
-                                size={12}
+                            <Wallet
+                                size={13}
                                 color={colors.primary}
                                 style={{ marginRight: 6 }}
-                                solid
                             />
                             <ThemedText
                                 style={{
@@ -1190,7 +1190,7 @@ export default function StationMapScreen({ navigation }: any) {
                                 setIsFilterSheetVisible(true);
                             }}
                         >
-                            <FontAwesome6 name="filter" size={18} color={colors.text} solid />
+                            <Filter size={18} color={colors.text} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[
@@ -1291,11 +1291,10 @@ export default function StationMapScreen({ navigation }: any) {
                                                             },
                                                         ]}
                                                     >
-                                                        <FontAwesome6
-                                                            name="bolt"
-                                                            size={10}
+                                                        <Zap
+                                                            size={11}
                                                             color={isDark ? colors.primary : colors.primaryStrong}
-                                                            solid
+                                                            fill={isDark ? colors.primary : colors.primaryStrong}
                                                         />
                                                         <ThemedText style={[styles.typeText, { color: colors.primaryStrong }]}>
                                                             {connector.power}kW
@@ -1448,7 +1447,7 @@ export default function StationMapScreen({ navigation }: any) {
                                     {/* Overlapping Brand Logo Avatars */}
                                     <View style={styles.brandLogosCluster}>
                                         <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF' }]}>
-                                            <FontAwesome6 name="bolt" size={9} color="#000" />
+                                            <Zap size={9} color="#000" fill="#000" />
                                         </View>
                                         <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>EZ</ThemedText>
@@ -1463,7 +1462,7 @@ export default function StationMapScreen({ navigation }: any) {
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>Z</ThemedText>
                                         </View>
                                         <View style={[styles.brandAvatar, { backgroundColor: '#10B981', marginLeft: -8 }]}>
-                                            <FontAwesome6 name="bolt" size={8} color="#FFF" />
+                                            <Zap size={9} color="#FFF" fill="#FFF" />
                                         </View>
                                         <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>A</ThemedText>

@@ -163,19 +163,9 @@ export function Neo3DSelectTile({
         if (isSelected) {
             if (selected3DIcon) return selected3DIcon;
             if (icon) {
-                // If a standard icon is passed, elevate it with 3D drop-shadow relief
-                return (
-                    <View style={styles.icon3DWrap}>
-                        <View style={styles.iconShadowBackdrop}>
-                            {React.cloneElement(icon as React.ReactElement<any>, {
-                                color: 'rgba(0, 0, 0, 0.28)',
-                            })}
-                        </View>
-                        {React.cloneElement(icon as React.ReactElement<any>, {
-                            color: isDark ? '#000000' : '#FFFFFF',
-                        })}
-                    </View>
-                );
+                return React.cloneElement(icon as React.ReactElement<any>, {
+                    color: isDark ? '#000000' : '#FFFFFF',
+                });
             }
         } else {
             // Unselected: Use outlined icon

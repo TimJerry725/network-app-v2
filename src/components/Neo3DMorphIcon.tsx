@@ -5,7 +5,6 @@ import {
     View,
     ViewStyle,
 } from 'react-native';
-import { FontAwesome6 } from '@expo/vector-icons';
 import {
     BatteryCharging,
     CheckCircle2,
@@ -39,149 +38,90 @@ export interface Neo3DMorphIconProps {
 }
 
 /**
- * Returns a crisp, wireframe OUTLINED icon from lucide-react-native for unselected state
+ * Returns a crisp, unified Lucide icon across both unselected and selected states.
  */
-export function getOutlinedIcon(name?: string, size: number = 20, color: string = '#8E8E93') {
+export function getLucideIcon(
+    name?: string,
+    size: number = 20,
+    color: string = '#8E8E93',
+    isSelected: boolean = false
+) {
+    const strokeWidth = isSelected ? 2.4 : 1.8;
+    const fillColor = isSelected ? color : 'none';
+
     switch (name) {
         case 'map':
         case 'map-location-dot':
         case 'map-pin':
-            return <MapPin size={size} color={color} strokeWidth={1.8} />;
+            return <MapPin size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
         case 'explore':
         case 'compass':
-            return <Compass size={size} color={color} strokeWidth={1.8} />;
+            return <Compass size={size} color={color} strokeWidth={strokeWidth} />;
         case 'scan':
         case 'scan-line':
         case 'qr':
-            return <ScanLine size={size} color={color} strokeWidth={1.9} />;
+            return <ScanLine size={size} color={color} strokeWidth={strokeWidth} />;
         case 'heart':
         case 'favorite':
-            return <Heart size={size} color={color} strokeWidth={1.8} />;
+            return <Heart size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
         case 'history':
         case 'sessions':
         case 'clock-rotate-left':
-            return <History size={size} color={color} strokeWidth={1.8} />;
+            return <History size={size} color={color} strokeWidth={strokeWidth} />;
         case 'clock':
         case '24/7':
         case 'time':
-            return <Clock size={size} color={color} strokeWidth={1.8} />;
+            return <Clock size={size} color={color} strokeWidth={strokeWidth} />;
         case 'bolt':
         case 'zap':
         case 'bolt-lightning':
         case 'fast':
         case 'fastest':
-            return <Zap size={size} color={color} strokeWidth={1.8} />;
+            return <Zap size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
         case 'tag':
         case 'tags':
         case 'cheapest':
-            return <Tag size={size} color={color} strokeWidth={1.8} />;
+            return <Tag size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
         case 'check':
         case 'circle-check':
         case 'available':
-            return <CheckCircle2 size={size} color={color} strokeWidth={1.8} />;
+            return <CheckCircle2 size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
         case 'coffee':
         case 'mug-hot':
         case 'amenities':
-            return <Coffee size={size} color={color} strokeWidth={1.8} />;
+            return <Coffee size={size} color={color} strokeWidth={strokeWidth} />;
         case 'sliders':
         case 'sliders-horizontal':
         case 'filter':
-            return <SlidersHorizontal size={size} color={color} strokeWidth={1.8} />;
+            return <SlidersHorizontal size={size} color={color} strokeWidth={strokeWidth} />;
         case 'battery':
         case 'battery-charging':
         case 'charging':
-            return <BatteryCharging size={size} color={color} strokeWidth={1.8} />;
+            return <BatteryCharging size={size} color={color} strokeWidth={strokeWidth} />;
         case 'sparkles':
         case 'ultra':
-            return <Sparkles size={size} color={color} strokeWidth={1.8} />;
+            return <Sparkles size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
         case 'plug':
         case 'connector':
-            return <Plug size={size} color={color} strokeWidth={1.8} />;
+            return <Plug size={size} color={color} strokeWidth={strokeWidth} />;
         case 'trip':
         case 'trip-planner':
-            return <MapPinned size={size} color={color} strokeWidth={1.8} />;
+            return <MapPinned size={size} color={color} strokeWidth={strokeWidth} />;
         case 'shield':
         case 'security':
-            return <ShieldCheck size={size} color={color} strokeWidth={1.8} />;
+            return <ShieldCheck size={size} color={color} strokeWidth={strokeWidth} />;
         default:
-            return <Zap size={size} color={color} strokeWidth={1.8} />;
+            return <Zap size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
     }
 }
 
-/**
- * Returns FontAwesome6 solid glyph name for 3D depth rendering
- */
-function getSolidGlyphName(name?: string): string {
-    switch (name) {
-        case 'map':
-        case 'map-location-dot':
-        case 'map-pin':
-            return 'map-location-dot';
-        case 'explore':
-        case 'compass':
-            return 'compass';
-        case 'scan':
-        case 'scan-line':
-        case 'qr':
-        case 'bolt':
-        case 'zap':
-        case 'bolt-lightning':
-        case 'fast':
-        case 'fastest':
-            return 'bolt-lightning';
-        case 'heart':
-        case 'favorite':
-            return 'heart';
-        case 'history':
-        case 'sessions':
-        case 'clock-rotate-left':
-            return 'clock-rotate-left';
-        case 'clock':
-        case '24/7':
-        case 'time':
-            return 'clock';
-        case 'tag':
-        case 'tags':
-        case 'cheapest':
-            return 'tags';
-        case 'check':
-        case 'circle-check':
-        case 'available':
-            return 'circle-check';
-        case 'coffee':
-        case 'mug-hot':
-        case 'amenities':
-            return 'mug-hot';
-        case 'sliders':
-        case 'sliders-horizontal':
-        case 'filter':
-            return 'sliders';
-        case 'battery':
-        case 'battery-charging':
-        case 'charging':
-            return 'battery-full';
-        case 'sparkles':
-        case 'ultra':
-            return 'wand-magic-sparkles';
-        case 'plug':
-        case 'connector':
-            return 'plug';
-        case 'trip':
-        case 'trip-planner':
-            return 'map-location-dot';
-        case 'shield':
-        case 'security':
-            return 'shield-halved';
-        default:
-            return name || 'bolt';
-    }
+export function getOutlinedIcon(name?: string, size: number = 20, color: string = '#8E8E93') {
+    return getLucideIcon(name, size, color, false);
 }
 
 /**
  * Neo3DMorphIcon:
- * - Unselected: Clean, wireframe OUTLINED icon package (lucide-react-native)
- * - Selected: Morphs into a tactile 3D Neo-Brutalist icon with spring bounce,
- *   dual-layer relief (offset drop-shadow + solid foreground), and optional 3D beveled plate.
+ * Unified Lucide icon component with smooth spring physics and optional neo-brutalist plate.
  */
 export function Neo3DMorphIcon({
     name = 'bolt',
@@ -224,14 +164,12 @@ export function Neo3DMorphIcon({
         // ── UNSELECTED: WIREFRAME OUTLINE ICON ──
         return (
             <View style={[styles.outlineWrap, style]}>
-                {outlineIcon ?? getOutlinedIcon(name, size, mutedInactive)}
+                {outlineIcon ?? getLucideIcon(name, size, mutedInactive, false)}
             </View>
         );
     }
 
     // ── SELECTED: 3D NEO-BRUTALIST TACTILE ICON ──
-    const solidGlyph = getSolidGlyphName(name);
-
     const rendered3D = (
         <Animated.View
             style={[
@@ -240,15 +178,7 @@ export function Neo3DMorphIcon({
                 style,
             ]}
         >
-            {selected3DIcon ?? (
-                <FontAwesome6
-                    name={solidGlyph}
-                    size={size}
-                    color={primaryActive}
-                    style={styles.frontGlyph}
-                    solid
-                />
-            )}
+            {selected3DIcon ?? getLucideIcon(name, size, primaryActive, true)}
         </Animated.View>
     );
 
@@ -292,14 +222,6 @@ const styles = StyleSheet.create({
         position: 'relative',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    shadowGlyph: {
-        position: 'absolute',
-        top: 2,
-        left: 1,
-    },
-    frontGlyph: {
-        // crisp foreground layer
     },
     plate3DBase: {
         borderRadius: 12,

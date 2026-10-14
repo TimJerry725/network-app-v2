@@ -74,7 +74,7 @@ function ConnectorBadge({
 }
 
 export default function StationDetailScreen({ route, navigation }: any) {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
     const { user, topUpWallet } = useVehicles();
 
@@ -197,7 +197,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
     ];
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: '#F8FAF9' }]} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
@@ -212,7 +212,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         <ChevronLeft size={24} color={colors.text} />
                     </TouchableOpacity>
 
-                    <ThemedText style={styles.stationTitle} numberOfLines={1}>
+                    <ThemedText style={[styles.stationTitle, { color: colors.text }]} numberOfLines={1}>
                         {station.name}
                     </ThemedText>
 
@@ -475,11 +475,11 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     onPress={() => setShowTariffModal(true)}
                     activeOpacity={0.7}
                 >
-                    <ThemedText style={styles.tariffScheduleLinkText}>
+                    <ThemedText style={[styles.tariffScheduleLinkText, { color: colors.text }]}>
                         View full tariff and penalty schedule
                     </ThemedText>
-                    <View style={styles.chevronCircle}>
-                        <ChevronRight size={14} color="#FFFFFF" strokeWidth={3} />
+                    <View style={[styles.chevronCircle, { backgroundColor: colors.primary }]}>
+                        <ChevronRight size={13} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={3} />
                     </View>
                 </TouchableOpacity>
 
@@ -501,12 +501,19 @@ export default function StationDetailScreen({ route, navigation }: any) {
                 {/* 2-CTA Row */}
                 <View style={styles.bottomCtaRow}>
                     <TouchableOpacity
-                        style={styles.helpSupportBtn}
+                        style={[
+                            styles.helpSupportBtn,
+                            {
+                                backgroundColor: isDark ? '#16161B' : '#EFEFF4',
+                                borderColor: colors.cardBorder,
+                                borderBottomColor: isDark ? '#070709' : '#D0D0D5',
+                            },
+                        ]}
                         onPress={handleHelpSupport}
                         activeOpacity={0.8}
                     >
                         <PhoneCall size={17} color={colors.text} />
-                        <ThemedText style={styles.helpSupportText}>Help Support</ThemedText>
+                        <ThemedText style={[styles.helpSupportText, { color: colors.text }]}>Help Support</ThemedText>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -520,19 +527,28 @@ export default function StationDetailScreen({ route, navigation }: any) {
                 </View>
 
                 {/* Available Wallet Balance Strip */}
-                <View style={styles.walletStrip}>
+                <View
+                    style={[
+                        styles.walletStrip,
+                        {
+                            backgroundColor: isDark ? '#141418' : '#F4F4F6',
+                            borderColor: colors.cardBorder,
+                            borderWidth: 1,
+                        },
+                    ]}
+                >
                     <View style={styles.walletLeft}>
-                        <View style={styles.walletGreenIcon}>
-                            <Wallet size={17} color="#000000" />
+                        <View style={[styles.walletGreenIcon, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]}>
+                            <Wallet size={15} color={isDark ? '#000000' : '#FFFFFF'} />
                         </View>
-                        <ThemedText style={styles.walletLabel}>
-                            Available <ThemedText style={styles.walletLabelBold}>wallet</ThemedText> balance is{' '}
-                            <ThemedText style={styles.walletAmount}>₹ {user.walletBalance.toFixed(2)}</ThemedText>
+                        <ThemedText style={[styles.walletLabel, { color: colors.textMuted }]}>
+                            Available <ThemedText style={[styles.walletLabelBold, { color: colors.text }]}>wallet</ThemedText> balance is{' '}
+                            <ThemedText style={[styles.walletAmount, { color: colors.text }]}>₹ {user.walletBalance.toFixed(2)}</ThemedText>
                         </ThemedText>
                     </View>
 
                     <TouchableOpacity
-                        style={styles.addWalletBtn}
+                        style={[styles.addWalletBtn, { backgroundColor: colors.primarySoft }]}
                         onPress={() => {
                             topUpWallet(500);
                             Alert.alert('Wallet Recharged', '₹500 added to your Iris EV Wallet.');
@@ -540,7 +556,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         activeOpacity={0.8}
                     >
                         <Plus size={15} color={colors.text} strokeWidth={2.5} />
-                        <ThemedText style={styles.addWalletText}>Add</ThemedText>
+                        <ThemedText style={[styles.addWalletText, { color: colors.text }]}>Add</ThemedText>
                     </TouchableOpacity>
                 </View>
             </View>
