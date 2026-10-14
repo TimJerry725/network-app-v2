@@ -449,7 +449,8 @@ export default function DashboardScreen({ navigation }: any) {
                                 connectorId: recommendedConnector.id,
                             })
                         }
-                        icon={<BatteryCharging size={24} color={isDark ? '#FFFFFF' : '#000000'} />}
+                        iconName="bolt"
+                        outlineIcon={<BatteryCharging size={24} color={isDark ? '#8E8E93' : '#6B6B70'} strokeWidth={1.8} />}
                     />
                     <Neo3DSelectTile
                         label="Trip Planner"
@@ -457,7 +458,8 @@ export default function DashboardScreen({ navigation }: any) {
                         width="48%"
                         isSelected={false}
                         onPress={() => navigation.navigate('Explore')}
-                        icon={<MapPinned size={24} color={isDark ? '#FFFFFF' : '#000000'} />}
+                        iconName="trip"
+                        outlineIcon={<MapPinned size={24} color={isDark ? '#8E8E93' : '#6B6B70'} strokeWidth={1.8} />}
                     />
                     <Neo3DSelectTile
                         label="Scan QR"
@@ -465,7 +467,8 @@ export default function DashboardScreen({ navigation }: any) {
                         width="48%"
                         isSelected={false}
                         onPress={() => navigation.navigate('Scan')}
-                        icon={<ScanLine size={24} color={isDark ? '#FFFFFF' : '#000000'} />}
+                        iconName="scan"
+                        outlineIcon={<ScanLine size={24} color={isDark ? '#8E8E93' : '#6B6B70'} strokeWidth={1.8} />}
                     />
                     <Neo3DSelectTile
                         label="Filter Hubs"
@@ -473,7 +476,8 @@ export default function DashboardScreen({ navigation }: any) {
                         width="48%"
                         isSelected={false}
                         onPress={() => navigation.navigate('Filter')}
-                        icon={<SlidersHorizontal size={24} color={isDark ? '#FFFFFF' : '#000000'} />}
+                        iconName="filter"
+                        outlineIcon={<SlidersHorizontal size={24} color={isDark ? '#8E8E93' : '#6B6B70'} strokeWidth={1.8} />}
                     />
                 </View>
 

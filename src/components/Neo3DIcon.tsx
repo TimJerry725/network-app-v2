@@ -9,11 +9,15 @@ import {
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { ScanLine } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { getOutlinedIcon } from './Neo3DMorphIcon';
 
 export interface Neo3DIconProps {
-    name: string;
+    name?: string;
+    outlineIcon?: React.ReactNode;
+    selected3DIcon?: React.ReactNode;
     label?: string;
     isSelected: boolean;
     onPress?: () => void;
@@ -25,16 +29,24 @@ export interface Neo3DIconProps {
 }
 
 /**
- * CRED Stark Black & White 3D Tactile Icon with Motion Spring Physics
- * Features:
- * - Fluid spring scale & depression on touch (0.90 compression + bounce-back)
- * - Animated selection pop when tab is toggled
- * - Continuous ambient breathing pulse on hero Scan reactor core
- * - Dual-layer shadow + foreground 3D glyph depth
- * - Stark monochrome contrast (pure chalk white on pitch obsidian)
+ * Returns a crisp outlined icon from lucide-react-native for unselected resting state
+ */
+function getFallbackOutlineIcon(name: string, size: number, color: string) {
+    if (name === 'bolt-lightning' || name === 'scan') {
+        return <ScanLine size={size + 4} color={color} strokeWidth={1.9} />;
+    }
+    return getOutlinedIcon(name, size + 2, color);
+}
+
+/**
+ * CRED Dynamic Icon Architecture:
+ * - Unselected: Clean, sleek, minimal wireframe OUTLINED icon package
+ * - Selected: Transforms into a tactile 3D Neo-Brutalist extruded pod with solid depth
  */
 export function Neo3DIcon({
-    name,
+    name = 'circle',
+    outlineIcon,
+    selected3DIcon,
     label,
     isSelected,
     onPress,
@@ -46,42 +58,42 @@ export function Neo3DIcon({
 }: Neo3DIconProps) {
     const { colors, isDark } = useAppTheme();
     const primaryWhite = activeColor ?? (isDark ? '#FFFFFF' : '#000000');
-    const mutedColor = inactiveColor ?? (isDark ? '#7E7E84' : '#8E8E93');
+    const mutedColor = inactiveColor ?? (isDark ? '#8E8E93' : '#6B6B70');
 
     // Motion animation references
     const pressScale = useRef(new Animated.Value(1)).current;
     const pressY = useRef(new Animated.Value(isSelected ? 2 : 0)).current;
     const selectBounce = useRef(new Animated.Value(1)).current;
-    const pulseAnim = useRef(new Animated.Value(0.85)).current;
+    const pulseAnim = useRef(new Animated.Value(0.88)).current;
 
-    // Ambient breathing pulse for center hero reactor
+    // Ambient breathing pulse for hero center Scan reactor
     useEffect(() => {
-        if (!isPrimaryAction) return;
+        if (!isPrimaryAction || !isSelected) return;
         const pulse = Animated.loop(
             Animated.sequence([
                 Animated.timing(pulseAnim, {
-                    toValue: 1.05,
-                    duration: 1600,
+                    toValue: 1.06,
+                    duration: 1500,
                     useNativeDriver: true,
                 }),
                 Animated.timing(pulseAnim, {
-                    toValue: 0.85,
-                    duration: 1600,
+                    toValue: 0.88,
+                    duration: 1500,
                     useNativeDriver: true,
                 }),
             ])
         );
         pulse.start();
         return () => pulse.stop();
-    }, [isPrimaryAction, pulseAnim]);
+    }, [isPrimaryAction, isSelected, pulseAnim]);
 
-    // Spring bounce trigger on selection change
+    // Spring bounce on selection transition
     useEffect(() => {
         if (isSelected) {
             Animated.sequence([
                 Animated.spring(selectBounce, {
                     toValue: 1.18,
-                    tension: 300,
+                    tension: 320,
                     friction: 10,
                     useNativeDriver: true,
                 }),
@@ -94,15 +106,15 @@ export function Neo3DIcon({
             ]).start();
             Animated.spring(pressY, {
                 toValue: 2,
-                tension: 200,
-                friction: 10,
+                tension: 250,
+                friction: 12,
                 useNativeDriver: true,
             }).start();
         } else {
             Animated.spring(pressY, {
                 toValue: 0,
-                tension: 200,
-                friction: 10,
+                tension: 250,
+                friction: 12,
                 useNativeDriver: true,
             }).start();
         }
@@ -153,7 +165,7 @@ export function Neo3DIcon({
         onPress?.();
     };
 
-    // Hero center action button (Scan)
+    // ── HERO CENTER ACTION BUTTON (SCAN) ──
     if (isPrimaryAction) {
         return (
             <Animated.View
@@ -175,70 +187,93 @@ export function Neo3DIcon({
                     onPress={handlePress}
                     style={styles.heroTouchable}
                 >
-                    {/* Ambient Pulsing Halo */}
-                    <Animated.View
-                        style={[
-                            styles.heroHalo,
-                            {
-                                transform: [{ scale: pulseAnim }],
-                                opacity: isDark ? 0.25 : 0.15,
-                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                            },
-                        ]}
-                    />
+                    {isSelected ? (
+                        /* Selected: Full 3D Elevated Reactor Core */
+                        <>
+                            {/* Ambient Pulsing Halo */}
+                            <Animated.View
+                                style={[
+                                    styles.heroHalo,
+                                    {
+                                        transform: [{ scale: pulseAnim }],
+                                        opacity: isDark ? 0.3 : 0.15,
+                                        backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                    },
+                                ]}
+                            />
 
-                    {/* 3D Extruded Base Platform */}
-                    <View
-                        style={[
-                            styles.heroPlatform3D,
-                            {
-                                backgroundColor: isDark ? '#1C1C22' : '#D0D0D5',
-                                borderColor: isDark ? '#2C2C35' : '#B0B0B8',
-                                borderBottomColor: isDark ? '#050508' : '#8A8A92',
-                            },
-                        ]}
-                    >
-                        {/* Top Elevated Stark White Reactor Core */}
+                            {/* 3D Extruded Base Platform */}
+                            <View
+                                style={[
+                                    styles.heroPlatform3D,
+                                    {
+                                        backgroundColor: isDark ? '#1C1C22' : '#D0D0D5',
+                                        borderColor: isDark ? '#2C2C35' : '#B0B0B8',
+                                        borderBottomColor: isDark ? '#050508' : '#8A8A92',
+                                    },
+                                ]}
+                            >
+                                {/* Top Elevated 3D Reactor Core */}
+                                <View
+                                    style={[
+                                        styles.heroCore3D,
+                                        {
+                                            backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                            borderColor: 'rgba(255, 255, 255, 0.4)',
+                                        },
+                                    ]}
+                                >
+                                    <View style={styles.specularTopLine} />
+
+                                    {/* 3D Layered Solid Glyph (Shadow + Solid Foreground) */}
+                                    <Animated.View
+                                        style={[
+                                            styles.layeredIconWrap,
+                                            { transform: [{ scale: selectBounce }] },
+                                        ]}
+                                    >
+                                        <FontAwesome6
+                                            name="bolt-lightning"
+                                            size={size + 4}
+                                            color="rgba(0, 0, 0, 0.25)"
+                                            style={styles.iconShadowLayer}
+                                        />
+                                        <FontAwesome6
+                                            name="bolt-lightning"
+                                            size={size + 4}
+                                            color={isDark ? '#000000' : '#FFFFFF'}
+                                            style={styles.iconFrontLayer}
+                                        />
+                                    </Animated.View>
+                                </View>
+                            </View>
+                        </>
+                    ) : (
+                        /* Unselected: Clean Minimal Outlined Wireframe Ring */
                         <View
                             style={[
-                                styles.heroCore3D,
+                                styles.heroOutlineRing,
                                 {
-                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                    borderColor: 'rgba(255, 255, 255, 0.4)',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)',
+                                    backgroundColor: isDark ? '#111116' : '#F6F6F8',
                                 },
                             ]}
                         >
-                            {/* Top Specular Line */}
-                            <View style={styles.specularTopLine} />
-
-                            {/* 3D Layered Icon (Shadow Layer + Stark Black Foreground Layer) */}
-                            <Animated.View
-                                style={[
-                                    styles.layeredIconWrap,
-                                    { transform: [{ scale: selectBounce }] },
-                                ]}
-                            >
-                                <FontAwesome6
-                                    name={name}
-                                    size={size + 4}
-                                    color="rgba(0, 0, 0, 0.25)"
-                                    style={styles.iconShadowLayer}
-                                />
-                                <FontAwesome6
-                                    name={name}
-                                    size={size + 4}
-                                    color={isDark ? '#000000' : '#FFFFFF'}
-                                    style={styles.iconFrontLayer}
-                                />
-                            </Animated.View>
+                            <ScanLine size={size + 4} color={mutedColor} strokeWidth={1.8} />
                         </View>
-                    </View>
+                    )}
 
                     {label && (
                         <ThemedText
                             style={[
                                 styles.heroLabel,
-                                { color: isSelected ? primaryWhite : colors.textMuted },
+                                {
+                                    color: isSelected ? primaryWhite : mutedColor,
+                                    fontFamily: isSelected
+                                        ? 'RedHatDisplay_800ExtraBold'
+                                        : 'RedHatDisplay_600SemiBold',
+                                    fontWeight: isSelected ? '800' : '600',
+                                },
                             ]}
                         >
                             {label}
@@ -249,6 +284,7 @@ export function Neo3DIcon({
         );
     }
 
+    // ── STANDARD TAB BUTTONS (MAP, EXPLORE, FAVORITE, SESSIONS) ──
     return (
         <Animated.View
             style={[
@@ -267,75 +303,82 @@ export function Neo3DIcon({
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 onPress={handlePress}
+                style={styles.touchableArea}
             >
-                {/* 3D Tactile Pod */}
-                <View
-                    style={[
-                        styles.podBase,
-                        isSelected ? [
-                            styles.podActive,
+                {isSelected ? (
+                    /* ── SELECTED: 3D NEO-BRUTALIST TACTILE POD ── */
+                    <View
+                        style={[
+                            styles.pod3DBase,
                             {
                                 backgroundColor: isDark ? '#FFFFFF' : '#000000',
                                 borderColor: isDark ? '#FFFFFF' : '#000000',
-                                borderBottomColor: isDark ? '#C7C7CD' : '#222226',
-                                borderBottomWidth: 2,
+                                borderBottomColor: isDark ? '#A0A0A8' : '#222228',
+                                borderBottomWidth: 3.5, // Physical 3D bottom bevel
                             },
-                        ] : [
-                            styles.podInactive,
-                            {
-                                backgroundColor: isDark ? '#111115' : '#F4F4F6',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                                borderBottomColor: isDark ? '#040406' : '#C8C8CC',
-                                borderBottomWidth: 3,
-                            },
-                        ],
-                    ]}
-                >
-                    {/* Inset Specular Top Light Line */}
-                    <View
-                        style={[
-                            styles.specularTopLine,
-                            {
-                                backgroundColor: isSelected
-                                    ? 'rgba(255, 255, 255, 0.9)'
-                                    : isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.7)',
-                            },
-                        ]}
-                    />
-
-                    {/* 3D Layered Icon Representation with Spring Bounce */}
-                    <Animated.View
-                        style={[
-                            styles.layeredIconWrap,
-                            { transform: [{ scale: selectBounce }] },
                         ]}
                     >
-                        {isSelected && (
-                            <FontAwesome6
-                                name={name}
-                                size={size}
-                                color="rgba(0, 0, 0, 0.2)"
-                                style={styles.iconShadowLayer}
-                            />
-                        )}
-                        <FontAwesome6
-                            name={name}
-                            size={size}
-                            color={isSelected ? (isDark ? '#000000' : '#FFFFFF') : mutedColor}
-                            style={styles.iconFrontLayer}
+                        {/* Inset Specular Top Light Line */}
+                        <View
+                            style={[
+                                styles.specularTopLine,
+                                {
+                                    backgroundColor: isDark
+                                        ? 'rgba(255, 255, 255, 0.95)'
+                                        : 'rgba(255, 255, 255, 0.7)',
+                                },
+                            ]}
                         />
-                    </Animated.View>
 
-                    {/* Micro Active Beacon Dot */}
-                    {isSelected && (
+                        {/* 3D Layered Solid Glyph (Shadow + Foreground) with Spring Pop */}
+                        <Animated.View
+                            style={[
+                                styles.layeredIconWrap,
+                                { transform: [{ scale: selectBounce }] },
+                            ]}
+                        >
+                            {selected3DIcon ?? (
+                                <>
+                                    {/* Offset shadow layer for 3D depth */}
+                                    <FontAwesome6
+                                        name={name}
+                                        size={size}
+                                        color="rgba(0, 0, 0, 0.28)"
+                                        style={styles.iconShadowLayer}
+                                    />
+                                    {/* Solid foreground layer */}
+                                    <FontAwesome6
+                                        name={name}
+                                        size={size}
+                                        color={isDark ? '#000000' : '#FFFFFF'}
+                                        style={styles.iconFrontLayer}
+                                    />
+                                </>
+                            )}
+                        </Animated.View>
+
+                        {/* Micro Active Indicator Dot */}
                         <View
                             style={[
                                 styles.activeDot,
                                 { backgroundColor: isDark ? '#000000' : '#FFFFFF' },
                             ]}
                         />
-                    )}
-                </View>
+                    </View>
+                ) : (
+                    /* ── UNSELECTED: OUTLINED ICON (WIREFRAME SLEEK MINIMAL) ── */
+                    <View
+                        style={[
+                            styles.podOutlineBase,
+                            {
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'transparent',
+                            },
+                        ]}
+                    >
+                        {outlineIcon ?? getFallbackOutlineIcon(name, size, mutedColor)}
+                    </View>
+                )}
 
                 {/* Label below pod */}
                 {label && (
@@ -344,7 +387,9 @@ export function Neo3DIcon({
                             styles.podLabel,
                             {
                                 color: isSelected ? primaryWhite : mutedColor,
-                                fontFamily: isSelected ? 'RedHatDisplay_800ExtraBold' : 'RedHatDisplay_600SemiBold',
+                                fontFamily: isSelected
+                                    ? 'RedHatDisplay_800ExtraBold'
+                                    : 'RedHatDisplay_600SemiBold',
                                 fontWeight: isSelected ? '800' : '600',
                             },
                         ]}
@@ -363,8 +408,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: 2,
     },
-    podBase: {
-        width: 48,
+    touchableArea: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    // ── Selected 3D Neo-Brutalist Pod ──
+    pod3DBase: {
+        width: 50,
         height: 38,
         borderRadius: 14,
         alignItems: 'center',
@@ -372,12 +423,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         position: 'relative',
         overflow: 'hidden',
-    },
-    podActive: {
-        // Active mechanical pressed state
-    },
-    podInactive: {
-        // Resting extruded state
     },
     specularTopLine: {
         position: 'absolute',
@@ -407,6 +452,17 @@ const styles = StyleSheet.create({
         height: 3.5,
         borderRadius: 2,
     },
+
+    // ── Unselected Outlined Capsule ──
+    podOutlineBase: {
+        width: 48,
+        height: 38,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+    },
+
     podLabel: {
         fontSize: 10,
         marginTop: 3,
@@ -450,10 +506,16 @@ const styles = StyleSheet.create({
         position: 'relative',
         overflow: 'hidden',
     },
+    heroOutlineRing: {
+        width: 54,
+        height: 54,
+        borderRadius: 27,
+        borderWidth: 1.5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     heroLabel: {
         fontSize: 10,
-        fontFamily: 'RedHatDisplay_800ExtraBold',
-        fontWeight: '800',
         marginTop: 2,
         letterSpacing: 0.2,
     },

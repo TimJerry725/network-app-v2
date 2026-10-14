@@ -48,6 +48,7 @@ import { CarPinIcon } from '../../components/CarPinIcon';
 import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { Type2Icon } from '../../components/Type2Icon';
 import { ChademoIcon } from '../../components/ChademoIcon';
+import { Neo3DMorphIcon } from '../../components/Neo3DMorphIcon';
 export type MapFilterState = {
     chargerTypes: string[];
     connectorTypes: string[];
@@ -262,7 +263,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
     {
         id: 'electreefi',
         name: 'ElectreeFi',
-        bgColor: '#16A34A',
+        bgColor: '#222228',
         renderIcon: () => <FontAwesome6 name="plug" size={13} color="#FFFFFF" />,
     },
 ];
@@ -1085,19 +1086,19 @@ export default function StationMapScreen({ navigation }: any) {
                                         styles.filterChip,
                                         isActive
                                             ? {
-                                                  backgroundColor: colors.primary,
+                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
                                                   borderColor: isDark ? '#FFFFFF' : '#000000',
                                                   borderWidth: 1.5,
-                                                  borderBottomWidth: 1.5,
-                                                  borderBottomColor: isDark ? '#B0B0B8' : '#333338',
+                                                  borderBottomWidth: 3.5,
+                                                  borderBottomColor: isDark ? '#A0A0A8' : '#222228',
                                                   transform: [{ translateY: 1.5 }],
                                               }
                                             : {
-                                                  backgroundColor: colors.surface,
-                                                  borderColor: colors.cardBorder,
+                                                  backgroundColor: isDark ? '#111115' : '#F6F6F8',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                                                   borderWidth: 1,
-                                                  borderBottomWidth: 3,
-                                                  borderBottomColor: isDark ? '#070709' : '#D0D0D0',
+                                                  borderBottomWidth: 1.5,
+                                                  borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.12)',
                                               },
                                     ]}
                                     onPress={() => {
@@ -1107,16 +1108,17 @@ export default function StationMapScreen({ navigation }: any) {
                                         setActiveFilter((prev) => (prev === filter.id ? '' : filter.id));
                                     }}
                                 >
-                                    <FontAwesome6
-                                        name={filter.icon}
-                                        size={11}
-                                        color={isActive ? '#000000' : colors.primary}
+                                    <Neo3DMorphIcon
+                                        name={filter.id.toLowerCase()}
+                                        isSelected={isActive}
+                                        size={12}
+                                        activeColor={isDark ? '#000000' : '#FFFFFF'}
+                                        inactiveColor={colors.textMuted}
                                         style={{ marginRight: 6 }}
-                                        solid
                                     />
                                     <ThemedText
                                         style={{
-                                            color: isActive ? '#000000' : colors.text,
+                                            color: isActive ? (isDark ? '#000000' : '#FFFFFF') : colors.text,
                                             fontSize: 12,
                                             fontWeight: isActive ? '800' : '600',
                                             fontFamily: isActive
@@ -1231,7 +1233,7 @@ export default function StationMapScreen({ navigation }: any) {
                                             styles.stationRow,
                                             {
                                                 backgroundColor: isSelected
-                                                    ? (isDark ? '#1C3825' : '#E8F5E9')
+                                                    ? (isDark ? '#1C1C22' : '#EBEBEF')
                                                     : colors.surface,
                                             },
                                         ]}
@@ -1248,7 +1250,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                         styles.stationName,
                                                         {
                                                             color: isSelected
-                                                                ? (isDark ? colors.primary : colors.primaryStrong)
+                                                                ? (isDark ? '#FFFFFF' : '#000000')
                                                                 : colors.text,
                                                         },
                                                     ]}
@@ -1259,7 +1261,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                 <ThemedText
                                                     style={{
                                                         color: isSelected
-                                                            ? (isDark ? '#98DCA9' : '#2C6E3D')
+                                                            ? (isDark ? '#A0A0A8' : '#55555A')
                                                             : colors.textMuted,
                                                         ...FONTS.caption,
                                                     }}
@@ -1270,7 +1272,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                 <ThemedText
                                                     style={{
                                                         color: isSelected
-                                                            ? (isDark ? '#98DCA9' : '#2C6E3D')
+                                                            ? (isDark ? '#A0A0A8' : '#55555A')
                                                             : colors.textMuted,
                                                         ...FONTS.caption,
                                                     }}
@@ -1284,7 +1286,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                             styles.typeBadge,
                                                             {
                                                                 backgroundColor: isSelected
-                                                                    ? (isDark ? 'rgba(255,255,255,0.12)' : '#D5EED8')
+                                                                    ? (isDark ? 'rgba(255,255,255,0.15)' : '#E0E0E6')
                                                                     : colors.primarySoft,
                                                             },
                                                         ]}
@@ -1302,7 +1304,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                     <ThemedText
                                                         style={{
                                                             color: isSelected
-                                                                ? (isDark ? '#98DCA9' : '#2C6E3D')
+                                                                ? (isDark ? '#A0A0A8' : '#55555A')
                                                                 : colors.textMuted,
                                                             ...FONTS.caption,
                                                         }}
@@ -1587,10 +1589,10 @@ export default function StationMapScreen({ navigation }: any) {
                                                         styles.plugTypeChip,
                                                         {
                                                             backgroundColor: isDark
-                                                                ? (item.currentType === 'DC' ? 'rgba(34, 197, 94, 0.22)' : 'rgba(56, 189, 248, 0.22)')
+                                                                ? 'rgba(255, 255, 255, 0.12)'
                                                                 : (selected
-                                                                    ? '#FFFFFF'
-                                                                    : (item.currentType === 'DC' ? '#DCFCE7' : '#E0F2FE')),
+                                                                    ? '#000000'
+                                                                    : '#E5E5EA'),
                                                         },
                                                     ]}
                                                 >
@@ -1599,8 +1601,8 @@ export default function StationMapScreen({ navigation }: any) {
                                                             styles.plugTypeChipText,
                                                             {
                                                                 color: isDark
-                                                                    ? (item.currentType === 'DC' ? '#4ADE80' : '#38BDF8')
-                                                                    : (item.currentType === 'DC' ? '#15803D' : '#0369A1'),
+                                                                    ? '#FFFFFF'
+                                                                    : (selected ? '#FFFFFF' : '#000000'),
                                                             },
                                                         ]}
                                                     >

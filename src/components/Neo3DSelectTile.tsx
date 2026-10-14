@@ -11,11 +11,15 @@ import {
 import * as Haptics from 'expo-haptics';
 import { ThemedText } from './ThemedText';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { Neo3DMorphIcon } from './Neo3DMorphIcon';
 
 export interface Neo3DSelectTileProps {
     label: string;
     sublabel?: string;
     icon?: React.ReactNode;
+    outlineIcon?: React.ReactNode;
+    selected3DIcon?: React.ReactNode;
+    iconName?: string;
     isSelected: boolean;
     onPress: () => void;
     width?: DimensionValue;
@@ -29,17 +33,18 @@ export interface Neo3DSelectTileProps {
 
 /**
  * CRED Stark Black & White 3D Tactile Selection Tile with Spring Motion
- * Features:
- * - Fluid spring compression physics (0.94 scale + 3px physical drop)
- * - Animated selection pop on state toggle
- * - Specular top light line reflection
- * - High-contrast stark monochrome aesthetics (pitch black / chalk white)
- * - Haptic response on touch
+ * 
+ * Architecture:
+ * - Unselected: Clean, sleek, minimal wireframe OUTLINED icon & flat container
+ * - Selected: Morphs into a tactile 3D Neo-Brutalist extruded pod with solid depth & 3D glyph
  */
 export function Neo3DSelectTile({
     label,
     sublabel,
     icon,
+    outlineIcon,
+    selected3DIcon,
+    iconName,
     isSelected,
     onPress,
     width = '48%',
@@ -52,6 +57,7 @@ export function Neo3DSelectTile({
 }: Neo3DSelectTileProps) {
     const { colors, isDark } = useAppTheme();
     const primaryWhite = activeColor ?? (isDark ? '#FFFFFF' : '#000000');
+    const mutedColor = isDark ? '#8E8E93' : '#6B6B70';
 
     // Motion animation references
     const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -63,8 +69,8 @@ export function Neo3DSelectTile({
         if (isSelected) {
             Animated.sequence([
                 Animated.spring(popAnim, {
-                    toValue: 1.12,
-                    tension: 300,
+                    toValue: 1.15,
+                    tension: 320,
                     friction: 10,
                     useNativeDriver: true,
                 }),
@@ -95,13 +101,13 @@ export function Neo3DSelectTile({
         if (disabled) return;
         Animated.parallel([
             Animated.spring(scaleAnim, {
-                toValue: 0.94,
+                toValue: 0.93,
                 tension: 350,
                 friction: 14,
                 useNativeDriver: true,
             }),
             Animated.spring(translateYAnim, {
-                toValue: 3.5,
+                toValue: 4,
                 tension: 350,
                 friction: 14,
                 useNativeDriver: true,
@@ -135,6 +141,56 @@ export function Neo3DSelectTile({
         onPress();
     };
 
+    // Determine how icon is rendered based on selection state
+    const renderIconContent = () => {
+        const iconSize = compact ? 18 : 22;
+
+        if (iconName) {
+            return (
+                <Neo3DMorphIcon
+                    name={iconName}
+                    outlineIcon={outlineIcon}
+                    selected3DIcon={selected3DIcon}
+                    isSelected={isSelected}
+                    size={iconSize}
+                    activeColor={isDark ? '#000000' : '#FFFFFF'}
+                    inactiveColor={mutedColor}
+                />
+            );
+        }
+
+        if (isSelected) {
+            if (selected3DIcon) return selected3DIcon;
+            if (icon) {
+                // If a standard icon is passed, elevate it with 3D drop-shadow relief
+                return (
+                    <View style={styles.icon3DWrap}>
+                        <View style={styles.iconShadowBackdrop}>
+                            {React.cloneElement(icon as React.ReactElement<any>, {
+                                color: 'rgba(0, 0, 0, 0.28)',
+                            })}
+                        </View>
+                        {React.cloneElement(icon as React.ReactElement<any>, {
+                            color: isDark ? '#000000' : '#FFFFFF',
+                        })}
+                    </View>
+                );
+            }
+        } else {
+            // Unselected: Use outlined icon
+            if (outlineIcon) return outlineIcon;
+            if (icon) {
+                return React.cloneElement(icon as React.ReactElement<any>, {
+                    color: mutedColor,
+                });
+            }
+        }
+
+        return null;
+    };
+
+    const iconContent = renderIconContent();
+
     return (
         <Animated.View
             style={[
@@ -166,21 +222,21 @@ export function Neo3DSelectTile({
                             {
                                 backgroundColor: isDark ? '#FFFFFF' : '#000000',
                                 borderColor: isDark ? '#FFFFFF' : '#000000',
-                                borderBottomColor: isDark ? '#B0B0B8' : '#222228',
-                                borderBottomWidth: 2,
+                                borderBottomColor: isDark ? '#A0A0A8' : '#222228',
+                                borderBottomWidth: 4, // 3D Physical Extruded Bevel
                             },
                         ] : [
                             styles.podInactive,
                             {
                                 backgroundColor: isDark ? '#111115' : '#F6F6F8',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.07)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8CC',
-                                borderBottomWidth: 3.5,
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                borderBottomWidth: 1.5, // Resting flat wireframe
+                                borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.12)',
                             },
                         ],
                     ]}
                 >
-                    {/* Inset Specular Top Light Reflection Line */}
+                    {/* Inset Specular Top Light Reflection Line (3D Surface) */}
                     <View
                         style={[
                             styles.specularTopLine,
@@ -188,8 +244,8 @@ export function Neo3DSelectTile({
                                 backgroundColor: isSelected
                                     ? 'rgba(255, 255, 255, 0.95)'
                                     : isDark
-                                    ? 'rgba(255, 255, 255, 0.12)'
-                                    : 'rgba(255, 255, 255, 0.7)',
+                                    ? 'rgba(255, 255, 255, 0.08)'
+                                    : 'rgba(255, 255, 255, 0.6)',
                             },
                         ]}
                     />
@@ -231,14 +287,14 @@ export function Neo3DSelectTile({
                     )}
 
                     {/* Icon Container with Spring Pop Animation */}
-                    {icon && (
+                    {iconContent && (
                         <Animated.View
                             style={[
                                 styles.iconWrap,
                                 { transform: [{ scale: popAnim }] },
                             ]}
                         >
-                            {icon}
+                            {iconContent}
                         </Animated.View>
                     )}
 
@@ -316,10 +372,10 @@ const styles = StyleSheet.create({
         minHeight: 52,
     },
     podActive: {
-        // depresses down slightly
+        // Physical 3D extruded state with bottom bevel
     },
     podInactive: {
-        // resting extruded
+        // Flat resting wireframe state
     },
     specularTopLine: {
         position: 'absolute',
@@ -333,6 +389,16 @@ const styles = StyleSheet.create({
         marginBottom: 6,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    icon3DWrap: {
+        position: 'relative',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    iconShadowBackdrop: {
+        position: 'absolute',
+        top: 1.5,
+        left: 1,
     },
     label: {
         fontSize: 13,

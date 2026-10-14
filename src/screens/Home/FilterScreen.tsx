@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft, ChevronRight, MapPin, Zap } from 'lucide-react-native';
+import { ArrowLeft, BatteryCharging, ChevronRight, MapPin, SlidersHorizontal, Sparkles, Zap } from 'lucide-react-native';
 
 import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { ChademoIcon } from '../../components/ChademoIcon';
@@ -170,16 +170,8 @@ export default function FilterScreen() {
                             width="48%"
                             isSelected={isSelected('chargerTypes', 'DC')}
                             onPress={() => toggleSelection('chargerTypes', 'DC')}
-                            icon={
-                                <Zap
-                                    size={20}
-                                    color={
-                                        isSelected('chargerTypes', 'DC')
-                                            ? colors.primary
-                                            : colors.textMuted
-                                    }
-                                />
-                            }
+                            iconName="bolt"
+                            outlineIcon={<Zap size={22} color={colors.textMuted} strokeWidth={1.8} />}
                         />
                         <Neo3DSelectTile
                             label="AC Destination"
@@ -187,16 +179,8 @@ export default function FilterScreen() {
                             width="48%"
                             isSelected={isSelected('chargerTypes', 'AC')}
                             onPress={() => toggleSelection('chargerTypes', 'AC')}
-                            icon={
-                                <MapPin
-                                    size={20}
-                                    color={
-                                        isSelected('chargerTypes', 'AC')
-                                            ? colors.primary
-                                            : colors.textMuted
-                                    }
-                                />
-                            }
+                            iconName="map-pin"
+                            outlineIcon={<MapPin size={22} color={colors.textMuted} strokeWidth={1.8} />}
                         />
                     </View>
                 </View>
@@ -218,16 +202,8 @@ export default function FilterScreen() {
                                 badge="POPULAR"
                                 isSelected={isSelected('connectorTypes', 'CCS2')}
                                 onPress={() => toggleSelection('connectorTypes', 'CCS2')}
-                                icon={
-                                    <Ccs2Icon
-                                        size={32}
-                                        color={
-                                            isSelected('connectorTypes', 'CCS2')
-                                                ? colors.primary
-                                                : colors.textMuted
-                                        }
-                                    />
-                                }
+                                outlineIcon={<Ccs2Icon size={32} color={colors.textMuted} />}
+                                selected3DIcon={<Ccs2Icon size={32} color={isDark ? '#000000' : '#FFFFFF'} />}
                             />
                         )}
 
@@ -238,16 +214,8 @@ export default function FilterScreen() {
                                 width="31%"
                                 isSelected={isSelected('connectorTypes', 'Type II')}
                                 onPress={() => toggleSelection('connectorTypes', 'Type II')}
-                                icon={
-                                    <Type2Icon
-                                        size={32}
-                                        color={
-                                            isSelected('connectorTypes', 'Type II')
-                                                ? colors.primary
-                                                : colors.textMuted
-                                        }
-                                    />
-                                }
+                                outlineIcon={<Type2Icon size={32} color={colors.textMuted} />}
+                                selected3DIcon={<Type2Icon size={32} color={isDark ? '#000000' : '#FFFFFF'} />}
                             />
                         )}
 
@@ -258,16 +226,8 @@ export default function FilterScreen() {
                                 width="31%"
                                 isSelected={isSelected('connectorTypes', 'CHAdeMo')}
                                 onPress={() => toggleSelection('connectorTypes', 'CHAdeMo')}
-                                icon={
-                                    <ChademoIcon
-                                        size={32}
-                                        color={
-                                            isSelected('connectorTypes', 'CHAdeMo')
-                                                ? colors.primary
-                                                : colors.textMuted
-                                        }
-                                    />
-                                }
+                                outlineIcon={<ChademoIcon size={32} color={colors.textMuted} />}
+                                selected3DIcon={<ChademoIcon size={32} color={isDark ? '#000000' : '#FFFFFF'} />}
                             />
                         )}
                     </View>
@@ -288,6 +248,8 @@ export default function FilterScreen() {
                             width="48%"
                             isSelected={isPeakPowerSelected('Any')}
                             onPress={() => setPeakPower('Any')}
+                            iconName="sliders"
+                            outlineIcon={<SlidersHorizontal size={18} color={colors.textMuted} strokeWidth={1.8} />}
                         />
                         <Neo3DSelectTile
                             label="< 22 kW"
@@ -296,6 +258,8 @@ export default function FilterScreen() {
                             width="48%"
                             isSelected={isPeakPowerSelected('<22kW')}
                             onPress={() => setPeakPower('<22kW')}
+                            iconName="battery"
+                            outlineIcon={<BatteryCharging size={18} color={colors.textMuted} strokeWidth={1.8} />}
                         />
                     </View>
                     <View style={styles.row}>
@@ -306,6 +270,8 @@ export default function FilterScreen() {
                             width="48%"
                             isSelected={isPeakPowerSelected('60kW+')}
                             onPress={() => setPeakPower('60kW+')}
+                            iconName="bolt"
+                            outlineIcon={<Zap size={18} color={colors.textMuted} strokeWidth={1.8} />}
                         />
                         <Neo3DSelectTile
                             label="120 kW+"
@@ -315,6 +281,8 @@ export default function FilterScreen() {
                             badge="ULTRA"
                             isSelected={isPeakPowerSelected('120kW+')}
                             onPress={() => setPeakPower('120kW+')}
+                            iconName="sparkles"
+                            outlineIcon={<Sparkles size={18} color={colors.textMuted} strokeWidth={1.8} />}
                         />
                     </View>
                 </View>
