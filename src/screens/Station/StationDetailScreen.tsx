@@ -55,7 +55,7 @@ function ConnectorBadge({
     isGreen?: boolean;
     compact?: boolean;
 }) {
-    const iconColor = isGreen ? '#1E9731' : '#737373';
+    const iconColor = isGreen ? '#FFFFFF' : '#737373';
     const iconSize = compact ? 24 : 28;
     return (
         <View style={styles.connectorIconContainer}>
@@ -209,7 +209,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={styles.backButton}
                         activeOpacity={0.7}
                     >
-                        <ChevronLeft size={24} color="#1E9731" />
+                        <ChevronLeft size={24} color={colors.text} />
                     </TouchableOpacity>
 
                     <ThemedText style={styles.stationTitle} numberOfLines={1}>
@@ -224,8 +224,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         >
                             <Heart
                                 size={23}
-                                color="#1E9731"
-                                fill={isFavorite ? '#1E9731' : 'none'}
+                                color={colors.text}
+                                fill={isFavorite ? colors.text : 'none'}
                             />
                         </TouchableOpacity>
 
@@ -234,7 +234,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={styles.actionIconBtn}
                             activeOpacity={0.7}
                         >
-                            <Share2 size={22} color="#1E9731" />
+                            <Share2 size={22} color={colors.text} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -505,7 +505,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         onPress={handleHelpSupport}
                         activeOpacity={0.8}
                     >
-                        <PhoneCall size={17} color="#1E9731" />
+                        <PhoneCall size={17} color={colors.text} />
                         <ThemedText style={styles.helpSupportText}>Help Support</ThemedText>
                     </TouchableOpacity>
 
@@ -514,7 +514,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         onPress={handleGetDirections}
                         activeOpacity={0.8}
                     >
-                        <Navigation size={17} color="#FFFFFF" fill="#FFFFFF" />
+                        <Navigation size={17} color="#000000" fill="#000000" />
                         <ThemedText style={styles.getDirectionText}>Get Direction</ThemedText>
                     </TouchableOpacity>
                 </View>
@@ -523,7 +523,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                 <View style={styles.walletStrip}>
                     <View style={styles.walletLeft}>
                         <View style={styles.walletGreenIcon}>
-                            <Wallet size={17} color="#FFFFFF" />
+                            <Wallet size={17} color="#000000" />
                         </View>
                         <ThemedText style={styles.walletLabel}>
                             Available <ThemedText style={styles.walletLabelBold}>wallet</ThemedText> balance is{' '}
@@ -539,7 +539,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         }}
                         activeOpacity={0.8}
                     >
-                        <Plus size={15} color="#1E9731" strokeWidth={2.5} />
+                        <Plus size={15} color={colors.text} strokeWidth={2.5} />
                         <ThemedText style={styles.addWalletText}>Add</ThemedText>
                     </TouchableOpacity>
                 </View>
@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '700',
         fontFamily: 'RedHatDisplay_700Bold',
-        color: '#1E9731',
+        color: '#FFFFFF',
     },
     grayPill: {
         flexDirection: 'row',
@@ -802,7 +802,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
         fontFamily: 'RedHatDisplay_600SemiBold',
-        color: '#1E9731',
+        color: '#FFFFFF',
         textDecorationLine: 'underline',
     },
     stopTrackStatusLink: {
@@ -818,13 +818,13 @@ const styles = StyleSheet.create({
     },
     trackingBannerText: {
         fontSize: 12,
-        color: '#1E3A2F',
+        color: '#FFFFFF',
     },
     trackingTimerBold: {
         fontSize: 13,
         fontWeight: '800',
         fontFamily: 'RedHatDisplay_800ExtraBold',
-        color: '#1E9731',
+        color: '#FFFFFF',
     },
     connectorsStack: {
         gap: 10,
@@ -838,10 +838,10 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
     },
     connectorCardSelected: {
-        backgroundColor: '#16221A',
-        borderColor: '#00E575',
+        backgroundColor: '#FFFFFF',
+        borderColor: '#FFFFFF',
         borderBottomWidth: 2,
-        borderBottomColor: '#008F47',
+        borderBottomColor: '#B0B0B8',
         transform: [{ translateY: 2 }],
     },
     connectorCardUnselected: {
@@ -891,7 +891,7 @@ const styles = StyleSheet.create({
         lineHeight: 14,
     },
     dcBadgeText: {
-        color: '#1E9731',
+        color: '#000000',
     },
     acBadgeText: {
         color: '#0284C7',
@@ -905,6 +905,7 @@ const styles = StyleSheet.create({
     },
     powerTextSelected: {
         fontSize: 13,
+        color: '#000000',
     },
     tariffPrice: {
         fontSize: 15,
@@ -914,6 +915,7 @@ const styles = StyleSheet.create({
     },
     tariffPriceSelected: {
         fontSize: 13,
+        color: '#000000',
     },
     tariffUnit: {
         fontSize: 12,
@@ -935,7 +937,7 @@ const styles = StyleSheet.create({
         fontFamily: 'RedHatDisplay_700Bold',
     },
     statusAvailable: {
-        color: '#1E9731',
+        color: '#000000',
         fontWeight: '800',
         fontFamily: 'RedHatDisplay_800ExtraBold',
     },
@@ -947,7 +949,7 @@ const styles = StyleSheet.create({
     },
     smartCutoffButton: {
         flex: 1,
-        backgroundColor: '#EBF8EE',
+        backgroundColor: '#1E1E24',
         borderRadius: 10,
         paddingVertical: 10,
         alignItems: 'center',
@@ -957,12 +959,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         fontFamily: 'RedHatDisplay_600SemiBold',
-        color: '#1E9731',
+        color: '#FFFFFF',
     },
     startChargingButton: {
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: '#1E9731',
+        backgroundColor: '#000000',
         borderRadius: 10,
         paddingVertical: 10,
         alignItems: 'center',
@@ -987,13 +989,13 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '700',
         fontFamily: 'RedHatDisplay_700Bold',
-        color: '#1E9731',
+        color: '#FFFFFF',
     },
     chevronCircle: {
         width: 18,
         height: 18,
         borderRadius: 9,
-        backgroundColor: '#1E9731',
+        backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1016,7 +1018,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#EBF8EE',
+        backgroundColor: '#1E1E24',
         borderRadius: 10,
         height: 44,
         gap: 8,
@@ -1025,14 +1027,14 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         fontFamily: 'RedHatDisplay_600SemiBold',
-        color: '#1E9731',
+        color: '#FFFFFF',
     },
     getDirectionBtn: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1E9731',
+        backgroundColor: '#FFFFFF',
         borderRadius: 10,
         height: 44,
         gap: 8,
@@ -1041,13 +1043,13 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         fontFamily: 'RedHatDisplay_600SemiBold',
-        color: '#FFFFFF',
+        color: '#000000',
     },
     walletStrip: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#F3FAF5',
+        backgroundColor: '#141418',
         borderRadius: 10,
         paddingHorizontal: 12,
         paddingVertical: 8,
@@ -1062,28 +1064,28 @@ const styles = StyleSheet.create({
         width: 28,
         height: 28,
         borderRadius: 6,
-        backgroundColor: '#1E9731',
+        backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
     },
     walletLabel: {
         fontSize: 12,
-        color: '#64748B',
+        color: '#8E8E93',
     },
     walletLabelBold: {
         fontWeight: '700',
         fontFamily: 'RedHatDisplay_700Bold',
-        color: '#1E9731',
+        color: '#FFFFFF',
     },
     walletAmount: {
         fontWeight: '700',
         fontFamily: 'RedHatDisplay_700Bold',
-        color: '#1E9731',
+        color: '#FFFFFF',
     },
     addWalletBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#EBF8EE',
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
         borderRadius: 8,
         paddingHorizontal: 10,
         paddingVertical: 4,
@@ -1093,7 +1095,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '600',
         fontFamily: 'RedHatDisplay_600SemiBold',
-        color: '#1E9731',
+        color: '#FFFFFF',
     },
     // Modals
     modalOverlay: {
@@ -1155,7 +1157,7 @@ const styles = StyleSheet.create({
         color: '#111827',
     },
     modalConfirmBtn: {
-        backgroundColor: '#1E9731',
+        backgroundColor: '#FFFFFF',
         borderRadius: 12,
         height: 46,
         alignItems: 'center',
@@ -1163,7 +1165,7 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     modalConfirmText: {
-        color: '#FFFFFF',
+        color: '#000000',
         fontWeight: '700',
         fontSize: 14,
     },

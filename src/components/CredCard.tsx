@@ -24,9 +24,9 @@ export function CredCard({
     const { colors, isDark } = useAppTheme();
 
     const getOuterBorder = () => {
-        if (variant === 'neon') return 'rgba(0, 229, 117, 0.35)';
-        if (variant === 'gold') return 'rgba(245, 166, 35, 0.35)';
-        return isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+        if (variant === 'neon') return isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.25)';
+        if (variant === 'gold') return isDark ? 'rgba(229, 229, 234, 0.35)' : 'rgba(0, 0, 0, 0.2)';
+        return isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)';
     };
 
     const getInnerBackground = () => {

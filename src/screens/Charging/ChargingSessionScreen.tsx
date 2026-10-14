@@ -1152,8 +1152,9 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
     },
     targetPresetBtnActive: {
-        borderColor: '#00E575',
-        borderBottomWidth: 1,
+        borderColor: '#FFFFFF',
+        borderBottomColor: '#AAAAAA',
+        borderBottomWidth: 1.5,
         transform: [{ translateY: 2 }],
     },
     targetPresetBtnInactive: {
@@ -1265,9 +1266,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     miniToggleBtnActive: {
-        backgroundColor: '#00E575',
-        borderColor: '#00E575',
-        borderBottomWidth: 1,
+        backgroundColor: '#FFFFFF',
+        borderColor: '#FFFFFF',
+        borderBottomColor: '#AAAAAA',
+        borderBottomWidth: 1.5,
         transform: [{ translateY: 1 }],
     },
     miniToggleBtnInactive: {

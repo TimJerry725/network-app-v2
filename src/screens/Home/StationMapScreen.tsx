@@ -136,8 +136,8 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
     {
         id: 'iris_network',
         name: 'Iris Network',
-        bgColor: '#1E9731',
-        renderIcon: () => <FontAwesome6 name="bolt" size={13} color="#FFFFFF" solid />,
+        bgColor: '#FFFFFF',
+        renderIcon: () => <FontAwesome6 name="bolt" size={13} color="#000000" solid />,
     },
     {
         id: 'tata_power',
@@ -1086,10 +1086,10 @@ export default function StationMapScreen({ navigation }: any) {
                                         isActive
                                             ? {
                                                   backgroundColor: colors.primary,
-                                                  borderColor: '#008F47',
+                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
                                                   borderWidth: 1.5,
                                                   borderBottomWidth: 1.5,
-                                                  borderBottomColor: '#008F47',
+                                                  borderBottomColor: isDark ? '#B0B0B8' : '#333338',
                                                   transform: [{ translateY: 1.5 }],
                                               }
                                             : {
@@ -1445,8 +1445,8 @@ export default function StationMapScreen({ navigation }: any) {
 
                                     {/* Overlapping Brand Logo Avatars */}
                                     <View style={styles.brandLogosCluster}>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#1E9731' }]}>
-                                            <FontAwesome6 name="bolt" size={9} color="#FFF" />
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF' }]}>
+                                            <FontAwesome6 name="bolt" size={9} color="#000" />
                                         </View>
                                         <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>EZ</ThemedText>
@@ -1536,7 +1536,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                               borderColor: colors.primary,
                                                               borderWidth: 1.5,
                                                               borderBottomWidth: 2,
-                                                              borderBottomColor: '#008F47',
+                                                              borderBottomColor: isDark ? '#B0B0B8' : '#333338',
                                                               transform: [{ translateY: 2 }],
                                                           }
                                                         : {

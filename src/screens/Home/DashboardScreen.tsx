@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+    Animated,
     Platform,
     ScrollView,
     StyleSheet,
@@ -9,17 +10,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import {
-    Activity,
     ArrowRight,
     BatteryCharging,
-    ChevronRight,
     Cpu,
     Gauge,
     MapPinned,
     ScanLine,
-    ShieldAlert,
     SlidersHorizontal,
-    Sparkles,
     Zap,
 } from 'lucide-react-native';
 
@@ -29,7 +26,7 @@ import { CredCard } from '../../components/CredCard';
 import { Neo3DSelectTile } from '../../components/Neo3DSelectTile';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
-import { RADIUS, SPACING } from '../../constants/Tokens';
+import { RADIUS } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
@@ -41,6 +38,127 @@ interface SmartAutomation {
     badge: string;
 }
 
+/**
+ * Animated 3D Hardware Toggle Switch
+ */
+function AnimatedToggleSwitch({
+    active,
+    onToggle,
+}: {
+    active: boolean;
+    onToggle: () => void;
+}) {
+    const { isDark } = useAppTheme();
+    const knobX = useRef(new Animated.Value(active ? 18 : 0)).current;
+
+    useEffect(() => {
+        Animated.spring(knobX, {
+            toValue: active ? 18 : 0,
+            tension: 300,
+            friction: 18,
+            useNativeDriver: true,
+        }).start();
+    }, [active, knobX]);
+
+    return (
+        <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onToggle}
+            style={[
+                styles.toggleSwitchPod,
+                {
+                    backgroundColor: active
+                        ? (isDark ? '#FFFFFF' : '#000000')
+                        : isDark
+                        ? '#1C1C22'
+                        : '#E0E0DC',
+                    borderColor: active
+                        ? (isDark ? '#FFFFFF' : '#000000')
+                        : isDark
+                        ? 'rgba(255, 255, 255, 0.12)'
+                        : 'rgba(0, 0, 0, 0.1)',
+                },
+            ]}
+        >
+            <Animated.View
+                style={[
+                    styles.toggleKnob,
+                    {
+                        backgroundColor: active
+                            ? (isDark ? '#000000' : '#FFFFFF')
+                            : isDark
+                            ? '#7E7E84'
+                            : '#8E8E93',
+                        transform: [{ translateX: knobX }],
+                    },
+                ]}
+            />
+        </TouchableOpacity>
+    );
+}
+
+/**
+ * Animated Pressable Station Card Button
+ */
+function StationChargeButton({ onPress }: { onPress: () => void }) {
+    const { isDark } = useAppTheme();
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.94,
+            tension: 300,
+            friction: 15,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            tension: 200,
+            friction: 10,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handlePress = () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }
+        onPress();
+    };
+
+    return (
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            <TouchableOpacity
+                style={[
+                    styles.stationChargeBtn,
+                    {
+                        backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                        borderColor: isDark ? '#FFFFFF' : '#000000',
+                        borderBottomColor: isDark ? '#B0B0B8' : '#333338',
+                    },
+                ]}
+                activeOpacity={0.9}
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
+                onPress={handlePress}
+            >
+                <ThemedText
+                    style={[
+                        styles.stationChargeBtnText,
+                        { color: isDark ? '#000000' : '#FFFFFF' },
+                    ]}
+                >
+                    CHARGE NOW
+                </ThemedText>
+                <ArrowRight size={13} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={2.8} />
+            </TouchableOpacity>
+        </Animated.View>
+    );
+}
+
 export default function DashboardScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const { selectedVehicle } = useVehicles();
@@ -50,7 +168,29 @@ export default function DashboardScreen({ navigation }: any) {
         selectedVehicle?.connectorType
     );
 
-    // Smart automations (functional EV settings, zero rewards/points slop)
+    // Continuous breathing pulse for status beacon
+    const beaconPulse = useRef(new Animated.Value(0.4)).current;
+
+    useEffect(() => {
+        const pulse = Animated.loop(
+            Animated.sequence([
+                Animated.timing(beaconPulse, {
+                    toValue: 1.0,
+                    duration: 1400,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(beaconPulse, {
+                    toValue: 0.35,
+                    duration: 1400,
+                    useNativeDriver: true,
+                }),
+            ])
+        );
+        pulse.start();
+        return () => pulse.stop();
+    }, [beaconPulse]);
+
+    // Functional EV automations (zero rewards/points slop)
     const [automations, setAutomations] = useState<SmartAutomation[]>([
         {
             id: 'auto-1',
@@ -62,7 +202,7 @@ export default function DashboardScreen({ navigation }: any) {
         {
             id: 'auto-2',
             title: 'Off-Peak Tariff Priority',
-            description: 'Prefers slots when power is under ₹16.00/kWh',
+            description: 'Prefers slots when grid power is under ₹16.00/kWh',
             active: true,
             badge: 'SMART GRID',
         },
@@ -95,7 +235,7 @@ export default function DashboardScreen({ navigation }: any) {
                 {/* ── Top Hardware Status Bar ── */}
                 <View style={styles.header}>
                     <View>
-                        <ThemedText style={[styles.eyebrow, { color: colors.primary }]}>
+                        <ThemedText style={[styles.eyebrow, { color: isDark ? '#FFFFFF' : '#000000' }]}>
                             EV TELEMETRY • SYSTEM ACTIVE
                         </ThemedText>
                         <ThemedText style={styles.headerTitle}>
@@ -103,7 +243,7 @@ export default function DashboardScreen({ navigation }: any) {
                         </ThemedText>
                     </View>
 
-                    {/* Online status indicator beacon */}
+                    {/* Online status indicator beacon with animated breathing pulse */}
                     <View
                         style={[
                             styles.statusBeacon,
@@ -113,8 +253,21 @@ export default function DashboardScreen({ navigation }: any) {
                             },
                         ]}
                     >
-                        <View style={[styles.beaconDot, { backgroundColor: colors.primary }]} />
-                        <ThemedText style={[styles.beaconText, { color: colors.primary }]}>
+                        <Animated.View
+                            style={[
+                                styles.beaconDot,
+                                {
+                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                    opacity: beaconPulse,
+                                },
+                            ]}
+                        />
+                        <ThemedText
+                            style={[
+                                styles.beaconText,
+                                { color: isDark ? '#FFFFFF' : '#000000' },
+                            ]}
+                        >
                             ONLINE
                         </ThemedText>
                     </View>
@@ -131,7 +284,7 @@ export default function DashboardScreen({ navigation }: any) {
                                 <ThemedText style={styles.heroSocNumber}>
                                     {selectedVehicle?.currentBattery ?? 62}
                                 </ThemedText>
-                                <ThemedText style={[styles.heroSocUnit, { color: colors.primary }]}>
+                                <ThemedText style={[styles.heroSocUnit, { color: colors.text }]}>
                                     %
                                 </ThemedText>
                             </View>
@@ -166,14 +319,14 @@ export default function DashboardScreen({ navigation }: any) {
                                 <ThemedText style={[styles.telemetryLabel, { color: colors.textMuted }]}>
                                     MAX RATE
                                 </ThemedText>
-                                <ThemedText style={[styles.telemetryVal, { color: colors.primary }]}>
+                                <ThemedText style={[styles.telemetryVal, { color: colors.text }]}>
                                     {recommendedConnector.power} kW
                                 </ThemedText>
                             </View>
                         </View>
                     </View>
 
-                    {/* Concentric Double-Rail Battery Gauge */}
+                    {/* Concentric Double-Rail Battery Gauge in Stark Monochrome */}
                     <View
                         style={[
                             styles.batteryRailOuter,
@@ -185,7 +338,7 @@ export default function DashboardScreen({ navigation }: any) {
                                 styles.batteryRailInner,
                                 {
                                     width: `${selectedVehicle?.currentBattery ?? 62}%`,
-                                    backgroundColor: colors.primary,
+                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
                                 },
                             ]}
                         >
@@ -194,7 +347,7 @@ export default function DashboardScreen({ navigation }: any) {
                         </View>
                     </View>
 
-                    {/* Hero CTA Button */}
+                    {/* Hero CTA Button with spring motion */}
                     <View style={styles.heroCtaWrap}>
                         <CredButton
                             title="START CHARGE"
@@ -209,7 +362,7 @@ export default function DashboardScreen({ navigation }: any) {
                     </View>
                 </CredCard>
 
-                {/* ── 3D Hardware Telemetry Pods ── */}
+                {/* ── 3D Hardware Telemetry Pods (Stark Monochrome) ── */}
                 <View style={styles.statsRow}>
                     <View
                         style={[
@@ -221,8 +374,8 @@ export default function DashboardScreen({ navigation }: any) {
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <Cpu size={16} color={colors.primary} />
-                            <ThemedText style={[styles.podBadgeLabel, { color: colors.primary }]}>
+                            <Cpu size={16} color={colors.text} />
+                            <ThemedText style={[styles.podBadgeLabel, { color: colors.text }]}>
                                 HEALTH
                             </ThemedText>
                         </View>
@@ -242,8 +395,8 @@ export default function DashboardScreen({ navigation }: any) {
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <Gauge size={16} color={colors.accent} />
-                            <ThemedText style={[styles.podBadgeLabel, { color: colors.accent }]}>
+                            <Gauge size={16} color={colors.text} />
+                            <ThemedText style={[styles.podBadgeLabel, { color: colors.text }]}>
                                 EFFICIENCY
                             </ThemedText>
                         </View>
@@ -263,8 +416,8 @@ export default function DashboardScreen({ navigation }: any) {
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <Zap size={16} color={colors.primary} />
-                            <ThemedText style={[styles.podBadgeLabel, { color: colors.primary }]}>
+                            <Zap size={16} color={colors.text} />
+                            <ThemedText style={[styles.podBadgeLabel, { color: colors.text }]}>
                                 TARIFF
                             </ThemedText>
                         </View>
@@ -275,7 +428,7 @@ export default function DashboardScreen({ navigation }: any) {
                     </View>
                 </View>
 
-                {/* ── Quick Action Hardware Dock (3D Neo-Brutalist Tiles) ── */}
+                {/* ── Quick Action Hardware Dock (3D Neo-Brutalist Tiles with Spring Motion) ── */}
                 <View style={styles.sectionHeader}>
                     <ThemedText style={styles.sectionTitle}>TACTILE SHORTCUTS</ThemedText>
                     <ThemedText style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
@@ -296,7 +449,7 @@ export default function DashboardScreen({ navigation }: any) {
                                 connectorId: recommendedConnector.id,
                             })
                         }
-                        icon={<BatteryCharging size={24} color={colors.primary} />}
+                        icon={<BatteryCharging size={24} color={isDark ? '#FFFFFF' : '#000000'} />}
                     />
                     <Neo3DSelectTile
                         label="Trip Planner"
@@ -304,7 +457,7 @@ export default function DashboardScreen({ navigation }: any) {
                         width="48%"
                         isSelected={false}
                         onPress={() => navigation.navigate('Explore')}
-                        icon={<MapPinned size={24} color={colors.primary} />}
+                        icon={<MapPinned size={24} color={isDark ? '#FFFFFF' : '#000000'} />}
                     />
                     <Neo3DSelectTile
                         label="Scan QR"
@@ -312,7 +465,7 @@ export default function DashboardScreen({ navigation }: any) {
                         width="48%"
                         isSelected={false}
                         onPress={() => navigation.navigate('Scan')}
-                        icon={<ScanLine size={24} color={colors.primary} />}
+                        icon={<ScanLine size={24} color={isDark ? '#FFFFFF' : '#000000'} />}
                     />
                     <Neo3DSelectTile
                         label="Filter Hubs"
@@ -320,7 +473,7 @@ export default function DashboardScreen({ navigation }: any) {
                         width="48%"
                         isSelected={false}
                         onPress={() => navigation.navigate('Filter')}
-                        icon={<SlidersHorizontal size={24} color={colors.primary} />}
+                        icon={<SlidersHorizontal size={24} color={isDark ? '#FFFFFF' : '#000000'} />}
                     />
                 </View>
 
@@ -331,7 +484,7 @@ export default function DashboardScreen({ navigation }: any) {
                         onPress={() => navigation.navigate('Map')}
                         activeOpacity={0.7}
                     >
-                        <ThemedText style={[styles.seeAllText, { color: colors.primary }]}>
+                        <ThemedText style={[styles.seeAllText, { color: isDark ? '#FFFFFF' : '#000000' }]}>
                             EXPLORE ALL
                         </ThemedText>
                     </TouchableOpacity>
@@ -382,7 +535,7 @@ export default function DashboardScreen({ navigation }: any) {
                                             •
                                         </ThemedText>
                                         <ThemedText
-                                            style={[styles.specItemBold, { color: colors.primary }]}
+                                            style={[styles.specItemBold, { color: colors.text }]}
                                         >
                                             {connector.power} kW DC
                                         </ThemedText>
@@ -417,32 +570,20 @@ export default function DashboardScreen({ navigation }: any) {
                                     </ThemedText>
                                 </View>
 
-                                <TouchableOpacity
-                                    style={[
-                                        styles.stationChargeBtn,
-                                        {
-                                            backgroundColor: colors.primary,
-                                        },
-                                    ]}
-                                    activeOpacity={0.82}
+                                <StationChargeButton
                                     onPress={() =>
                                         navigation.navigate('ChargingSession', {
                                             stationId: station.id,
                                             connectorId: connector.id,
                                         })
                                     }
-                                >
-                                    <ThemedText style={styles.stationChargeBtnText}>
-                                        CHARGE NOW
-                                    </ThemedText>
-                                    <ArrowRight size={14} color="#000000" />
-                                </TouchableOpacity>
+                                />
                             </View>
                         </CredCard>
                     );
                 })}
 
-                {/* ── Smart Automations (Replacing Gamified Rewards) ── */}
+                {/* ── Smart Automations with Animated Switches ── */}
                 <View style={styles.sectionHeader}>
                     <ThemedText style={styles.sectionTitle}>SMART BATTERY AUTOMATIONS</ThemedText>
                     <ThemedText style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
@@ -453,15 +594,17 @@ export default function DashboardScreen({ navigation }: any) {
                 {automations.map((item) => (
                     <TouchableOpacity
                         key={item.id}
-                        activeOpacity={0.85}
+                        activeOpacity={0.88}
                         onPress={() => toggleAutomation(item.id)}
                         style={[
                             styles.automationCard,
                             {
                                 backgroundColor: colors.surface,
-                                borderColor: item.active ? colors.primary : colors.cardBorder,
+                                borderColor: item.active
+                                    ? (isDark ? '#FFFFFF' : '#000000')
+                                    : colors.cardBorder,
                                 borderBottomColor: item.active
-                                    ? '#008F47'
+                                    ? (isDark ? '#B0B0B8' : '#222228')
                                     : isDark
                                     ? '#060608'
                                     : '#D0D0D0',
@@ -490,38 +633,11 @@ export default function DashboardScreen({ navigation }: any) {
                             </ThemedText>
                         </View>
 
-                        {/* 3D Tactile Toggle Switch Pod */}
-                        <View
-                            style={[
-                                styles.toggleSwitchPod,
-                                {
-                                    backgroundColor: item.active
-                                        ? colors.primary
-                                        : isDark
-                                        ? '#1E1E24'
-                                        : '#E0E0DC',
-                                    borderColor: item.active
-                                        ? '#008F47'
-                                        : colors.cardBorder,
-                                },
-                            ]}
-                        >
-                            <View
-                                style={[
-                                    styles.toggleKnob,
-                                    {
-                                        backgroundColor: item.active
-                                            ? '#000000'
-                                            : isDark
-                                            ? '#FFFFFF'
-                                            : '#333333',
-                                        alignSelf: item.active
-                                            ? 'flex-end'
-                                            : 'flex-start',
-                                    },
-                                ]}
-                            />
-                        </View>
+                        {/* 3D Tactile Toggle Switch Pod with Spring Animation */}
+                        <AnimatedToggleSwitch
+                            active={item.active}
+                            onToggle={() => toggleAutomation(item.id)}
+                        />
                     </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -817,11 +933,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 999,
-        borderWidth: 1,
-        borderColor: '#006633',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     stationChargeBtnText: {
-        color: '#000000',
         fontSize: 11,
         fontFamily: 'RedHatDisplay_800ExtraBold',
         fontWeight: '800',

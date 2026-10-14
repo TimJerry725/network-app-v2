@@ -26,8 +26,8 @@ export function CredBadge({
     const { colors, isDark } = useAppTheme();
 
     const getBgColor = () => {
-        if (variant === 'neon') return isDark ? 'rgba(0, 229, 117, 0.14)' : 'rgba(0, 184, 92, 0.12)';
-        if (variant === 'gold') return isDark ? 'rgba(245, 166, 35, 0.14)' : 'rgba(212, 136, 6, 0.12)';
+        if (variant === 'neon') return isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.08)';
+        if (variant === 'gold') return isDark ? 'rgba(229, 229, 234, 0.14)' : 'rgba(0, 0, 0, 0.08)';
         if (variant === 'muted') return isDark ? '#1C1C22' : '#F1F1EF';
         return isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)';
     };
@@ -40,8 +40,8 @@ export function CredBadge({
     };
 
     const getBorderColor = () => {
-        if (variant === 'neon') return 'rgba(0, 229, 117, 0.28)';
-        if (variant === 'gold') return 'rgba(245, 166, 35, 0.28)';
+        if (variant === 'neon') return isDark ? 'rgba(255, 255, 255, 0.28)' : 'rgba(0, 0, 0, 0.2)';
+        if (variant === 'gold') return isDark ? 'rgba(229, 229, 234, 0.28)' : 'rgba(0, 0, 0, 0.2)';
         return isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
     };
 
