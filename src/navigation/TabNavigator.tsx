@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import TripPlannerScreen from '../screens/Explore';
 import StationMapScreen from '../screens/Home/StationMapScreen';
 import VehicleListScreen from '../screens/Profile/VehicleListScreen';
@@ -8,7 +8,7 @@ import ScanScreen from '../screens/Charging/ScanScreen';
 import FavoritesScreen from '../screens/Favorites/FavoritesScreen';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SPACING } from '../constants/Tokens';
+import { RADIUS, SPACING } from '../constants/Tokens';
 import { Neo3DIcon } from '../components/Neo3DIcon';
 
 const Tab = createBottomTabNavigator();
@@ -40,24 +40,54 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     }
 
     return (
-        <View style={styles.barOuter}>
+        <View
+            style={[
+                styles.barOuter,
+                { bottom: Math.max(12, insets.bottom) },
+            ]}
+            pointerEvents="box-none"
+        >
+            {/* 3D Physical Drop-Plate Shadow Slab */}
             <View
                 style={[
-                    styles.barContainer,
+                    styles.dockShadowPlate,
+                    { backgroundColor: isDark ? '#000000' : '#141418' },
+                ]}
+            />
+
+            {/* Elevated Spatial Neo-Brutalist Dock Chassis */}
+            <View
+                style={[
+                    styles.dockContainer,
                     {
-                        backgroundColor: isDark ? '#0D0D10' : '#FFFFFF',
-                        borderTopColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
-                        borderTopWidth: 1.5,
-                        paddingBottom: Math.max(10, insets.bottom),
-                        height: 70 + Math.max(10, insets.bottom),
+                        backgroundColor: isDark ? '#101016' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : '#000000',
+                        borderBottomColor: isDark ? '#000000' : '#000000',
                     },
                 ]}
             >
-                {/* Inset specular top light highlight */}
+                {/* Specular Top Light Reflection */}
                 <View
                     style={[
-                        styles.topHairline,
-                        { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)' },
+                        styles.dockSpecularLine,
+                        {
+                            backgroundColor: isDark
+                                ? 'rgba(255, 255, 255, 0.18)'
+                                : 'rgba(255, 255, 255, 0.95)',
+                        },
+                    ]}
+                />
+
+                {/* Center Cradle Contouring for Elevated Hero Reactor */}
+                <View
+                    style={[
+                        styles.centerCradleRing,
+                        {
+                            borderColor: isDark
+                                ? 'rgba(255, 255, 255, 0.08)'
+                                : 'rgba(0, 0, 0, 0.06)',
+                            backgroundColor: isDark ? '#0A0A0E' : '#F6F6F8',
+                        },
                     ]}
                 />
 
@@ -83,7 +113,10 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                     };
 
                     return (
-                        <View key={route.key} style={styles.tabSlot}>
+                        <View
+                            key={route.key}
+                            style={isScan ? styles.centerScanSlot : styles.wingTabSlot}
+                        >
                             <Neo3DIcon
                                 name={config.icon}
                                 label={config.label}
@@ -120,28 +153,63 @@ export default function TabNavigator() {
 const styles = StyleSheet.create({
     barOuter: {
         position: 'absolute',
-        bottom: 0,
+        left: 14,
+        right: 14,
+        alignItems: 'center',
+        zIndex: 999,
+    },
+    dockShadowPlate: {
+        position: 'absolute',
+        top: 3.5,
         left: 0,
         right: 0,
+        bottom: -3.5,
+        borderRadius: RADIUS.bottomSheet,
     },
-    barContainer: {
+    dockContainer: {
+        width: '100%',
+        height: 64,
+        borderRadius: RADIUS.bottomSheet,
+        borderWidth: 1.8,
+        borderBottomWidth: 3.5,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-around',
-        borderTopWidth: 1,
-        paddingHorizontal: SPACING.xs,
+        justifyContent: 'space-between',
+        paddingHorizontal: 6,
         position: 'relative',
+        overflow: 'visible',
     },
-    topHairline: {
+    dockSpecularLine: {
         position: 'absolute',
         top: 0,
-        left: 0,
-        right: 0,
-        height: 1,
+        left: 20,
+        right: 20,
+        height: 1.2,
+        borderRadius: 1,
     },
-    tabSlot: {
+    centerCradleRing: {
+        position: 'absolute',
+        top: -12,
+        alignSelf: 'center',
+        left: '50%',
+        marginLeft: -34,
+        width: 68,
+        height: 68,
+        borderRadius: RADIUS.circle,
+        borderWidth: 1,
+        zIndex: 1,
+    },
+    wingTabSlot: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        zIndex: 2,
+    },
+    centerScanSlot: {
+        width: 68,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 10,
+        overflow: 'visible',
     },
 });

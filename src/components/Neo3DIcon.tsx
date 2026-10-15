@@ -66,19 +66,19 @@ export function Neo3DIcon({
     const selectBounce = useRef(new Animated.Value(1)).current;
     const pulseAnim = useRef(new Animated.Value(0.88)).current;
 
-    // Ambient breathing pulse for hero center Scan reactor
+    // Ambient breathing pulse for hero center Scan reactor (always active)
     useEffect(() => {
-        if (!isPrimaryAction || !isSelected) return;
+        if (!isPrimaryAction) return;
         const pulse = Animated.loop(
             Animated.sequence([
                 Animated.timing(pulseAnim, {
-                    toValue: 1.06,
-                    duration: 1500,
+                    toValue: isSelected ? 1.10 : 1.04,
+                    duration: 1400,
                     useNativeDriver: true,
                 }),
                 Animated.timing(pulseAnim, {
-                    toValue: 0.88,
-                    duration: 1500,
+                    toValue: 0.90,
+                    duration: 1400,
                     useNativeDriver: true,
                 }),
             ])
@@ -165,8 +165,21 @@ export function Neo3DIcon({
         onPress?.();
     };
 
-    // ── HERO CENTER ACTION BUTTON (SCAN) ──
+    // ── HERO CENTER ACTION BUTTON (SCAN - ALWAYS IN ELEVATED 3D REACTOR FORM) ──
     if (isPrimaryAction) {
+        const heroBgCore = isDark
+            ? (isSelected ? '#FFFFFF' : '#1C1C22')
+            : '#000000';
+        const heroIconColor = isDark
+            ? (isSelected ? '#000000' : '#FFFFFF')
+            : '#FFFFFF';
+        const haloColor = isSelected
+            ? (isDark ? '#00F2FE' : '#000000')
+            : (isDark ? '#FFFFFF' : '#000000');
+        const haloOpacity = isSelected
+            ? (isDark ? 0.35 : 0.22)
+            : (isDark ? 0.14 : 0.08);
+
         return (
             <Animated.View
                 style={[
@@ -187,62 +200,76 @@ export function Neo3DIcon({
                     onPress={handlePress}
                     style={styles.heroTouchable}
                 >
-                    {isSelected ? (
-                        /* Selected: Full 3D Elevated Reactor Core */
-                        <>
-                            {/* Ambient Pulsing Halo */}
-                            <Animated.View
+                    {/* Ambient Breathing Halo (Always Active for Hero Action) */}
+                    <Animated.View
+                        style={[
+                            styles.heroHalo,
+                            {
+                                transform: [{ scale: pulseAnim }],
+                                opacity: haloOpacity,
+                                backgroundColor: haloColor,
+                            },
+                        ]}
+                    />
+
+                    {/* 3D Extruded Base Platform */}
+                    <View
+                        style={[
+                            styles.heroPlatform3D,
+                            {
+                                backgroundColor: isDark ? '#1C1C22' : '#22222A',
+                                borderColor: isSelected
+                                    ? (isDark ? '#00F2FE' : '#000000')
+                                    : (isDark ? '#2E2E38' : '#000000'),
+                                borderBottomColor: isDark ? '#050508' : '#000000',
+                            },
+                        ]}
+                    >
+                        {/* Top Elevated 3D Reactor Core */}
+                        <View
+                            style={[
+                                styles.heroCore3D,
+                                {
+                                    backgroundColor: heroBgCore,
+                                    borderColor: isSelected
+                                        ? (isDark ? 'rgba(0, 242, 254, 0.8)' : '#000000')
+                                        : (isDark ? 'rgba(255, 255, 255, 0.3)' : '#2A2A32'),
+                                },
+                            ]}
+                        >
+                            {/* Inset Specular Top Light Reflection */}
+                            <View
                                 style={[
-                                    styles.heroHalo,
+                                    styles.specularTopLine,
                                     {
-                                        transform: [{ scale: pulseAnim }],
-                                        opacity: isDark ? 0.3 : 0.15,
-                                        backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                        backgroundColor: isDark
+                                            ? (isSelected ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.4)')
+                                            : 'rgba(255, 255, 255, 0.6)',
                                     },
                                 ]}
                             />
 
-                            {/* 3D Extruded Base Platform */}
-                            <View
+                            {/* Solid Glyph with Spring Pop */}
+                            <Animated.View
                                 style={[
-                                    styles.heroPlatform3D,
-                                    {
-                                        backgroundColor: isDark ? '#1C1C22' : '#D0D0D5',
-                                        borderColor: isDark ? '#2C2C35' : '#B0B0B8',
-                                        borderBottomColor: isDark ? '#050508' : '#8A8A92',
-                                    },
+                                    styles.layeredIconWrap,
+                                    { transform: [{ scale: selectBounce }] },
                                 ]}
                             >
-                                {/* Top Elevated 3D Reactor Core */}
+                                {getLucideIcon('scan', size + 4, heroIconColor, true)}
+                            </Animated.View>
+
+                            {/* Active focus pip when currently focused */}
+                            {isSelected && (
                                 <View
                                     style={[
-                                        styles.heroCore3D,
-                                        {
-                                            backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                            borderColor: 'rgba(255, 255, 255, 0.4)',
-                                        },
+                                        styles.heroActivePip,
+                                        { backgroundColor: isDark ? '#00F2FE' : '#FFFFFF' },
                                     ]}
-                                >
-                                    <View style={styles.specularTopLine} />
-
-                                    {/* Solid Glyph with Spring Pop */}
-                                    <Animated.View
-                                        style={[
-                                            styles.layeredIconWrap,
-                                            { transform: [{ scale: selectBounce }] },
-                                        ]}
-                                    >
-                                        {getLucideIcon('scan', size + 4, isDark ? '#000000' : '#FFFFFF', true)}
-                                    </Animated.View>
-                                </View>
-                            </View>
-                        </>
-                    ) : (
-                        /* Unselected: Clean Minimal Outlined Icon without surrounding ring border */
-                        <View style={styles.heroOutlineRing}>
-                            <ScanLine size={size + 4} color={mutedColor} strokeWidth={1.8} />
+                                />
+                            )}
                         </View>
-                    )}
+                    </View>
 
                     {label && (
                         <Text
@@ -252,7 +279,7 @@ export function Neo3DIcon({
                                     color: isSelected ? primaryWhite : mutedColor,
                                     fontFamily: isSelected
                                         ? FONT_FAMILIES.bold
-                                        : FONT_FAMILIES.medium,
+                                        : FONT_FAMILIES.semiBold,
                                 },
                             ]}
                         >
@@ -463,6 +490,13 @@ const styles = StyleSheet.create({
         height: 54,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    heroActivePip: {
+        position: 'absolute',
+        bottom: 3.5,
+        width: 4.5,
+        height: 4.5,
+        borderRadius: RADIUS.circle,
     },
     heroLabel: {
         fontSize: 10,
