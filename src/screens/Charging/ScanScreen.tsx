@@ -16,6 +16,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics';
 import {
     Camera as CameraIcon,
+    Check,
     ChevronLeft,
     Flashlight,
     FlashlightOff,
@@ -23,6 +24,7 @@ import {
     RotateCcw,
     ScanLine,
     ShieldCheck,
+    SlidersHorizontal,
     X,
     Zap,
 } from 'lucide-react-native';
@@ -90,6 +92,8 @@ export default function ScanScreen({ navigation, route }: any) {
     const [scanned, setScanned] = useState(false);
     const [isManualModalVisible, setIsManualModalVisible] = useState(false);
     const [manualCode, setManualCode] = useState(route.params?.connectorId ?? '');
+    const [isChargeSettingsVisible, setIsChargeSettingsVisible] = useState(false);
+    const [cutoffPercent, setCutoffPercent] = useState('80%');
 
     // Station & Connector resolution
     const preselectedStation = getStationById(route.params?.stationId);
@@ -191,11 +195,13 @@ export default function ScanScreen({ navigation, route }: any) {
         const match = findStationByConnector(resolvedCode);
         const stationToUse = match?.station ?? nearbyStation;
         const connectorToUse = match?.connector?.id ?? resolvedCode;
+        const parsedCutoff = parseInt(cutoffPercent, 10) || 80;
 
         navigation.navigate('ChargingSession', {
             stationId: stationToUse.id,
             connectorId: connectorToUse,
             stationSnapshot: stationToUse,
+            targetSoc: parsedCutoff,
         });
     };
 
@@ -560,6 +566,37 @@ export default function ScanScreen({ navigation, route }: any) {
                                         <View style={styles.connectorActionsRow}>
                                             <TouchableOpacity
                                                 style={[
+                                                    styles.smartCutoffButton,
+                                                    {
+                                                        backgroundColor: isDark ? '#22222A' : '#FFFFFF',
+                                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : '#000000',
+                                                        borderBottomColor: isDark ? '#050508' : '#000000',
+                                                    },
+                                                ]}
+                                                onPress={() => {
+                                                    if (Platform.OS !== 'web') {
+                                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                    }
+                                                    setIsChargeSettingsVisible(true);
+                                                }}
+                                                activeOpacity={0.82}
+                                            >
+                                                <SlidersHorizontal
+                                                    size={14}
+                                                    color={isDark ? '#FFFFFF' : '#000000'}
+                                                />
+                                                <ThemedText
+                                                    style={[
+                                                        styles.smartCutoffText,
+                                                        { color: colors.text },
+                                                    ]}
+                                                >
+                                                    Charge Settings
+                                                </ThemedText>
+                                            </TouchableOpacity>
+
+                                            <TouchableOpacity
+                                                style={[
                                                     styles.startChargingButton,
                                                     {
                                                         backgroundColor: isDark ? '#FFFFFF' : '#000000',
@@ -586,7 +623,7 @@ export default function ScanScreen({ navigation, route }: any) {
                                                         { color: isDark ? '#000000' : '#FFFFFF' },
                                                     ]}
                                                 >
-                                                    START CHARGING
+                                                    Start Charging
                                                 </ThemedText>
                                             </TouchableOpacity>
                                         </View>
@@ -680,6 +717,90 @@ export default function ScanScreen({ navigation, route }: any) {
                         </View>
                     </View>
                 </KeyboardAvoidingView>
+            </Modal>
+
+            {/* ── CHARGE SETTINGS MODAL ── */}
+            <Modal
+                visible={isChargeSettingsVisible}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setIsChargeSettingsVisible(false)}
+            >
+                <View style={styles.settingsModalOverlay}>
+                    <View
+                        style={[
+                            styles.settingsModalSheet,
+                            {
+                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
+                            },
+                        ]}
+                    >
+                        <View
+                            style={[
+                                styles.settingsModalHandle,
+                                { backgroundColor: isDark ? '#33333C' : '#D1D5DB' },
+                            ]}
+                        />
+                        <View style={styles.settingsModalHeader}>
+                            <ThemedText style={[styles.settingsModalTitle, { color: colors.text }]}>
+                                Charge Settings
+                            </ThemedText>
+                            <TouchableOpacity
+                                onPress={() => setIsChargeSettingsVisible(false)}
+                                style={styles.settingsModalClose}
+                            >
+                                <X size={20} color={colors.textMuted} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ThemedText style={[styles.settingsModalSub, { color: colors.textMuted }]}>
+                            Auto-stop charging to prevent battery degradation and idle fees.
+                        </ThemedText>
+
+                        {[
+                            '80% (Recommended for battery health)',
+                            '90% (Extended trip)',
+                            '100% (Full battery)',
+                        ].map((option, i) => {
+                            const isOptionActive = cutoffPercent.startsWith(option.slice(0, 3));
+                            return (
+                                <TouchableOpacity
+                                    key={i}
+                                    style={[
+                                        styles.cutoffOption,
+                                        isOptionActive
+                                            ? {
+                                                  backgroundColor: isDark ? '#1E1E26' : '#FFFFFF',
+                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                  borderBottomColor: isDark ? '#9E9EA8' : '#000000',
+                                              }
+                                            : {
+                                                  backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                                                  borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                              },
+                                    ]}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        }
+                                        setCutoffPercent(option);
+                                        setIsChargeSettingsVisible(false);
+                                    }}
+                                    activeOpacity={0.82}
+                                >
+                                    <ThemedText style={[styles.cutoffOptionText, { color: colors.text }]}>
+                                        {option}
+                                    </ThemedText>
+                                    {isOptionActive && (
+                                        <Check size={18} color={colors.primary} strokeWidth={2.5} />
+                                    )}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
             </Modal>
         </View>
     );
@@ -1090,8 +1211,24 @@ const styles = StyleSheet.create({
         gap: 10,
         marginTop: 12,
     },
-    startChargingButton: {
+    smartCutoffButton: {
         flex: 1,
+        flexDirection: 'row',
+        borderRadius: RADIUS.button,
+        paddingVertical: 11,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        borderWidth: 1.5,
+        borderBottomWidth: 3.5,
+    },
+    smartCutoffText: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.bold,
+        letterSpacing: 0.3,
+    },
+    startChargingButton: {
+        flex: 1.2,
         flexDirection: 'row',
         borderRadius: RADIUS.button,
         paddingVertical: 11,
@@ -1104,7 +1241,7 @@ const styles = StyleSheet.create({
     startChargingText: {
         fontSize: 12,
         fontFamily: FONT_FAMILIES.extraBold,
-        letterSpacing: 0.6,
+        letterSpacing: 0.3,
     },
 
     // ── Manual Entry Link ──
@@ -1174,5 +1311,58 @@ const styles = StyleSheet.create({
     },
     modalBtnRow: {
         marginTop: 18,
+    },
+    settingsModalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        justifyContent: 'flex-end',
+    },
+    settingsModalSheet: {
+        borderTopLeftRadius: RADIUS.bottomSheet,
+        borderTopRightRadius: RADIUS.bottomSheet,
+        borderTopWidth: 2,
+        padding: SPACING.lg,
+        paddingBottom: 36,
+    },
+    settingsModalHandle: {
+        width: 36,
+        height: 4,
+        borderRadius: RADIUS.pill,
+        alignSelf: 'center',
+        marginBottom: 14,
+    },
+    settingsModalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    settingsModalTitle: {
+        fontSize: 17,
+        fontFamily: FONT_FAMILIES.bold,
+    },
+    settingsModalClose: {
+        padding: 4,
+    },
+    settingsModalSub: {
+        fontSize: 12.5,
+        fontFamily: FONT_FAMILIES.medium,
+        marginTop: 4,
+        marginBottom: 16,
+        lineHeight: 18,
+    },
+    cutoffOption: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 14,
+        borderRadius: RADIUS.button,
+        marginVertical: 4,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
+    },
+    cutoffOptionText: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.semiBold,
     },
 });
