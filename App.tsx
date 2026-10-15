@@ -13,6 +13,7 @@ import {
 } from '@expo-google-fonts/montserrat';
 import RootNavigator from './src/navigation/RootNavigator';
 import { VehicleProvider } from './src/context/VehicleContext';
+import { FavoritesProvider } from './src/context/FavoritesContext';
 import { PostChargeGraceProvider } from './src/context/PostChargeGraceContext';
 import { ChargingProvider } from './src/context/ChargingContext';
 import { ThemeProvider } from './src/hooks/useAppTheme';
@@ -40,11 +41,13 @@ export default function App() {
         <SafeAreaProvider>
             <ThemeProvider>
                 <VehicleProvider>
-                    <ChargingProvider>
-                        <PostChargeGraceProvider>
-                            <RootNavigator />
-                        </PostChargeGraceProvider>
-                    </ChargingProvider>
+                    <FavoritesProvider>
+                        <ChargingProvider>
+                            <PostChargeGraceProvider>
+                                <RootNavigator />
+                            </PostChargeGraceProvider>
+                        </ChargingProvider>
+                    </FavoritesProvider>
                 </VehicleProvider>
             </ThemeProvider>
         </SafeAreaProvider>

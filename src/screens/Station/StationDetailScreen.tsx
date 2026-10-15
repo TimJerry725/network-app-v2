@@ -45,6 +45,7 @@ import {
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles } from '../../context/VehicleContext';
+import { useFavorites } from '../../context/FavoritesContext';
 
 // Helper to render connector icon with type badge pod
 function ConnectorBadge({
@@ -91,7 +92,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
         MOCK_STATIONS.find((item) => item.id === route.params?.stationId) ??
         MOCK_STATIONS[0];
 
-    const [isFavorite, setIsFavorite] = useState(false);
+    const { isFavorite, toggleFavorite } = useFavorites();
+    const isFav = isFavorite(station.id);
     const [showTariffModal, setShowTariffModal] = useState(false);
     const [smartCutoffModal, setSmartCutoffModal] = useState(false);
     const [selectedConnectorId, setSelectedConnectorId] = useState<string | null>(
@@ -242,7 +244,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         <TouchableOpacity
                             onPress={() => {
                                 if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                setIsFavorite(!isFavorite);
+                                toggleFavorite(station.id);
                             }}
                             style={[
                                 styles.tactileCircleBtn,
@@ -256,8 +258,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         >
                             <Heart
                                 size={18}
-                                color={isFavorite ? '#EF4444' : colors.text}
-                                fill={isFavorite ? '#EF4444' : 'none'}
+                                color={isFav ? '#EF4444' : colors.text}
+                                fill={isFav ? '#EF4444' : 'none'}
                             />
                         </TouchableOpacity>
 

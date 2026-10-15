@@ -2,18 +2,20 @@ import React, { useMemo } from 'react';
 import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Heart, MapPin, Star, Zap } from 'lucide-react-native';
+import { Heart, MapPin, Zap } from 'lucide-react-native';
 import { CredCard } from '../../components/CredCard';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
 import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
+import { useFavorites } from '../../context/FavoritesContext';
 import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
 export default function FavoritesScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const { selectedVehicle } = useVehicles();
+    const { favoriteIds, isFavorite, toggleFavorite } = useFavorites();
     const { stations: allStations } = useIndiaChargingStations();
 
     const stationsList = useMemo(() => {
@@ -31,7 +33,7 @@ export default function FavoritesScreen({ navigation }: any) {
                     <View>
                         <ThemedText type="title">Favorites</ThemedText>
                         <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>
-                            Charging stations network
+                            Your saved chargers and network stops
                         </ThemedText>
                     </View>
                     <View
@@ -44,7 +46,7 @@ export default function FavoritesScreen({ navigation }: any) {
                             },
                         ]}
                     >
-                        <Heart size={14} color={colors.primary} fill={colors.primary} />
+                        <Heart size={14} color="#EF4444" fill="#EF4444" />
                         <ThemedText
                             style={{
                                 color: colors.text,
@@ -53,7 +55,7 @@ export default function FavoritesScreen({ navigation }: any) {
                                 letterSpacing: 0.5,
                             }}
                         >
-                            {stationsList.length} STATIONS
+                            {favoriteIds.length} SAVED
                         </ThemedText>
                     </View>
                 </View>
@@ -63,6 +65,7 @@ export default function FavoritesScreen({ navigation }: any) {
                         station,
                         selectedVehicle?.connectorType
                     );
+                    const isFav = isFavorite(station.id);
 
                     return (
                         <TouchableOpacity
@@ -95,21 +98,36 @@ export default function FavoritesScreen({ navigation }: any) {
                                             </ThemedText>
                                         </View>
                                     </View>
-                                    <View
+
+                                    {/* Heart Icon Button to toggle Favorite */}
+                                    <TouchableOpacity
                                         style={[
-                                            styles.ratingBadge,
+                                            styles.favoriteHeartBtn,
                                             {
-                                                backgroundColor: isDark ? '#141418' : '#F4F4F6',
-                                                borderColor: colors.cardBorder,
-                                                borderWidth: 1,
+                                                backgroundColor: isFav
+                                                    ? (isDark ? 'rgba(239, 68, 68, 0.16)' : 'rgba(239, 68, 68, 0.10)')
+                                                    : (isDark ? '#16161D' : '#F0F0F2'),
+                                                borderColor: isFav
+                                                    ? 'rgba(239, 68, 68, 0.45)'
+                                                    : (isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)'),
                                             },
                                         ]}
+                                        onPress={(e) => {
+                                            e.stopPropagation();
+                                            if (Platform.OS !== 'web') {
+                                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                            }
+                                            toggleFavorite(station.id);
+                                        }}
+                                        activeOpacity={0.7}
+                                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                     >
-                                        <Star size={13} color={colors.text} fill={colors.text} />
-                                        <ThemedText style={{ color: colors.text, ...FONTS.caption, fontWeight: '700' }}>
-                                            {station.rating.toFixed(1)}
-                                        </ThemedText>
-                                    </View>
+                                        <Heart
+                                            size={17}
+                                            color={isFav ? '#EF4444' : (isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.35)')}
+                                            fill={isFav ? '#EF4444' : 'none'}
+                                        />
+                                    </TouchableOpacity>
                                 </View>
 
                                 {station.tagline ? (
@@ -160,6 +178,7 @@ const styles = StyleSheet.create({
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'flex-start',
         gap: 12,
     },
     stationInfo: {
@@ -175,14 +194,13 @@ const styles = StyleSheet.create({
         gap: 6,
         marginBottom: 6,
     },
-    ratingBadge: {
-        flexDirection: 'row',
+    favoriteHeartBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: RADIUS.circle,
+        borderWidth: 1.2,
         alignItems: 'center',
-        gap: 6,
-        alignSelf: 'flex-start',
-        borderRadius: RADIUS.chip,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
+        justifyContent: 'center',
     },
     tagline: {
         marginTop: 12,
