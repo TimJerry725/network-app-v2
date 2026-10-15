@@ -898,9 +898,9 @@ export default function TripPlannerScreen({ navigation }: any) {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Popular Route Shortcuts */}
+                    {/* Recent Trips Shortcuts */}
                     <ThemedText style={[styles.popularRoutesLabel, { color: colors.textMuted }]}>
-                        Popular Routes
+                        Recent Trips
                     </ThemedText>
                     <ScrollView
                         horizontal
