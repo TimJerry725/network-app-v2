@@ -13,6 +13,7 @@ import {
     Compass,
     Heart,
     History,
+    Map,
     MapPin,
     MapPinned,
     Plug,
@@ -53,6 +54,7 @@ export function getLucideIcon(
     switch (name) {
         case 'map':
         case 'map-location-dot':
+            return <Map size={size} color={color} strokeWidth={strokeWidth} />;
         case 'map-pin':
             return <MapPin size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
         case 'explore':

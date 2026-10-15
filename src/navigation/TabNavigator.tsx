@@ -20,7 +20,7 @@ type TabConfig = {
 };
 
 const TAB_CONFIG: TabConfig[] = [
-    { name: 'Map', icon: 'map-location-dot', label: 'Map' },
+    { name: 'Map', icon: 'map', label: 'Map' },
     { name: 'Explore', icon: 'compass', label: 'Trip Planner' },
     { name: 'Scan', icon: 'bolt-lightning', label: 'Scan' },
     { name: 'Favorite', icon: 'heart', label: 'Favorites' },
