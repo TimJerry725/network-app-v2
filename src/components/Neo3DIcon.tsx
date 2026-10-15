@@ -208,18 +208,6 @@ export function Neo3DIcon({
                             },
                         ]}
                     >
-                        {/* Inset Specular Top Light Reflection */}
-                        <View
-                            style={[
-                                styles.specularTopLine,
-                                {
-                                    backgroundColor: isDark
-                                        ? (isSelected ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.35)')
-                                        : 'rgba(255, 255, 255, 0.55)',
-                                },
-                            ]}
-                        />
-
                         {/* Solid Glyph with Spring Pop */}
                         <Animated.View
                             style={[
@@ -295,18 +283,6 @@ export function Neo3DIcon({
                             },
                         ]}
                     >
-                        {/* Inset Specular Top Light Line */}
-                        <View
-                            style={[
-                                styles.specularTopLine,
-                                {
-                                    backgroundColor: isDark
-                                        ? 'rgba(255, 255, 255, 0.95)'
-                                        : 'rgba(255, 255, 255, 0.7)',
-                                },
-                            ]}
-                        />
-
                         {/* Solid Glyph with Spring Pop */}
                         <Animated.View
                             style={[
@@ -374,14 +350,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         position: 'relative',
         overflow: 'hidden',
-    },
-    specularTopLine: {
-        position: 'absolute',
-        top: 0,
-        left: 8,
-        right: 8,
-        height: 1,
-        borderRadius: 1,
     },
     layeredIconWrap: {
         position: 'relative',
