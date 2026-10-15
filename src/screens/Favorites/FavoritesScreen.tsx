@@ -1,24 +1,25 @@
-import React from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useMemo } from 'react';
+import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 import { Heart, MapPin, Star, Zap } from 'lucide-react-native';
-import { CredButton } from '../../components/CredButton';
 import { CredCard } from '../../components/CredCard';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
 import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
+import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
-
-const favoriteStationIds = ['1', '3', '4'];
 
 export default function FavoritesScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const { selectedVehicle } = useVehicles();
+    const { stations: allStations } = useIndiaChargingStations();
 
-    const favoriteStations = favoriteStationIds
-        .map((stationId) => MOCK_STATIONS.find((station) => station.id === stationId))
-        .filter((station): station is NonNullable<typeof station> => Boolean(station));
+    const stationsList = useMemo(() => {
+        const pool = allStations && allStations.length > 0 ? allStations : MOCK_STATIONS;
+        return [...pool].sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
+    }, [allStations]);
 
     return (
         <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -30,7 +31,7 @@ export default function FavoritesScreen({ navigation }: any) {
                     <View>
                         <ThemedText type="title">Favorites</ThemedText>
                         <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>
-                            Your saved chargers and quick-return stops
+                            Charging stations network
                         </ThemedText>
                     </View>
                     <View
@@ -52,79 +53,75 @@ export default function FavoritesScreen({ navigation }: any) {
                                 letterSpacing: 0.5,
                             }}
                         >
-                            {favoriteStations.length} SAVED
+                            {stationsList.length} STATIONS
                         </ThemedText>
                     </View>
                 </View>
 
-                {favoriteStations.map((station) => {
+                {stationsList.map((station) => {
                     const connector = getRecommendedConnector(
                         station,
                         selectedVehicle?.connectorType
                     );
 
                     return (
-                        <CredCard key={station.id} variant="default" style={styles.card}>
-                            <View style={styles.cardHeader}>
-                                <View style={styles.stationInfo}>
-                                    <ThemedText style={styles.stationName}>{station.name}</ThemedText>
-                                    <View style={styles.metaRow}>
-                                        <MapPin size={14} color={colors.textMuted} />
-                                        <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                                            {station.distanceKm} km away
+                        <TouchableOpacity
+                            key={station.id}
+                            activeOpacity={0.82}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                }
+                                navigation.navigate('StationDetails', { stationId: station.id });
+                            }}
+                        >
+                            <CredCard variant="default" style={styles.card}>
+                                <View style={styles.cardHeader}>
+                                    <View style={styles.stationInfo}>
+                                        <ThemedText style={styles.stationName} numberOfLines={1}>
+                                            {station.name}
                                         </ThemedText>
+                                        <View style={styles.metaRow}>
+                                            <MapPin size={13} color={colors.textMuted} />
+                                            <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }} numberOfLines={1}>
+                                                {station.distanceKm} km away{station.etaMinutes ? ` • ${station.etaMinutes} min ETA` : ''}
+                                            </ThemedText>
+                                        </View>
+                                        <View style={styles.metaRow}>
+                                            <Zap size={13} color={colors.primary} />
+                                            <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
+                                                {connector.type} • {connector.power} kW • ₹
+                                                {connector.pricePerKWh.toFixed(2)}/kWh
+                                            </ThemedText>
+                                        </View>
                                     </View>
-                                    <View style={styles.metaRow}>
-                                        <Zap size={14} color={colors.primary} />
-                                        <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                                            {connector.type} • {connector.power} kW • ₹
-                                            {connector.pricePerKWh.toFixed(2)}/kWh
+                                    <View
+                                        style={[
+                                            styles.ratingBadge,
+                                            {
+                                                backgroundColor: isDark ? '#141418' : '#F4F4F6',
+                                                borderColor: colors.cardBorder,
+                                                borderWidth: 1,
+                                            },
+                                        ]}
+                                    >
+                                        <Star size={13} color={colors.text} fill={colors.text} />
+                                        <ThemedText style={{ color: colors.text, ...FONTS.caption, fontWeight: '700' }}>
+                                            {station.rating.toFixed(1)}
                                         </ThemedText>
                                     </View>
                                 </View>
-                                <View
-                                    style={[
-                                        styles.ratingBadge,
-                                        {
-                                            backgroundColor: isDark ? '#141418' : '#F4F4F6',
-                                            borderColor: colors.cardBorder,
-                                            borderWidth: 1,
-                                        },
-                                    ]}
-                                >
-                                    <Star size={13} color={colors.text} fill={colors.text} />
-                                    <ThemedText style={{ color: colors.text, ...FONTS.caption, fontWeight: '700' }}>
-                                        {station.rating.toFixed(1)}
+
+                                {station.tagline ? (
+                                    <ThemedText
+                                        style={[styles.tagline, { color: colors.textMuted }]}
+                                        numberOfLines={2}
+                                    >
+                                        {station.tagline}
                                     </ThemedText>
-                                </View>
-                            </View>
-
-                            <ThemedText style={[styles.tagline, { color: colors.textMuted }]}>
-                                {station.tagline}
-                            </ThemedText>
-
-                            <View style={styles.actionRow}>
-                                <CredButton
-                                    title="DETAILS"
-                                    variant="outline"
-                                    containerStyle={{ flex: 1 }}
-                                    onPress={() =>
-                                        navigation.navigate('StationDetails', { stationId: station.id })
-                                    }
-                                />
-                                <CredButton
-                                    title="CHARGE"
-                                    variant="neon"
-                                    containerStyle={{ flex: 1 }}
-                                    onPress={() =>
-                                        navigation.navigate('ChargingSession', {
-                                            stationId: station.id,
-                                            connectorId: connector.id,
-                                        })
-                                    }
-                                />
-                            </View>
-                        </CredCard>
+                                ) : null}
+                            </CredCard>
+                        </TouchableOpacity>
                     );
                 })}
             </ScrollView>
@@ -188,34 +185,8 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
     },
     tagline: {
-        marginTop: 14,
+        marginTop: 12,
         ...FONTS.body,
         lineHeight: 20,
-    },
-    actionRow: {
-        flexDirection: 'row',
-        gap: 12,
-        marginTop: 18,
-    },
-    secondaryAction: {
-        flex: 1,
-        minHeight: 48,
-        borderRadius: RADIUS.button,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    primaryAction: {
-        minWidth: 96,
-        minHeight: 48,
-        borderRadius: RADIUS.button,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'row',
-        gap: 8,
-        paddingHorizontal: SPACING.md,
-    },
-    primaryLabel: {
-        color: '#FFFFFF',
-        ...FONTS.bodyStrong,
     },
 });
