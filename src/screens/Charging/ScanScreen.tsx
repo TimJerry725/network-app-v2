@@ -15,6 +15,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import {
+    ArrowRight,
     Camera as CameraIcon,
     Check,
     ChevronLeft,
@@ -92,6 +93,8 @@ export default function ScanScreen({ navigation, route }: any) {
     const [scanned, setScanned] = useState(false);
     const [isManualModalVisible, setIsManualModalVisible] = useState(false);
     const [manualCode, setManualCode] = useState(route.params?.connectorId ?? '');
+    const [isCpidFocused, setIsCpidFocused] = useState(false);
+    const cpidInputRef = useRef<TextInput>(null);
     const [isChargeSettingsVisible, setIsChargeSettingsVisible] = useState(false);
     const [cutoffPercent, setCutoffPercent] = useState('80%');
 
@@ -130,6 +133,20 @@ export default function ScanScreen({ navigation, route }: any) {
             setSelectedConnectorId(recommended.id);
         }
     }, [nearbyStation, selectedConnectorId, selectedVehicle?.connectorType]);
+
+    // Auto-match nearby station & connector when CPID is typed
+    useEffect(() => {
+        const trimmed = manualCode.trim();
+        if (!trimmed) return;
+        const match = findStationByConnector(trimmed);
+        if (match) {
+            const idx = stationsList.findIndex((s) => s.id === match.station.id);
+            if (idx !== -1) {
+                setCurrentStationIndex(idx);
+            }
+            setSelectedConnectorId(match.connector.id);
+        }
+    }, [manualCode, stationsList]);
 
     const activeConnector = useMemo(() => {
         return (
@@ -309,7 +326,13 @@ export default function ScanScreen({ navigation, route }: any) {
 
                             <TouchableOpacity
                                 style={styles.tactileRoundBtn}
-                                onPress={() => setIsManualModalVisible(true)}
+                                onPress={() => {
+                                    if (cpidInputRef.current) {
+                                        cpidInputRef.current.focus();
+                                    } else {
+                                        setIsManualModalVisible(true);
+                                    }
+                                }}
                                 activeOpacity={0.8}
                             >
                                 <Keyboard size={18} color="#FFFFFF" />
@@ -319,8 +342,8 @@ export default function ScanScreen({ navigation, route }: any) {
                 </SafeAreaView>
 
                 {/* ── CENTRAL TARGETING RETICLE & ANIMATED LASER BEAM ── */}
-                <View style={styles.reticleWrap} pointerEvents="none">
-                    <View style={styles.reticleBox}>
+                <View style={styles.reticleWrap} pointerEvents="box-none">
+                    <View style={styles.reticleBox} pointerEvents="none">
                         {/* 4 Cyber Corner Brackets */}
                         <View style={[styles.corner, styles.cornerTL]} />
                         <View style={[styles.corner, styles.cornerTR]} />
@@ -353,10 +376,59 @@ export default function ScanScreen({ navigation, route }: any) {
                     </View>
 
                     {/* Hint text below reticle */}
-                    <View style={styles.reticleHint}>
+                    <View style={styles.reticleHint} pointerEvents="none">
                         <ThemedText style={styles.reticleHintText}>
-                            Point camera at the QR code on the charger dispenser
+                            Point camera at QR code on charger dispenser
                         </ThemedText>
+                    </View>
+
+                    {/* ── DIRECT CPID INPUT TEXT BOX BELOW SCANNER ── */}
+                    <View style={styles.cpidInputContainer} pointerEvents="box-none">
+                        <View
+                            style={[
+                                styles.cpidInputBox,
+                                isCpidFocused && styles.cpidInputBoxFocused,
+                            ]}
+                        >
+                            <View style={styles.cpidBadge}>
+                                <ThemedText style={styles.cpidBadgeText}>CPID</ThemedText>
+                            </View>
+                            <TextInput
+                                ref={cpidInputRef}
+                                style={styles.cpidTextInput}
+                                value={manualCode}
+                                onChangeText={setManualCode}
+                                placeholder="Type Charger ID (e.g. CP1233)"
+                                placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                                autoCapitalize="characters"
+                                autoCorrect={false}
+                                returnKeyType="go"
+                                onFocus={() => setIsCpidFocused(true)}
+                                onBlur={() => setIsCpidFocused(false)}
+                                onSubmitEditing={() => {
+                                    if (manualCode.trim()) {
+                                        handleStartSession(manualCode.trim());
+                                    }
+                                }}
+                            />
+                            {manualCode.trim().length > 0 ? (
+                                <TouchableOpacity
+                                    style={styles.cpidSubmitBtn}
+                                    onPress={() => handleStartSession(manualCode.trim())}
+                                    activeOpacity={0.8}
+                                >
+                                    <ArrowRight size={14} color="#000000" strokeWidth={2.6} />
+                                </TouchableOpacity>
+                            ) : (
+                                <TouchableOpacity
+                                    style={styles.cpidKeyboardBtn}
+                                    onPress={() => cpidInputRef.current?.focus()}
+                                    activeOpacity={0.7}
+                                >
+                                    <Keyboard size={15} color="rgba(255, 255, 255, 0.45)" />
+                                </TouchableOpacity>
+                            )}
+                        </View>
                     </View>
                 </View>
             </View>
@@ -636,11 +708,17 @@ export default function ScanScreen({ navigation, route }: any) {
                     {/* Manual Code Option Link */}
                     <TouchableOpacity
                         style={styles.manualEntryLink}
-                        onPress={() => setIsManualModalVisible(true)}
+                        onPress={() => {
+                            if (cpidInputRef.current) {
+                                cpidInputRef.current.focus();
+                            } else {
+                                setIsManualModalVisible(true);
+                            }
+                        }}
                         activeOpacity={0.7}
                     >
                         <ThemedText style={styles.manualEntryLinkText}>
-                            Can't scan? Enter 6-digit Charger Code manually
+                            Can't scan? Enter Charger ID (CPID) above
                         </ThemedText>
                     </TouchableOpacity>
                 </ScrollView>
@@ -923,7 +1001,7 @@ const styles = StyleSheet.create({
     reticleWrap: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: -30,
+        marginTop: -16,
     },
     reticleBox: {
         width: VIEWFINDER_SIZE,
@@ -1002,9 +1080,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#00F2FE',
     },
     reticleHint: {
-        marginTop: 14,
-        paddingHorizontal: 16,
-        paddingVertical: 6,
+        marginTop: 10,
+        paddingHorizontal: 14,
+        paddingVertical: 5,
         borderRadius: RADIUS.pill,
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
         borderWidth: 1,
@@ -1012,10 +1090,77 @@ const styles = StyleSheet.create({
     },
     reticleHintText: {
         fontFamily: FONT_FAMILIES.medium,
-        fontSize: 11,
+        fontSize: 10.5,
         color: 'rgba(255, 255, 255, 0.85)',
         textAlign: 'center',
         letterSpacing: 0.2,
+    },
+
+    // ── Inline CPID Manual Input Box ──
+    cpidInputContainer: {
+        marginTop: 10,
+        width: SCREEN_WIDTH - 48,
+        maxWidth: 320,
+    },
+    cpidInputBox: {
+        width: '100%',
+        height: 44,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(15, 15, 20, 0.85)',
+        borderRadius: RADIUS.button,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.18)',
+        paddingHorizontal: 10,
+        gap: 8,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        elevation: 6,
+    },
+    cpidInputBoxFocused: {
+        borderColor: '#00F2FE',
+        backgroundColor: 'rgba(10, 10, 16, 0.96)',
+        shadowColor: '#00F2FE',
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+    },
+    cpidBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        backgroundColor: 'rgba(0, 242, 254, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(0, 242, 254, 0.35)',
+    },
+    cpidBadgeText: {
+        fontFamily: FONT_FAMILIES.extraBold,
+        fontSize: 10,
+        color: '#00F2FE',
+        letterSpacing: 1,
+    },
+    cpidTextInput: {
+        flex: 1,
+        fontFamily: FONT_FAMILIES.semiBold,
+        fontSize: 12.5,
+        color: '#FFFFFF',
+        letterSpacing: 0.6,
+        paddingVertical: Platform.OS === 'ios' ? 8 : 4,
+    },
+    cpidSubmitBtn: {
+        width: 28,
+        height: 28,
+        borderRadius: RADIUS.circle,
+        backgroundColor: '#00F2FE',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cpidKeyboardBtn: {
+        width: 28,
+        height: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 
     // ── Bottom Drawer (Nearby Charger) ──

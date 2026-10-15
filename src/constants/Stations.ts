@@ -707,8 +707,24 @@ export function findStationByConnector(connectorId?: string) {
         return undefined;
     }
 
+    const raw = connectorId.trim().toUpperCase();
+    const clean = raw.replace(/[^A-Z0-9]/g, '');
+
     for (const station of MOCK_STATIONS) {
-        const connector = station.connectors.find((item) => item.id === connectorId);
+        const connector = station.connectors.find((item) => {
+            const itemIdRaw = item.id.toUpperCase();
+            const itemIdClean = itemIdRaw.replace(/[^A-Z0-9]/g, '');
+            const itemChargerIdRaw = item.chargerId?.toUpperCase() ?? '';
+            const itemChargerIdClean = itemChargerIdRaw.replace(/[^A-Z0-9]/g, '');
+
+            return (
+                itemIdRaw === raw ||
+                itemIdClean === clean ||
+                (itemChargerIdRaw.length > 0 && itemChargerIdRaw === raw) ||
+                (itemChargerIdClean.length > 0 && itemChargerIdClean === clean) ||
+                (clean.length >= 3 && itemIdClean.startsWith(clean))
+            );
+        });
 
         if (connector) {
             return { station, connector };
