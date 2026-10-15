@@ -1075,7 +1075,6 @@ export default function TripPlannerScreen({ navigation }: any) {
                 ═════════════════════════════════════════════════════════════ */}
                 <CredButton
                     title="PLAN TRIP"
-                    subtitle="Calculate route stops & elevation impact"
                     icon={<Zap size={18} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />}
                     onPress={handlePlanTrip}
                 />
