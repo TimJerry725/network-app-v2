@@ -78,19 +78,6 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                     ]}
                 />
 
-                {/* Center Cradle Contouring for Elevated Hero Reactor */}
-                <View
-                    style={[
-                        styles.centerCradleRing,
-                        {
-                            borderColor: isDark
-                                ? 'rgba(255, 255, 255, 0.08)'
-                                : 'rgba(0, 0, 0, 0.06)',
-                            backgroundColor: isDark ? '#0A0A0E' : '#F6F6F8',
-                        },
-                    ]}
-                />
-
                 {state.routes.map((route, index) => {
                     const isFocused = state.index === index;
                     const config = TAB_CONFIG.find((t) => t.name === route.name) ?? {
@@ -186,18 +173,6 @@ const styles = StyleSheet.create({
         right: 20,
         height: 1.2,
         borderRadius: 1,
-    },
-    centerCradleRing: {
-        position: 'absolute',
-        top: -12,
-        alignSelf: 'center',
-        left: '50%',
-        marginLeft: -34,
-        width: 68,
-        height: 68,
-        borderRadius: RADIUS.circle,
-        borderWidth: 1,
-        zIndex: 1,
     },
     wingTabSlot: {
         flex: 1,

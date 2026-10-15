@@ -15,19 +15,14 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import {
-    ArrowRight,
     Camera as CameraIcon,
-    CheckCircle2,
     ChevronLeft,
     Flashlight,
     FlashlightOff,
     Keyboard,
-    MapPin,
-    Radio,
     RotateCcw,
     ScanLine,
     ShieldCheck,
-    Sparkles,
     X,
     Zap,
 } from 'lucide-react-native';
@@ -52,6 +47,37 @@ import { useAppTheme } from '../../hooks/useAppTheme';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const VIEWFINDER_SIZE = Math.min(SCREEN_WIDTH * 0.62, 230);
 
+// Helper to render connector icon with type badge pod (Matches StationDetailScreen)
+function ConnectorBadge({
+    type,
+    isSelected = false,
+    isDark = false,
+}: {
+    type: Connector['type'];
+    isSelected?: boolean;
+    isDark?: boolean;
+}) {
+    const iconColor = isDark
+        ? (isSelected ? '#FFFFFF' : '#E5E5EA')
+        : (isSelected ? '#000000' : '#1C1C22');
+    const iconSize = 26;
+
+    return (
+        <View style={styles.connectorIconContainer}>
+            {type === 'CCS2' ? (
+                <Ccs2Icon size={iconSize} color={iconColor} />
+            ) : type === 'Type 2' ? (
+                <Type2Icon size={iconSize} color={iconColor} />
+            ) : (
+                <ChademoIcon size={iconSize} color={iconColor} />
+            )}
+            <ThemedText style={[styles.connectorSublabel, { color: iconColor }]}>
+                {type}
+            </ThemedText>
+        </View>
+    );
+}
+
 export default function ScanScreen({ navigation, route }: any) {
     const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
@@ -68,7 +94,7 @@ export default function ScanScreen({ navigation, route }: any) {
     // Station & Connector resolution
     const preselectedStation = getStationById(route.params?.stationId);
     const preselectedMatch = findStationByConnector(route.params?.connectorId);
-    
+
     // Nearby station list (sorted with closest first)
     const stationsList = useMemo(() => {
         const pool = allStations && allStations.length > 0 ? allStations : MOCK_STATIONS;
@@ -197,20 +223,6 @@ export default function ScanScreen({ navigation, route }: any) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         }
         setCurrentStationIndex((prev) => (prev + 1) % Math.min(stationsList.length, 5));
-    };
-
-    // Connector Icon Resolver
-    const renderConnectorIcon = (type: Connector['type'], size = 22, color = '#FFFFFF') => {
-        switch (type) {
-            case 'CCS2':
-                return <Ccs2Icon size={size} color={color} />;
-            case 'Type 2':
-                return <Type2Icon size={size} color={color} />;
-            case 'CHAdeMO':
-                return <ChademoIcon size={size} color={color} />;
-            default:
-                return <Zap size={size} color={color} />;
-        }
     };
 
     const isCameraAvailable = Platform.OS !== 'web' && permission?.granted;
@@ -343,7 +355,7 @@ export default function ScanScreen({ navigation, route }: any) {
                 </View>
             </View>
 
-            {/* ── BOTTOM SECTION: NEARBY CHARGER DRAWER ── */}
+            {/* ── BOTTOM SECTION: NEARBY CHARGER DRAWER (MATCHES STATION DETAIL SCREEN) ── */}
             <View
                 style={[
                     styles.bottomDrawer,
@@ -417,46 +429,57 @@ export default function ScanScreen({ navigation, route }: any) {
                         )}
                     </View>
 
-                    {/* ── CONNECTOR SELECTOR TILES ── */}
+                    {/* ── CONNECTOR CARDS (MATCHES STATION DETAIL SCREEN LAYOUT) ── */}
                     <ThemedText style={styles.selectConnectorLabel}>
                         SELECT CHARGING CONNECTOR
                     </ThemedText>
 
-                    <View style={styles.connectorsRow}>
-                        {nearbyStation.connectors.map((conn, idx) => {
-                            const isSelected = conn.id === selectedConnectorId;
+                    <View style={styles.connectorsStack}>
+                        {nearbyStation.connectors.map((connector) => {
+                            const isSelected = selectedConnectorId === connector.id;
+                            const isAvailable = connector.status === 'Available';
+                            const isPreparing = connector.status === 'Preparing';
+                            const currentType =
+                                connector.currentType ??
+                                (connector.type === 'Type 2' ? 'AC' : 'DC');
                             const isVehicleMatch =
                                 selectedVehicle?.connectorType &&
-                                conn.type.toUpperCase().includes(
+                                connector.type.toUpperCase().includes(
                                     selectedVehicle.connectorType.toUpperCase()
                                 );
-                            const isAvailable = conn.status === 'Available';
 
                             return (
                                 <TouchableOpacity
-                                    key={conn.id}
-                                    style={[
-                                        styles.connectorTile,
-                                        {
-                                            backgroundColor: isSelected
-                                                ? (isDark ? '#1C1C26' : '#F6F6FA')
-                                                : (isDark ? '#13131A' : '#FFFFFF'),
-                                            borderColor: isSelected
-                                                ? (isDark ? '#00F2FE' : '#000000')
-                                                : (isDark ? 'rgba(255, 255, 255, 0.12)' : '#E0E0E6'),
-                                            borderWidth: isSelected ? 2 : 1.5,
-                                            borderBottomWidth: isSelected ? 4 : 2.5,
-                                        },
-                                    ]}
+                                    key={connector.id}
+                                    activeOpacity={0.88}
                                     onPress={() => {
                                         if (Platform.OS !== 'web') {
-                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                                         }
-                                        setSelectedConnectorId(conn.id);
+                                        setSelectedConnectorId(connector.id);
                                     }}
-                                    activeOpacity={0.88}
+                                    style={[
+                                        styles.connectorWholeCard,
+                                        isSelected
+                                            ? [
+                                                  styles.connectorCardSelected,
+                                                  {
+                                                      backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                      borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                      borderBottomColor: isDark ? '#9E9EA8' : '#000000',
+                                                  },
+                                              ]
+                                            : [
+                                                  styles.connectorCardUnselected,
+                                                  {
+                                                      backgroundColor: isDark ? '#101014' : '#F7F7F9',
+                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                                                      borderBottomColor: isDark ? '#050508' : '#D4D4DC',
+                                                  },
+                                              ],
+                                    ]}
                                 >
-                                    {/* Match Badge */}
+                                    {/* Vehicle Match Badge if applicable */}
                                     {isVehicleMatch && (
                                         <View style={styles.vehicleMatchBadge}>
                                             <ShieldCheck size={10} color="#00F2FE" />
@@ -466,79 +489,112 @@ export default function ScanScreen({ navigation, route }: any) {
                                         </View>
                                     )}
 
-                                    {/* Icon & Gun Label */}
-                                    <View style={styles.tileTopRow}>
-                                        <View
-                                            style={[
-                                                styles.connectorIconCircle,
-                                                {
-                                                    backgroundColor: isSelected
-                                                        ? (isDark ? '#FFFFFF' : '#000000')
-                                                        : (isDark ? '#262632' : '#ECECEE'),
-                                                },
-                                            ]}
-                                        >
-                                            {renderConnectorIcon(
-                                                conn.type,
-                                                18,
-                                                isSelected
-                                                    ? (isDark ? '#000000' : '#FFFFFF')
-                                                    : (isDark ? '#FFFFFF' : '#000000')
-                                            )}
-                                        </View>
-
-                                        <View style={styles.gunMeta}>
-                                            <ThemedText style={styles.gunLabel}>
-                                                {conn.gunLabel ?? `Gun ${idx + 1}`}
-                                            </ThemedText>
-                                            <ThemedText style={styles.connType}>
-                                                {conn.type}
-                                            </ThemedText>
-                                        </View>
-                                    </View>
-
-                                    {/* Power & Tariff Stats */}
-                                    <View style={styles.tileBottomRow}>
-                                        <View style={styles.powerBadge}>
-                                            <Zap size={11} color="#00F2FE" fill="#00F2FE" />
-                                            <ThemedText style={styles.powerBadgeText}>
-                                                {conn.power} kW
-                                            </ThemedText>
-                                        </View>
-
-                                        <ThemedText style={styles.tariffText}>
-                                            ₹{conn.pricePerKWh.toFixed(2)}/kWh
-                                        </ThemedText>
-                                    </View>
-
-                                    {/* Availability Chip */}
-                                    <View style={styles.statusRow}>
-                                        <View
-                                            style={[
-                                                styles.statusDot,
-                                                {
-                                                    backgroundColor: isAvailable
-                                                        ? '#10B981'
-                                                        : '#F59E0B',
-                                                },
-                                            ]}
+                                    {/* Top Info Row inside the Connector Card */}
+                                    <View style={styles.connectorInfoRow}>
+                                        <ConnectorBadge
+                                            type={connector.type}
+                                            isSelected={isSelected}
+                                            isDark={isDark}
                                         />
-                                        <ThemedText style={styles.statusLabel}>
-                                            {conn.status}
+
+                                        <View style={styles.powerGroup}>
+                                            <View
+                                                style={[
+                                                    styles.acDcBadge,
+                                                    currentType === 'DC'
+                                                        ? {
+                                                              backgroundColor: isDark ? 'rgba(34, 197, 94, 0.18)' : '#DCFCE7',
+                                                              borderColor: isDark ? 'rgba(34, 197, 94, 0.35)' : '#86EFAC',
+                                                          }
+                                                        : {
+                                                              backgroundColor: isDark ? 'rgba(56, 189, 248, 0.18)' : '#E0F2FE',
+                                                              borderColor: isDark ? 'rgba(56, 189, 248, 0.35)' : '#7DD3FC',
+                                                          },
+                                                ]}
+                                            >
+                                                <ThemedText
+                                                    style={[
+                                                        styles.acDcBadgeText,
+                                                        {
+                                                            color: currentType === 'DC'
+                                                                ? (isDark ? '#4ADE80' : '#15803D')
+                                                                : (isDark ? '#38BDF8' : '#0369A1'),
+                                                        },
+                                                    ]}
+                                                >
+                                                    {currentType}
+                                                </ThemedText>
+                                            </View>
+                                            <ThemedText style={[styles.powerText, { color: colors.text }]}>
+                                                {connector.power} kW
+                                            </ThemedText>
+                                        </View>
+
+                                        <ThemedText style={[styles.tariffPrice, { color: colors.text }]}>
+                                            ₹{connector.pricePerKWh.toFixed(0)}
+                                            <ThemedText style={[styles.tariffUnit, { color: colors.textMuted }]}>
+                                                /kWh
+                                            </ThemedText>
                                         </ThemedText>
+
+                                        <View style={styles.statusColumn}>
+                                            <ThemedText
+                                                style={[
+                                                    styles.statusText,
+                                                    {
+                                                        color: isAvailable
+                                                            ? (isDark ? '#4ADE80' : '#15803D')
+                                                            : isPreparing
+                                                            ? '#D97706'
+                                                            : colors.textMuted,
+                                                    },
+                                                ]}
+                                            >
+                                                {connector.status}
+                                            </ThemedText>
+                                        </View>
                                     </View>
+
+                                    {/* Action Buttons INSIDE the same Selected Card (Matches StationDetailScreen) */}
+                                    {isSelected && (
+                                        <View style={styles.connectorActionsRow}>
+                                            <TouchableOpacity
+                                                style={[
+                                                    styles.startChargingButton,
+                                                    {
+                                                        backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                        borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                        borderBottomColor: isDark ? '#B0B0B8' : '#333338',
+                                                    },
+                                                ]}
+                                                onPress={() => {
+                                                    if (Platform.OS !== 'web') {
+                                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                                                    }
+                                                    handleStartSession(connector.id);
+                                                }}
+                                                activeOpacity={0.82}
+                                            >
+                                                <Zap
+                                                    size={15}
+                                                    color={isDark ? '#000000' : '#FFFFFF'}
+                                                    fill={isDark ? '#000000' : '#FFFFFF'}
+                                                />
+                                                <ThemedText
+                                                    style={[
+                                                        styles.startChargingText,
+                                                        { color: isDark ? '#000000' : '#FFFFFF' },
+                                                    ]}
+                                                >
+                                                    START CHARGING
+                                                </ThemedText>
+                                            </TouchableOpacity>
+                                        </View>
+                                    )}
                                 </TouchableOpacity>
                             );
                         })}
                     </View>
-
-                    {/* ── INSTANT ACTION BUTTON ── */}
-                    <CredButton
-                        title={`START CHARGING • ${activeConnector.gunLabel ?? activeConnector.type}`}
-                        variant="neon"
-                        containerStyle={styles.startChargeBtn}
-                        onPress={() => handleStartSession(activeConnector.id)}
-                    />
 
                     {/* Manual Code Option Link */}
                     <TouchableOpacity
@@ -848,7 +904,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderBottomWidth: 0,
         position: 'relative',
-        maxHeight: SCREEN_HEIGHT * 0.48,
+        maxHeight: SCREEN_HEIGHT * 0.52,
     },
     drawerSpecularLine: {
         position: 'absolute',
@@ -924,7 +980,7 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
 
-    // ── Connectors ──
+    // ── Connectors (Matches StationDetailScreen) ──
     selectConnectorLabel: {
         fontFamily: FONT_FAMILIES.bold,
         fontSize: 10,
@@ -933,109 +989,130 @@ const styles = StyleSheet.create({
         marginTop: 14,
         marginBottom: 8,
     },
-    connectorsRow: {
-        flexDirection: 'row',
+    connectorsStack: {
         gap: 10,
     },
-    connectorTile: {
-        flex: 1,
+    connectorWholeCard: {
         borderRadius: RADIUS.card,
-        padding: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderWidth: 1.5,
         position: 'relative',
+    },
+    connectorCardSelected: {
+        borderWidth: 2,
+        borderBottomWidth: 4.5,
+    },
+    connectorCardUnselected: {
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     vehicleMatchBadge: {
         position: 'absolute',
         top: -8,
-        right: 8,
+        right: 12,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
         backgroundColor: '#000000',
         borderWidth: 1,
         borderColor: '#00F2FE',
-        paddingHorizontal: 6,
+        paddingHorizontal: 7,
         paddingVertical: 2,
         borderRadius: RADIUS.pill,
+        zIndex: 5,
     },
     vehicleMatchText: {
         fontFamily: FONT_FAMILIES.extraBold,
-        fontSize: 8,
+        fontSize: 8.5,
         color: '#00F2FE',
         letterSpacing: 0.5,
     },
-    tileTopRow: {
+    connectorInfoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
     },
-    connectorIconCircle: {
-        width: 34,
-        height: 34,
-        borderRadius: RADIUS.circle,
+    connectorIconContainer: {
         alignItems: 'center',
         justifyContent: 'center',
+        marginRight: 12,
+        minWidth: 38,
     },
-    gunMeta: {
-        flex: 1,
+    connectorSublabel: {
+        fontSize: 8.5,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+        marginTop: 3,
+        textTransform: 'uppercase',
+        letterSpacing: 0.3,
     },
-    gunLabel: {
-        fontFamily: FONT_FAMILIES.bold,
-        fontSize: 12,
-    },
-    connType: {
-        fontFamily: FONT_FAMILIES.semiBold,
-        fontSize: 10,
-        color: '#8E8E93',
-    },
-    tileBottomRow: {
+    powerGroup: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        marginTop: 10,
+        gap: 6,
+        marginRight: 10,
     },
-    powerBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 3,
-        backgroundColor: 'rgba(0, 242, 254, 0.12)',
+    acDcBadge: {
         paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: RADIUS.chip,
-    },
-    powerBadgeText: {
-        fontFamily: FONT_FAMILIES.extraBold,
-        fontSize: 10,
-        color: '#00F2FE',
-    },
-    tariffText: {
-        fontFamily: FONT_FAMILIES.bold,
-        fontSize: 10.5,
-    },
-    statusRow: {
-        flexDirection: 'row',
+        borderWidth: 1,
         alignItems: 'center',
-        gap: 5,
-        marginTop: 6,
+        justifyContent: 'center',
     },
-    statusDot: {
-        width: 5,
-        height: 5,
-        borderRadius: RADIUS.circle,
+    acDcBadgeText: {
+        fontSize: 9,
+        fontFamily: FONT_FAMILIES.bold,
+        lineHeight: 12,
     },
-    statusLabel: {
+    powerText: {
+        fontSize: 14,
+        fontFamily: FONT_FAMILIES.bold,
+        minWidth: 50,
+    },
+    tariffPrice: {
+        fontSize: 15,
+        fontFamily: FONT_FAMILIES.extraBold,
+    },
+    tariffUnit: {
+        fontSize: 11,
         fontFamily: FONT_FAMILIES.medium,
-        fontSize: 9.5,
-        color: '#8E8E93',
+    },
+    statusColumn: {
+        marginLeft: 'auto',
+    },
+    statusText: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.bold,
+    },
+    connectorActionsRow: {
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 12,
+    },
+    startChargingButton: {
+        flex: 1,
+        flexDirection: 'row',
+        borderRadius: RADIUS.button,
+        paddingVertical: 11,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        borderWidth: 1.5,
+        borderBottomWidth: 3.5,
+    },
+    startChargingText: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: 0.6,
     },
 
-    // ── Start Charge Button ──
-    startChargeBtn: {
-        marginTop: 14,
-    },
+    // ── Manual Entry Link ──
     manualEntryLink: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
+        paddingVertical: 12,
+        marginTop: 4,
     },
     manualEntryLinkText: {
         fontFamily: FONT_FAMILIES.semiBold,

@@ -165,7 +165,7 @@ export function Neo3DIcon({
         onPress?.();
     };
 
-    // ── HERO CENTER ACTION BUTTON (SCAN - ALWAYS IN ELEVATED 3D REACTOR FORM) ──
+    // ── HERO CENTER ACTION BUTTON (SCAN - SOLID TACTILE 3D BUTTON) ──
     if (isPrimaryAction) {
         const heroBgCore = isDark
             ? (isSelected ? '#FFFFFF' : '#1C1C22')
@@ -173,12 +173,9 @@ export function Neo3DIcon({
         const heroIconColor = isDark
             ? (isSelected ? '#000000' : '#FFFFFF')
             : '#FFFFFF';
-        const haloColor = isSelected
-            ? (isDark ? '#00F2FE' : '#000000')
-            : (isDark ? '#FFFFFF' : '#000000');
-        const haloOpacity = isSelected
-            ? (isDark ? 0.35 : 0.22)
-            : (isDark ? 0.14 : 0.08);
+        const borderColor = isDark
+            ? (isSelected ? '#00F2FE' : 'rgba(255, 255, 255, 0.18)')
+            : '#000000';
 
         return (
             <Animated.View
@@ -200,75 +197,48 @@ export function Neo3DIcon({
                     onPress={handlePress}
                     style={styles.heroTouchable}
                 >
-                    {/* Ambient Breathing Halo (Always Active for Hero Action) */}
-                    <Animated.View
-                        style={[
-                            styles.heroHalo,
-                            {
-                                transform: [{ scale: pulseAnim }],
-                                opacity: haloOpacity,
-                                backgroundColor: haloColor,
-                            },
-                        ]}
-                    />
-
-                    {/* 3D Extruded Base Platform */}
+                    {/* Unified 3D Tactile Disc (No Outer Concentric Outline Rings) */}
                     <View
                         style={[
-                            styles.heroPlatform3D,
+                            styles.heroCore3D,
                             {
-                                backgroundColor: isDark ? '#1C1C22' : '#22222A',
-                                borderColor: isSelected
-                                    ? (isDark ? '#00F2FE' : '#000000')
-                                    : (isDark ? '#2E2E38' : '#000000'),
+                                backgroundColor: heroBgCore,
+                                borderColor: borderColor,
                                 borderBottomColor: isDark ? '#050508' : '#000000',
                             },
                         ]}
                     >
-                        {/* Top Elevated 3D Reactor Core */}
+                        {/* Inset Specular Top Light Reflection */}
                         <View
                             style={[
-                                styles.heroCore3D,
+                                styles.specularTopLine,
                                 {
-                                    backgroundColor: heroBgCore,
-                                    borderColor: isSelected
-                                        ? (isDark ? 'rgba(0, 242, 254, 0.8)' : '#000000')
-                                        : (isDark ? 'rgba(255, 255, 255, 0.3)' : '#2A2A32'),
+                                    backgroundColor: isDark
+                                        ? (isSelected ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.35)')
+                                        : 'rgba(255, 255, 255, 0.55)',
                                 },
                             ]}
+                        />
+
+                        {/* Solid Glyph with Spring Pop */}
+                        <Animated.View
+                            style={[
+                                styles.layeredIconWrap,
+                                { transform: [{ scale: selectBounce }] },
+                            ]}
                         >
-                            {/* Inset Specular Top Light Reflection */}
+                            {getLucideIcon('scan', size + 4, heroIconColor, true)}
+                        </Animated.View>
+
+                        {/* Active focus pip when currently focused */}
+                        {isSelected && (
                             <View
                                 style={[
-                                    styles.specularTopLine,
-                                    {
-                                        backgroundColor: isDark
-                                            ? (isSelected ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.4)')
-                                            : 'rgba(255, 255, 255, 0.6)',
-                                    },
+                                    styles.heroActivePip,
+                                    { backgroundColor: isDark ? '#00F2FE' : '#FFFFFF' },
                                 ]}
                             />
-
-                            {/* Solid Glyph with Spring Pop */}
-                            <Animated.View
-                                style={[
-                                    styles.layeredIconWrap,
-                                    { transform: [{ scale: selectBounce }] },
-                                ]}
-                            >
-                                {getLucideIcon('scan', size + 4, heroIconColor, true)}
-                            </Animated.View>
-
-                            {/* Active focus pip when currently focused */}
-                            {isSelected && (
-                                <View
-                                    style={[
-                                        styles.heroActivePip,
-                                        { backgroundColor: isDark ? '#00F2FE' : '#FFFFFF' },
-                                    ]}
-                                />
-                            )}
-                        </View>
+                        )}
                     </View>
 
                     {label && (
@@ -459,27 +429,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    heroHalo: {
-        position: 'absolute',
-        width: 68,
-        height: 68,
-        borderRadius: RADIUS.circle,
-        top: -5,
-    },
-    heroPlatform3D: {
-        width: 58,
-        height: 58,
-        borderRadius: RADIUS.circle,
-        borderWidth: 2,
-        borderBottomWidth: 4,
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-    },
     heroCore3D: {
-        width: 52,
-        height: 50,
+        width: 54,
+        height: 52,
         borderRadius: RADIUS.circle,
-        borderWidth: 1.5,
+        borderWidth: 1.8,
+        borderBottomWidth: 3.5,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
