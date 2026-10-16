@@ -135,14 +135,12 @@ export default function ProfileScreen() {
                         <View style={{ flex: 1 }}>
                             <ThemedText style={FONTS.h3} numberOfLines={1}>
                                 {activeVehicle
-                                    ? (activeVehicle.nickname || `${activeVehicle.make} ${activeVehicle.model}`)
+                                    ? `${activeVehicle.make} ${activeVehicle.model}`
                                     : 'No Vehicle Connected'}
                             </ThemedText>
                             <ThemedText style={{ color: colors.textMuted, ...FONTS.caption, marginTop: 2 }}>
                                 {activeVehicle
-                                    ? (activeVehicle.nickname
-                                        ? `${activeVehicle.make} ${activeVehicle.model} • ${activeVehicle.registrationNumber}`
-                                        : activeVehicle.registrationNumber)
+                                    ? activeVehicle.registrationNumber
                                     : 'Connect your EV'}
                             </ThemedText>
                         </View>
@@ -152,21 +150,8 @@ export default function ProfileScreen() {
                         <>
                             <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
 
-                            {/* 3 Telemetry Metrics: Battery, Capacity, Max DC */}
+                            {/* 3 Telemetry Metrics: Capacity, Est. Range, Max DC Speed */}
                             <View style={styles.vehicleMetricsRow}>
-                                <View style={styles.vehicleMetricItem}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <BatteryCharging size={13} color="#10B981" />
-                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>BATTERY</ThemedText>
-                                    </View>
-                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
-                                        {activeVehicle.currentBattery}%
-                                    </ThemedText>
-                                    <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
-                                        ~{activeVehicle.estRangeKm} km
-                                    </ThemedText>
-                                </View>
-
                                 <View style={styles.vehicleMetricItem}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                         <Zap size={13} color={colors.primary} />
@@ -182,6 +167,19 @@ export default function ProfileScreen() {
 
                                 <View style={styles.vehicleMetricItem}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <BatteryCharging size={13} color="#10B981" />
+                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>EST. RANGE</ThemedText>
+                                    </View>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                        ~{activeVehicle.estRangeKm} km
+                                    </ThemedText>
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
+                                        Combined
+                                    </ThemedText>
+                                </View>
+
+                                <View style={styles.vehicleMetricItem}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                         <Zap size={13} color="#F59E0B" />
                                         <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>MAX SPEED</ThemedText>
                                     </View>
@@ -192,27 +190,6 @@ export default function ProfileScreen() {
                                         DC Fast
                                     </ThemedText>
                                 </View>
-                            </View>
-
-                            {/* Autocharge Bar */}
-                            <View
-                                style={[
-                                    styles.autochargeBar,
-                                    {
-                                        backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                                    },
-                                ]}
-                            >
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                    <Shield size={14} color={activeVehicle.autochargeEnabled ? '#10B981' : colors.textMuted} />
-                                    <ThemedText style={{ fontSize: 11, fontFamily: FONT_FAMILIES.bold, color: colors.text }}>
-                                        {activeVehicle.autochargeEnabled ? 'Autocharge / Plug & Charge Active' : 'Autocharge Disabled'}
-                                    </ThemedText>
-                                </View>
-                                <ThemedText style={{ fontSize: 10, fontFamily: FONT_FAMILIES.medium, color: colors.textMuted }}>
-                                    {activeVehicle.vidTag ?? 'No Tag'}
-                                </ThemedText>
                             </View>
                         </>
                     )}
@@ -494,16 +471,6 @@ const styles = StyleSheet.create({
     },
     vehicleMetricItem: {
         flex: 1,
-    },
-    autochargeBar: {
-        marginTop: 12,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: RADIUS.card,
-        borderWidth: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
     },
     walletCard: {
         padding: SPACING.md,

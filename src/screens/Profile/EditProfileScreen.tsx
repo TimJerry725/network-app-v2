@@ -8,13 +8,15 @@ import {
     TextInput,
     Platform,
     KeyboardAvoidingView,
-    Switch,
+    Modal,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import {
     ChevronLeft,
+    ChevronDown,
+    X,
     User,
     Mail,
     Phone,
@@ -33,6 +35,87 @@ import { CredCard } from '../../components/CredCard';
 import { CredButton } from '../../components/CredButton';
 import { FONT_FAMILIES, FONTS, SPACING, RADIUS } from '../../constants/Tokens';
 import { useVehicles, ConnectorStandard, Vehicle } from '../../context/VehicleContext';
+
+export const EV_CATALOG: Record<string, { models: string[]; defaultBattery: number; defaultDcRate: number; defaultRange: number }> = {
+    'Tata': {
+        models: ['Nexon.ev', 'Punch.ev', 'Tiago.ev', 'Tigor.ev', 'Curvv.ev', 'Harrier.ev'],
+        defaultBattery: 45,
+        defaultDcRate: 60,
+        defaultRange: 320,
+    },
+    'Mahindra': {
+        models: ['XUV400', 'BE 6e', 'XEV 9e'],
+        defaultBattery: 39.4,
+        defaultDcRate: 50,
+        defaultRange: 310,
+    },
+    'MG': {
+        models: ['ZS EV', 'Comet EV', 'Windsor EV'],
+        defaultBattery: 50.3,
+        defaultDcRate: 50,
+        defaultRange: 340,
+    },
+    'Hyundai': {
+        models: ['IONIQ 5', 'Kona Electric', 'Creta Electric'],
+        defaultBattery: 72.6,
+        defaultDcRate: 230,
+        defaultRange: 450,
+    },
+    'Kia': {
+        models: ['EV6', 'EV9'],
+        defaultBattery: 77.4,
+        defaultDcRate: 240,
+        defaultRange: 480,
+    },
+    'BYD': {
+        models: ['Atto 3', 'Seal', 'e6', 'Sealion 6'],
+        defaultBattery: 60.5,
+        defaultDcRate: 80,
+        defaultRange: 420,
+    },
+    'BMW': {
+        models: ['i4', 'iX1', 'iX', 'i7', 'i5'],
+        defaultBattery: 83.9,
+        defaultDcRate: 205,
+        defaultRange: 490,
+    },
+    'Mercedes-Benz': {
+        models: ['EQB', 'EQE', 'EQS', 'EQA'],
+        defaultBattery: 70.5,
+        defaultDcRate: 100,
+        defaultRange: 425,
+    },
+    'Audi': {
+        models: ['Q8 e-tron', 'e-tron GT', 'Q4 e-tron'],
+        defaultBattery: 95,
+        defaultDcRate: 170,
+        defaultRange: 440,
+    },
+    'Volvo': {
+        models: ['XC40 Recharge', 'C40 Recharge', 'EX30', 'EX90'],
+        defaultBattery: 78,
+        defaultDcRate: 150,
+        defaultRange: 418,
+    },
+    'Tesla': {
+        models: ['Model 3', 'Model Y', 'Model S', 'Model X'],
+        defaultBattery: 75,
+        defaultDcRate: 250,
+        defaultRange: 500,
+    },
+    'Porsche': {
+        models: ['Taycan', 'Macan EV'],
+        defaultBattery: 93.4,
+        defaultDcRate: 270,
+        defaultRange: 450,
+    },
+    'Other': {
+        models: ['Custom EV Model'],
+        defaultBattery: 50,
+        defaultDcRate: 60,
+        defaultRange: 300,
+    },
+};
 
 const CONNECTOR_OPTIONS: ConnectorStandard[] = ['CCS2', 'Type 2', 'CHAdeMO', 'GB/T'];
 
@@ -70,45 +153,75 @@ export default function EditProfileScreen() {
         vehicles.find((v) => v.id === activeVehicleId) ?? selectedVehicle ?? vehicles[0];
 
     // Vehicle Form State
-    const [vehicleNickname, setVehicleNickname] = useState(currentVehicle?.nickname ?? '');
-    const [vehicleMake, setVehicleMake] = useState(currentVehicle?.make ?? '');
-    const [vehicleModel, setVehicleModel] = useState(currentVehicle?.model ?? '');
-    const [vehicleYear, setVehicleYear] = useState(currentVehicle?.year ?? '2024');
+    const [vehicleMake, setVehicleMake] = useState(currentVehicle?.make || 'Tata');
+    const [vehicleModel, setVehicleModel] = useState(currentVehicle?.model || 'Nexon.ev');
     const [vehicleRegNo, setVehicleRegNo] = useState(currentVehicle?.registrationNumber ?? '');
-    const [batteryCapacity, setBatteryCapacity] = useState(
-        currentVehicle ? String(currentVehicle.batteryCapacity) : '60'
+    const [isTempReg, setIsTempReg] = useState(
+        currentVehicle?.registrationNumber?.startsWith('TR-') ||
+        currentVehicle?.registrationNumber?.startsWith('TEMP-') ||
+        false
     );
-    const [currentBattery, setCurrentBattery] = useState(
-        currentVehicle ? String(currentVehicle.currentBattery) : '75'
+    const [batteryCapacity, setBatteryCapacity] = useState(
+        currentVehicle ? String(currentVehicle.batteryCapacity) : '45'
     );
     const [estRangeKm, setEstRangeKm] = useState(
-        currentVehicle ? String(currentVehicle.estRangeKm) : '250'
+        currentVehicle ? String(currentVehicle.estRangeKm) : '320'
     );
     const [maxDcRateKw, setMaxDcRateKw] = useState(
-        currentVehicle ? String(currentVehicle.maxDcRateKw) : '150'
+        currentVehicle ? String(currentVehicle.maxDcRateKw) : '60'
     );
     const [connectorType, setConnectorType] = useState<ConnectorStandard>(
         currentVehicle?.connectorType ?? 'CCS2'
     );
-    const [autochargeEnabled, setAutochargeEnabled] = useState(
-        currentVehicle?.autochargeEnabled ?? true
+    const [makeModalVisible, setMakeModalVisible] = useState(false);
+    const [modelModalVisible, setModelModalVisible] = useState(false);
+
+    // Derived list of makes and models for selected make
+    const availableMakes = Array.from(new Set([...Object.keys(EV_CATALOG), vehicleMake].filter(Boolean)));
+    const modelsForSelectedMake = Array.from(
+        new Set([
+            ...(EV_CATALOG[vehicleMake]?.models ?? []),
+            vehicleModel,
+        ].filter(Boolean))
     );
 
     // Load vehicle details into form when active vehicle selection changes
     const loadVehicleIntoForm = (v: Vehicle) => {
         setActiveVehicleId(v.id);
         selectVehicle(v.id);
-        setVehicleNickname(v.nickname);
         setVehicleMake(v.make);
         setVehicleModel(v.model);
-        setVehicleYear(v.year);
         setVehicleRegNo(v.registrationNumber);
+        setIsTempReg(v.registrationNumber.startsWith('TR-') || v.registrationNumber.startsWith('TEMP-'));
         setBatteryCapacity(String(v.batteryCapacity));
-        setCurrentBattery(String(v.currentBattery));
         setEstRangeKm(String(v.estRangeKm));
         setMaxDcRateKw(String(v.maxDcRateKw));
         setConnectorType(v.connectorType);
-        setAutochargeEnabled(v.autochargeEnabled);
+    };
+
+    const handleSelectMake = (make: string) => {
+        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setVehicleMake(make);
+        const catalogEntry = EV_CATALOG[make];
+        const models = catalogEntry ? catalogEntry.models : ['Custom EV Model'];
+        setVehicleModel(models[0] || 'Custom EV Model');
+        if (catalogEntry) {
+            setBatteryCapacity(String(catalogEntry.defaultBattery));
+            setMaxDcRateKw(String(catalogEntry.defaultDcRate));
+            setEstRangeKm(String(catalogEntry.defaultRange));
+        }
+        setMakeModalVisible(false);
+    };
+
+    const handleSelectModel = (model: string) => {
+        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setVehicleModel(model);
+        setModelModalVisible(false);
+    };
+
+    const handleToggleTempReg = () => {
+        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setIsTempReg(!isTempReg);
     };
 
     const handleAddNewVehicle = () => {
@@ -117,7 +230,7 @@ export default function EditProfileScreen() {
         const newId = String(Date.now());
         const newVehicle: Vehicle = {
             id: newId,
-            nickname: 'My New EV',
+            nickname: 'Tata Punch.ev',
             make: 'Tata',
             model: 'Punch.ev',
             year: '2025',
@@ -146,7 +259,7 @@ export default function EditProfileScreen() {
 
         Alert.alert(
             'Remove Vehicle',
-            `Are you sure you want to remove "${currentVehicle?.nickname || currentVehicle?.model}" from your profile?`,
+            `Are you sure you want to remove "${currentVehicle?.make} ${currentVehicle?.model}" from your profile?`,
             [
                 { text: 'Cancel', style: 'cancel' },
                 {
@@ -186,19 +299,16 @@ export default function EditProfileScreen() {
         // 2. Update Active Vehicle Details
         if (activeVehicleId) {
             updateVehicle(activeVehicleId, {
-                nickname: vehicleNickname.trim() || `${vehicleMake.trim()} ${vehicleModel.trim()}`,
+                nickname: `${vehicleMake.trim()} ${vehicleModel.trim()}`,
                 make: vehicleMake.trim() || 'EV',
                 model: vehicleModel.trim() || 'Car',
-                year: vehicleYear.trim() || '2024',
-                registrationNumber: vehicleRegNo.trim().toUpperCase() || 'KA 01 EV 0001',
+                registrationNumber: vehicleRegNo.trim().toUpperCase() || (isTempReg ? 'TR-KA-01-XXXX' : 'KA 01 EV 0001'),
                 batteryCapacity: parseFloat(batteryCapacity) || 60,
-                currentBattery: Math.min(100, Math.max(0, parseInt(currentBattery, 10) || 75)),
                 estRangeKm:
                     parseInt(estRangeKm, 10) ||
                     Math.round((parseFloat(batteryCapacity) || 60) * 4.2),
                 maxDcRateKw: parseFloat(maxDcRateKw) || 120,
                 connectorType,
-                autochargeEnabled,
             });
         }
 
@@ -507,7 +617,7 @@ export default function EditProfileScreen() {
                                                     fontFamily: FONT_FAMILIES.bold,
                                                 }}
                                             >
-                                                {v.nickname || `${v.make} ${v.model}`}
+                                                {v.make} {v.model}
                                             </ThemedText>
                                         </TouchableOpacity>
                                     );
@@ -515,9 +625,65 @@ export default function EditProfileScreen() {
                             </View>
                         </ScrollView>
 
+                        {/* Make & Model Dependent Dropdowns */}
+                        <View style={styles.rowTwoCols}>
+                            <View style={[styles.fieldGroup, { flex: 1 }]}>
+                                <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
+                                    MAKE / BRAND
+                                </ThemedText>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.dropdownTrigger,
+                                        {
+                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                        },
+                                    ]}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setMakeModalVisible(true);
+                                    }}
+                                    activeOpacity={0.8}
+                                >
+                                    <ThemedText style={[styles.dropdownValue, { color: colors.text }]} numberOfLines={1}>
+                                        {vehicleMake || 'Select Make'}
+                                    </ThemedText>
+                                    <ChevronDown size={15} color={colors.textMuted} />
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={[styles.fieldGroup, { flex: 1 }]}>
+                                <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
+                                    MODEL
+                                </ThemedText>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.dropdownTrigger,
+                                        {
+                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                        },
+                                    ]}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setModelModalVisible(true);
+                                    }}
+                                    activeOpacity={0.8}
+                                >
+                                    <ThemedText style={[styles.dropdownValue, { color: colors.text }]} numberOfLines={1}>
+                                        {vehicleModel || 'Select Model'}
+                                    </ThemedText>
+                                    <ChevronDown size={15} color={colors.textMuted} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        {/* Registration Number - Long Text Box with Temporary Checkbox below */}
                         <View style={styles.fieldGroup}>
                             <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
-                                VEHICLE NICKNAME
+                                {isTempReg ? 'TEMPORARY REGISTRATION NUMBER (TR)' : 'REGISTRATION NUMBER'}
                             </ThemedText>
                             <TextInput
                                 style={[
@@ -529,101 +695,39 @@ export default function EditProfileScreen() {
                                         borderBottomColor: isDark ? '#050508' : '#D0D0D5',
                                     },
                                 ]}
-                                value={vehicleNickname}
-                                onChangeText={setVehicleNickname}
-                                placeholder="e.g. Daily Sprint, City Commuter"
+                                value={vehicleRegNo}
+                                onChangeText={setVehicleRegNo}
+                                placeholder={isTempReg ? 'e.g. TR-2024-KA-01-XXXX' : 'e.g. KA 01 EQ 1234'}
                                 placeholderTextColor={colors.textMuted}
+                                autoCapitalize="characters"
                             />
+
+                            {/* Checkbox below Registration */}
+                            <TouchableOpacity
+                                style={styles.checkboxRow}
+                                onPress={handleToggleTempReg}
+                                activeOpacity={0.8}
+                            >
+                                <View
+                                    style={[
+                                        styles.checkboxBox,
+                                        isTempReg
+                                            ? { backgroundColor: colors.primary, borderColor: colors.primary }
+                                            : {
+                                                  backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.20)',
+                                              },
+                                    ]}
+                                >
+                                    {isTempReg && <Check size={12} color="#000000" strokeWidth={3.5} />}
+                                </View>
+                                <ThemedText style={[styles.checkboxLabel, { color: isTempReg ? colors.text : colors.textMuted }]}>
+                                    This vehicle has a temporary registration number (TR)
+                                </ThemedText>
+                            </TouchableOpacity>
                         </View>
 
-                        <View style={styles.rowTwoCols}>
-                            <View style={[styles.fieldGroup, { flex: 1 }]}>
-                                <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
-                                    MAKE / BRAND
-                                </ThemedText>
-                                <TextInput
-                                    style={[
-                                        styles.textInput,
-                                        {
-                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
-                                        },
-                                    ]}
-                                    value={vehicleMake}
-                                    onChangeText={setVehicleMake}
-                                    placeholder="e.g. Hyundai, Tata"
-                                    placeholderTextColor={colors.textMuted}
-                                />
-                            </View>
-                            <View style={[styles.fieldGroup, { flex: 1 }]}>
-                                <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
-                                    MODEL
-                                </ThemedText>
-                                <TextInput
-                                    style={[
-                                        styles.textInput,
-                                        {
-                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
-                                        },
-                                    ]}
-                                    value={vehicleModel}
-                                    onChangeText={setVehicleModel}
-                                    placeholder="e.g. IONIQ 5, Nexon EV"
-                                    placeholderTextColor={colors.textMuted}
-                                />
-                            </View>
-                        </View>
-
-                        <View style={styles.rowTwoCols}>
-                            <View style={[styles.fieldGroup, { flex: 1 }]}>
-                                <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
-                                    YEAR
-                                </ThemedText>
-                                <TextInput
-                                    style={[
-                                        styles.textInput,
-                                        {
-                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
-                                        },
-                                    ]}
-                                    value={vehicleYear}
-                                    onChangeText={setVehicleYear}
-                                    placeholder="e.g. 2024"
-                                    placeholderTextColor={colors.textMuted}
-                                    keyboardType="numeric"
-                                />
-                            </View>
-                            <View style={[styles.fieldGroup, { flex: 1.4 }]}>
-                                <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
-                                    REGISTRATION / PLATE
-                                </ThemedText>
-                                <TextInput
-                                    style={[
-                                        styles.textInput,
-                                        {
-                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
-                                        },
-                                    ]}
-                                    value={vehicleRegNo}
-                                    onChangeText={setVehicleRegNo}
-                                    placeholder="e.g. TN 38 BZ 9021"
-                                    placeholderTextColor={colors.textMuted}
-                                    autoCapitalize="characters"
-                                />
-                            </View>
-                        </View>
-
+                        {/* Battery Capacity & Max DC Rate */}
                         <View style={styles.rowTwoCols}>
                             <View style={[styles.fieldGroup, { flex: 1 }]}>
                                 <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
@@ -669,52 +773,30 @@ export default function EditProfileScreen() {
                             </View>
                         </View>
 
-                        <View style={styles.rowTwoCols}>
-                            <View style={[styles.fieldGroup, { flex: 1 }]}>
-                                <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
-                                    CURRENT SoC (%)
-                                </ThemedText>
-                                <TextInput
-                                    style={[
-                                        styles.textInput,
-                                        {
-                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
-                                        },
-                                    ]}
-                                    value={currentBattery}
-                                    onChangeText={setCurrentBattery}
-                                    placeholder="e.g. 58"
-                                    placeholderTextColor={colors.textMuted}
-                                    keyboardType="numeric"
-                                    maxLength={3}
-                                />
-                            </View>
-                            <View style={[styles.fieldGroup, { flex: 1 }]}>
-                                <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
-                                    EST. RANGE (km)
-                                </ThemedText>
-                                <TextInput
-                                    style={[
-                                        styles.textInput,
-                                        {
-                                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
-                                        },
-                                    ]}
-                                    value={estRangeKm}
-                                    onChangeText={setEstRangeKm}
-                                    placeholder="e.g. 270"
-                                    placeholderTextColor={colors.textMuted}
-                                    keyboardType="numeric"
-                                />
-                            </View>
+                        {/* Est. Range (km) */}
+                        <View style={styles.fieldGroup}>
+                            <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
+                                EST. FULL RANGE (km)
+                            </ThemedText>
+                            <TextInput
+                                style={[
+                                    styles.textInput,
+                                    {
+                                        backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                        color: colors.text,
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                    },
+                                ]}
+                                value={estRangeKm}
+                                onChangeText={setEstRangeKm}
+                                placeholder="e.g. 320"
+                                placeholderTextColor={colors.textMuted}
+                                keyboardType="numeric"
+                            />
                         </View>
 
+                        {/* Connector Standard */}
                         <View style={styles.fieldGroup}>
                             <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
                                 CHARGING CONNECTOR STANDARD
@@ -758,23 +840,6 @@ export default function EditProfileScreen() {
                             </View>
                         </View>
 
-                        <View style={styles.switchRow}>
-                            <View style={{ flex: 1, paddingRight: 10 }}>
-                                <ThemedText style={{ fontSize: 13, fontFamily: FONT_FAMILIES.bold, color: colors.text }}>
-                                    Autocharge / Plug & Charge
-                                </ThemedText>
-                                <ThemedText style={{ fontSize: 11, color: colors.textMuted }}>
-                                    Automatically start session on Iris network chargers without manual app trigger.
-                                </ThemedText>
-                            </View>
-                            <Switch
-                                value={autochargeEnabled}
-                                onValueChange={setAutochargeEnabled}
-                                trackColor={{ false: colors.surfaceMuted, true: '#10B981' }}
-                                thumbColor="#FFFFFF"
-                            />
-                        </View>
-
                         {vehicles.length > 1 && (
                             <TouchableOpacity
                                 style={styles.deleteVehicleBtn}
@@ -808,6 +873,130 @@ export default function EditProfileScreen() {
                     />
                 </View>
             </ScrollView>
+
+            {/* Modal for Selecting Make */}
+            <Modal
+                visible={makeModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setMakeModalVisible(false)}
+            >
+                <View style={styles.modalBackdrop}>
+                    <TouchableOpacity
+                        style={StyleSheet.absoluteFill}
+                        activeOpacity={1}
+                        onPress={() => setMakeModalVisible(false)}
+                    />
+                    <CredCard variant="default" style={styles.modalCard}>
+                        <View style={styles.modalHeader}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <CarFront size={18} color={colors.primary} />
+                                <ThemedText style={FONTS.h3}>Select EV Make</ThemedText>
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => setMakeModalVisible(false)}
+                                style={styles.modalCloseBtn}
+                            >
+                                <X size={18} color={colors.textMuted} />
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView style={{ maxHeight: 340 }}>
+                            {availableMakes.map((make) => {
+                                const isSelected = vehicleMake === make;
+                                return (
+                                    <TouchableOpacity
+                                        key={make}
+                                        style={[
+                                            styles.modalItemRow,
+                                            {
+                                                backgroundColor: isSelected
+                                                    ? (isDark ? '#22222A' : '#E8E8EC')
+                                                    : 'transparent',
+                                                borderColor: colors.surfaceMuted,
+                                            },
+                                        ]}
+                                        onPress={() => handleSelectMake(make)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <ThemedText
+                                            style={{
+                                                fontSize: 14,
+                                                fontFamily: isSelected ? FONT_FAMILIES.bold : FONT_FAMILIES.medium,
+                                                color: isSelected ? colors.primary : colors.text,
+                                            }}
+                                        >
+                                            {make}
+                                        </ThemedText>
+                                        {isSelected && <Check size={16} color={colors.primary} strokeWidth={2.5} />}
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </ScrollView>
+                    </CredCard>
+                </View>
+            </Modal>
+
+            {/* Modal for Selecting Model */}
+            <Modal
+                visible={modelModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setModelModalVisible(false)}
+            >
+                <View style={styles.modalBackdrop}>
+                    <TouchableOpacity
+                        style={StyleSheet.absoluteFill}
+                        activeOpacity={1}
+                        onPress={() => setModelModalVisible(false)}
+                    />
+                    <CredCard variant="default" style={styles.modalCard}>
+                        <View style={styles.modalHeader}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <Car size={18} color={colors.primary} />
+                                <ThemedText style={FONTS.h3}>{vehicleMake} Models</ThemedText>
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => setModelModalVisible(false)}
+                                style={styles.modalCloseBtn}
+                            >
+                                <X size={18} color={colors.textMuted} />
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView style={{ maxHeight: 340 }}>
+                            {modelsForSelectedMake.map((m) => {
+                                const isSelected = vehicleModel === m;
+                                return (
+                                    <TouchableOpacity
+                                        key={m}
+                                        style={[
+                                            styles.modalItemRow,
+                                            {
+                                                backgroundColor: isSelected
+                                                    ? (isDark ? '#22222A' : '#E8E8EC')
+                                                    : 'transparent',
+                                                borderColor: colors.surfaceMuted,
+                                            },
+                                        ]}
+                                        onPress={() => handleSelectModel(m)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <ThemedText
+                                            style={{
+                                                fontSize: 14,
+                                                fontFamily: isSelected ? FONT_FAMILIES.bold : FONT_FAMILIES.medium,
+                                                color: isSelected ? colors.primary : colors.text,
+                                            }}
+                                        >
+                                            {m}
+                                        </ThemedText>
+                                        {isSelected && <Check size={16} color={colors.primary} strokeWidth={2.5} />}
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </ScrollView>
+                    </CredCard>
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 }
@@ -924,12 +1113,40 @@ const styles = StyleSheet.create({
         borderBottomWidth: 3,
         borderBottomColor: '#222228',
     },
-    switchRow: {
+    dropdownTrigger: {
+        height: 48,
+        borderRadius: RADIUS.input,
+        paddingHorizontal: 14,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: 8,
-        paddingBottom: 4,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
+    },
+    dropdownValue: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.bold,
+        flex: 1,
+        marginRight: 6,
+    },
+    checkboxRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
+        gap: 8,
+    },
+    checkboxBox: {
+        width: 20,
+        height: 20,
+        borderRadius: 4,
+        borderWidth: 1.5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    checkboxLabel: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.medium,
+        flex: 1,
     },
     deleteVehicleBtn: {
         flexDirection: 'row',
@@ -948,5 +1165,41 @@ const styles = StyleSheet.create({
         gap: 12,
         marginTop: 12,
         marginBottom: 36,
+    },
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: SPACING.md,
+    },
+    modalCard: {
+        width: '100%',
+        maxWidth: 400,
+        padding: SPACING.md,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingBottom: 12,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+        marginBottom: 8,
+    },
+    modalCloseBtn: {
+        width: 32,
+        height: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalItemRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        borderRadius: RADIUS.card,
+        marginBottom: 4,
     },
 });
