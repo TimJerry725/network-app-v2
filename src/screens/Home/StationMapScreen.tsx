@@ -92,11 +92,22 @@ const filterOptions = [
     { id: 'Amenities', label: 'Amenities', icon: 'mug-hot' },
 ];
 
+export const FILTER_CHIP_COLORS: Record<string, { color: string }> = {
+    Fastest: { color: '#FF5B45' },
+    Cheapest: { color: '#F59E0B' },
+    Available: { color: '#10B981' },
+    '24/7': { color: '#0284C7' },
+    Amenities: { color: '#5B61F6' },
+};
+
 function getFilterIcon(id: string, isActive: boolean, isDark: boolean) {
-    const iconColor = isActive ? (isDark ? '#0D0E13' : '#FFFFFF') : (isDark ? '#E5E5EA' : '#48484A');
+    const config = FILTER_CHIP_COLORS[id] || { color: '#FF5B45' };
+    const iconColor = isActive ? '#FFFFFF' : config.color;
     switch (id) {
         case 'Fastest':
-            return <Zap size={13} color={iconColor} fill={isActive ? iconColor : 'none'} style={{ marginRight: 6 }} />;
+            return <Zap size={13} color={iconColor} fill={isActive ? '#FFFFFF' : 'none'} style={{ marginRight: 6 }} />;
+        case 'Cheapest':
+            return <Zap size={13} color={iconColor} style={{ marginRight: 6 }} />;
         case 'Available':
             return <CircleCheck size={13} color={iconColor} style={{ marginRight: 6 }} />;
         case '24/7':
@@ -1105,6 +1116,7 @@ export default function StationMapScreen({ navigation }: any) {
                     >
                         {filterOptions.map((filter) => {
                             const isActive = activeFilter === filter.id;
+                            const chipTheme = FILTER_CHIP_COLORS[filter.id] || { color: '#FF5B45' };
 
                             return (
                                 <TouchableOpacity
@@ -1114,12 +1126,12 @@ export default function StationMapScreen({ navigation }: any) {
                                         styles.filterChip,
                                         isActive
                                             ? {
-                                                  backgroundColor: isDark ? '#FFFFFF' : '#0D0E13',
-                                                  borderColor: isDark ? '#FFFFFF' : '#0D0E13',
+                                                  backgroundColor: chipTheme.color,
+                                                  borderColor: chipTheme.color,
                                               }
                                             : {
                                                   backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
                                               },
                                     ]}
                                     onPress={() => {
@@ -1132,7 +1144,7 @@ export default function StationMapScreen({ navigation }: any) {
                                     {getFilterIcon(filter.id, isActive, isDark)}
                                     <ThemedText
                                         style={{
-                                            color: isActive ? (isDark ? '#0D0E13' : '#FFFFFF') : colors.text,
+                                            color: isActive ? '#FFFFFF' : colors.text,
                                             fontSize: 12,
                                             fontFamily: FONT_FAMILIES.bold,
                                         }}
@@ -1152,12 +1164,14 @@ export default function StationMapScreen({ navigation }: any) {
                                 styles.walletHeaderPill,
                                 {
                                     backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
                                 },
                             ]}
                             onPress={() => navigation.navigate('Profile' as never)}
                         >
-                            <Wallet size={13} color={colors.amber} />
+                            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(245, 158, 11, 0.18)', alignItems: 'center', justifyContent: 'center' }}>
+                                <Wallet size={12} color="#F59E0B" />
+                            </View>
                             <ThemedText style={[styles.walletHeaderText, { color: colors.text }]}>
                                 ₹{user.walletBalance.toFixed(0)}
                             </ThemedText>

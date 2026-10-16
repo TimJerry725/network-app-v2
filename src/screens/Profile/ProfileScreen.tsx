@@ -63,8 +63,7 @@ export default function ProfileScreen() {
                         styles.backButton,
                         {
                             backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
                         },
                     ]}
                     activeOpacity={0.8}
@@ -76,11 +75,11 @@ export default function ProfileScreen() {
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                {/* User Card */}
+                {/* User & EV Unified Card */}
                 <CredCard variant="default" style={styles.profileCard}>
                     <View style={styles.userTopRow}>
-                        <View style={[styles.avatar, { backgroundColor: colors.primarySoft }]}>
-                            <User size={28} color={colors.primary} />
+                        <View style={[styles.avatar, { backgroundColor: 'rgba(255, 91, 69, 0.16)' }]}>
+                            <User size={26} color="#FF5B45" />
                         </View>
                         <View style={styles.userInfo}>
                             <View style={styles.userHeaderRow}>
@@ -89,9 +88,8 @@ export default function ProfileScreen() {
                                     style={[
                                         styles.editPillBtn,
                                         {
-                                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                            backgroundColor: isDark ? 'rgba(255, 91, 69, 0.14)' : '#FFEAE6',
+                                            borderColor: 'rgba(255, 91, 69, 0.25)',
                                         },
                                     ]}
                                     activeOpacity={0.8}
@@ -100,8 +98,8 @@ export default function ProfileScreen() {
                                         navigation.navigate('EditProfile', { tab: 'profile' });
                                     }}
                                 >
-                                    <Pencil size={11} color={colors.text} style={{ marginRight: 4 }} />
-                                    <ThemedText style={[styles.editPillText, { color: colors.text }]}>EDIT</ThemedText>
+                                    <Pencil size={11} color="#FF5B45" style={{ marginRight: 4 }} />
+                                    <ThemedText style={[styles.editPillText, { color: '#FF5B45' }]}>EDIT</ThemedText>
                                 </TouchableOpacity>
                             </View>
                             <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>
@@ -113,24 +111,24 @@ export default function ProfileScreen() {
                         </View>
                     </View>
 
-                    <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
+                    <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
                     <View style={styles.rfidRow}>
-                        <Shield size={15} color={colors.primary} />
+                        <Shield size={15} color="#5B61F6" />
                         <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                            RFID:
+                            RFID Card:
                         </ThemedText>
-                        <ThemedText style={[FONTS.caption, { fontWeight: '700' }]}>
+                        <ThemedText style={[FONTS.caption, { fontWeight: '700', color: colors.text }]}>
                             {user.rfidTag}
                         </ThemedText>
                     </View>
 
-                    <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
+                    <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
                     {/* Active Vehicle Details Section */}
                     <View style={styles.vehicleTitleRow}>
-                        <View style={[styles.vehicleIconCircle, { backgroundColor: colors.primarySoft }]}>
-                            <CarFront size={22} color={colors.primary} />
+                        <View style={[styles.vehicleIconCircle, { backgroundColor: 'rgba(91, 97, 246, 0.14)' }]}>
+                            <CarFront size={22} color="#5B61F6" />
                         </View>
                         <View style={{ flex: 1 }}>
                             <ThemedText style={FONTS.h3} numberOfLines={1}>
@@ -148,16 +146,14 @@ export default function ProfileScreen() {
 
                     {activeVehicle && (
                         <>
-                            <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
-
-                            {/* 3 Telemetry Metrics: Capacity, Est. Range, Max DC Speed */}
+                            {/* 3 Colorful Telemetry Pods */}
                             <View style={styles.vehicleMetricsRow}>
-                                <View style={styles.vehicleMetricItem}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(91, 97, 246, 0.10)' : '#EEF0FF' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Zap size={13} color={colors.primary} />
-                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>CAPACITY</ThemedText>
+                                        <Zap size={12} color="#5B61F6" />
+                                        <ThemedText style={[FONTS.caption, { color: '#5B61F6', fontSize: 10, fontWeight: '700' }]}>CAPACITY</ThemedText>
                                     </View>
-                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 4, fontSize: 16 }]}>
                                         {activeVehicle.batteryCapacity} kWh
                                     </ThemedText>
                                     <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
@@ -165,12 +161,12 @@ export default function ProfileScreen() {
                                     </ThemedText>
                                 </View>
 
-                                <View style={styles.vehicleMetricItem}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.10)' : '#ECFDF5' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <BatteryCharging size={13} color="#10B981" />
-                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>EST. RANGE</ThemedText>
+                                        <BatteryCharging size={12} color="#10B981" />
+                                        <ThemedText style={[FONTS.caption, { color: '#10B981', fontSize: 10, fontWeight: '700' }]}>EST. RANGE</ThemedText>
                                     </View>
-                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 4, fontSize: 16 }]}>
                                         ~{activeVehicle.estRangeKm} km
                                     </ThemedText>
                                     <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
@@ -178,16 +174,16 @@ export default function ProfileScreen() {
                                     </ThemedText>
                                 </View>
 
-                                <View style={styles.vehicleMetricItem}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.10)' : '#FEF3C7' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Zap size={13} color="#F59E0B" />
-                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>MAX SPEED</ThemedText>
+                                        <Zap size={12} color="#F59E0B" />
+                                        <ThemedText style={[FONTS.caption, { color: '#F59E0B', fontSize: 10, fontWeight: '700' }]}>MAX DC</ThemedText>
                                     </View>
-                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 4, fontSize: 16 }]}>
                                         {activeVehicle.maxDcRateKw} kW
                                     </ThemedText>
                                     <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
-                                        DC Fast
+                                        Fast Charge
                                     </ThemedText>
                                 </View>
                             </View>
@@ -196,18 +192,20 @@ export default function ProfileScreen() {
                 </CredCard>
 
                 {/* Iris EV Wallet Balance Card */}
-                <CredCard variant="recessed" style={styles.walletCard}>
+                <CredCard variant="default" style={styles.walletCard}>
                     <View style={styles.walletHeader}>
                         <View style={styles.walletTitleRow}>
-                            <Wallet size={20} color={colors.primary} />
+                            <View style={[styles.walletIconPod, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
+                                <Wallet size={18} color="#F59E0B" />
+                            </View>
                             <ThemedText style={FONTS.h3}>Iris EV Wallet</ThemedText>
                         </View>
-                        <ThemedText style={[FONTS.h1, { color: colors.primary }]}>
+                        <ThemedText style={[FONTS.h1, { color: '#F59E0B' }]}>
                             ₹{user.walletBalance.toFixed(2)}
                         </ThemedText>
                     </View>
                     <ThemedText style={{ color: colors.textMuted, ...FONTS.caption, marginTop: 4 }}>
-                        Instant one-tap payment authorization for fast charging hubs.
+                        Instant one-tap payment authorization across all network hubs.
                     </ThemedText>
 
                     {/* Custom Recharge Amount Input Field */}
@@ -219,12 +217,12 @@ export default function ProfileScreen() {
                             style={[
                                 styles.inputBox,
                                 {
-                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
+                                    backgroundColor: isDark ? '#1C1D26' : '#F3F4F8',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
                         >
-                            <ThemedText style={[styles.currencyPrefix, { color: colors.primary }]}>
+                            <ThemedText style={[styles.currencyPrefix, { color: '#FF5B45' }]}>
                                 ₹
                             </ThemedText>
                             <TextInput
@@ -264,18 +262,12 @@ export default function ProfileScreen() {
                                         styles.quickTopUpPill,
                                         isSelected
                                             ? {
-                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                  borderWidth: 1.5,
-                                                  borderBottomWidth: 3,
-                                                  borderBottomColor: isDark ? '#A0A0A8' : '#222228',
+                                                  backgroundColor: '#FF5B45',
+                                                  borderColor: '#FF5B45',
                                               }
                                             : {
-                                                  backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
-                                                  borderWidth: 1,
-                                                  borderBottomWidth: 2,
-                                                  borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                                  backgroundColor: isDark ? '#1C1D26' : '#F3F4F8',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                               },
                                     ]}
                                     onPress={() => {
@@ -285,7 +277,7 @@ export default function ProfileScreen() {
                                 >
                                     <ThemedText
                                         style={{
-                                            color: isSelected ? (isDark ? '#000000' : '#FFFFFF') : colors.text,
+                                            color: isSelected ? '#FFFFFF' : colors.text,
                                             ...FONTS.caption,
                                             fontWeight: '800',
                                         }}
@@ -303,7 +295,7 @@ export default function ProfileScreen() {
                                 ? `ADD ₹${topUpAmount} TO WALLET`
                                 : 'ENTER AMOUNT TO RECHARGE'
                         }
-                        variant="neon"
+                        variant="coral"
                         containerStyle={{ marginTop: 14 }}
                         onPress={handleTopUp}
                         disabled={!topUpAmount || parseFloat(topUpAmount) <= 0}
@@ -320,9 +312,9 @@ export default function ProfileScreen() {
                     <View style={styles.row}>
                         <View style={styles.rowLeft}>
                             {theme === 'dark' ? (
-                                <Moon size={22} color={colors.primary} />
+                                <Moon size={22} color="#5B61F6" />
                             ) : (
-                                <Sun size={22} color={colors.primary} />
+                                <Sun size={22} color="#F59E0B" />
                             )}
                             <View>
                                 <ThemedText style={[styles.rowTitle, { color: colors.text }]}>
@@ -337,9 +329,9 @@ export default function ProfileScreen() {
                             style={[
                                 styles.toggleContainer,
                                 {
-                                    backgroundColor: theme === 'dark' ? colors.primary : colors.surfaceMuted,
+                                    backgroundColor: theme === 'dark' ? '#10B981' : colors.surfaceMuted,
                                     borderWidth: 1,
-                                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
                                 },
                             ]}
                             onPress={handleThemeToggle}
@@ -361,7 +353,9 @@ export default function ProfileScreen() {
                 {/* 24/7 Driver Support Card */}
                 <CredCard variant="default" style={styles.supportCard}>
                     <View style={styles.supportRow}>
-                        <PhoneCall size={20} color={colors.primary} />
+                        <View style={[styles.supportIconPod, { backgroundColor: 'rgba(56, 189, 248, 0.14)' }]}>
+                            <PhoneCall size={18} color="#38BDF8" />
+                        </View>
                         <View style={{ flex: 1 }}>
                             <ThemedText style={FONTS.bodyStrong}>24/7 CPO Driver Helpline</ThemedText>
                             <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
@@ -392,8 +386,7 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     headerTitle: {
         ...FONTS.h2,
@@ -418,11 +411,10 @@ const styles = StyleSheet.create({
     editPillBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
         borderRadius: RADIUS.pill,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     editPillText: {
         fontSize: 10,
@@ -432,7 +424,7 @@ const styles = StyleSheet.create({
     avatar: {
         width: 52,
         height: 52,
-        borderRadius: RADIUS.circle,
+        borderRadius: RADIUS.squircle ?? 24,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: SPACING.sm,
@@ -452,23 +444,26 @@ const styles = StyleSheet.create({
     vehicleTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 12,
         flex: 1,
+        marginBottom: 10,
     },
     vehicleIconCircle: {
         width: 44,
         height: 44,
-        borderRadius: RADIUS.circle,
+        borderRadius: RADIUS.squircle ?? 18,
         alignItems: 'center',
         justifyContent: 'center',
     },
     vehicleMetricsRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 4,
+        gap: 8,
+        marginTop: 6,
     },
-    vehicleMetricItem: {
+    metricPod: {
         flex: 1,
+        borderRadius: 18,
+        padding: 10,
     },
     walletCard: {
         marginBottom: SPACING.md,
@@ -481,7 +476,14 @@ const styles = StyleSheet.create({
     walletTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 10,
+    },
+    walletIconPod: {
+        width: 36,
+        height: 36,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     amountInputContainer: {
         marginTop: 14,
@@ -495,8 +497,8 @@ const styles = StyleSheet.create({
     inputBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 50,
-        borderRadius: RADIUS.input,
+        height: 52,
+        borderRadius: RADIUS.pill,
         paddingHorizontal: 16,
         borderWidth: 1,
     },
@@ -522,9 +524,17 @@ const styles = StyleSheet.create({
     },
     quickTopUpPill: {
         flex: 1,
-        paddingVertical: 8,
+        paddingVertical: 9,
         alignItems: 'center',
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
+    },
+    supportIconPod: {
+        width: 36,
+        height: 36,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     section: {
         marginBottom: SPACING.md,

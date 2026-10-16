@@ -1298,8 +1298,8 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                                             styles.addStopBtn,
                                                                             {
                                                                                 backgroundColor: isCustomAdded
-                                                                                    ? (isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7')
-                                                                                    : colors.primary,
+                                                                                    ? (isDark ? 'rgba(16, 185, 129, 0.25)' : '#DCFCE7')
+                                                                                    : '#FF5B45',
                                                                             },
                                                                         ]}
                                                                         activeOpacity={0.8}
@@ -1314,7 +1314,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                                             </>
                                                                         ) : (
                                                                             <>
-                                                                                <Plus size={13} color="#FFFFFF" />
+                                                                                <Plus size={13} color="#FFFFFF" strokeWidth={2.5} />
                                                                                 <ThemedText style={[styles.addStopBtnText, { color: '#FFFFFF' }]}>
                                                                                     Add
                                                                                 </ThemedText>

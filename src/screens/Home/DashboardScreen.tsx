@@ -68,12 +68,12 @@ function AnimatedToggleSwitch({
                 styles.toggleSwitchPod,
                 {
                     backgroundColor: active
-                        ? (isDark ? '#FFFFFF' : '#000000')
+                        ? '#10B981'
                         : isDark
-                        ? '#1C1C22'
-                        : '#E0E0DC',
+                        ? '#1C1C24'
+                        : '#E4E4EB',
                     borderColor: active
-                        ? (isDark ? '#FFFFFF' : '#000000')
+                        ? '#10B981'
                         : isDark
                         ? 'rgba(255, 255, 255, 0.12)'
                         : 'rgba(0, 0, 0, 0.1)',
@@ -84,11 +84,7 @@ function AnimatedToggleSwitch({
                 style={[
                     styles.toggleKnob,
                     {
-                        backgroundColor: active
-                            ? (isDark ? '#000000' : '#FFFFFF')
-                            : isDark
-                            ? '#7E7E84'
-                            : '#8E8E93',
+                        backgroundColor: '#FFFFFF',
                         transform: [{ translateX: knobX }],
                     },
                 ]}
@@ -98,16 +94,14 @@ function AnimatedToggleSwitch({
 }
 
 /**
- * Animated Pressable Station Card Button
+ * Animated Pressable Station Card Button - Minimal Coral Pill
  */
 function StationChargeButton({ onPress }: { onPress: () => void }) {
-    const { isDark } = useAppTheme();
-    const depth = 3;
-    const pressAnim = useRef(new Animated.Value(0)).current;
+    const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const handlePressIn = () => {
-        Animated.spring(pressAnim, {
-            toValue: depth,
+        Animated.spring(scaleAnim, {
+            toValue: 0.93,
             tension: 400,
             friction: 14,
             useNativeDriver: true,
@@ -115,8 +109,8 @@ function StationChargeButton({ onPress }: { onPress: () => void }) {
     };
 
     const handlePressOut = () => {
-        Animated.spring(pressAnim, {
-            toValue: 0,
+        Animated.spring(scaleAnim, {
+            toValue: 1,
             tension: 300,
             friction: 10,
             useNativeDriver: true,
@@ -125,70 +119,26 @@ function StationChargeButton({ onPress }: { onPress: () => void }) {
 
     const handlePress = () => {
         if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
         onPress();
     };
 
-    const btnBg = isDark ? '#FFFFFF' : '#000000';
-    const textColor = isDark ? '#000000' : '#FFFFFF';
-    const borderColor = isDark ? '#FFFFFF' : '#000000';
-
     return (
-        <View style={styles.stationChargeBtnContainer}>
-            {/* 3D Extruded Shadow Slab Base */}
-            <View
-                style={[
-                    styles.stationChargeBtnShadow,
-                    {
-                        top: depth,
-                        left: depth,
-                        backgroundColor: '#000000',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.4)' : '#000000',
-                        borderWidth: 1.5,
-                    },
-                ]}
-            />
-
-            {/* Elevated Button Face */}
-            <Animated.View
-                style={{
-                    marginRight: depth,
-                    marginBottom: depth,
-                    transform: [
-                        { translateX: pressAnim },
-                        { translateY: pressAnim },
-                    ],
-                }}
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            <TouchableOpacity
+                style={styles.stationChargeBtn}
+                activeOpacity={0.85}
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
+                onPress={handlePress}
             >
-                <TouchableOpacity
-                    style={[
-                        styles.stationChargeBtn,
-                        {
-                            backgroundColor: btnBg,
-                            borderColor: borderColor,
-                            borderWidth: 1.5,
-                        },
-                    ]}
-                    activeOpacity={1}
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                    onPress={handlePress}
-                >
-                    <ThemedText
-                        style={[
-                            styles.stationChargeBtnText,
-                            {
-                                color: textColor,
-                            },
-                        ]}
-                    >
-                        CHARGE NOW
-                    </ThemedText>
-                    <ArrowRight size={13} color={textColor} strokeWidth={2.8} />
-                </TouchableOpacity>
-            </Animated.View>
-        </View>
+                <ThemedText style={styles.stationChargeBtnText}>
+                    CHARGE NOW
+                </ThemedText>
+                <ArrowRight size={13} color="#FFFFFF" strokeWidth={2.8} />
+            </TouchableOpacity>
+        </Animated.View>
     );
 }
 
@@ -359,7 +309,7 @@ export default function DashboardScreen({ navigation }: any) {
                         </View>
                     </View>
 
-                    {/* Concentric Double-Rail Battery Gauge in Stark Monochrome */}
+                    {/* Concentric Double-Rail Battery Gauge in Dynamic Color */}
                     <View
                         style={[
                             styles.batteryRailOuter,
@@ -371,7 +321,12 @@ export default function DashboardScreen({ navigation }: any) {
                                 styles.batteryRailInner,
                                 {
                                     width: `${selectedVehicle?.currentBattery ?? 62}%`,
-                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                    backgroundColor:
+                                        (selectedVehicle?.currentBattery ?? 62) > 40
+                                            ? '#10B981'
+                                            : (selectedVehicle?.currentBattery ?? 62) > 20
+                                            ? '#F59E0B'
+                                            : '#FF5B45',
                                 },
                             ]}
                         >
@@ -384,7 +339,7 @@ export default function DashboardScreen({ navigation }: any) {
                     <View style={styles.heroCtaWrap}>
                         <CredButton
                             title="START CHARGE"
-                            variant="neon"
+                            variant="coral"
                             onPress={() =>
                                 navigation.navigate('ChargingSession', {
                                     stationId: featuredStation.id,
@@ -395,20 +350,22 @@ export default function DashboardScreen({ navigation }: any) {
                     </View>
                 </CredCard>
 
-                {/* ── 3D Hardware Telemetry Pods (Stark Monochrome) ── */}
+                {/* ── Telemetry Pods with Vibrant Accents ── */}
                 <View style={styles.statsRow}>
                     <View
                         style={[
                             styles.tactileStatPod,
                             {
-                                backgroundColor: colors.surface,
-                                borderColor: colors.cardBorder,
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <Cpu size={16} color={colors.text} />
-                            <ThemedText style={[styles.podBadgeLabel, { color: colors.text }]}>
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.16)' : '#ECFDF5' }]}>
+                                <Cpu size={14} color="#10B981" />
+                            </View>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#10B981' }]}>
                                 HEALTH
                             </ThemedText>
                         </View>
@@ -422,14 +379,16 @@ export default function DashboardScreen({ navigation }: any) {
                         style={[
                             styles.tactileStatPod,
                             {
-                                backgroundColor: colors.surface,
-                                borderColor: colors.cardBorder,
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <Gauge size={16} color={colors.text} />
-                            <ThemedText style={[styles.podBadgeLabel, { color: colors.text }]}>
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(2, 132, 199, 0.16)' : '#E0F2FE' }]}>
+                                <Gauge size={14} color="#0284C7" />
+                            </View>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#0284C7' }]}>
                                 EFFICIENCY
                             </ThemedText>
                         </View>
@@ -443,14 +402,16 @@ export default function DashboardScreen({ navigation }: any) {
                         style={[
                             styles.tactileStatPod,
                             {
-                                backgroundColor: colors.surface,
-                                borderColor: colors.cardBorder,
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <Zap size={16} color={colors.text} />
-                            <ThemedText style={[styles.podBadgeLabel, { color: colors.text }]}>
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.16)' : '#FEF3C7' }]}>
+                                <Zap size={14} color="#F59E0B" fill="#F59E0B" />
+                            </View>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#F59E0B' }]}>
                                 TARIFF
                             </ThemedText>
                         </View>
@@ -839,6 +800,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 8,
     },
+    podIconBadge: {
+        width: 26,
+        height: 26,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     podBadgeLabel: {
         fontSize: 9,
         fontFamily: FONT_FAMILIES.sansExtraBold,
@@ -955,28 +923,21 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontFamily: FONT_FAMILIES.sansMedium,
     },
-    stationChargeBtnContainer: {
-        position: 'relative',
-    },
-    stationChargeBtnShadow: {
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-        borderRadius: RADIUS.button,
-    },
     stationChargeBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
         paddingHorizontal: 16,
-        paddingVertical: 9,
-        borderRadius: RADIUS.button,
+        paddingVertical: 10,
+        borderRadius: RADIUS.pill,
+        backgroundColor: '#FF5B45',
     },
     stationChargeBtnText: {
         fontSize: 11,
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         letterSpacing: 0.8,
+        color: '#FFFFFF',
     },
 
     // ── Automations ──
