@@ -13,7 +13,6 @@ import {
     Shield,
     PhoneCall,
     Info,
-    Accessibility,
 } from 'lucide-react-native';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
@@ -24,7 +23,7 @@ import { useVehicles } from '../../context/VehicleContext';
 
 export default function ProfileScreen() {
     const { colors, theme, setTheme, isDark } = useAppTheme();
-    const { user, topUpWallet, toggleSeniorMode } = useVehicles();
+    const { user, topUpWallet } = useVehicles();
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
 
@@ -122,8 +121,53 @@ export default function ProfileScreen() {
                         Instant one-tap payment authorization for fast charging hubs.
                     </ThemedText>
 
+                    {/* Custom Recharge Amount Input Field */}
+                    <View style={styles.amountInputContainer}>
+                        <ThemedText style={[styles.inputLabel, { color: colors.textMuted }]}>
+                            RECHARGE AMOUNT
+                        </ThemedText>
+                        <View
+                            style={[
+                                styles.inputBox,
+                                {
+                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
+                                    borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                },
+                            ]}
+                        >
+                            <ThemedText style={[styles.currencyPrefix, { color: colors.primary }]}>
+                                ₹
+                            </ThemedText>
+                            <TextInput
+                                style={[styles.textInput, { color: colors.text }]}
+                                placeholder="Enter amount"
+                                placeholderTextColor={colors.textMuted}
+                                keyboardType="number-pad"
+                                value={topUpAmount}
+                                onChangeText={(text) => setTopUpAmount(text.replace(/[^0-9]/g, ''))}
+                                maxLength={6}
+                            />
+                            {topUpAmount.length > 0 && (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setTopUpAmount('');
+                                    }}
+                                    style={styles.clearBtn}
+                                    activeOpacity={0.7}
+                                >
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 11, fontWeight: '700' }}>
+                                        CLEAR
+                                    </ThemedText>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </View>
+
+                    {/* Quick Preset Pills */}
                     <View style={styles.topUpRow}>
-                        {['200', '500', '1000'].map((amt) => {
+                        {['200', '500', '1000', '2000'].map((amt) => {
                             const isSelected = topUpAmount === amt;
                             return (
                                 <TouchableOpacity
@@ -166,17 +210,22 @@ export default function ProfileScreen() {
                     </View>
 
                     <CredButton
-                        title={`ADD ₹${topUpAmount} TO WALLET`}
+                        title={
+                            topUpAmount && parseFloat(topUpAmount) > 0
+                                ? `ADD ₹${topUpAmount} TO WALLET`
+                                : 'ENTER AMOUNT TO RECHARGE'
+                        }
                         variant="neon"
                         containerStyle={{ marginTop: 14 }}
                         onPress={handleTopUp}
+                        disabled={!topUpAmount || parseFloat(topUpAmount) <= 0}
                     />
                 </CredCard>
 
-                {/* Accessibility & Preferences */}
+                {/* Display & Preferences */}
                 <CredCard variant="default" style={styles.section}>
                     <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-                        Display & Accessibility
+                        Display & Preferences
                     </ThemedText>
 
                     {/* Dark Mode Toggle */}
@@ -214,43 +263,6 @@ export default function ProfileScreen() {
                                     {
                                         backgroundColor: '#FFFFFF',
                                         transform: [{ translateX: theme === 'dark' ? 20 : 2 }],
-                                    },
-                                ]}
-                            />
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Senior / High Contrast Mode Toggle */}
-                    <View style={[styles.row, { marginTop: 12 }]}>
-                        <View style={styles.rowLeft}>
-                            <Accessibility size={22} color={colors.primary} />
-                            <View>
-                                <ThemedText style={[styles.rowTitle, { color: colors.text }]}>
-                                    Senior & Easy View
-                                </ThemedText>
-                                <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                                    Larger touch targets and simplified details
-                                </ThemedText>
-                            </View>
-                        </View>
-                        <TouchableOpacity
-                            style={[
-                                styles.toggleContainer,
-                                {
-                                    backgroundColor: user.isSeniorMode ? colors.primary : colors.surfaceMuted,
-                                    borderWidth: 1,
-                                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                                },
-                            ]}
-                            onPress={toggleSeniorMode}
-                            activeOpacity={0.8}
-                        >
-                            <View
-                                style={[
-                                    styles.toggleKnob,
-                                    {
-                                        backgroundColor: '#FFFFFF',
-                                        transform: [{ translateX: user.isSeniorMode ? 20 : 2 }],
                                     },
                                 ]}
                             />
@@ -348,6 +360,39 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+    },
+    amountInputContainer: {
+        marginTop: 14,
+    },
+    inputLabel: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: 1.2,
+        marginBottom: 6,
+    },
+    inputBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 50,
+        borderRadius: RADIUS.input,
+        paddingHorizontal: 16,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
+    },
+    currencyPrefix: {
+        fontSize: 20,
+        fontFamily: FONT_FAMILIES.bold,
+        marginRight: 6,
+    },
+    textInput: {
+        flex: 1,
+        fontSize: 18,
+        fontFamily: FONT_FAMILIES.bold,
+        height: '100%',
+    },
+    clearBtn: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
     },
     topUpRow: {
         flexDirection: 'row',
