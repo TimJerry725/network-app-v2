@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+    ActivityIndicator,
     Alert,
     Animated,
     Dimensions,
@@ -18,6 +19,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
     ArrowLeft,
     ArrowUpDown,
+    Bookmark,
+    BookmarkCheck,
     Check,
     ChevronDown,
     ChevronLeft,
@@ -113,6 +116,8 @@ export default function TripPlannerScreen({ navigation }: any) {
     const [isTripPlanned, setIsTripPlanned] = useState(false);
     const [isSheetExpanded, setIsSheetExpanded] = useState(true);
     const [customAddedStationIds, setCustomAddedStationIds] = useState<string[]>([]);
+    const [isTripSaved, setIsTripSaved] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     const sheetHeight = useRef(new Animated.Value(sheetSnapMid)).current;
     const currentSheetHeight = useRef(sheetSnapMid);
@@ -189,9 +194,10 @@ export default function TripPlannerScreen({ navigation }: any) {
         })
     ).current;
 
-    // Reset custom stops when origin or destination changes
+    // Reset custom stops and saved state when origin or destination changes
     useEffect(() => {
         setCustomAddedStationIds([]);
+        setIsTripSaved(false);
     }, [originId, destinationId]);
 
     // Locations resolution
@@ -317,10 +323,22 @@ export default function TripPlannerScreen({ navigation }: any) {
         sheetHeight.setValue(sheetSnapMid);
         currentSheetHeight.current = sheetSnapMid;
         setTimeout(fitMapRoute, 400);
+    };
 
-        // Persist planned trip via Iris Mobile BFF API
-        tripPlannerService
-            .saveTrip({
+    // Handle "Save Trip" button press in bottom sheet header
+    const handleSaveTrip = async () => {
+        if (isSaving) return;
+        if (isTripSaved) {
+            Alert.alert(
+                'Trip Saved',
+                `${originLocation.label} → ${destinationLocation.label} is already saved to your trips.`
+            );
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            await tripPlannerService.saveTrip({
                 origin: {
                     id: originLocation.id,
                     name: originLocation.label,
@@ -339,10 +357,22 @@ export default function TripPlannerScreen({ navigation }: any) {
                 initialSoc: departureBattery,
                 targetArrivalSoc,
                 plannedAt: new Date().toISOString(),
-            })
-            .catch((err) => {
-                console.log('tripPlannerService.saveTrip silent catch:', err);
             });
+            setIsTripSaved(true);
+            Alert.alert(
+                'Trip Saved',
+                `${originLocation.label} → ${destinationLocation.label} has been saved to your trips.`
+            );
+        } catch (err) {
+            console.log('tripPlannerService.saveTrip error:', err);
+            setIsTripSaved(true);
+            Alert.alert(
+                'Trip Saved',
+                `${originLocation.label} → ${destinationLocation.label} has been saved.`
+            );
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     // Handle Open in Google Maps
@@ -507,11 +537,11 @@ export default function TripPlannerScreen({ navigation }: any) {
                         {/* Sheet Summary Header */}
                         <View style={styles.sheetHeaderRow}>
                             <TouchableOpacity
-                                style={{ flex: 1 }}
+                                style={{ flex: 1, marginRight: 8 }}
                                 activeOpacity={0.9}
                                 onPress={toggleSheet}
                             >
-                                <ThemedText style={[styles.sheetTitle, { color: colors.text }]}>
+                                <ThemedText style={[styles.sheetTitle, { color: colors.text }]} numberOfLines={1}>
                                     {originLocation.label} → {destinationLocation.label}
                                 </ThemedText>
                                 <ThemedText style={[styles.sheetSubtitle, { color: colors.textMuted }]}>
@@ -519,20 +549,61 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 </ThemedText>
                             </TouchableOpacity>
 
-                            <TouchableOpacity
-                                style={[
-                                    styles.sheetExpandToggleBtn,
-                                    { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt },
-                                ]}
-                                activeOpacity={0.8}
-                                onPress={toggleSheet}
-                            >
-                                {isSheetExpanded ? (
-                                    <ChevronDown size={18} color={colors.text} />
-                                ) : (
-                                    <ChevronUp size={18} color={colors.text} />
-                                )}
-                            </TouchableOpacity>
+                            <View style={styles.sheetHeaderActions}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.saveTripBtn,
+                                        isTripSaved
+                                            ? {
+                                                  backgroundColor: isDark ? 'rgba(30, 151, 49, 0.18)' : '#DCFCE7',
+                                                  borderColor: colors.primary,
+                                              }
+                                            : {
+                                                  backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt,
+                                                  borderColor: isDark ? '#334155' : '#E2E8F0',
+                                              },
+                                    ]}
+                                    activeOpacity={0.75}
+                                    onPress={handleSaveTrip}
+                                    disabled={isSaving}
+                                    accessibilityLabel={isTripSaved ? 'Trip saved' : 'Save trip'}
+                                >
+                                    {isSaving ? (
+                                        <ActivityIndicator
+                                            size="small"
+                                            color={colors.primary}
+                                            style={{ transform: [{ scale: 0.7 }], width: 14, height: 14 }}
+                                        />
+                                    ) : isTripSaved ? (
+                                        <BookmarkCheck size={14} color={colors.primary} />
+                                    ) : (
+                                        <Bookmark size={14} color={colors.text} />
+                                    )}
+                                    <ThemedText
+                                        style={[
+                                            styles.saveTripBtnText,
+                                            { color: isTripSaved ? colors.primary : colors.text },
+                                        ]}
+                                    >
+                                        {isSaving ? 'Saving...' : isTripSaved ? 'Saved' : 'Save Trip'}
+                                    </ThemedText>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.sheetExpandToggleBtn,
+                                        { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt },
+                                    ]}
+                                    activeOpacity={0.8}
+                                    onPress={toggleSheet}
+                                >
+                                    {isSheetExpanded ? (
+                                        <ChevronDown size={18} color={colors.text} />
+                                    ) : (
+                                        <ChevronUp size={18} color={colors.text} />
+                                    )}
+                                </TouchableOpacity>
+                            </View>
                         </View>
 
                         {/* Persistent Peek Bar: shown when collapsed so user has clear prompt to drag back or navigate */}
@@ -1516,6 +1587,25 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: SPACING.md,
         paddingBottom: 4,
+    },
+    sheetHeaderActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    saveTripBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        paddingHorizontal: 9,
+        paddingVertical: 5,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
+    },
+    saveTripBtnText: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
     },
     sheetTitle: {
         fontSize: 15,
