@@ -19,6 +19,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics';
 import {
     ArrowUpDown,
+    ArrowUpRight,
     Bookmark,
     BookmarkCheck,
     Check,
@@ -964,16 +965,46 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 >
                                     {routeOptions.map((opt) => {
                                         const isSelected = opt.id === selectedRouteId;
-                                        const tagBg = opt.tag === 'Fastest'
-                                            ? (isDark ? 'rgba(91, 97, 246, 0.2)' : '#EEF0FF')
-                                            : opt.tag === 'Scenic'
-                                            ? (isDark ? 'rgba(255, 192, 67, 0.2)' : '#FEF3C7')
-                                            : (isDark ? 'rgba(16, 185, 129, 0.2)' : '#ECFDF5');
-                                        const tagColor = opt.tag === 'Fastest'
-                                            ? colors.lavender
-                                            : opt.tag === 'Scenic'
-                                            ? colors.amber
-                                            : colors.mint;
+                                        let cardBg = isDark ? '#16171E' : '#FFFFFF';
+                                        let cardBorder = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+                                        let textColor = colors.text;
+                                        let subTextColor = colors.textMuted;
+                                        let tagBg = isDark ? 'rgba(91, 97, 246, 0.2)' : '#EEF0FF';
+                                        let tagColor = colors.lavender;
+                                        let actionBg = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+                                        let actionColor = colors.text;
+
+                                        if (isSelected) {
+                                            if (opt.tag === 'Fastest') {
+                                                cardBg = '#5B61F6';
+                                                cardBorder = '#5B61F6';
+                                                textColor = '#FFFFFF';
+                                                subTextColor = 'rgba(255, 255, 255, 0.82)';
+                                                tagBg = 'rgba(255, 255, 255, 0.22)';
+                                                tagColor = '#FFFFFF';
+                                                actionBg = '#FFFFFF';
+                                                actionColor = '#5B61F6';
+                                            } else if (opt.tag === 'Scenic') {
+                                                cardBg = '#FFC043';
+                                                cardBorder = '#FFC043';
+                                                textColor = '#101114';
+                                                subTextColor = 'rgba(16, 17, 20, 0.75)';
+                                                tagBg = 'rgba(0, 0, 0, 0.12)';
+                                                tagColor = '#101114';
+                                                actionBg = '#101114';
+                                                actionColor = '#FFC043';
+                                            } else {
+                                                // Eco
+                                                cardBg = '#10B981';
+                                                cardBorder = '#10B981';
+                                                textColor = '#FFFFFF';
+                                                subTextColor = 'rgba(255, 255, 255, 0.85)';
+                                                tagBg = 'rgba(255, 255, 255, 0.22)';
+                                                tagColor = '#FFFFFF';
+                                                actionBg = '#FFFFFF';
+                                                actionColor = '#10B981';
+                                            }
+                                        }
 
                                         return (
                                             <TouchableOpacity
@@ -981,16 +1012,12 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                 style={[
                                                     styles.routeOptionCard,
                                                     {
-                                                        backgroundColor: isSelected
-                                                            ? (isDark ? '#1C1D26' : '#FFFFFF')
-                                                            : (isDark ? '#16171E' : '#FFFFFF'),
-                                                        borderColor: isSelected
-                                                            ? colors.coral
-                                                            : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
-                                                        borderWidth: isSelected ? 1.5 : 1,
+                                                        backgroundColor: cardBg,
+                                                        borderColor: cardBorder,
+                                                        borderWidth: isSelected ? 2 : 1,
                                                     },
                                                 ]}
-                                                activeOpacity={0.8}
+                                                activeOpacity={0.88}
                                                 onPress={() => handleSelectRoute(opt.id)}
                                             >
                                                 <View style={styles.routeCardTopRow}>
@@ -1006,27 +1033,38 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                                 { color: tagColor },
                                                             ]}
                                                         >
-                                                            {opt.tag.toUpperCase()}
+                                                            • {opt.tag.toUpperCase()}
                                                         </ThemedText>
                                                     </View>
-                                                    {isSelected && <Check size={14} color={colors.coral} strokeWidth={2.5} />}
+                                                    <View
+                                                        style={[
+                                                            styles.routeCardActionCircle,
+                                                            { backgroundColor: actionBg },
+                                                        ]}
+                                                    >
+                                                        <ArrowUpRight
+                                                            size={13}
+                                                            color={actionColor}
+                                                            strokeWidth={2.5}
+                                                        />
+                                                    </View>
                                                 </View>
 
                                                 <ThemedText
                                                     style={[
                                                         styles.routeCardName,
-                                                        { color: isSelected ? colors.coral : colors.text },
+                                                        { color: textColor },
                                                     ]}
                                                     numberOfLines={1}
                                                 >
                                                     {opt.name}
                                                 </ThemedText>
 
-                                                <ThemedText style={[styles.routeCardStats, { color: colors.text }]}>
+                                                <ThemedText style={[styles.routeCardStats, { color: textColor }]}>
                                                     {fmtTime(opt.driveMinutes)} • {opt.distanceKm} km
                                                 </ThemedText>
 
-                                                <ThemedText style={[styles.routeCardSubStats, { color: colors.textMuted }]}>
+                                                <ThemedText style={[styles.routeCardSubStats, { color: subTextColor }]}>
                                                     {opt.stopsCount} stop{opt.stopsCount === 1 ? '' : 's'} • {opt.energyKWh} kWh • {opt.arrivalSocPercent}% SoC
                                                 </ThemedText>
                                             </TouchableOpacity>
@@ -1036,81 +1074,92 @@ export default function TripPlannerScreen({ navigation }: any) {
                             )}
                         </View>
 
-                        {/* Expressive Color Block KPI Tiles */}
+                        {/* Expressive Saturated Bento Color Block KPI Tiles */}
                         <View style={styles.kpiGrid}>
+                            {/* Distance: Electric Lavender */}
                             <View
                                 style={[
                                     styles.kpiBlock,
                                     {
-                                        backgroundColor: isDark ? 'rgba(91, 97, 246, 0.12)' : '#EEF0FF',
-                                        borderColor: isDark ? 'rgba(91, 97, 246, 0.25)' : '#D0D4FE',
+                                        backgroundColor: '#5B61F6',
                                     },
                                 ]}
                             >
-                                <ThemedText style={[styles.kpiBlockLabel, { color: colors.lavender }]}>
-                                    Distance
-                                </ThemedText>
-                                <ThemedText style={[styles.kpiBlockValue, { color: colors.text }]}>
+                                <View style={styles.kpiTopMicroRow}>
+                                    <ThemedText style={styles.kpiBlockLabelWhite}>
+                                        DISTANCE
+                                    </ThemedText>
+                                    <View style={styles.kpiMicroCircleWhite}>
+                                        <ArrowUpRight size={10} color="#5B61F6" strokeWidth={2.5} />
+                                    </View>
+                                </View>
+                                <ThemedText style={styles.kpiBlockValueWhite}>
                                     {tripPlan.totalDistanceKm} km
                                 </ThemedText>
                             </View>
 
+                            {/* Stops: Buttercup Amber */}
                             <View
                                 style={[
                                     styles.kpiBlock,
                                     {
-                                        backgroundColor: isDark ? 'rgba(255, 192, 67, 0.12)' : '#FEF3C7',
-                                        borderColor: isDark ? 'rgba(255, 192, 67, 0.25)' : '#FDE68A',
+                                        backgroundColor: '#FFC043',
                                     },
                                 ]}
                             >
-                                <ThemedText style={[styles.kpiBlockLabel, { color: colors.amber }]}>
-                                    Stops
-                                </ThemedText>
-                                <ThemedText style={[styles.kpiBlockValue, { color: colors.text }]}>
+                                <View style={styles.kpiTopMicroRow}>
+                                    <ThemedText style={styles.kpiBlockLabelDark}>
+                                        STOPS
+                                    </ThemedText>
+                                    <View style={styles.kpiMicroCircleDark}>
+                                        <ArrowUpRight size={10} color="#FFC043" strokeWidth={2.5} />
+                                    </View>
+                                </View>
+                                <ThemedText style={styles.kpiBlockValueDark}>
                                     {activeStops.length}
                                 </ThemedText>
                             </View>
 
+                            {/* Energy: Sunset Coral */}
                             <View
                                 style={[
                                     styles.kpiBlock,
                                     {
-                                        backgroundColor: isDark ? 'rgba(255, 91, 69, 0.12)' : '#FFEBE8',
-                                        borderColor: isDark ? 'rgba(255, 91, 69, 0.25)' : '#FFD3CD',
+                                        backgroundColor: '#FF5B45',
                                     },
                                 ]}
                             >
-                                <ThemedText style={[styles.kpiBlockLabel, { color: colors.coral }]}>
-                                    Energy
-                                </ThemedText>
-                                <ThemedText style={[styles.kpiBlockValue, { color: colors.coral }]}>
+                                <View style={styles.kpiTopMicroRow}>
+                                    <ThemedText style={styles.kpiBlockLabelWhite}>
+                                        ENERGY
+                                    </ThemedText>
+                                    <View style={styles.kpiMicroCircleWhite}>
+                                        <ArrowUpRight size={10} color="#FF5B45" strokeWidth={2.5} />
+                                    </View>
+                                </View>
+                                <ThemedText style={styles.kpiBlockValueWhite}>
                                     {tripPlan.energyNeededKWh} kWh
                                 </ThemedText>
                             </View>
 
+                            {/* Arrival SoC: Neo Mint */}
                             <View
                                 style={[
                                     styles.kpiBlock,
                                     {
-                                        backgroundColor: isDark ? 'rgba(16, 185, 129, 0.12)' : '#D1FAE5',
-                                        borderColor: isDark ? 'rgba(16, 185, 129, 0.25)' : '#A7F3D0',
+                                        backgroundColor: '#10B981',
                                     },
                                 ]}
                             >
-                                <ThemedText style={[styles.kpiBlockLabel, { color: colors.mint }]}>
-                                    Arrival SoC
-                                </ThemedText>
-                                <ThemedText
-                                    style={[
-                                        styles.kpiBlockValue,
-                                        {
-                                            color: tripPlan.arrivalBatteryPercent >= targetArrivalSoc
-                                                ? colors.mint
-                                                : '#EF4444',
-                                        },
-                                    ]}
-                                >
+                                <View style={styles.kpiTopMicroRow}>
+                                    <ThemedText style={styles.kpiBlockLabelWhite}>
+                                        ARRIVAL
+                                    </ThemedText>
+                                    <View style={styles.kpiMicroCircleWhite}>
+                                        <ArrowUpRight size={10} color="#10B981" strokeWidth={2.5} />
+                                    </View>
+                                </View>
+                                <ThemedText style={styles.kpiBlockValueWhite}>
                                     {tripPlan.arrivalBatteryPercent}%
                                 </ThemedText>
                             </View>
@@ -2217,6 +2266,13 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 8,
     },
+    routeCardActionCircle: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     routeTagBadge: {
         paddingHorizontal: 8,
         paddingVertical: 3,
@@ -2248,29 +2304,60 @@ const styles = StyleSheet.create({
     kpiGrid: {
         flexDirection: 'row',
         gap: 8,
-        marginVertical: 4,
+        marginVertical: 6,
     },
     kpiBlock: {
         flex: 1,
-        paddingVertical: 12,
-        paddingHorizontal: 6,
-        borderRadius: RADIUS.squircle,
+        paddingVertical: 10,
+        paddingHorizontal: 8,
+        borderRadius: 18,
+        justifyContent: 'space-between',
+    },
+    kpiTopMicroRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 6,
+    },
+    kpiMicroCircleWhite: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1,
     },
-    kpiBlockLabel: {
-        fontSize: 9,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-        marginBottom: 4,
+    kpiMicroCircleDark: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: '#101114',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    kpiBlockLabelWhite: {
+        fontSize: 8.5,
+        fontFamily: FONT_FAMILIES.bold,
+        color: 'rgba(255, 255, 255, 0.85)',
+        letterSpacing: 0.6,
         textTransform: 'uppercase',
     },
-    kpiBlockValue: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        fontWeight: '800',
+    kpiBlockLabelDark: {
+        fontSize: 8.5,
+        fontFamily: FONT_FAMILIES.bold,
+        color: 'rgba(16, 17, 20, 0.75)',
+        letterSpacing: 0.6,
+        textTransform: 'uppercase',
+    },
+    kpiBlockValueWhite: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.bold,
+        color: '#FFFFFF',
+    },
+    kpiBlockValueDark: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.bold,
+        color: '#101114',
     },
     kpiContainer: {
         flexDirection: 'row',

@@ -354,6 +354,90 @@ function getConnectorStatusTheme(
     };
 }
 
+type BentoTheme = {
+    bg: string;
+    textColor: string;
+    subColor: string;
+    badgeBg: string;
+    badgeText: string;
+    actionBg: string;
+    actionColor: string;
+    tag: string;
+    accentColor: string;
+};
+
+function getBentoCardTheme(index: number, isDark: boolean): BentoTheme {
+    const cycle = index % 5;
+    if (cycle === 0) {
+        // Buttercup Amber (Small Eatery inspired)
+        return {
+            bg: '#FFC043',
+            textColor: '#101114',
+            subColor: 'rgba(16, 17, 20, 0.72)',
+            badgeBg: 'rgba(0, 0, 0, 0.12)',
+            badgeText: '#101114',
+            actionBg: '#101114',
+            actionColor: '#FFC043',
+            tag: 'TOP PICK',
+            accentColor: '#101114',
+        };
+    }
+    if (cycle === 1) {
+        // Electric Lavender (Venue Capacity inspired)
+        return {
+            bg: '#5B61F6',
+            textColor: '#FFFFFF',
+            subColor: 'rgba(255, 255, 255, 0.82)',
+            badgeBg: 'rgba(255, 255, 255, 0.22)',
+            badgeText: '#FFFFFF',
+            actionBg: '#FFFFFF',
+            actionColor: '#5B61F6',
+            tag: 'SUPERFAST',
+            accentColor: '#FFFFFF',
+        };
+    }
+    if (cycle === 2) {
+        // Sunset Coral (Gross Revenue inspired)
+        return {
+            bg: '#FF5B45',
+            textColor: '#FFFFFF',
+            subColor: 'rgba(255, 255, 255, 0.85)',
+            badgeBg: 'rgba(255, 255, 255, 0.22)',
+            badgeText: '#FFFFFF',
+            actionBg: '#FFFFFF',
+            actionColor: '#FF5B45',
+            tag: 'HIGH DEMAND',
+            accentColor: '#FFFFFF',
+        };
+    }
+    if (cycle === 3) {
+        // Neo Mint (Eco save)
+        return {
+            bg: '#10B981',
+            textColor: '#FFFFFF',
+            subColor: 'rgba(255, 255, 255, 0.85)',
+            badgeBg: 'rgba(255, 255, 255, 0.22)',
+            badgeText: '#FFFFFF',
+            actionBg: '#FFFFFF',
+            actionColor: '#10B981',
+            tag: '100% GREEN',
+            accentColor: '#FFFFFF',
+        };
+    }
+    // Obsidian Dark (Prime Cost Report inspired)
+    return {
+        bg: isDark ? '#181924' : '#1F212E',
+        textColor: '#FFFFFF',
+        subColor: 'rgba(255, 255, 255, 0.65)',
+        badgeBg: 'rgba(255, 255, 255, 0.12)',
+        badgeText: '#F4F4F6',
+        actionBg: '#FFFFFF',
+        actionColor: '#181924',
+        tag: 'NEARBY',
+        accentColor: '#60A5FA',
+    };
+}
+
 type StationDemandSnapshot = {
     station: Station;
     connector: Connector;
@@ -1155,6 +1239,93 @@ export default function StationMapScreen({ navigation }: any) {
                         </TouchableOpacity>
                     </View>
 
+                    {/* ── Bento Quick-Tiles Strip (Vibrant Metrics from Design) ── */}
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.bentoStripContent}
+                        style={styles.bentoStripScroll}
+                    >
+                        {/* Tile 1: Range (Sunset Coral) */}
+                        <TouchableOpacity
+                            activeOpacity={0.88}
+                            style={[styles.bentoMiniTile, { backgroundColor: '#FF5B45' }]}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                Alert.alert(
+                                    'Vehicle Range',
+                                    `${selectedVehicle?.make || 'EV'} ${selectedVehicle?.model || ''}: Estimated range is ${selectedVehicle?.estRangeKm || 248} km with ${selectedVehicle?.currentBattery || 78}% SoC.`
+                                );
+                            }}
+                        >
+                            <View style={styles.bentoMiniTopRow}>
+                                <ThemedText style={styles.bentoMiniEyebrowWhite}>MY RANGE</ThemedText>
+                                <View style={[styles.bentoMiniActionCircle, { backgroundColor: '#FFFFFF' }]}>
+                                    <ArrowUpRight size={13} color="#FF5B45" strokeWidth={2.5} />
+                                </View>
+                            </View>
+                            <ThemedText style={styles.bentoMiniMainValWhite}>
+                                {selectedVehicle?.estRangeKm || 248} km
+                            </ThemedText>
+                            <View style={styles.bentoMiniPillWhite}>
+                                <ThemedText style={styles.bentoMiniPillTextWhite}>
+                                    • {selectedVehicle?.currentBattery || 78}% SoC Available
+                                </ThemedText>
+                            </View>
+                        </TouchableOpacity>
+
+                        {/* Tile 2: Fast Chargers (Electric Lavender) */}
+                        <TouchableOpacity
+                            activeOpacity={0.88}
+                            style={[styles.bentoMiniTile, { backgroundColor: '#5B61F6' }]}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                setFilterCriteria((prev) => ({
+                                    ...prev,
+                                    chargerTypeFilter: prev.chargerTypeFilter === 'DC' ? 'Any' : 'DC',
+                                }));
+                            }}
+                        >
+                            <View style={styles.bentoMiniTopRow}>
+                                <ThemedText style={styles.bentoMiniEyebrowWhite}>FAST CHARGERS</ThemedText>
+                                <View style={[styles.bentoMiniActionCircle, { backgroundColor: '#FFFFFF' }]}>
+                                    <ArrowUpRight size={13} color="#5B61F6" strokeWidth={2.5} />
+                                </View>
+                            </View>
+                            <ThemedText style={styles.bentoMiniMainValWhite}>
+                                {filterCriteria.chargerTypeFilter === 'DC' ? 'DC Active' : '12 Open'}
+                            </ThemedText>
+                            <View style={styles.bentoMiniPillWhite}>
+                                <ThemedText style={styles.bentoMiniPillTextWhite}>
+                                    {filterCriteria.chargerTypeFilter === 'DC' ? '• Filter Applied' : '• 60kW+ High Speed'}
+                                </ThemedText>
+                            </View>
+                        </TouchableOpacity>
+
+                        {/* Tile 3: Iris Wallet (Buttercup Amber) */}
+                        <TouchableOpacity
+                            activeOpacity={0.88}
+                            style={[styles.bentoMiniTile, { backgroundColor: '#FFC043' }]}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                navigation.navigate('Profile' as never);
+                            }}
+                        >
+                            <View style={styles.bentoMiniTopRow}>
+                                <ThemedText style={styles.bentoMiniEyebrowDark}>IRIS WALLET</ThemedText>
+                                <View style={[styles.bentoMiniActionCircle, { backgroundColor: '#101114' }]}>
+                                    <ArrowUpRight size={13} color="#FFC043" strokeWidth={2.5} />
+                                </View>
+                            </View>
+                            <ThemedText style={styles.bentoMiniMainValDark}>
+                                ₹{user.walletBalance.toFixed(0)}
+                            </ThemedText>
+                            <View style={styles.bentoMiniPillDark}>
+                                <ThemedText style={styles.bentoMiniPillTextDark}>• Autopay Ready</ThemedText>
+                            </View>
+                        </TouchableOpacity>
+                    </ScrollView>
+
                     <View style={styles.sheetHeader}>
                         <View
                             style={[
@@ -1179,13 +1350,14 @@ export default function StationMapScreen({ navigation }: any) {
                         snapToInterval={290 + 12}
                         decelerationRate="fast"
                     >
-                        {nearbyStations.map((station: Station) => {
+                        {nearbyStations.map((station: Station, index: number) => {
                             const connector = getRecommendedConnector(
                                 station,
                                 selectedVehicle?.connectorType
                             );
                             const isSelected = station.id === selectedStation?.id;
                             const availableCount = station.connectors.filter(c => c.status === 'Available').length;
+                            const theme = getBentoCardTheme(index, isDark);
 
                             return (
                                 <TouchableOpacity
@@ -1194,13 +1366,9 @@ export default function StationMapScreen({ navigation }: any) {
                                     style={[
                                         styles.stationRow,
                                         {
-                                            backgroundColor: isSelected
-                                                ? (isDark ? '#1C1D26' : '#FFFFFF')
-                                                : (isDark ? '#16171E' : '#FFFFFF'),
-                                            borderColor: isSelected
-                                                ? colors.coral
-                                                : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
-                                            borderWidth: isSelected ? 1.5 : 1,
+                                            backgroundColor: theme.bg,
+                                            borderColor: isSelected ? '#FFFFFF' : 'transparent',
+                                            borderWidth: isSelected ? 2.5 : 0,
                                         },
                                     ]}
                                     onPress={() => {
@@ -1212,25 +1380,11 @@ export default function StationMapScreen({ navigation }: any) {
                                         });
                                     }}
                                 >
+                                    {/* Top Row: Tag badge and Circular ( ↗ ) Action Button */}
                                     <View style={styles.stationRowTop}>
-                                        <View style={styles.stationInfo}>
-                                            <ThemedText
-                                                style={[
-                                                    styles.stationName,
-                                                    { color: colors.text },
-                                                ]}
-                                                numberOfLines={1}
-                                            >
-                                                {station.name}
-                                            </ThemedText>
-                                            <ThemedText
-                                                style={{
-                                                    color: colors.textMuted,
-                                                    ...FONTS.caption,
-                                                }}
-                                                numberOfLines={1}
-                                            >
-                                                {resolvedAddresses[station.id] ?? station.address}
+                                        <View style={[styles.bentoTagBadge, { backgroundColor: theme.badgeBg }]}>
+                                            <ThemedText style={[styles.bentoTagText, { color: theme.badgeText }]}>
+                                                • {theme.tag}
                                             </ThemedText>
                                         </View>
 
@@ -1239,35 +1393,56 @@ export default function StationMapScreen({ navigation }: any) {
                                             style={[
                                                 styles.cardActionCircle,
                                                 {
-                                                    backgroundColor: isSelected
-                                                        ? colors.coral
-                                                        : (isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'),
+                                                    backgroundColor: theme.actionBg,
                                                 },
                                             ]}
                                         >
                                             <ArrowUpRight
                                                 size={16}
-                                                color={isSelected ? '#FFFFFF' : colors.text}
+                                                color={theme.actionColor}
                                                 strokeWidth={2.5}
                                             />
                                         </View>
                                     </View>
 
+                                    {/* Station Title & Location */}
+                                    <View style={styles.stationInfo}>
+                                        <ThemedText
+                                            style={[
+                                                styles.stationName,
+                                                { color: theme.textColor },
+                                            ]}
+                                            numberOfLines={1}
+                                        >
+                                            {station.name}
+                                        </ThemedText>
+                                        <ThemedText
+                                            style={{
+                                                color: theme.subColor,
+                                                ...FONTS.caption,
+                                            }}
+                                            numberOfLines={1}
+                                        >
+                                            {resolvedAddresses[station.id] ?? station.address}
+                                        </ThemedText>
+                                    </View>
+
+                                    {/* Bento Specs / Pills Row */}
                                     <View style={styles.stationMetaRow}>
                                         <View
                                             style={[
                                                 styles.typeBadge,
                                                 {
-                                                    backgroundColor: isDark ? 'rgba(255, 91, 69, 0.14)' : '#FFE5E0',
+                                                    backgroundColor: theme.badgeBg,
                                                 },
                                             ]}
                                         >
                                             <Zap
                                                 size={11}
-                                                color={colors.coral}
-                                                fill={colors.coral}
+                                                color={theme.textColor}
+                                                fill={theme.textColor}
                                             />
-                                            <ThemedText style={[styles.typeText, { color: colors.coral }]}>
+                                            <ThemedText style={[styles.typeText, { color: theme.textColor }]}>
                                                 {connector.power}kW Fast
                                             </ThemedText>
                                         </View>
@@ -1276,23 +1451,24 @@ export default function StationMapScreen({ navigation }: any) {
                                             style={[
                                                 styles.typeBadge,
                                                 {
-                                                    backgroundColor: isDark ? 'rgba(16, 185, 129, 0.14)' : '#D1FAE5',
+                                                    backgroundColor: theme.badgeBg,
                                                 },
                                             ]}
                                         >
-                                            <ThemedText style={[styles.typeText, { color: colors.mint }]}>
-                                                {availableCount > 0 ? `${availableCount} available` : 'In use'}
+                                            <ThemedText style={[styles.typeText, { color: theme.textColor }]}>
+                                                {availableCount > 0 ? `${availableCount} open` : 'In use'}
                                             </ThemedText>
                                         </View>
 
                                         <ThemedText
                                             style={{
-                                                color: colors.textMuted,
+                                                color: theme.subColor,
                                                 ...FONTS.caption,
                                                 marginLeft: 'auto',
+                                                fontWeight: '700',
                                             }}
                                         >
-                                            {station.distanceKm} km • ₹{connector.pricePerKWh.toFixed(0)}/kWh
+                                            {station.distanceKm} km • ₹{connector.pricePerKWh.toFixed(0)}
                                         </ThemedText>
                                     </View>
                                 </TouchableOpacity>
@@ -1951,6 +2127,90 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         paddingHorizontal: 0,
+    },
+    bentoStripScroll: {
+        marginBottom: 10,
+    },
+    bentoStripContent: {
+        paddingHorizontal: 20,
+        gap: 10,
+    },
+    bentoMiniTile: {
+        width: 154,
+        borderRadius: 20,
+        padding: 13,
+        justifyContent: 'space-between',
+    },
+    bentoMiniTopRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 6,
+    },
+    bentoMiniEyebrowWhite: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.bold,
+        color: 'rgba(255, 255, 255, 0.85)',
+        letterSpacing: 0.6,
+    },
+    bentoMiniEyebrowDark: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.bold,
+        color: 'rgba(16, 17, 20, 0.72)',
+        letterSpacing: 0.6,
+    },
+    bentoMiniActionCircle: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    bentoMiniMainValWhite: {
+        fontSize: 20,
+        fontFamily: FONT_FAMILIES.bold,
+        color: '#FFFFFF',
+        marginBottom: 6,
+    },
+    bentoMiniMainValDark: {
+        fontSize: 20,
+        fontFamily: FONT_FAMILIES.bold,
+        color: '#101114',
+        marginBottom: 6,
+    },
+    bentoMiniPillWhite: {
+        backgroundColor: 'rgba(255, 255, 255, 0.22)',
+        borderRadius: RADIUS.pill,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        alignSelf: 'flex-start',
+    },
+    bentoMiniPillTextWhite: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.medium,
+        color: '#FFFFFF',
+    },
+    bentoMiniPillDark: {
+        backgroundColor: 'rgba(0, 0, 0, 0.12)',
+        borderRadius: RADIUS.pill,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        alignSelf: 'flex-start',
+    },
+    bentoMiniPillTextDark: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.medium,
+        color: '#101114',
+    },
+    bentoTagBadge: {
+        borderRadius: RADIUS.pill,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+    },
+    bentoTagText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.bold,
+        letterSpacing: 0.5,
     },
     sheetHeader: {
         flexDirection: 'row',
