@@ -369,7 +369,7 @@ function estimateChargeMinutes(
     return Math.max(6, Math.round((addedEnergyKWh / averagePowerKw) * 60));
 }
 
-function interpolateRouteCoordinates(
+export function interpolateRouteCoordinates(
     coordinates: Array<{ latitude: number; longitude: number }>
 ) {
     if (coordinates.length < 2) {

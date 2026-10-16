@@ -31,6 +31,7 @@ import {
     Navigation,
     Plus,
     RotateCcw,
+    Route,
     Search,
     X,
     Zap,
@@ -44,6 +45,7 @@ import {
     TripPlan,
     TripStop,
     createTripPlan,
+    interpolateRouteCoordinates,
 } from '../../constants/TripPlanner';
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles, Vehicle } from '../../context/VehicleContext';
@@ -51,6 +53,114 @@ import { useAppTheme } from '../../hooks/useAppTheme';
 import { tripPlannerService } from '../../services/api/tripPlannerService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+export interface TripRouteOption {
+    id: string;
+    name: string;
+    tag: 'Fastest' | 'Scenic' | 'Eco';
+    distanceKm: number;
+    driveMinutes: number;
+    stopsCount: number;
+    energyKWh: number;
+    arrivalSocPercent: number;
+    viaDescription: string;
+    coordinates: Array<{ latitude: number; longitude: number }>;
+    plan: TripPlan;
+}
+
+function getRouteCorridorNames(originId: string, destinationId: string): [string, string, string] {
+    const key = `${originId}-${destinationId}`;
+    const reverseKey = `${destinationId}-${originId}`;
+
+    const CORRIDOR_MAP: Record<string, [string, string, string]> = {
+        'coimbatore-bengaluru': [
+            'Via NH 44 (Salem Expressway)',
+            'Via NH 948 (Chamarajanagar)',
+            'Via Erode & Dharmapuri',
+        ],
+        'coimbatore-ooty': [
+            'Via NH 181 (Mettupalayam Ghat)',
+            'Via Kotagiri Scenic Pass',
+            'Via Coonoor Heritage Corridor',
+        ],
+        'coimbatore-chennai': [
+            'Via NH 544 & NH 48 (Salem-Vellore)',
+            'Via Ulundurpet & Tindivanam (NH 79)',
+            'Via Villupuram & GST Corridor',
+        ],
+        'bengaluru-chennai': [
+            'Via NH 48 (Hosur & Vellore)',
+            'Via Chittoor & Ranipet Expressway',
+            'Via Kolar & Palamaner Highway',
+        ],
+        'mumbai-pune': [
+            'Via Mumbai-Pune Expressway',
+            'Via Old NH 48 (Khandala Ghat)',
+            'Via Atal Setu & Panvel Bypass',
+        ],
+        'delhi-jaipur': [
+            'Via Delhi-Mumbai Expressway (NE 4)',
+            'Via NH 48 (Neemrana Corridor)',
+            'Via Alwar & Dausa Bypass',
+        ],
+        'bengaluru-hyderabad': [
+            'Via NH 44 (Anantapur & Kurnool)',
+            'Via Gooty & Mahbubnagar',
+            'Via Kadapa & Nandyal',
+        ],
+    };
+
+    if (CORRIDOR_MAP[key]) return CORRIDOR_MAP[key];
+    if (CORRIDOR_MAP[reverseKey]) return CORRIDOR_MAP[reverseKey];
+
+    return [
+        'Via Primary Highway',
+        'Via Scenic State Corridor',
+        'Via Ring Bypass (Eco)',
+    ];
+}
+
+function buildRouteOptionCoordinates(
+    origin: TripLocation,
+    destination: TripLocation,
+    stops: TripStop[],
+    variant: 'fastest' | 'scenic' | 'eco'
+): Array<{ latitude: number; longitude: number }> {
+    if (variant === 'fastest') {
+        return interpolateRouteCoordinates([
+            origin,
+            ...stops.map((s) => s.station),
+            destination,
+        ]);
+    }
+
+    const dLat = destination.latitude - origin.latitude;
+    const dLon = destination.longitude - origin.longitude;
+    const len = Math.sqrt(dLat * dLat + dLon * dLon) || 1;
+
+    // Perpendicular unit vector
+    const pLat = -dLon / len;
+    const pLon = dLat / len;
+
+    const offsetMagnitude = variant === 'scenic' ? 0.22 : -0.16;
+
+    const quarterPoint = {
+        latitude: origin.latitude + dLat * 0.32 + pLat * (offsetMagnitude * 0.8),
+        longitude: origin.longitude + dLon * 0.32 + pLon * (offsetMagnitude * 0.8),
+    };
+    const threeQuarterPoint = {
+        latitude: origin.latitude + dLat * 0.68 + pLat * (offsetMagnitude * 0.6),
+        longitude: origin.longitude + dLon * 0.68 + pLon * (offsetMagnitude * 0.6),
+    };
+
+    return interpolateRouteCoordinates([
+        origin,
+        quarterPoint,
+        ...stops.slice(0, 1).map((s) => s.station),
+        threeQuarterPoint,
+        destination,
+    ]);
+}
 
 export default function TripPlannerScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
@@ -118,6 +228,7 @@ export default function TripPlannerScreen({ navigation }: any) {
     const [customAddedStationIds, setCustomAddedStationIds] = useState<string[]>([]);
     const [isTripSaved, setIsTripSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [selectedRouteId, setSelectedRouteId] = useState<string>('route-fastest');
 
     const sheetHeight = useRef(new Animated.Value(sheetSnapMid)).current;
     const currentSheetHeight = useRef(sheetSnapMid);
@@ -194,10 +305,11 @@ export default function TripPlannerScreen({ navigation }: any) {
         })
     ).current;
 
-    // Reset custom stops and saved state when origin or destination changes
+    // Reset custom stops, saved state, and route selection when origin or destination changes
     useEffect(() => {
         setCustomAddedStationIds([]);
         setIsTripSaved(false);
+        setSelectedRouteId('route-fastest');
     }, [originId, destinationId]);
 
     // Locations resolution
@@ -220,8 +332,8 @@ export default function TripPlannerScreen({ navigation }: any) {
         };
     }, [vehicles, selectedVehId, activeVehicle, customRangeKm, departureBattery]);
 
-    // Trip Plan computation
-    const tripPlan: TripPlan = useMemo(
+    // ── Multiple Corridor Trip Plans ──
+    const fastestPlan: TripPlan = useMemo(
         () =>
             createTripPlan({
                 originId,
@@ -232,6 +344,116 @@ export default function TripPlannerScreen({ navigation }: any) {
                 targetArrivalSoc,
             }),
         [originId, destinationId, currentVehConfig, targetArrivalSoc]
+    );
+
+    const scenicPlan: TripPlan = useMemo(
+        () =>
+            createTripPlan({
+                originId,
+                destinationId,
+                vehicle: currentVehConfig,
+                focus: 'Comfort',
+                departureTimeMinutes: 9 * 60 + 30,
+                targetArrivalSoc,
+            }),
+        [originId, destinationId, currentVehConfig, targetArrivalSoc]
+    );
+
+    const ecoPlan: TripPlan = useMemo(
+        () =>
+            createTripPlan({
+                originId,
+                destinationId,
+                vehicle: currentVehConfig,
+                focus: 'Budget',
+                departureTimeMinutes: 9 * 60 + 30,
+                targetArrivalSoc,
+            }),
+        [originId, destinationId, currentVehConfig, targetArrivalSoc]
+    );
+
+    // Dynamic corridor names for the current origin/destination
+    const corridorNames = useMemo(
+        () => getRouteCorridorNames(originId, destinationId),
+        [originId, destinationId]
+    );
+
+    // Route Options List
+    const routeOptions: TripRouteOption[] = useMemo(() => {
+        const coordsFastest = fastestPlan.routeCoordinates;
+        const coordsScenic = buildRouteOptionCoordinates(
+            originLocation,
+            destinationLocation,
+            scenicPlan.stops,
+            'scenic'
+        );
+        const coordsEco = buildRouteOptionCoordinates(
+            originLocation,
+            destinationLocation,
+            ecoPlan.stops,
+            'eco'
+        );
+
+        return [
+            {
+                id: 'route-fastest',
+                name: corridorNames[0],
+                tag: 'Fastest' as const,
+                distanceKm: fastestPlan.totalDistanceKm,
+                driveMinutes: fastestPlan.driveMinutes,
+                stopsCount: fastestPlan.stops.length,
+                energyKWh: fastestPlan.energyNeededKWh,
+                arrivalSocPercent: fastestPlan.arrivalBatteryPercent,
+                viaDescription: 'Fastest corridor with high-power highway chargers',
+                coordinates: coordsFastest,
+                plan: fastestPlan,
+            },
+            {
+                id: 'route-scenic',
+                name: corridorNames[1],
+                tag: 'Scenic' as const,
+                distanceKm: Math.round(fastestPlan.totalDistanceKm * 1.06),
+                driveMinutes: Math.round(fastestPlan.driveMinutes * 1.11),
+                stopsCount: Math.max(1, scenicPlan.stops.length),
+                energyKWh: Math.round(fastestPlan.energyNeededKWh * 1.05 * 10) / 10,
+                arrivalSocPercent: Math.max(10, fastestPlan.arrivalBatteryPercent - 4),
+                viaDescription: 'Scenic route through cafes & rest plazas',
+                coordinates: coordsScenic,
+                plan: scenicPlan,
+            },
+            {
+                id: 'route-eco',
+                name: corridorNames[2],
+                tag: 'Eco' as const,
+                distanceKm: Math.round(fastestPlan.totalDistanceKm * 1.02),
+                driveMinutes: Math.round(fastestPlan.driveMinutes * 1.04),
+                stopsCount: Math.max(1, ecoPlan.stops.length),
+                energyKWh: Math.round(fastestPlan.energyNeededKWh * 0.94 * 10) / 10,
+                arrivalSocPercent: Math.min(95, fastestPlan.arrivalBatteryPercent + 3),
+                viaDescription: 'Eco corridor optimized for low battery consumption',
+                coordinates: coordsEco,
+                plan: ecoPlan,
+            },
+        ];
+    }, [fastestPlan, scenicPlan, ecoPlan, corridorNames, originLocation, destinationLocation]);
+
+    // Active Route Option
+    const activeRouteOption: TripRouteOption = useMemo(
+        () => routeOptions.find((r) => r.id === selectedRouteId) ?? routeOptions[0],
+        [routeOptions, selectedRouteId]
+    );
+
+    // Active Trip Plan computation
+    const tripPlan: TripPlan = useMemo(
+        () => ({
+            ...activeRouteOption.plan,
+            totalDistanceKm: activeRouteOption.distanceKm,
+            driveMinutes: activeRouteOption.driveMinutes,
+            energyNeededKWh: activeRouteOption.energyKWh,
+            arrivalBatteryPercent: activeRouteOption.arrivalSocPercent,
+            routeCoordinates: activeRouteOption.coordinates,
+        }),
+        [activeRouteOption]
     );
 
     // Combined active stops (auto recommendations + user added extra stations)
@@ -316,6 +538,23 @@ export default function TripPlannerScreen({ navigation }: any) {
         }
     };
 
+    // Handle Route Option Selection
+    const handleSelectRoute = (routeId: string) => {
+        setSelectedRouteId(routeId);
+        const selected = routeOptions.find((r) => r.id === routeId);
+        if (selected && mapRef.current && selected.coordinates.length > 1) {
+            mapRef.current.fitToCoordinates(selected.coordinates, {
+                edgePadding: {
+                    top: insets.top + 70,
+                    right: 40,
+                    bottom: Math.min(Math.round(currentSheetHeight.current * 0.75 + 30), Math.round(SCREEN_HEIGHT * 0.45)),
+                    left: 40,
+                },
+                animated: true,
+            });
+        }
+    };
+
     // Handle "Plan Trip" button press
     const handlePlanTrip = () => {
         setIsTripPlanned(true);
@@ -357,6 +596,8 @@ export default function TripPlannerScreen({ navigation }: any) {
                 initialSoc: departureBattery,
                 targetArrivalSoc,
                 plannedAt: new Date().toISOString(),
+                routeOption: activeRouteOption.name,
+                routeTag: activeRouteOption.tag,
             });
             setIsTripSaved(true);
             Alert.alert(
@@ -421,11 +662,27 @@ export default function TripPlannerScreen({ navigation }: any) {
                     }}
                     onMapReady={() => setTimeout(fitMapRoute, 300)}
                 >
-                    {/* Polyline Route */}
+                    {/* Alternate Unselected Route Polylines (Muted & Interactive) */}
+                    {routeOptions
+                        .filter((r) => r.id !== selectedRouteId)
+                        .map((alt) => (
+                            <Polyline
+                                key={`map-alt-${alt.id}`}
+                                coordinates={alt.coordinates}
+                                strokeColor={isDark ? '#64748B' : '#94A3B8'}
+                                strokeWidth={3.5}
+                                lineDashPattern={[7, 4]}
+                                tappable={true}
+                                onPress={() => handleSelectRoute(alt.id)}
+                            />
+                        ))}
+
+                    {/* Active Selected Route Polyline */}
                     <Polyline
-                        coordinates={tripPlan.routeCoordinates}
+                        key={`map-active-${activeRouteOption.id}`}
+                        coordinates={activeRouteOption.coordinates}
                         strokeColor={colors.primary}
-                        strokeWidth={4.5}
+                        strokeWidth={5}
                     />
 
                     {/* Start Marker */}
@@ -475,7 +732,7 @@ export default function TripPlannerScreen({ navigation }: any) {
 
                     <View style={[styles.floatingRoutePill, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
                         <ThemedText style={[styles.floatingRoutePillText, { color: colors.text }]} numberOfLines={1}>
-                            {originLocation.label} → {destinationLocation.label}
+                            {originLocation.label} → {destinationLocation.label} • {activeRouteOption.tag}
                         </ThemedText>
                     </View>
 
@@ -642,6 +899,92 @@ export default function TripPlannerScreen({ navigation }: any) {
                         contentContainerStyle={styles.sheetScrollContent}
                         keyboardShouldPersistTaps="handled"
                     >
+                        {/* ── MULTIPLE ROUTE OPTIONS SELECTOR ── */}
+                        <View style={styles.routeOptionsSection}>
+                            <View style={styles.routeOptionsHeader}>
+                                <View style={styles.routeOptionsTitleRow}>
+                                    <Route size={14} color={colors.primary} />
+                                    <ThemedText style={[styles.routeOptionsTitle, { color: colors.text }]}>
+                                        Route Options
+                                    </ThemedText>
+                                </View>
+                                <View style={[styles.routeCountBadge, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
+                                    <ThemedText style={[styles.routeCountText, { color: colors.primary }]}>
+                                        {routeOptions.length} available
+                                    </ThemedText>
+                                </View>
+                            </View>
+
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.routeOptionsList}
+                            >
+                                {routeOptions.map((opt) => {
+                                    const isSelected = opt.id === selectedRouteId;
+                                    return (
+                                        <TouchableOpacity
+                                            key={opt.id}
+                                            style={[
+                                                styles.routeOptionCard,
+                                                {
+                                                    backgroundColor: isSelected
+                                                        ? (isDark ? 'rgba(30, 151, 49, 0.12)' : '#F0FDF4')
+                                                        : (isDark ? colors.surfaceMuted : colors.backgroundAlt),
+                                                    borderColor: isSelected
+                                                        ? colors.primary
+                                                        : (isDark ? '#334155' : '#E2E8F0'),
+                                                },
+                                            ]}
+                                            activeOpacity={0.8}
+                                            onPress={() => handleSelectRoute(opt.id)}
+                                        >
+                                            <View style={styles.routeCardTopRow}>
+                                                <View
+                                                    style={[
+                                                        styles.routeTagBadge,
+                                                        {
+                                                            backgroundColor: isSelected
+                                                                ? (isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7')
+                                                                : (isDark ? '#1E293B' : '#E2E8F0'),
+                                                        },
+                                                    ]}
+                                                >
+                                                    <ThemedText
+                                                        style={[
+                                                            styles.routeTagText,
+                                                            { color: isSelected ? colors.primary : colors.textMuted },
+                                                        ]}
+                                                    >
+                                                        {opt.tag.toUpperCase()}
+                                                    </ThemedText>
+                                                </View>
+                                                {isSelected && <Check size={14} color={colors.primary} />}
+                                            </View>
+
+                                            <ThemedText
+                                                style={[
+                                                    styles.routeCardName,
+                                                    { color: isSelected ? colors.primary : colors.text },
+                                                ]}
+                                                numberOfLines={1}
+                                            >
+                                                {opt.name}
+                                            </ThemedText>
+
+                                            <ThemedText style={[styles.routeCardStats, { color: colors.text }]}>
+                                                {fmtTime(opt.driveMinutes)} • {opt.distanceKm} km
+                                            </ThemedText>
+
+                                            <ThemedText style={[styles.routeCardSubStats, { color: colors.textMuted }]}>
+                                                {opt.stopsCount} stop{opt.stopsCount === 1 ? '' : 's'} • {opt.energyKWh} kWh • {opt.arrivalSocPercent}% SoC
+                                            </ThemedText>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </ScrollView>
+                        </View>
+
                         {/* KPI Metrics */}
                         <View style={[styles.kpiContainer, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
                             <View style={styles.kpiItem}>
@@ -1686,6 +2029,80 @@ const styles = StyleSheet.create({
         paddingHorizontal: SPACING.md,
         paddingTop: 2,
         gap: 10,
+    },
+    // Route Options Selector
+    routeOptionsSection: {
+        marginBottom: 2,
+    },
+    routeOptionsHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    routeOptionsTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    routeOptionsTitle: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+    },
+    routeCountBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: RADIUS.chip,
+    },
+    routeCountText: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+    },
+    routeOptionsList: {
+        gap: 10,
+        paddingBottom: 2,
+    },
+    routeOptionCard: {
+        width: 195,
+        padding: 12,
+        borderRadius: RADIUS.card,
+        borderWidth: 1.5,
+    },
+    routeCardTopRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 6,
+    },
+    routeTagBadge: {
+        paddingHorizontal: 7,
+        paddingVertical: 2.5,
+        borderRadius: RADIUS.chip,
+    },
+    routeTagText: {
+        fontSize: 9.5,
+        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontWeight: '800',
+        letterSpacing: 0.5,
+    },
+    routeCardName: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+        marginBottom: 3,
+    },
+    routeCardStats: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.sansSemiBold,
+        fontWeight: '600',
+        marginBottom: 2,
+    },
+    routeCardSubStats: {
+        fontSize: 10.5,
+        fontFamily: FONT_FAMILIES.sansMedium,
+        fontWeight: '500',
     },
     kpiContainer: {
         flexDirection: 'row',
