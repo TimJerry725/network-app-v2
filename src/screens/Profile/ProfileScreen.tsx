@@ -404,7 +404,6 @@ const styles = StyleSheet.create({
         paddingBottom: SPACING.xl,
     },
     profileCard: {
-        padding: SPACING.md,
         marginBottom: SPACING.md,
     },
     userTopRow: {
@@ -473,7 +472,6 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     walletCard: {
-        padding: SPACING.md,
         marginBottom: SPACING.md,
     },
     walletHeader: {

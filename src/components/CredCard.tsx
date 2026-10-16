@@ -23,54 +23,40 @@ export function CredCard({
 }: CredCardProps) {
     const { colors, isDark } = useAppTheme();
 
-    const getOuterBorder = () => {
+    const getBorderColor = () => {
         if (variant === 'neon') return isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.25)';
         if (variant === 'gold') return isDark ? 'rgba(229, 229, 234, 0.35)' : 'rgba(0, 0, 0, 0.2)';
+        if (variant === 'recessed') return isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
         return isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)';
     };
 
-    const getInnerBackground = () => {
-        if (variant === 'recessed') return isDark ? '#0A0A0C' : '#EFEFED';
-        return isDark ? '#121216' : '#FFFFFF';
+    const getBackgroundColor = () => {
+        if (variant === 'recessed') return isDark ? '#0A0A0C' : '#F6F6F8';
+        return isDark ? '#141418' : '#FFFFFF';
     };
 
     return (
         <View
             style={[
-                styles.outerShell,
+                styles.card,
                 {
-                    backgroundColor: isDark ? '#18181E' : '#F2F2F0',
-                    borderColor: getOuterBorder(),
+                    backgroundColor: getBackgroundColor(),
+                    borderColor: getBorderColor(),
+                    padding: noPadding ? 0 : 16,
                 },
                 style,
             ]}
             {...props}
         >
-            <View
-                style={[
-                    styles.innerCore,
-                    {
-                        backgroundColor: getInnerBackground(),
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.03)',
-                        padding: noPadding ? 0 : 16,
-                    },
-                ]}
-            >
-                {children}
-            </View>
+            {children}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    outerShell: {
-        borderRadius: RADIUS.bezelOuter,
-        padding: 2,
+    card: {
+        borderRadius: RADIUS.card,
         borderWidth: 1,
-    },
-    innerCore: {
-        borderRadius: RADIUS.bezelInner,
-        borderWidth: 1,
-        overflow: 'hidden',
+        borderBottomWidth: 2.5,
     },
 });

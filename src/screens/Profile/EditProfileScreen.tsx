@@ -1052,7 +1052,6 @@ const styles = StyleSheet.create({
         paddingBottom: SPACING.xxl,
     },
     sectionCard: {
-        padding: SPACING.md,
         marginBottom: SPACING.md,
     },
     sectionHeaderRow: {
@@ -1176,7 +1175,6 @@ const styles = StyleSheet.create({
     modalCard: {
         width: '100%',
         maxWidth: 400,
-        padding: SPACING.md,
     },
     modalHeader: {
         flexDirection: 'row',
