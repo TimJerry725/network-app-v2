@@ -86,6 +86,7 @@ export function CredButton({
     const getBgColor = () => {
         if (disabled) return isDark ? '#222227' : '#E2E2E0';
         if (variant === 'neon') return '#FFFFFF'; // Stark chalk white
+        if (variant === 'dark') return isDark ? '#141418' : '#141418'; // True dark
         if (variant === 'gold') return isDark ? '#E5E5EA' : '#2C2C2E';
         if (variant === 'danger') return '#FF3B30';
         if (variant === 'outline') return isDark ? '#101014' : '#FFFFFF';
@@ -95,6 +96,7 @@ export function CredButton({
     const getTextColor = () => {
         if (disabled) return isDark ? '#6B6B70' : '#A1A1A6';
         if (variant === 'neon') return '#000000'; // Stark pitch black on pure white
+        if (variant === 'dark') return '#FFFFFF'; // Crisp white on dark
         if (variant === 'gold') return '#000000';
         if (variant === 'danger') return '#FFFFFF';
         return isDark ? '#FFFFFF' : '#0A0A0B';
@@ -103,6 +105,7 @@ export function CredButton({
     const getBorderColor = () => {
         if (disabled) return isDark ? '#333338' : '#C7C7CC';
         if (variant === 'neon') return '#000000';
+        if (variant === 'dark') return isDark ? 'rgba(255, 255, 255, 0.25)' : '#000000';
         if (variant === 'danger') return '#000000';
         if (variant === 'outline') return isDark ? '#FFFFFF' : '#000000';
         return isDark ? '#FFFFFF' : '#000000';

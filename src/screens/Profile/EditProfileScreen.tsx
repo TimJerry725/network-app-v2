@@ -855,21 +855,21 @@ export default function EditProfileScreen() {
                     </CredCard>
                 )}
 
-                {/* Save and Cancel Buttons in the same row */}
+                {/* Cancel and Save Buttons in the same row */}
                 <View style={styles.actionButtonsRow}>
-                    <CredButton
-                        title="SAVE"
-                        variant="neon"
-                        showTrailingIcon={false}
-                        containerStyle={{ flex: 1 }}
-                        onPress={handleSave}
-                    />
                     <CredButton
                         title="CANCEL"
                         variant="outline"
                         showTrailingIcon={false}
                         containerStyle={{ flex: 1 }}
                         onPress={() => navigation.goBack()}
+                    />
+                    <CredButton
+                        title="SAVE"
+                        variant="dark"
+                        showTrailingIcon={false}
+                        containerStyle={{ flex: 1 }}
+                        onPress={handleSave}
                     />
                 </View>
             </ScrollView>
