@@ -27,7 +27,7 @@ import { useVehicles } from '../../context/VehicleContext';
 
 export default function ProfileScreen() {
     const { colors, theme, setTheme, isDark } = useAppTheme();
-    const { user, topUpWallet, selectedVehicle, vehicles, selectVehicle } = useVehicles();
+    const { user, topUpWallet, selectedVehicle, vehicles } = useVehicles();
     const activeVehicle = selectedVehicle ?? vehicles[0];
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
@@ -141,20 +141,17 @@ export default function ProfileScreen() {
                                 <CarFront size={22} color={colors.primary} />
                             </View>
                             <View style={{ flex: 1 }}>
-                                <View style={styles.vehicleModelRow}>
-                                    <ThemedText style={FONTS.h3} numberOfLines={1}>
-                                        {activeVehicle ? `${activeVehicle.make} ${activeVehicle.model}` : 'No Vehicle Connected'}
-                                    </ThemedText>
-                                    {activeVehicle?.nickname ? (
-                                        <View style={[styles.nicknameBadge, { backgroundColor: isDark ? '#1C1C24' : '#F0F0F4' }]}>
-                                            <ThemedText style={[styles.nicknameText, { color: colors.textMuted }]}>
-                                                {activeVehicle.nickname}
-                                            </ThemedText>
-                                        </View>
-                                    ) : null}
-                                </View>
-                                <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                                    {activeVehicle ? `${activeVehicle.year} • ${activeVehicle.registrationNumber}` : 'Connect your EV'}
+                                <ThemedText style={FONTS.h3} numberOfLines={1}>
+                                    {activeVehicle
+                                        ? (activeVehicle.nickname || `${activeVehicle.make} ${activeVehicle.model}`)
+                                        : 'No Vehicle Connected'}
+                                </ThemedText>
+                                <ThemedText style={{ color: colors.textMuted, ...FONTS.caption, marginTop: 2 }}>
+                                    {activeVehicle
+                                        ? (activeVehicle.nickname
+                                            ? `${activeVehicle.make} ${activeVehicle.model} • ${activeVehicle.registrationNumber}`
+                                            : activeVehicle.registrationNumber)
+                                        : 'Connect your EV'}
                                 </ThemedText>
                             </View>
                         </View>
@@ -177,46 +174,6 @@ export default function ProfileScreen() {
                             <ThemedText style={[styles.editPillText, { color: colors.text }]}>EDIT</ThemedText>
                         </TouchableOpacity>
                     </View>
-
-                    {/* Multi-vehicle quick switch chips */}
-                    {vehicles.length > 1 && (
-                        <View style={styles.vehicleSwitcherRow}>
-                            {vehicles.map((v) => {
-                                const isSelected = activeVehicle?.id === v.id;
-                                return (
-                                    <TouchableOpacity
-                                        key={v.id}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                            selectVehicle(v.id);
-                                        }}
-                                        style={[
-                                            styles.vehicleSwitchPill,
-                                            isSelected
-                                                ? {
-                                                      backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                      borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                  }
-                                                : {
-                                                      backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                  },
-                                        ]}
-                                    >
-                                        <ThemedText
-                                            style={{
-                                                color: isSelected ? (isDark ? '#000000' : '#FFFFFF') : colors.textMuted,
-                                                fontSize: 11,
-                                                fontFamily: FONT_FAMILIES.bold,
-                                            }}
-                                        >
-                                            {v.nickname || `${v.make} ${v.model}`}
-                                        </ThemedText>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </View>
-                    )}
 
                     {activeVehicle && (
                         <>
@@ -576,21 +533,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    vehicleModelRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        flexWrap: 'wrap',
-    },
-    nicknameBadge: {
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: RADIUS.chip,
-    },
-    nicknameText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.bold,
-    },
     vehicleMetricsRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -608,19 +550,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-    },
-    vehicleSwitcherRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginTop: 10,
-        marginBottom: 2,
-    },
-    vehicleSwitchPill: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: RADIUS.pill,
-        borderWidth: 1,
     },
     walletCard: {
         padding: SPACING.md,
