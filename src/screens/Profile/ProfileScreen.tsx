@@ -50,11 +50,25 @@ export default function ProfileScreen() {
         <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <ChevronLeft size={28} color={colors.text} />
+                <TouchableOpacity
+                    onPress={() => {
+                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        navigation.goBack();
+                    }}
+                    style={[
+                        styles.backButton,
+                        {
+                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                        },
+                    ]}
+                    activeOpacity={0.8}
+                >
+                    <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                 </TouchableOpacity>
                 <ThemedText style={[styles.headerTitle, { color: colors.text }]}>Profile & Account</ThemedText>
-                <View style={{ width: 28 }} />
+                <View style={{ width: 38 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -273,8 +287,13 @@ const styles = StyleSheet.create({
         paddingVertical: SPACING.sm,
     },
     backButton: {
-        padding: SPACING.xs,
-        marginLeft: -SPACING.xs,
+        width: 38,
+        height: 38,
+        borderRadius: RADIUS.circle,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     headerTitle: {
         ...FONTS.h2,

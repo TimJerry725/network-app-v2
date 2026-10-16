@@ -259,17 +259,18 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     style={[
                         styles.backChevronBtn,
                         {
-                            backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                            borderColor: colors.cardBorder,
+                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
                         },
                     ]}
-                    activeOpacity={0.75}
+                    activeOpacity={0.8}
                     onPress={() => {
                         if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         navigation.goBack();
                     }}
                 >
-                    <ChevronLeft size={20} color={colors.text} />
+                    <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                 </TouchableOpacity>
 
                 <View style={styles.stationInfoWrap}>
@@ -1018,7 +1019,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 10,
-        borderWidth: 1,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     stationInfoWrap: {
         flex: 1,

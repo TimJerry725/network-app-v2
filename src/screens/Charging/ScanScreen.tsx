@@ -22,7 +22,6 @@ import {
     Flashlight,
     FlashlightOff,
     Keyboard,
-    RotateCcw,
     ScanLine,
     ShieldCheck,
     SlidersHorizontal,
@@ -253,14 +252,6 @@ export default function ScanScreen({ navigation, route }: any) {
         setTorchOn((prev) => !prev);
     };
 
-    // Cycle nearby station
-    const handleNextStation = () => {
-        if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }
-        setCurrentStationIndex((prev) => (prev + 1) % Math.min(stationsList.length, 5));
-    };
-
     const isCameraAvailable = Platform.OS !== 'web' && permission?.granted;
 
     return (
@@ -303,10 +294,13 @@ export default function ScanScreen({ navigation, route }: any) {
                         {navigation.canGoBack() ? (
                             <TouchableOpacity
                                 style={styles.tactileRoundBtn}
-                                onPress={() => navigation.goBack()}
+                                onPress={() => {
+                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    navigation.goBack();
+                                }}
                                 activeOpacity={0.8}
                             >
-                                <ChevronLeft size={20} color="#FFFFFF" />
+                                <ChevronLeft size={20} color="#FFFFFF" strokeWidth={2.5} />
                             </TouchableOpacity>
                         ) : (
                             <View style={styles.topBadgeChip}>
@@ -498,26 +492,6 @@ export default function ScanScreen({ navigation, route }: any) {
                                 {nearbyStation.address}
                             </ThemedText>
                         </View>
-
-                        {/* Switch station if other chargers nearby */}
-                        {stationsList.length > 1 && (
-                            <TouchableOpacity
-                                style={[
-                                    styles.switchStationBtn,
-                                    {
-                                        backgroundColor: isDark ? '#1C1C24' : '#F2F2F6',
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : '#000000',
-                                    },
-                                ]}
-                                onPress={handleNextStation}
-                                activeOpacity={0.8}
-                            >
-                                <RotateCcw size={12} color={isDark ? '#FFFFFF' : '#000000'} />
-                                <ThemedText style={styles.switchStationBtnText}>
-                                    NEXT ({currentStationIndex + 1}/{Math.min(stationsList.length, 5)})
-                                </ThemedText>
-                            </TouchableOpacity>
-                        )}
                     </View>
 
                     {/* ── CONNECTOR CARDS (MATCHES STATION DETAIL SCREEN LAYOUT) ── */}
@@ -960,12 +934,14 @@ const styles = StyleSheet.create({
         paddingTop: Platform.OS === 'android' ? 12 : 6,
     },
     tactileRoundBtn: {
-        width: 42,
-        height: 42,
+        width: 40,
+        height: 40,
         borderRadius: RADIUS.circle,
         backgroundColor: 'rgba(20, 20, 26, 0.75)',
         borderWidth: 1.5,
         borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderBottomWidth: 3,
+        borderBottomColor: 'rgba(0, 0, 0, 0.6)',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1243,20 +1219,6 @@ const styles = StyleSheet.create({
         fontSize: 11.5,
         color: '#8E8E93',
         marginTop: 2,
-    },
-    switchStationBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        paddingHorizontal: 9,
-        paddingVertical: 5,
-        borderRadius: RADIUS.pill,
-        borderWidth: 1.2,
-    },
-    switchStationBtnText: {
-        fontFamily: FONT_FAMILIES.bold,
-        fontSize: 9.5,
-        letterSpacing: 0.5,
     },
 
     // ── Connectors (Matches StationDetailScreen) ──

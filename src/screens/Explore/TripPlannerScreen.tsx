@@ -16,8 +16,8 @@ import {
 } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 import {
-    ArrowLeft,
     ArrowUpDown,
     Bookmark,
     BookmarkCheck,
@@ -229,6 +229,8 @@ export default function TripPlannerScreen({ navigation }: any) {
     const [isTripSaved, setIsTripSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedRouteId, setSelectedRouteId] = useState<string>('route-fastest');
+    const [showRouteOptions, setShowRouteOptions] = useState(false);
+    const [showRecommendedChargers, setShowRecommendedChargers] = useState(false);
 
     const sheetHeight = useRef(new Animated.Value(sheetSnapMid)).current;
     const currentSheetHeight = useRef(sheetSnapMid);
@@ -310,6 +312,8 @@ export default function TripPlannerScreen({ navigation }: any) {
         setCustomAddedStationIds([]);
         setIsTripSaved(false);
         setSelectedRouteId('route-fastest');
+        setShowRouteOptions(false);
+        setShowRecommendedChargers(false);
     }, [originId, destinationId]);
 
     // Locations resolution
@@ -499,6 +503,9 @@ export default function TripPlannerScreen({ navigation }: any) {
 
     // Toggle custom added stations
     const toggleAddCharger = (stationId: string) => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
         setCustomAddedStationIds((prev) =>
             prev.includes(stationId) ? prev.filter((id) => id !== stationId) : [...prev, stationId]
         );
@@ -518,6 +525,9 @@ export default function TripPlannerScreen({ navigation }: any) {
 
     // Swap start & end locations
     const handleSwapLocations = () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
         const temp = originId;
         setOriginId(destinationId);
         setDestinationId(temp);
@@ -540,6 +550,9 @@ export default function TripPlannerScreen({ navigation }: any) {
 
     // Handle Route Option Selection
     const handleSelectRoute = (routeId: string) => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
         setSelectedRouteId(routeId);
         const selected = routeOptions.find((r) => r.id === routeId);
         if (selected && mapRef.current && selected.coordinates.length > 1) {
@@ -557,8 +570,13 @@ export default function TripPlannerScreen({ navigation }: any) {
 
     // Handle "Plan Trip" button press
     const handlePlanTrip = () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }
         setIsTripPlanned(true);
         setIsSheetExpanded(true);
+        setShowRouteOptions(false);
+        setShowRecommendedChargers(false);
         sheetHeight.setValue(sheetSnapMid);
         currentSheetHeight.current = sheetSnapMid;
         setTimeout(fitMapRoute, 400);
@@ -600,6 +618,9 @@ export default function TripPlannerScreen({ navigation }: any) {
                 routeTag: activeRouteOption.tag,
             });
             setIsTripSaved(true);
+            if (Platform.OS !== 'web') {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
             Alert.alert(
                 'Trip Saved',
                 `${originLocation.label} → ${destinationLocation.label} has been saved to your trips.`
@@ -607,6 +628,9 @@ export default function TripPlannerScreen({ navigation }: any) {
         } catch (err) {
             console.log('tripPlannerService.saveTrip error:', err);
             setIsTripSaved(true);
+            if (Platform.OS !== 'web') {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
             Alert.alert(
                 'Trip Saved',
                 `${originLocation.label} → ${destinationLocation.label} has been saved.`
@@ -723,11 +747,21 @@ export default function TripPlannerScreen({ navigation }: any) {
                 {/* ── 2. Floating Top Header Controls ── */}
                 <View style={[styles.floatingTopBar, { top: insets.top + 8 }]}>
                     <TouchableOpacity
-                        style={[styles.floatingBackBtn, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}
+                        style={[
+                            styles.floatingBackBtn,
+                            {
+                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                            },
+                        ]}
                         activeOpacity={0.8}
-                        onPress={() => setIsTripPlanned(false)}
+                        onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            setIsTripPlanned(false);
+                        }}
                     >
-                        <ChevronLeft size={20} color={colors.text} />
+                        <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                     </TouchableOpacity>
 
                     <View style={[styles.floatingRoutePill, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
@@ -744,31 +778,6 @@ export default function TripPlannerScreen({ navigation }: any) {
                         <RotateCcw size={16} color={colors.text} />
                     </TouchableOpacity>
                 </View>
-
-                {/* ── Floating "Show Chargers & Itinerary" Pill on Map (Visible when collapsed) ── */}
-                {!isSheetExpanded && (
-                    <Animated.View
-                        style={[
-                            styles.floatingDragBackPill,
-                            {
-                                bottom: Animated.add(sheetHeight, 14),
-                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
-                            },
-                        ]}
-                    >
-                        <TouchableOpacity
-                            style={styles.floatingDragBackBtn}
-                            activeOpacity={0.85}
-                            onPress={() => snapTo(sheetSnapMid)}
-                        >
-                            <Zap size={14} color={colors.primary} fill={colors.primary} />
-                            <ThemedText style={[styles.floatingDragBackText, { color: colors.text }]}>
-                                Show Chargers & Itinerary
-                            </ThemedText>
-                            <ChevronUp size={16} color={colors.primary} />
-                        </TouchableOpacity>
-                    </Animated.View>
-                )}
 
                 {/* ── 3. Bottom Sheet Overlay (Draggable) ── */}
                 <Animated.View
@@ -872,7 +881,10 @@ export default function TripPlannerScreen({ navigation }: any) {
                                         { backgroundColor: isDark ? 'rgba(30, 151, 49, 0.15)' : '#DCFCE7' },
                                     ]}
                                     activeOpacity={0.85}
-                                    onPress={() => snapTo(sheetSnapMid)}
+                                    onPress={() => {
+                                        snapTo(sheetSnapMid);
+                                        setShowRecommendedChargers(true);
+                                    }}
                                 >
                                     <Zap size={13} color={colors.primary} fill={colors.primary} />
                                     <ThemedText style={[styles.peekChargersText, { color: colors.primary }]}>
@@ -899,90 +911,122 @@ export default function TripPlannerScreen({ navigation }: any) {
                         contentContainerStyle={styles.sheetScrollContent}
                         keyboardShouldPersistTaps="handled"
                     >
-                        {/* ── MULTIPLE ROUTE OPTIONS SELECTOR ── */}
+                        {/* ── MULTIPLE ROUTE OPTIONS (COLLAPSIBLE: HIDDEN AT FIRST) ── */}
                         <View style={styles.routeOptionsSection}>
-                            <View style={styles.routeOptionsHeader}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.routeOptionsTriggerBtn,
+                                    {
+                                        backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt,
+                                        borderColor: showRouteOptions
+                                            ? colors.primary
+                                            : isDark
+                                            ? '#334155'
+                                            : '#E2E8F0',
+                                    },
+                                ]}
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setShowRouteOptions((prev) => !prev);
+                                }}
+                            >
                                 <View style={styles.routeOptionsTitleRow}>
                                     <Route size={14} color={colors.primary} />
                                     <ThemedText style={[styles.routeOptionsTitle, { color: colors.text }]}>
                                         Route Options
                                     </ThemedText>
+                                    <View style={[styles.routeActivePill, { backgroundColor: isDark ? 'rgba(30, 151, 49, 0.2)' : '#DCFCE7' }]}>
+                                        <ThemedText style={[styles.routeActivePillText, { color: colors.primary }]}>
+                                            {activeRouteOption.tag}
+                                        </ThemedText>
+                                    </View>
                                 </View>
-                                <View style={[styles.routeCountBadge, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
-                                    <ThemedText style={[styles.routeCountText, { color: colors.primary }]}>
+
+                                <View style={styles.routeOptionsHeaderRight}>
+                                    <ThemedText style={[styles.routeOptionsHintText, { color: colors.textMuted }]}>
                                         {routeOptions.length} available
                                     </ThemedText>
+                                    {showRouteOptions ? (
+                                        <ChevronUp size={16} color={colors.text} />
+                                    ) : (
+                                        <ChevronDown size={16} color={colors.text} />
+                                    )}
                                 </View>
-                            </View>
+                            </TouchableOpacity>
 
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={styles.routeOptionsList}
-                            >
-                                {routeOptions.map((opt) => {
-                                    const isSelected = opt.id === selectedRouteId;
-                                    return (
-                                        <TouchableOpacity
-                                            key={opt.id}
-                                            style={[
-                                                styles.routeOptionCard,
-                                                {
-                                                    backgroundColor: isSelected
-                                                        ? (isDark ? 'rgba(30, 151, 49, 0.12)' : '#F0FDF4')
-                                                        : (isDark ? colors.surfaceMuted : colors.backgroundAlt),
-                                                    borderColor: isSelected
-                                                        ? colors.primary
-                                                        : (isDark ? '#334155' : '#E2E8F0'),
-                                                },
-                                            ]}
-                                            activeOpacity={0.8}
-                                            onPress={() => handleSelectRoute(opt.id)}
-                                        >
-                                            <View style={styles.routeCardTopRow}>
-                                                <View
-                                                    style={[
-                                                        styles.routeTagBadge,
-                                                        {
-                                                            backgroundColor: isSelected
-                                                                ? (isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7')
-                                                                : (isDark ? '#1E293B' : '#E2E8F0'),
-                                                        },
-                                                    ]}
-                                                >
-                                                    <ThemedText
+                            {/* Show below only when clicked */}
+                            {showRouteOptions && (
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={styles.routeOptionsList}
+                                    style={styles.routeOptionsListScroll}
+                                >
+                                    {routeOptions.map((opt) => {
+                                        const isSelected = opt.id === selectedRouteId;
+                                        return (
+                                            <TouchableOpacity
+                                                key={opt.id}
+                                                style={[
+                                                    styles.routeOptionCard,
+                                                    {
+                                                        backgroundColor: isSelected
+                                                            ? (isDark ? 'rgba(30, 151, 49, 0.12)' : '#F0FDF4')
+                                                            : (isDark ? colors.surfaceMuted : colors.backgroundAlt),
+                                                        borderColor: isSelected
+                                                            ? colors.primary
+                                                            : (isDark ? '#334155' : '#E2E8F0'),
+                                                    },
+                                                ]}
+                                                activeOpacity={0.8}
+                                                onPress={() => handleSelectRoute(opt.id)}
+                                            >
+                                                <View style={styles.routeCardTopRow}>
+                                                    <View
                                                         style={[
-                                                            styles.routeTagText,
-                                                            { color: isSelected ? colors.primary : colors.textMuted },
+                                                            styles.routeTagBadge,
+                                                            {
+                                                                backgroundColor: isSelected
+                                                                    ? (isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7')
+                                                                    : (isDark ? '#1E293B' : '#E2E8F0'),
+                                                            },
                                                         ]}
                                                     >
-                                                        {opt.tag.toUpperCase()}
-                                                    </ThemedText>
+                                                        <ThemedText
+                                                            style={[
+                                                                styles.routeTagText,
+                                                                { color: isSelected ? colors.primary : colors.textMuted },
+                                                            ]}
+                                                        >
+                                                            {opt.tag.toUpperCase()}
+                                                        </ThemedText>
+                                                    </View>
+                                                    {isSelected && <Check size={14} color={colors.primary} />}
                                                 </View>
-                                                {isSelected && <Check size={14} color={colors.primary} />}
-                                            </View>
 
-                                            <ThemedText
-                                                style={[
-                                                    styles.routeCardName,
-                                                    { color: isSelected ? colors.primary : colors.text },
-                                                ]}
-                                                numberOfLines={1}
-                                            >
-                                                {opt.name}
-                                            </ThemedText>
+                                                <ThemedText
+                                                    style={[
+                                                        styles.routeCardName,
+                                                        { color: isSelected ? colors.primary : colors.text },
+                                                    ]}
+                                                    numberOfLines={1}
+                                                >
+                                                    {opt.name}
+                                                </ThemedText>
 
-                                            <ThemedText style={[styles.routeCardStats, { color: colors.text }]}>
-                                                {fmtTime(opt.driveMinutes)} • {opt.distanceKm} km
-                                            </ThemedText>
+                                                <ThemedText style={[styles.routeCardStats, { color: colors.text }]}>
+                                                    {fmtTime(opt.driveMinutes)} • {opt.distanceKm} km
+                                                </ThemedText>
 
-                                            <ThemedText style={[styles.routeCardSubStats, { color: colors.textMuted }]}>
-                                                {opt.stopsCount} stop{opt.stopsCount === 1 ? '' : 's'} • {opt.energyKWh} kWh • {opt.arrivalSocPercent}% SoC
-                                            </ThemedText>
-                                        </TouchableOpacity>
-                                    );
-                                })}
-                            </ScrollView>
+                                                <ThemedText style={[styles.routeCardSubStats, { color: colors.textMuted }]}>
+                                                    {opt.stopsCount} stop{opt.stopsCount === 1 ? '' : 's'} • {opt.energyKWh} kWh • {opt.arrivalSocPercent}% SoC
+                                                </ThemedText>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </ScrollView>
+                            )}
                         </View>
 
                         {/* KPI Metrics */}
@@ -1022,125 +1066,169 @@ export default function TripPlannerScreen({ navigation }: any) {
                             </View>
                         </View>
 
-                            {/* ── RECOMMENDED CHARGERS ALONG ROUTE ── */}
+                            {/* ── RECOMMENDED CHARGERS ALONG ROUTE (COLLAPSIBLE: HIDDEN AT FIRST) ── */}
                             {tripPlan.recommendedStations.length > 0 && (
                                 <View style={styles.sheetSectionBlock}>
-                                    <View style={styles.chargersHeaderRow}>
-                                        <View>
-                                            <ThemedText style={[styles.sheetSectionTitle, { color: colors.text }]}>
-                                                Recommended Chargers Along Route
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.routeOptionsTriggerBtn,
+                                            {
+                                                backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt,
+                                                borderColor: showRecommendedChargers
+                                                    ? colors.primary
+                                                    : isDark
+                                                    ? '#334155'
+                                                    : '#E2E8F0',
+                                            },
+                                        ]}
+                                        activeOpacity={0.8}
+                                        onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            setShowRecommendedChargers((prev) => !prev);
+                                        }}
+                                    >
+                                        <View style={styles.routeOptionsTitleRow}>
+                                            <Zap size={14} color={colors.primary} fill={colors.primary} />
+                                            <ThemedText style={[styles.routeOptionsTitle, { color: colors.text }]}>
+                                                Recommended Chargers
                                             </ThemedText>
-                                            <ThemedText style={[styles.sheetSectionSub, { color: colors.textMuted }]}>
-                                                Tap '+ Add' to plan additional stops
-                                            </ThemedText>
+                                            {customAddedStationIds.length > 0 ? (
+                                                <View style={[styles.routeActivePill, { backgroundColor: isDark ? 'rgba(30, 151, 49, 0.2)' : '#DCFCE7' }]}>
+                                                    <ThemedText style={[styles.routeActivePillText, { color: colors.primary }]}>
+                                                        {customAddedStationIds.length} ADDED
+                                                    </ThemedText>
+                                                </View>
+                                            ) : (
+                                                tripPlan.stops.length > 0 && (
+                                                    <View style={[styles.routeActivePill, { backgroundColor: isDark ? 'rgba(30, 151, 49, 0.2)' : '#DCFCE7' }]}>
+                                                        <ThemedText style={[styles.routeActivePillText, { color: colors.primary }]}>
+                                                            {tripPlan.stops.length} IN PLAN
+                                                        </ThemedText>
+                                                    </View>
+                                                )
+                                            )}
                                         </View>
-                                        <View style={[styles.chargersCountPill, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
-                                            <ThemedText style={[styles.chargersCountText, { color: colors.primary }]}>
+
+                                        <View style={styles.routeOptionsHeaderRight}>
+                                            <ThemedText style={[styles.routeOptionsHintText, { color: colors.textMuted }]}>
                                                 {tripPlan.recommendedStations.length} available
                                             </ThemedText>
+                                            {showRecommendedChargers ? (
+                                                <ChevronUp size={16} color={colors.text} />
+                                            ) : (
+                                                <ChevronDown size={16} color={colors.text} />
+                                            )}
                                         </View>
-                                    </View>
+                                    </TouchableOpacity>
 
-                                    <View style={styles.chargersList}>
-                                        {tripPlan.recommendedStations.map((rec) => {
-                                            const isAutoStop = tripPlan.stops.some((s) => s.station.id === rec.station.id);
-                                            const isCustomAdded = customAddedStationIds.includes(rec.station.id);
-                                            const isInPlan = isAutoStop || isCustomAdded;
+                                    {/* Show below only when clicked */}
+                                    {showRecommendedChargers && (
+                                        <View style={styles.recommendedChargersExpanded}>
+                                            <ThemedText style={[styles.sheetSectionSub, { color: colors.textMuted, marginBottom: 8, marginLeft: 2 }]}>
+                                                Tap '+ Add' to plan additional stops along this corridor
+                                            </ThemedText>
+                                            <View style={styles.chargersList}>
+                                                {tripPlan.recommendedStations.map((rec) => {
+                                                    const isAutoStop = tripPlan.stops.some((s) => s.station.id === rec.station.id);
+                                                    const isCustomAdded = customAddedStationIds.includes(rec.station.id);
+                                                    const isInPlan = isAutoStop || isCustomAdded;
 
-                                            return (
-                                                <View
-                                                    key={`rec-${rec.station.id}`}
-                                                    style={[
-                                                        styles.chargerCard,
-                                                        {
-                                                            backgroundColor: isInPlan
-                                                                ? (isDark ? 'rgba(30, 151, 49, 0.12)' : '#F0FDF4')
-                                                                : (isDark ? colors.surfaceMuted : colors.backgroundAlt),
-                                                        },
-                                                    ]}
-                                                >
-                                                    <TouchableOpacity
-                                                        style={styles.chargerCardInfo}
-                                                        activeOpacity={0.75}
-                                                        onPress={() =>
-                                                            navigation.navigate('StationDetails', {
-                                                                stationId: rec.station.id,
-                                                                stationSnapshot: rec.station,
-                                                            })
-                                                        }
-                                                    >
+                                                    return (
                                                         <View
+                                                            key={`rec-${rec.station.id}`}
                                                             style={[
-                                                                styles.stationAvatar,
-                                                                { backgroundColor: isInPlan ? colors.primary : (isDark ? '#334155' : '#E2E8F0') },
+                                                                styles.chargerCard,
+                                                                {
+                                                                    backgroundColor: isInPlan
+                                                                        ? (isDark ? 'rgba(30, 151, 49, 0.12)' : '#F0FDF4')
+                                                                        : (isDark ? colors.surfaceMuted : colors.backgroundAlt),
+                                                                },
                                                             ]}
                                                         >
-                                                            <Zap size={14} color={isInPlan ? '#FFFFFF' : colors.primary} />
-                                                        </View>
-
-                                                        <View style={{ flex: 1 }}>
-                                                            <ThemedText style={[styles.chargerCardName, { color: colors.text }]} numberOfLines={1}>
-                                                                {rec.station.name}
-                                                            </ThemedText>
-                                                            <View style={styles.chargerCardMetaRow}>
-                                                                <ThemedText style={[styles.chargerCardMetaText, { color: colors.textMuted }]}>
-                                                                    {rec.distanceFromOriginKm} km from start
-                                                                </ThemedText>
-                                                                <ThemedText style={[styles.chargerCardMetaDot, { color: colors.textMuted }]}>•</ThemedText>
-                                                                <ThemedText style={[styles.chargerCardMetaText, { color: colors.textMuted }]}>
-                                                                    {rec.connector.power} kW
-                                                                </ThemedText>
-                                                                <ThemedText style={[styles.chargerCardMetaDot, { color: colors.textMuted }]}>•</ThemedText>
-                                                                <ThemedText style={[styles.chargerCardMetaText, { color: colors.textMuted }]}>
-                                                                    ₹{rec.bestPricePerKWh}/kWh
-                                                                </ThemedText>
-                                                            </View>
-                                                        </View>
-                                                    </TouchableOpacity>
-
-                                                    <View style={styles.chargerCardActionWrap}>
-                                                        {isAutoStop ? (
-                                                            <View style={[styles.inPlanBadge, { backgroundColor: isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7' }]}>
-                                                                <Check size={12} color={isDark ? '#4ADE80' : '#15803D'} />
-                                                                <ThemedText style={[styles.inPlanBadgeText, { color: isDark ? '#4ADE80' : '#15803D' }]}>
-                                                                    Planned Stop
-                                                                </ThemedText>
-                                                            </View>
-                                                        ) : (
                                                             <TouchableOpacity
-                                                                style={[
-                                                                    styles.addStopBtn,
-                                                                    {
-                                                                        backgroundColor: isCustomAdded
-                                                                            ? (isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7')
-                                                                            : colors.primary,
-                                                                    },
-                                                                ]}
-                                                                activeOpacity={0.8}
-                                                                onPress={() => toggleAddCharger(rec.station.id)}
+                                                                style={styles.chargerCardInfo}
+                                                                activeOpacity={0.75}
+                                                                onPress={() =>
+                                                                    navigation.navigate('StationDetails', {
+                                                                        stationId: rec.station.id,
+                                                                        stationSnapshot: rec.station,
+                                                                    })
+                                                                }
                                                             >
-                                                                {isCustomAdded ? (
-                                                                    <>
-                                                                        <Check size={13} color={isDark ? '#4ADE80' : '#15803D'} />
-                                                                        <ThemedText style={[styles.addStopBtnText, { color: isDark ? '#4ADE80' : '#15803D' }]}>
-                                                                            Added
+                                                                <View
+                                                                    style={[
+                                                                        styles.stationAvatar,
+                                                                        { backgroundColor: isInPlan ? colors.primary : (isDark ? '#334155' : '#E2E8F0') },
+                                                                    ]}
+                                                                >
+                                                                    <Zap size={14} color={isInPlan ? '#FFFFFF' : colors.primary} />
+                                                                </View>
+
+                                                                <View style={{ flex: 1 }}>
+                                                                    <ThemedText style={[styles.chargerCardName, { color: colors.text }]} numberOfLines={1}>
+                                                                        {rec.station.name}
+                                                                    </ThemedText>
+                                                                    <View style={styles.chargerCardMetaRow}>
+                                                                        <ThemedText style={[styles.chargerCardMetaText, { color: colors.textMuted }]}>
+                                                                            {rec.distanceFromOriginKm} km from start
                                                                         </ThemedText>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <Plus size={13} color="#FFFFFF" />
-                                                                        <ThemedText style={[styles.addStopBtnText, { color: '#FFFFFF' }]}>
-                                                                            Add to Route
+                                                                        <ThemedText style={[styles.chargerCardMetaDot, { color: colors.textMuted }]}>•</ThemedText>
+                                                                        <ThemedText style={[styles.chargerCardMetaText, { color: colors.textMuted }]}>
+                                                                            {rec.connector.power} kW
                                                                         </ThemedText>
-                                                                    </>
-                                                                )}
+                                                                        <ThemedText style={[styles.chargerCardMetaDot, { color: colors.textMuted }]}>•</ThemedText>
+                                                                        <ThemedText style={[styles.chargerCardMetaText, { color: colors.textMuted }]}>
+                                                                            ₹{rec.bestPricePerKWh}/kWh
+                                                                        </ThemedText>
+                                                                    </View>
+                                                                </View>
                                                             </TouchableOpacity>
-                                                        )}
-                                                    </View>
-                                                </View>
-                                            );
-                                        })}
-                                    </View>
+
+                                                            <View style={styles.chargerCardActionWrap}>
+                                                                {isAutoStop ? (
+                                                                    <View style={[styles.inPlanBadge, { backgroundColor: isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7' }]}>
+                                                                        <Check size={12} color={isDark ? '#4ADE80' : '#15803D'} />
+                                                                        <ThemedText style={[styles.inPlanBadgeText, { color: isDark ? '#4ADE80' : '#15803D' }]}>
+                                                                            Planned Stop
+                                                                        </ThemedText>
+                                                                    </View>
+                                                                ) : (
+                                                                    <TouchableOpacity
+                                                                        style={[
+                                                                            styles.addStopBtn,
+                                                                            {
+                                                                                backgroundColor: isCustomAdded
+                                                                                    ? (isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7')
+                                                                                    : colors.primary,
+                                                                            },
+                                                                        ]}
+                                                                        activeOpacity={0.8}
+                                                                        onPress={() => toggleAddCharger(rec.station.id)}
+                                                                    >
+                                                                        {isCustomAdded ? (
+                                                                            <>
+                                                                                <Check size={13} color={isDark ? '#4ADE80' : '#15803D'} />
+                                                                                <ThemedText style={[styles.addStopBtnText, { color: isDark ? '#4ADE80' : '#15803D' }]}>
+                                                                                    Added
+                                                                                </ThemedText>
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <Plus size={13} color="#FFFFFF" />
+                                                                                <ThemedText style={[styles.addStopBtnText, { color: '#FFFFFF' }]}>
+                                                                                    Add
+                                                                                </ThemedText>
+                                                                            </>
+                                                                        )}
+                                                                    </TouchableOpacity>
+                                                                )}
+                                                            </View>
+                                                        </View>
+                                                    );
+                                                })}
+                                            </View>
+                                        </View>
+                                    )}
                                 </View>
                             )}
 
@@ -1874,11 +1962,13 @@ const styles = StyleSheet.create({
         zIndex: 20,
     },
     floatingBackBtn: {
-        width: 36,
-        height: 36,
+        width: 38,
+        height: 38,
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     floatingRoutePill: {
         flex: 1,
@@ -2005,24 +2095,6 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         color: '#FFFFFF',
     },
-    floatingDragBackPill: {
-        position: 'absolute',
-        alignSelf: 'center',
-        borderRadius: RADIUS.pill,
-        zIndex: 35,
-    },
-    floatingDragBackBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-    },
-    floatingDragBackText: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
 
     // Expanded Bottom Sheet Scrollable Content
     sheetScrollContent: {
@@ -2030,35 +2102,55 @@ const styles = StyleSheet.create({
         paddingTop: 2,
         gap: 10,
     },
-    // Route Options Selector
+    // Route Options Selector (Collapsible)
     routeOptionsSection: {
-        marginBottom: 2,
+        marginBottom: 6,
     },
-    routeOptionsHeader: {
+    routeOptionsTriggerBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        paddingVertical: 9,
+        paddingHorizontal: 12,
+        borderRadius: RADIUS.tile,
+        borderWidth: 1,
     },
     routeOptionsTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
     },
     routeOptionsTitle: {
         fontSize: 13,
         fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
-    routeCountBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
+    routeActivePill: {
+        paddingHorizontal: 7,
+        paddingVertical: 2,
         borderRadius: RADIUS.chip,
     },
-    routeCountText: {
+    routeActivePillText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontWeight: '800',
+        letterSpacing: 0.4,
+    },
+    routeOptionsHeaderRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    routeOptionsHintText: {
         fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
+        fontFamily: FONT_FAMILIES.sansMedium,
+        fontWeight: '500',
+    },
+    routeOptionsListScroll: {
+        marginTop: 8,
+    },
+    recommendedChargersExpanded: {
+        marginTop: 8,
     },
     routeOptionsList: {
         gap: 10,

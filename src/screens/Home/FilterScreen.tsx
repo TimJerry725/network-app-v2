@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft, BatteryCharging, ChevronRight, MapPin, SlidersHorizontal, Sparkles, Zap } from 'lucide-react-native';
+import { ChevronLeft, BatteryCharging, ChevronRight, MapPin, SlidersHorizontal, Sparkles, Zap } from 'lucide-react-native';
 
 import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { ChademoIcon } from '../../components/ChademoIcon';
@@ -120,17 +120,21 @@ export default function FilterScreen() {
                 ]}
             >
                 <TouchableOpacity
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        navigation.goBack();
+                    }}
                     style={[
                         styles.backButton,
                         {
-                            backgroundColor: colors.surface,
-                            borderColor: colors.cardBorder,
+                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
                         },
                     ]}
-                    activeOpacity={0.7}
+                    activeOpacity={0.8}
                 >
-                    <ArrowLeft size={20} color={colors.text} />
+                    <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                 </TouchableOpacity>
 
                 <View style={styles.headerTitleWrap}>
@@ -454,12 +458,13 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
     },
     backButton: {
-        width: 40,
-        height: 40,
+        width: 38,
+        height: 38,
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     headerTitleWrap: {
         alignItems: 'center',

@@ -18,7 +18,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
 import {
-    ArrowLeft,
     ArrowRight,
     Bell,
     Check,
@@ -1631,7 +1630,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                 setFilterSheetView('main');
                                             }}
                                         >
-                                            <ArrowLeft size={18} color={colors.text} strokeWidth={2.5} />
+                                            <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                                         </TouchableOpacity>
                                         <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>
                                             Select Plugs
@@ -1813,30 +1812,29 @@ export default function StationMapScreen({ navigation }: any) {
                         {/* ── Sub-View: Charger Brands Selection ── */}
                         {filterSheetView === 'brands' && (
                             <>
-                                {/* Top Header: < back circle, centered "Chargers", Save button */}
-                                <View style={styles.brandSheetHeader}>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.sheetBackCircleBtn,
-                                            {
-                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                                            },
-                                        ]}
-                                        activeOpacity={0.8}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                            setFilterSheetView('main');
-                                        }}
-                                    >
-                                        <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
-                                    </TouchableOpacity>
-
-                                    <ThemedText style={[styles.brandSheetTitle, { color: colors.text }]}>
-                                        Charger Brands
-                                    </ThemedText>
-
+                                <View style={styles.filterSheetHeader}>
+                                    <View style={styles.sheetHeaderLeft}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.sheetBackCircleBtn,
+                                                {
+                                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                },
+                                            ]}
+                                            activeOpacity={0.8}
+                                            onPress={() => {
+                                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                setFilterSheetView('main');
+                                            }}
+                                        >
+                                            <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
+                                        </TouchableOpacity>
+                                        <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>
+                                            Select Chargers
+                                        </ThemedText>
+                                    </View>
                                     <TouchableOpacity
                                         style={[
                                             styles.filterSaveBtn,
@@ -1849,15 +1847,16 @@ export default function StationMapScreen({ navigation }: any) {
                                         activeOpacity={0.82}
                                         onPress={() => {
                                             if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                                            setFilterCriteria({ ...tempFilterCriteria });
                                             setFilterSheetView('main');
                                         }}
                                     >
                                         <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
-                                            SAVE
+                                            DONE
                                         </ThemedText>
                                     </TouchableOpacity>
                                 </View>
+
+                                <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
                                 <ScrollView
                                     showsVerticalScrollIndicator={false}
@@ -2491,17 +2490,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderWidth: 1.5,
         borderBottomWidth: 3,
-    },
-    brandSheetHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 6,
-        marginBottom: 8,
-    },
-    brandSheetTitle: {
-        fontSize: 17,
-        fontFamily: FONT_FAMILIES.bold,
     },
     brandScrollContent: {
         paddingBottom: 24,
