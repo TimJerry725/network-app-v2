@@ -31,6 +31,8 @@ import {
     Info,
     Pencil,
     ShieldCheck,
+    Star,
+    Users,
     Wifi,
     X,
     Zap,
@@ -411,15 +413,24 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                         activeOpacity={0.8}
                                         onPress={() => handleSelectTargetSoc(preset)}
                                     >
-                                        <ThemedText
-                                            style={[
-                                                styles.targetPresetText,
-                                                { color: isSelected ? '#000000' : colors.text },
-                                                isSelected && { fontFamily: FONT_FAMILIES.sansExtraBold, fontWeight: '800' },
-                                            ]}
-                                        >
-                                            {preset}%{preset === 80 ? ' ★' : ''}
-                                        </ThemedText>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                                            <ThemedText
+                                                style={[
+                                                    styles.targetPresetText,
+                                                    { color: isSelected ? '#000000' : colors.text },
+                                                    isSelected && { fontFamily: FONT_FAMILIES.sansExtraBold, fontWeight: '800' },
+                                                ]}
+                                            >
+                                                {preset}%
+                                            </ThemedText>
+                                            {preset === 80 && (
+                                                <Star
+                                                    size={11}
+                                                    color={isSelected ? '#000000' : colors.amber}
+                                                    fill={isSelected ? '#000000' : colors.amber}
+                                                />
+                                            )}
+                                        </View>
                                     </TouchableOpacity>
                                 );
                             })}
@@ -819,8 +830,9 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             </ThemedText>
                         </View>
                         <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
+                            <Users size={13} color={colors.primary} style={{ marginRight: 5 }} />
                             <ThemedText style={[styles.amenityText, { color: colors.text }]}>
-                                🚻 Restrooms
+                                Restrooms
                             </ThemedText>
                         </View>
                     </View>

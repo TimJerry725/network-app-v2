@@ -888,8 +888,9 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 >
                                     <Zap size={13} color={colors.primary} fill={colors.primary} />
                                     <ThemedText style={[styles.peekChargersText, { color: colors.primary }]}>
-                                        {tripPlan.recommendedStations.length} Chargers • Drag up ▲
+                                        {tripPlan.recommendedStations.length} Chargers • Drag up
                                     </ThemedText>
+                                    <ChevronUp size={13} color={colors.primary} strokeWidth={2.5} />
                                 </TouchableOpacity>
 
                                 <TouchableOpacity

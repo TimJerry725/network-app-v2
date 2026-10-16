@@ -9,7 +9,7 @@ import {
     View,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { Mic, Plus, Search, Sparkles, Zap, MapPin, BatteryCharging, ArrowUpRight } from 'lucide-react-native';
+import { Mic, Plus, Search, Sparkles, Zap, MapPin, BatteryCharging, ArrowUpRight, Route, CheckCircle2 } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
 import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -65,25 +65,29 @@ export function ChatPromptBar({
     const defaultChips: ChatPromptChip[] = [
         {
             id: 'fast',
-            label: '⚡ 60kW+ Fast Chargers',
+            label: '60kW+ Fast Chargers',
+            icon: <Zap size={13} color={colors.mint} fill={colors.mint} />,
             color: colors.mint,
             bg: isDark ? 'rgba(16, 185, 129, 0.16)' : '#ECFDF5',
         },
         {
             id: 'trip',
-            label: '🛣 Plan Trip to Mysuru',
+            label: 'Plan Trip to Mysuru',
+            icon: <Route size={13} color={colors.lavender} />,
             color: colors.lavender,
             bg: isDark ? 'rgba(91, 97, 246, 0.18)' : '#EEF0FF',
         },
         {
             id: 'avail',
-            label: '🟢 Available Right Now',
+            label: 'Available Right Now',
+            icon: <CheckCircle2 size={13} color={colors.coral} />,
             color: colors.coral,
             bg: isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFF0ED',
         },
         {
             id: 'battery',
-            label: '🔋 Check Range',
+            label: 'Check Range',
+            icon: <BatteryCharging size={13} color={colors.amber} />,
             color: colors.amber,
             bg: isDark ? 'rgba(255, 192, 67, 0.16)' : '#FEF3C7',
         },
@@ -100,8 +104,8 @@ export function ChatPromptBar({
         } else if (onSelectPrompt) {
             onSelectPrompt(chip.label);
         } else {
-            handleTextChange(chip.label.replace(/^[^\w\s]+/, '').trim());
-            onSearchSubmit?.(chip.label.replace(/^[^\w\s]+/, '').trim());
+            handleTextChange(chip.label.trim());
+            onSearchSubmit?.(chip.label.trim());
         }
     };
 
@@ -134,6 +138,7 @@ export function ChatPromptBar({
                         activeOpacity={0.8}
                         onPress={() => handleChipPress(chip)}
                     >
+                        {chip.icon ? chip.icon : null}
                         <ThemedText
                             style={[
                                 styles.chipText,
@@ -221,6 +226,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 2,
     },
     chipPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
         paddingHorizontal: 12,
         paddingVertical: 7,
         borderRadius: RADIUS.pill,

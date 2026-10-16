@@ -203,7 +203,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
         Alert.alert('Help & Support', 'Our support team is available 24/7.', [
             { text: 'Cancel', style: 'cancel' },
             {
-                text: '📞 Call 1800-419-IRIS',
+                text: 'Call 1800-419-IRIS',
                 onPress: () => Linking.openURL('tel:18004194747'),
             },
         ]);
