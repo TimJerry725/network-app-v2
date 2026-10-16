@@ -40,9 +40,8 @@ export default function FavoritesScreen({ navigation }: any) {
                         style={[
                             styles.headerBadge,
                             {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
-                                borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                             },
                         ]}
                     >
@@ -165,12 +164,13 @@ const styles = StyleSheet.create({
     headerBadge: {
         minWidth: 52,
         height: 38,
-        borderRadius: RADIUS.chip,
-        paddingHorizontal: 12,
+        borderRadius: RADIUS.pill,
+        paddingHorizontal: 14,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
         gap: 6,
+        borderWidth: 1,
     },
     card: {
         marginBottom: 14,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
         width: 36,
         height: 36,
         borderRadius: RADIUS.circle,
-        borderWidth: 1.2,
+        borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },

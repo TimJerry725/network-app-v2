@@ -750,9 +750,8 @@ export default function TripPlannerScreen({ navigation }: any) {
                         style={[
                             styles.floatingBackBtn,
                             {
-                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
                         activeOpacity={0.8}
@@ -764,14 +763,14 @@ export default function TripPlannerScreen({ navigation }: any) {
                         <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                     </TouchableOpacity>
 
-                    <View style={[styles.floatingRoutePill, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
+                    <View style={[styles.floatingRoutePill, { backgroundColor: isDark ? '#16171E' : '#FFFFFF', borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]}>
                         <ThemedText style={[styles.floatingRoutePillText, { color: colors.text }]} numberOfLines={1}>
                             {originLocation.label} → {destinationLocation.label} • {activeRouteOption.tag}
                         </ThemedText>
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.floatingIconBtn, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}
+                        style={[styles.floatingIconBtn, { backgroundColor: isDark ? '#16171E' : '#FFFFFF', borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]}
                         activeOpacity={0.8}
                         onPress={fitMapRoute}
                     >
@@ -965,6 +964,17 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 >
                                     {routeOptions.map((opt) => {
                                         const isSelected = opt.id === selectedRouteId;
+                                        const tagBg = opt.tag === 'Fastest'
+                                            ? (isDark ? 'rgba(91, 97, 246, 0.2)' : '#EEF0FF')
+                                            : opt.tag === 'Scenic'
+                                            ? (isDark ? 'rgba(255, 192, 67, 0.2)' : '#FEF3C7')
+                                            : (isDark ? 'rgba(16, 185, 129, 0.2)' : '#ECFDF5');
+                                        const tagColor = opt.tag === 'Fastest'
+                                            ? colors.lavender
+                                            : opt.tag === 'Scenic'
+                                            ? colors.amber
+                                            : colors.mint;
+
                                         return (
                                             <TouchableOpacity
                                                 key={opt.id}
@@ -972,11 +982,12 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                     styles.routeOptionCard,
                                                     {
                                                         backgroundColor: isSelected
-                                                            ? (isDark ? 'rgba(30, 151, 49, 0.12)' : '#F0FDF4')
-                                                            : (isDark ? colors.surfaceMuted : colors.backgroundAlt),
+                                                            ? (isDark ? '#1C1D26' : '#FFFFFF')
+                                                            : (isDark ? '#16171E' : '#FFFFFF'),
                                                         borderColor: isSelected
-                                                            ? colors.primary
-                                                            : (isDark ? '#334155' : '#E2E8F0'),
+                                                            ? colors.coral
+                                                            : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
+                                                        borderWidth: isSelected ? 1.5 : 1,
                                                     },
                                                 ]}
                                                 activeOpacity={0.8}
@@ -986,29 +997,25 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                     <View
                                                         style={[
                                                             styles.routeTagBadge,
-                                                            {
-                                                                backgroundColor: isSelected
-                                                                    ? (isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7')
-                                                                    : (isDark ? '#1E293B' : '#E2E8F0'),
-                                                            },
+                                                            { backgroundColor: tagBg },
                                                         ]}
                                                     >
                                                         <ThemedText
                                                             style={[
                                                                 styles.routeTagText,
-                                                                { color: isSelected ? colors.primary : colors.textMuted },
+                                                                { color: tagColor },
                                                             ]}
                                                         >
                                                             {opt.tag.toUpperCase()}
                                                         </ThemedText>
                                                     </View>
-                                                    {isSelected && <Check size={14} color={colors.primary} />}
+                                                    {isSelected && <Check size={14} color={colors.coral} strokeWidth={2.5} />}
                                                 </View>
 
                                                 <ThemedText
                                                     style={[
                                                         styles.routeCardName,
-                                                        { color: isSelected ? colors.primary : colors.text },
+                                                        { color: isSelected ? colors.coral : colors.text },
                                                     ]}
                                                     numberOfLines={1}
                                                 >
@@ -1029,34 +1036,77 @@ export default function TripPlannerScreen({ navigation }: any) {
                             )}
                         </View>
 
-                        {/* KPI Metrics */}
-                        <View style={[styles.kpiContainer, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
-                            <View style={styles.kpiItem}>
-                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Distance</ThemedText>
-                                <ThemedText style={[styles.kpiValue, { color: colors.text }]}>
+                        {/* Expressive Color Block KPI Tiles */}
+                        <View style={styles.kpiGrid}>
+                            <View
+                                style={[
+                                    styles.kpiBlock,
+                                    {
+                                        backgroundColor: isDark ? 'rgba(91, 97, 246, 0.12)' : '#EEF0FF',
+                                        borderColor: isDark ? 'rgba(91, 97, 246, 0.25)' : '#D0D4FE',
+                                    },
+                                ]}
+                            >
+                                <ThemedText style={[styles.kpiBlockLabel, { color: colors.lavender }]}>
+                                    Distance
+                                </ThemedText>
+                                <ThemedText style={[styles.kpiBlockValue, { color: colors.text }]}>
                                     {tripPlan.totalDistanceKm} km
                                 </ThemedText>
                             </View>
-                            <View style={styles.kpiItem}>
-                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Stops</ThemedText>
-                                <ThemedText style={[styles.kpiValue, { color: colors.text }]}>
+
+                            <View
+                                style={[
+                                    styles.kpiBlock,
+                                    {
+                                        backgroundColor: isDark ? 'rgba(255, 192, 67, 0.12)' : '#FEF3C7',
+                                        borderColor: isDark ? 'rgba(255, 192, 67, 0.25)' : '#FDE68A',
+                                    },
+                                ]}
+                            >
+                                <ThemedText style={[styles.kpiBlockLabel, { color: colors.amber }]}>
+                                    Stops
+                                </ThemedText>
+                                <ThemedText style={[styles.kpiBlockValue, { color: colors.text }]}>
                                     {activeStops.length}
                                 </ThemedText>
                             </View>
-                            <View style={styles.kpiItem}>
-                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Energy</ThemedText>
-                                <ThemedText style={[styles.kpiValue, { color: colors.primary }]}>
+
+                            <View
+                                style={[
+                                    styles.kpiBlock,
+                                    {
+                                        backgroundColor: isDark ? 'rgba(255, 91, 69, 0.12)' : '#FFEBE8',
+                                        borderColor: isDark ? 'rgba(255, 91, 69, 0.25)' : '#FFD3CD',
+                                    },
+                                ]}
+                            >
+                                <ThemedText style={[styles.kpiBlockLabel, { color: colors.coral }]}>
+                                    Energy
+                                </ThemedText>
+                                <ThemedText style={[styles.kpiBlockValue, { color: colors.coral }]}>
                                     {tripPlan.energyNeededKWh} kWh
                                 </ThemedText>
                             </View>
-                            <View style={styles.kpiItem}>
-                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Arrival SoC</ThemedText>
+
+                            <View
+                                style={[
+                                    styles.kpiBlock,
+                                    {
+                                        backgroundColor: isDark ? 'rgba(16, 185, 129, 0.12)' : '#D1FAE5',
+                                        borderColor: isDark ? 'rgba(16, 185, 129, 0.25)' : '#A7F3D0',
+                                    },
+                                ]}
+                            >
+                                <ThemedText style={[styles.kpiBlockLabel, { color: colors.mint }]}>
+                                    Arrival SoC
+                                </ThemedText>
                                 <ThemedText
                                     style={[
-                                        styles.kpiValue,
+                                        styles.kpiBlockValue,
                                         {
                                             color: tripPlan.arrivalBatteryPercent >= targetArrivalSoc
-                                                ? colors.primary
+                                                ? colors.mint
                                                 : '#EF4444',
                                         },
                                     ]}
@@ -1967,8 +2017,7 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     floatingRoutePill: {
         flex: 1,
@@ -2110,9 +2159,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 9,
-        paddingHorizontal: 12,
-        borderRadius: RADIUS.tile,
+        paddingVertical: 11,
+        paddingHorizontal: 16,
+        borderRadius: RADIUS.pill,
         borderWidth: 1,
     },
     routeOptionsTitleRow: {
@@ -2126,9 +2175,9 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     routeActivePill: {
-        paddingHorizontal: 7,
-        paddingVertical: 2,
-        borderRadius: RADIUS.chip,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: RADIUS.pill,
     },
     routeActivePillText: {
         fontSize: 10,
@@ -2157,8 +2206,8 @@ const styles = StyleSheet.create({
         paddingBottom: 2,
     },
     routeOptionCard: {
-        width: 195,
-        padding: 12,
+        width: 200,
+        padding: 14,
         borderRadius: RADIUS.card,
         borderWidth: 1.5,
     },
@@ -2166,12 +2215,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 6,
+        marginBottom: 8,
     },
     routeTagBadge: {
-        paddingHorizontal: 7,
-        paddingVertical: 2.5,
-        borderRadius: RADIUS.chip,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: RADIUS.pill,
     },
     routeTagText: {
         fontSize: 9.5,
@@ -2195,6 +2244,33 @@ const styles = StyleSheet.create({
         fontSize: 10.5,
         fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
+    },
+    kpiGrid: {
+        flexDirection: 'row',
+        gap: 8,
+        marginVertical: 4,
+    },
+    kpiBlock: {
+        flex: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 6,
+        borderRadius: RADIUS.squircle,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+    },
+    kpiBlockLabel: {
+        fontSize: 9,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+        letterSpacing: 0.5,
+        marginBottom: 4,
+        textTransform: 'uppercase',
+    },
+    kpiBlockValue: {
+        fontSize: 14,
+        fontFamily: FONT_FAMILIES.sansExtraBold,
+        fontWeight: '800',
     },
     kpiContainer: {
         flexDirection: 'row',

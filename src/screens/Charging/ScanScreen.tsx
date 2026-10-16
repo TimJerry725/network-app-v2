@@ -445,9 +445,8 @@ export default function ScanScreen({ navigation, route }: any) {
                 style={[
                     styles.bottomDrawer,
                     {
-                        backgroundColor: isDark ? '#0E0E13' : '#FFFFFF',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : '#000000',
-                        borderBottomColor: '#000000',
+                        backgroundColor: isDark ? '#0D0E13' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         paddingBottom: Math.max(88, insets.bottom + 76),
                     },
                 ]}
@@ -529,17 +528,15 @@ export default function ScanScreen({ navigation, route }: any) {
                                             ? [
                                                   styles.connectorCardSelected,
                                                   {
-                                                      backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                      borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                      borderBottomColor: isDark ? '#9E9EA8' : '#000000',
+                                                      backgroundColor: isDark ? '#1C1D26' : '#FFFFFF',
+                                                      borderColor: colors.coral,
                                                   },
                                               ]
                                             : [
                                                   styles.connectorCardUnselected,
                                                   {
-                                                      backgroundColor: isDark ? '#101014' : '#F7F7F9',
-                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
-                                                      borderBottomColor: isDark ? '#050508' : '#D4D4DC',
+                                                      backgroundColor: isDark ? '#16171E' : '#F7F7F9',
+                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                                   },
                                               ],
                                     ]}
@@ -627,9 +624,8 @@ export default function ScanScreen({ navigation, route }: any) {
                                                 style={[
                                                     styles.smartCutoffButton,
                                                     {
-                                                        backgroundColor: isDark ? '#22222A' : '#FFFFFF',
-                                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : '#000000',
-                                                        borderBottomColor: isDark ? '#050508' : '#000000',
+                                                        backgroundColor: isDark ? '#22232D' : '#FFFFFF',
+                                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
                                                     },
                                                 ]}
                                                 onPress={() => {
@@ -642,7 +638,7 @@ export default function ScanScreen({ navigation, route }: any) {
                                             >
                                                 <SlidersHorizontal
                                                     size={14}
-                                                    color={isDark ? '#FFFFFF' : '#000000'}
+                                                    color={colors.text}
                                                 />
                                                 <ThemedText
                                                     style={[
@@ -658,9 +654,7 @@ export default function ScanScreen({ navigation, route }: any) {
                                                 style={[
                                                     styles.startChargingButton,
                                                     {
-                                                        backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                        borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                        borderBottomColor: isDark ? '#B0B0B8' : '#333338',
+                                                        backgroundColor: colors.coral,
                                                     },
                                                 ]}
                                                 onPress={() => {
@@ -669,17 +663,17 @@ export default function ScanScreen({ navigation, route }: any) {
                                                     }
                                                     handleStartSession(connector.id);
                                                 }}
-                                                activeOpacity={0.82}
+                                                activeOpacity={0.85}
                                             >
                                                 <Zap
                                                     size={15}
-                                                    color={isDark ? '#000000' : '#FFFFFF'}
-                                                    fill={isDark ? '#000000' : '#FFFFFF'}
+                                                    color="#FFFFFF"
+                                                    fill="#FFFFFF"
                                                 />
                                                 <ThemedText
                                                     style={[
                                                         styles.startChargingText,
-                                                        { color: isDark ? '#000000' : '#FFFFFF' },
+                                                        { color: '#FFFFFF' },
                                                     ]}
                                                 >
                                                     Start Charging
@@ -937,11 +931,9 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: RADIUS.circle,
-        backgroundColor: 'rgba(20, 20, 26, 0.75)',
-        borderWidth: 1.5,
-        borderColor: 'rgba(255, 255, 255, 0.2)',
-        borderBottomWidth: 3,
-        borderBottomColor: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: 'rgba(22, 23, 30, 0.85)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1093,18 +1085,18 @@ const styles = StyleSheet.create({
     },
     cpidInputBox: {
         width: '100%',
-        height: 44,
+        height: 46,
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(15, 15, 20, 0.85)',
-        borderRadius: RADIUS.button,
-        borderWidth: 1.5,
-        borderColor: 'rgba(255, 255, 255, 0.18)',
-        paddingHorizontal: 10,
+        backgroundColor: '#16171E',
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        paddingHorizontal: 12,
         gap: 8,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
+        shadowOpacity: 0.25,
         shadowRadius: 8,
         elevation: 6,
     },
@@ -1237,16 +1229,14 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.card,
         paddingHorizontal: 14,
         paddingVertical: 12,
-        borderWidth: 1.5,
+        borderWidth: 1,
         position: 'relative',
     },
     connectorCardSelected: {
-        borderWidth: 2,
-        borderBottomWidth: 4.5,
+        borderWidth: 1.5,
     },
     connectorCardUnselected: {
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     vehicleMatchBadge: {
         position: 'absolute',
@@ -1334,13 +1324,12 @@ const styles = StyleSheet.create({
     smartCutoffButton: {
         flex: 1,
         flexDirection: 'row',
-        borderRadius: RADIUS.button,
-        paddingVertical: 11,
+        borderRadius: RADIUS.pill,
+        paddingVertical: 12,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderWidth: 1,
     },
     smartCutoffText: {
         fontSize: 12,
@@ -1350,13 +1339,12 @@ const styles = StyleSheet.create({
     startChargingButton: {
         flex: 1.2,
         flexDirection: 'row',
-        borderRadius: RADIUS.button,
-        paddingVertical: 11,
+        borderRadius: RADIUS.pill,
+        paddingVertical: 12,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderWidth: 0,
     },
     startChargingText: {
         fontSize: 12,
@@ -1387,7 +1375,8 @@ const styles = StyleSheet.create({
     manualModalCard: {
         borderTopLeftRadius: RADIUS.bottomSheet,
         borderTopRightRadius: RADIUS.bottomSheet,
-        borderWidth: 2,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
         borderBottomWidth: 0,
         padding: SPACING.lg,
         paddingBottom: SPACING.xl,
@@ -1417,16 +1406,15 @@ const styles = StyleSheet.create({
     },
     modalInputWrap: {
         marginTop: 16,
-        borderRadius: RADIUS.input,
-        borderWidth: 1.8,
-        borderBottomWidth: 3.5,
-        paddingHorizontal: 14,
-        height: 54,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
+        paddingHorizontal: 16,
+        height: 52,
         justifyContent: 'center',
     },
     modalTextInput: {
         fontFamily: FONT_FAMILIES.bold,
-        fontSize: 18,
+        fontSize: 16,
         letterSpacing: 1.5,
     },
     modalBtnRow: {
@@ -1440,7 +1428,8 @@ const styles = StyleSheet.create({
     settingsModalSheet: {
         borderTopLeftRadius: RADIUS.bottomSheet,
         borderTopRightRadius: RADIUS.bottomSheet,
-        borderTopWidth: 2,
+        borderTopWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
         padding: SPACING.lg,
         paddingBottom: 36,
     },
@@ -1475,11 +1464,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 14,
-        paddingHorizontal: 14,
-        borderRadius: RADIUS.button,
+        paddingHorizontal: 16,
+        borderRadius: RADIUS.squircle,
         marginVertical: 4,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     cutoffOptionText: {
         fontSize: 13,

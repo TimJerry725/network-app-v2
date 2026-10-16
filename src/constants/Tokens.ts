@@ -142,33 +142,34 @@ export const SPACING = {
     xxl: 48,
 };
 
-// Radius tokens with unified geometric hierarchy across all components
+// Radius tokens with ultra-smooth squircle & capsule hierarchy (matches reference)
 export const RADIUS = {
-    chip: 8,
-    input: 14,
-    button: 14,
-    card: 16,
-    cardLg: 20,
-    bezelOuter: 20,
-    bezelInner: 16,
-    bottomSheet: 24,
-    modal: 20,
-    tile: 14,
-    pill: 999,
-    circle: 999,
+    chip: 9999,
+    input: 9999,
+    button: 9999,
+    card: 28,
+    cardLg: 32,
+    squircle: 24,
+    bezelOuter: 28,
+    bezelInner: 24,
+    bottomSheet: 32,
+    modal: 28,
+    tile: 20,
+    pill: 9999,
+    circle: 9999,
 
     // Aliases for backward compatibility
-    neoBox: 14,
+    neoBox: 24,
 };
 
-// Neo-Brutalist 3D Spatial Architecture
+// Minimal Smooth Architecture (Replaces 3D Neo-Brutalism with Soft Modern Touch)
 export const NEO_BRUTALISM = {
-    buttonDepth: 4,
-    buttonDepthLg: 6,
-    borderWidth: 2,
-    borderWidthThick: 2.5,
-    shadowColorDark: '#000000',
-    shadowColorLight: '#070709',
+    buttonDepth: 0,
+    buttonDepthLg: 0,
+    borderWidth: 0,
+    borderWidthThick: 1,
+    shadowColorDark: 'transparent',
+    shadowColorLight: 'transparent',
     textShadow: {
         sm: {
             textShadowColor: 'transparent',
@@ -203,27 +204,26 @@ export const NEO_BRUTALISM = {
     },
 };
 
-// CRED Double-Bezel (Doppelrand) Architecture Styles
+// Soft Squircle Nested Architecture Styles
 export const CRED_BEZEL = StyleSheet.create({
     outerShell: {
         borderRadius: RADIUS.bezelOuter,
         padding: 2,
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.08)',
-        backgroundColor: '#141418',
+        backgroundColor: '#16171E',
     },
     innerCore: {
         borderRadius: RADIUS.bezelInner,
         padding: 16,
-        backgroundColor: '#0E0E12',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.04)',
+        backgroundColor: '#1A1B23',
+        borderWidth: 0,
     },
     neonGlowBorder: {
-        borderColor: 'rgba(0, 229, 117, 0.35)',
+        borderColor: 'rgba(16, 185, 129, 0.35)',
     },
     goldGlowBorder: {
-        borderColor: 'rgba(245, 166, 35, 0.35)',
+        borderColor: 'rgba(255, 192, 67, 0.35)',
     },
 });
 

@@ -19,8 +19,10 @@ import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
 import {
     ArrowRight,
+    ArrowUpRight,
     Bell,
     Check,
+    ChevronDown,
     ChevronLeft,
     ChevronRight,
     Clock3,
@@ -49,6 +51,7 @@ import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { Type2Icon } from '../../components/Type2Icon';
 import { ChademoIcon } from '../../components/ChademoIcon';
 import { Neo3DMorphIcon } from '../../components/Neo3DMorphIcon';
+import { ChatPromptBar } from '../../components/ChatPromptBar';
 export type MapFilterState = {
     chargerTypes: string[];
     connectorTypes: string[];
@@ -1035,139 +1038,85 @@ export default function StationMapScreen({ navigation }: any) {
 
             <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
                 <View style={styles.topOverlay} pointerEvents="box-none">
-                    <View
-                        style={[
-                            styles.searchBarWrapper,
-                            {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                            },
-                        ]}
-                    >
-                        <Search size={20} color={colors.textSoft} />
-                        <TextInput
-                            style={[styles.searchInput, { color: colors.text }]}
-                            placeholder="Search here"
-                            placeholderTextColor={colors.textSoft}
-                            value={searchText}
-                            onChangeText={(value) => {
-                                setSearchText(value);
-                            }}
-                        />
-                        <View style={styles.searchActions}>
-                            <TouchableOpacity style={styles.searchActionIcon}>
-                                <Mic size={18} color={colors.textSoft} />
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={styles.profileWrapper}
-                                onPress={() => navigation.navigate('Profile' as never)}
-                            >
-                                <View style={[styles.profileCircle, { backgroundColor: colors.primarySoft }]}>
-                                    <User size={14} color={colors.primary} />
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.filterScroll}
-                        contentContainerStyle={styles.filterContainer}
-                        pointerEvents="auto"
-                    >
-                        {filterOptions.map((filter) => {
-                            const isActive = activeFilter === filter.id;
-
-                            return (
-                                <TouchableOpacity
-                                    key={filter.id}
-                                    activeOpacity={0.82}
-                                    style={[
-                                        styles.filterChip,
-                                        isActive
-                                            ? {
-                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                  borderWidth: 1.5,
-                                                  borderBottomWidth: 3.5,
-                                                  borderBottomColor: isDark ? '#A0A0A8' : '#222228',
-                                                  transform: [{ translateY: 1.5 }],
-                                              }
-                                            : {
-                                                  backgroundColor: isDark ? '#111115' : '#F6F6F8',
-                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                  borderWidth: 1,
-                                                  borderBottomWidth: 1.5,
-                                                  borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.12)',
-                                              },
-                                    ]}
-                                    onPress={() => {
-                                        if (Platform.OS !== 'web') {
-                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                        }
-                                        setActiveFilter((prev) => (prev === filter.id ? '' : filter.id));
-                                    }}
-                                >
-                                    <Neo3DMorphIcon
-                                        name={filter.id.toLowerCase()}
-                                        isSelected={isActive}
-                                        size={12}
-                                        activeColor={isDark ? '#000000' : '#FFFFFF'}
-                                        inactiveColor={colors.textMuted}
-                                        style={{ marginRight: 6 }}
-                                    />
-                                    <ThemedText
-                                        style={{
-                                            color: isActive ? (isDark ? '#000000' : '#FFFFFF') : colors.text,
-                                            fontSize: 12,
-                                            fontWeight: isActive ? '800' : '600',
-                                            fontFamily: isActive
-                                                ? FONT_FAMILIES.sansExtraBold
-                                                : FONT_FAMILIES.sansSemiBold,
-                                        }}
-                                    >
-                                        {filter.label}
-                                    </ThemedText>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </ScrollView>
-
-                    {/* Wallet Balance Chip in Right Corner below Filters */}
-                    <View style={styles.walletFilterRow} pointerEvents="box-none">
+                    {/* Top Row: User Avatar, Location Pill, Wallet Pill */}
+                    <View style={styles.topHeaderRow}>
                         <TouchableOpacity
-                            activeOpacity={0.8}
                             style={[
-                                styles.filterChip,
+                                styles.profileCapsule,
                                 {
-                                    backgroundColor: colors.surface,
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
+                            activeOpacity={0.8}
                             onPress={() => navigation.navigate('Profile' as never)}
                         >
-                            <Wallet
-                                size={13}
-                                color={colors.primary}
-                                style={{ marginRight: 6 }}
-                            />
-                            <ThemedText
-                                style={{
-                                    color: colors.text,
-                                    ...FONTS.caption,
-                                    fontWeight: '700',
-                                }}
-                            >
-                                ₹{user.walletBalance.toFixed(2)}
+                            <User size={16} color={colors.text} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.locationPill,
+                                {
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                },
+                            ]}
+                            activeOpacity={0.8}
+                            onPress={handleLocateMe}
+                        >
+                            <MapPin size={13} color={colors.coral} fill={colors.coral} />
+                            <ThemedText style={[styles.locationPillText, { color: colors.text }]}>
+                                Bengaluru, KA
+                            </ThemedText>
+                            <ChevronDown size={14} color={colors.textMuted} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.walletHeaderPill,
+                                {
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                },
+                            ]}
+                            activeOpacity={0.8}
+                            onPress={() => navigation.navigate('Profile' as never)}
+                        >
+                            <Wallet size={13} color={colors.amber} />
+                            <ThemedText style={[styles.walletHeaderText, { color: colors.text }]}>
+                                ₹{user.walletBalance.toFixed(0)}
                             </ThemedText>
                         </TouchableOpacity>
                     </View>
+
+                    {/* Chat Prompt Bar with Waveform & Quick Action Chips */}
+                    <ChatPromptBar
+                        value={searchText}
+                        onChangeText={setSearchText}
+                        onSelectPrompt={(prompt: string) => {
+                            if (prompt.includes('60kW') || prompt.includes('Fast')) {
+                                setActiveFilter((prev) => (prev === 'Fastest' ? '' : 'Fastest'));
+                            } else if (prompt.includes('Mysuru') || prompt.includes('trip') || prompt.includes('Trip')) {
+                                navigation.navigate('TripPlanner');
+                            } else if (prompt.includes('Available')) {
+                                setActiveFilter((prev) => (prev === 'Available' ? '' : 'Available'));
+                            } else if (prompt.includes('Amenities')) {
+                                setActiveFilter((prev) => (prev === 'Amenities' ? '' : 'Amenities'));
+                            } else {
+                                setSearchText(prompt);
+                            }
+                        }}
+                        onActionPress={() => {
+                            setTempFilterCriteria({ ...filterCriteria });
+                            setIsFilterSheetVisible(true);
+                        }}
+                    />
                 </View>
 
-                
+                {/* Bottom Stations Cards Carousel */}
                 <View
-                    style={[styles.bottomOverlay, { bottom: tabBarOffset + 22 }]}
+                    style={[styles.bottomOverlay, { bottom: tabBarOffset + 18 }]}
                     pointerEvents="box-none"
                 >
                     <View style={styles.floatingActionStack} pointerEvents="box-none">
@@ -1175,9 +1124,8 @@ export default function StationMapScreen({ navigation }: any) {
                             style={[
                                 styles.floatingActionButton,
                                 {
-                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
                             activeOpacity={0.82}
@@ -1192,9 +1140,8 @@ export default function StationMapScreen({ navigation }: any) {
                             style={[
                                 styles.floatingActionButton,
                                 {
-                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
                             activeOpacity={0.82}
@@ -1206,166 +1153,154 @@ export default function StationMapScreen({ navigation }: any) {
                         >
                             <Filter size={18} color={colors.text} />
                         </TouchableOpacity>
-                        <TouchableOpacity
+                    </View>
+
+                    <View style={styles.sheetHeader}>
+                        <View
                             style={[
-                                styles.floatingActionButton,
+                                styles.countBadge,
                                 {
-                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
-                            activeOpacity={0.82}
-                            onPress={() => {
-                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            }}
                         >
-                            <Bell size={18} color={colors.text} fill={colors.text} />
-                        </TouchableOpacity>
-                    </View>
-                        <View style={styles.sheetHeader}>
-                            <View
-                                style={[
-                                    styles.countBadge,
-                                    {
-                                        backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
-                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
-                                    },
-                                ]}
-                            >
-                                <MapPinned size={14} color={colors.primary} />
-                                <ThemedText style={{ color: colors.text, ...FONTS.caption, fontFamily: FONT_FAMILIES.bold, letterSpacing: 0.8 }}>
-                                    {nearbyStations.length} STATIONS NEARBY
-                                </ThemedText>
-                            </View>
+                            <MapPinned size={14} color={colors.coral} />
+                            <ThemedText style={{ color: colors.text, ...FONTS.caption, fontFamily: FONT_FAMILIES.bold, letterSpacing: 0.5 }}>
+                                {nearbyStations.length} STATIONS NEARBY
+                            </ThemedText>
                         </View>
+                    </View>
 
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.listContent}
-                            snapToInterval={280 + 12}
-                            decelerationRate="fast"
-                        >
-                            {nearbyStations.map((station: Station) => {
-                                const connector = getRecommendedConnector(
-                                    station,
-                                    selectedVehicle?.connectorType
-                                );
-                                const isSelected = station.id === selectedStation?.id;
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.listContent}
+                        snapToInterval={290 + 12}
+                        decelerationRate="fast"
+                    >
+                        {nearbyStations.map((station: Station) => {
+                            const connector = getRecommendedConnector(
+                                station,
+                                selectedVehicle?.connectorType
+                            );
+                            const isSelected = station.id === selectedStation?.id;
+                            const availableCount = station.connectors.filter(c => c.status === 'Available').length;
 
-                                return (
-                                    <TouchableOpacity
-                                        key={station.id}
-                                        activeOpacity={0.85}
-                                        style={[
-                                            styles.stationRow,
-                                            isSelected
-                                                ? {
-                                                      backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                      borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                      borderWidth: 1.5,
-                                                      borderBottomWidth: 4,
-                                                      borderBottomColor: isDark ? '#A0A0A8' : '#000000',
-                                                      transform: [{ translateY: -1 }],
-                                                  }
-                                                : {
-                                                      backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
-                                                      borderWidth: 1,
-                                                      borderBottomWidth: 2.5,
-                                                      borderBottomColor: isDark ? '#050508' : '#D0D0D5',
-                                                  },
-                                        ]}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') {
-                                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                                            }
-                                            handleSelectStation(station, {
-                                                openSheet: true,
-                                            });
-                                        }}
-                                    >
-                                        <View style={styles.stationRowTop}>
-                                            <View style={styles.stationInfo}>
-                                                <ThemedText
-                                                    style={[
-                                                        styles.stationName,
-                                                        {
-                                                            color: isSelected
-                                                                ? (isDark ? '#FFFFFF' : '#000000')
-                                                                : colors.text,
-                                                        },
-                                                    ]}
-                                                    numberOfLines={1}
-                                                >
-                                                    {station.name}
-                                                </ThemedText>
-                                                <ThemedText
-                                                    style={{
-                                                        color: isSelected
-                                                            ? (isDark ? '#A0A0A8' : '#55555A')
-                                                            : colors.textMuted,
-                                                        ...FONTS.caption,
-                                                    }}
-                                                    numberOfLines={1}
-                                                >
-                                                    {resolvedAddresses[station.id] ?? station.address}
-                                                </ThemedText>
-                                                <ThemedText
-                                                    style={{
-                                                        color: isSelected
-                                                            ? (isDark ? '#A0A0A8' : '#55555A')
-                                                            : colors.textMuted,
-                                                        ...FONTS.caption,
-                                                    }}
-                                                >
-                                                    {station.distanceKm} km • {station.etaMinutes} min •{' '}
-                                                    {station.rating.toFixed(1)}★
-                                                </ThemedText>
-                                                <View style={styles.stationMetaRow}>
-                                                    <View
-                                                        style={[
-                                                            styles.typeBadge,
-                                                            {
-                                                                backgroundColor: isSelected
-                                                                    ? (isDark ? 'rgba(255,255,255,0.15)' : '#E0E0E6')
-                                                                    : colors.primarySoft,
-                                                            },
-                                                        ]}
-                                                    >
-                                                        <Zap
-                                                            size={11}
-                                                            color={isDark ? colors.primary : colors.primaryStrong}
-                                                            fill={isDark ? colors.primary : colors.primaryStrong}
-                                                        />
-                                                        <ThemedText style={[styles.typeText, { color: colors.primaryStrong }]}>
-                                                            {connector.power}kW
-                                                        </ThemedText>
-                                                    </View>
-                                                    <ThemedText
-                                                        style={{
-                                                            color: isSelected
-                                                                ? (isDark ? '#A0A0A8' : '#55555A')
-                                                                : colors.textMuted,
-                                                            ...FONTS.caption,
-                                                        }}
-                                                    >
-                                                        ₹{connector.pricePerKWh.toFixed(2)}/kWh
-                                                    </ThemedText>
-                                                </View>
-
-
-                                            </View>
+                            return (
+                                <TouchableOpacity
+                                    key={station.id}
+                                    activeOpacity={0.88}
+                                    style={[
+                                        styles.stationRow,
+                                        {
+                                            backgroundColor: isSelected
+                                                ? (isDark ? '#1C1D26' : '#FFFFFF')
+                                                : (isDark ? '#16171E' : '#FFFFFF'),
+                                            borderColor: isSelected
+                                                ? colors.coral
+                                                : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
+                                            borderWidth: isSelected ? 1.5 : 1,
+                                        },
+                                    ]}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                        }
+                                        handleSelectStation(station, {
+                                            openSheet: true,
+                                        });
+                                    }}
+                                >
+                                    <View style={styles.stationRowTop}>
+                                        <View style={styles.stationInfo}>
+                                            <ThemedText
+                                                style={[
+                                                    styles.stationName,
+                                                    { color: colors.text },
+                                                ]}
+                                                numberOfLines={1}
+                                            >
+                                                {station.name}
+                                            </ThemedText>
+                                            <ThemedText
+                                                style={{
+                                                    color: colors.textMuted,
+                                                    ...FONTS.caption,
+                                                }}
+                                                numberOfLines={1}
+                                            >
+                                                {resolvedAddresses[station.id] ?? station.address}
+                                            </ThemedText>
                                         </View>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </ScrollView>
-                </View>
 
-                </SafeAreaView>
+                                        {/* Button-in-Button Diagonal Arrow (↗) Action */}
+                                        <View
+                                            style={[
+                                                styles.cardActionCircle,
+                                                {
+                                                    backgroundColor: isSelected
+                                                        ? colors.coral
+                                                        : (isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'),
+                                                },
+                                            ]}
+                                        >
+                                            <ArrowUpRight
+                                                size={16}
+                                                color={isSelected ? '#FFFFFF' : colors.text}
+                                                strokeWidth={2.5}
+                                            />
+                                        </View>
+                                    </View>
+
+                                    <View style={styles.stationMetaRow}>
+                                        <View
+                                            style={[
+                                                styles.typeBadge,
+                                                {
+                                                    backgroundColor: isDark ? 'rgba(255, 91, 69, 0.14)' : '#FFE5E0',
+                                                },
+                                            ]}
+                                        >
+                                            <Zap
+                                                size={11}
+                                                color={colors.coral}
+                                                fill={colors.coral}
+                                            />
+                                            <ThemedText style={[styles.typeText, { color: colors.coral }]}>
+                                                {connector.power}kW Fast
+                                            </ThemedText>
+                                        </View>
+
+                                        <View
+                                            style={[
+                                                styles.typeBadge,
+                                                {
+                                                    backgroundColor: isDark ? 'rgba(16, 185, 129, 0.14)' : '#D1FAE5',
+                                                },
+                                            ]}
+                                        >
+                                            <ThemedText style={[styles.typeText, { color: colors.mint }]}>
+                                                {availableCount > 0 ? `${availableCount} available` : 'In use'}
+                                            </ThemedText>
+                                        </View>
+
+                                        <ThemedText
+                                            style={{
+                                                color: colors.textMuted,
+                                                ...FONTS.caption,
+                                                marginLeft: 'auto',
+                                            }}
+                                        >
+                                            {station.distanceKm} km • ₹{connector.pricePerKWh.toFixed(0)}/kWh
+                                        </ThemedText>
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+            </SafeAreaView>
 
             {/* ── Filter Bottom Sheet Modal ── */}
             <Modal
@@ -1677,18 +1612,14 @@ export default function StationMapScreen({ navigation }: any) {
                                                     styles.plugFilterCard,
                                                     selected
                                                         ? {
-                                                              backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                              borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                              borderWidth: 2,
-                                                              borderBottomWidth: 4.5,
-                                                              borderBottomColor: isDark ? '#9E9EA8' : '#000000',
+                                                              backgroundColor: isDark ? '#1C1D26' : '#FFFFFF',
+                                                              borderColor: colors.coral,
+                                                              borderWidth: 1.5,
                                                           }
                                                         : {
-                                                              backgroundColor: isDark ? '#121216' : '#F6F6F8',
-                                                              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                              borderWidth: 1.5,
-                                                              borderBottomWidth: 3,
-                                                              borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                                              backgroundColor: isDark ? '#16171E' : '#F6F6F8',
+                                                              borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                                              borderWidth: 1,
                                                           },
                                                 ]}
                                                 onPress={() => {
@@ -1941,82 +1872,62 @@ const styles = StyleSheet.create({
     },
     topOverlay: {
         position: 'absolute',
-        top: 60,
+        top: 50,
         left: 0,
         right: 0,
         paddingHorizontal: SPACING.md,
     },
-    searchBarWrapper: {
-        height: 52,
-        borderRadius: RADIUS.input,
-        paddingHorizontal: SPACING.md,
+    topHeaderRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        justifyContent: 'space-between',
+        marginBottom: 10,
+        paddingHorizontal: 2,
     },
-    searchInput: {
-        flex: 1,
-        ...FONTS.body,
-        marginLeft: 12,
-        height: '100%',
-    },
-    searchActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    searchActionIcon: {
-        padding: 4,
-    },
-    profileWrapper: {
-        marginLeft: 4,
-    },
-    profileCircle: {
-        width: 34,
-        height: 34,
+    profileCapsule: {
+        width: 38,
+        height: 38,
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
     },
-    filterScroll: {
-        marginTop: 12,
-        flexGrow: 0,
-    },
-    filterContainer: {
-        paddingRight: SPACING.md,
-        gap: SPACING.sm,
-    },
-    filterChip: {
+    locationPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: RADIUS.chip,
         paddingHorizontal: 14,
         paddingVertical: 8,
+        borderRadius: RADIUS.pill,
+        gap: 6,
+        borderWidth: 1,
     },
-    filterIconChip: {
-        width: 36,
-        height: 36,
-        borderRadius: RADIUS.circle,
-        alignItems: 'center',
-        justifyContent: 'center',
+    locationPillText: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.bold,
     },
-    walletFilterRow: {
-        marginTop: 10,
+    walletHeaderPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: RADIUS.pill,
+        gap: 6,
+        borderWidth: 1,
     },
-    markerOuter: {
-        width: 34,
-        height: 34,
-        borderRadius: RADIUS.circle,
+    walletHeaderText: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.bold,
+    },
+    cardActionCircle: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
     },
     floatingActionStack: {
         position: 'absolute',
-        top: -154,
+        top: -110,
         right: SPACING.md,
         alignItems: 'center',
         gap: 8,
@@ -2028,8 +1939,12 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 4,
     },
     bottomOverlay: {
         position: 'absolute',
@@ -2042,41 +1957,34 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
-        marginBottom: SPACING.md,
-    },
-    sheetHandle: {
-        width: 40,
-        height: 5,
-        borderRadius: RADIUS.pill,
-        marginBottom: 8,
+        marginBottom: SPACING.sm,
     },
     countBadge: {
-        minWidth: 48,
         paddingVertical: 6,
         paddingHorizontal: 12,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.pill,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
         borderWidth: 1,
-        borderBottomWidth: 2,
     },
     listContent: {
         paddingLeft: 20,
         paddingRight: 10,
-        paddingBottom: 20,
+        paddingBottom: 16,
         flexDirection: 'row',
         gap: 12,
     },
     stationRow: {
-        width: 250,
+        width: 290,
         borderRadius: RADIUS.card,
-        padding: 14,
+        padding: 16,
     },
     stationRowTop: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         gap: 8,
     },
     stationInfo: {
@@ -2351,7 +2259,7 @@ const styles = StyleSheet.create({
     filterSheetContainer: {
         borderTopLeftRadius: RADIUS.bottomSheet,
         borderTopRightRadius: RADIUS.bottomSheet,
-        borderTopWidth: 2,
+        borderTopWidth: 1,
         paddingHorizontal: 20,
         paddingTop: 12,
     },
@@ -2375,11 +2283,9 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     filterSaveBtn: {
-        paddingHorizontal: 20,
-        paddingVertical: 9,
+        paddingHorizontal: 22,
+        paddingVertical: 10,
         borderRadius: RADIUS.button,
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
     },
     filterSaveBtnText: {
         fontSize: 12,
@@ -2402,16 +2308,15 @@ const styles = StyleSheet.create({
     },
     segmentedControl: {
         flexDirection: 'row',
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
         padding: 3,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
         width: 140,
     },
     segmentOption: {
         flex: 1,
         paddingVertical: 7,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.pill,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -2429,8 +2334,7 @@ const styles = StyleSheet.create({
         paddingVertical: 14,
         paddingHorizontal: 14,
         borderRadius: RADIUS.card,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     filterNavTitle: {
         fontSize: 15,
@@ -2458,7 +2362,7 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         borderRadius: RADIUS.circle,
-        borderWidth: 1.5,
+        borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -2473,8 +2377,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         marginTop: 14,
         borderRadius: RADIUS.button,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
     },
     filterResetText: {
         fontSize: 12,
@@ -2488,8 +2390,7 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     brandScrollContent: {
         paddingBottom: 24,
@@ -2516,9 +2417,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 10,
         paddingHorizontal: 12,
-        borderRadius: RADIUS.tile,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderRadius: RADIUS.card,
+        borderWidth: 1,
         marginBottom: 8,
     },
     brandItemLeft: {
@@ -2611,8 +2511,7 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.button,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     plugsQuickActionText: {
         fontSize: 11,

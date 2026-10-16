@@ -41,11 +41,9 @@ export default function PaymentScreen({ route, navigation }: any) {
                         style={[
                             styles.successIcon,
                             {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                borderWidth: 2,
-                                borderBottomWidth: 4,
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                borderWidth: 1,
                             },
                         ]}
                     >
@@ -292,9 +290,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         height: 48,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
         gap: 8,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
 });

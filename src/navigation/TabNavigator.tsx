@@ -43,41 +43,20 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         <View
             style={[
                 styles.barOuter,
-                { bottom: Math.max(12, insets.bottom) },
+                { bottom: Math.max(16, insets.bottom + 6) },
             ]}
             pointerEvents="box-none"
         >
-            {/* 3D Physical Drop-Plate Shadow Slab */}
-            <View
-                style={[
-                    styles.dockShadowPlate,
-                    { backgroundColor: isDark ? '#000000' : '#141418' },
-                ]}
-            />
-
-            {/* Elevated Spatial Neo-Brutalist Dock Chassis */}
+            {/* Elevated Minimal Floating Capsule Dock Chassis */}
             <View
                 style={[
                     styles.dockContainer,
                     {
-                        backgroundColor: isDark ? '#101016' : '#FFFFFF',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : '#000000',
-                        borderBottomColor: isDark ? '#000000' : '#000000',
+                        backgroundColor: isDark ? 'rgba(20, 21, 28, 0.94)' : 'rgba(255, 255, 255, 0.96)',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                     },
                 ]}
             >
-                {/* Specular Top Light Reflection */}
-                <View
-                    style={[
-                        styles.dockSpecularLine,
-                        {
-                            backgroundColor: isDark
-                                ? 'rgba(255, 255, 255, 0.18)'
-                                : 'rgba(255, 255, 255, 0.95)',
-                        },
-                    ]}
-                />
-
                 {state.routes.map((route, index) => {
                     const isFocused = state.index === index;
                     const config = TAB_CONFIG.find((t) => t.name === route.name) ?? {
@@ -140,39 +119,26 @@ export default function TabNavigator() {
 const styles = StyleSheet.create({
     barOuter: {
         position: 'absolute',
-        left: 14,
-        right: 14,
+        left: 20,
+        right: 20,
         alignItems: 'center',
         zIndex: 999,
     },
-    dockShadowPlate: {
-        position: 'absolute',
-        top: 3.5,
-        left: 0,
-        right: 0,
-        bottom: -3.5,
-        borderRadius: RADIUS.bottomSheet,
-    },
     dockContainer: {
         width: '100%',
-        height: 64,
-        borderRadius: RADIUS.bottomSheet,
-        borderWidth: 1.8,
-        borderBottomWidth: 3.5,
+        height: 60,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 6,
+        paddingHorizontal: 8,
         position: 'relative',
-        overflow: 'visible',
-    },
-    dockSpecularLine: {
-        position: 'absolute',
-        top: 0,
-        left: 20,
-        right: 20,
-        height: 1.2,
-        borderRadius: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 16,
+        elevation: 10,
     },
     wingTabSlot: {
         flex: 1,
@@ -181,10 +147,9 @@ const styles = StyleSheet.create({
         zIndex: 2,
     },
     centerScanSlot: {
-        width: 68,
+        width: 60,
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 10,
-        overflow: 'visible',
     },
 });

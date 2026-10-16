@@ -636,17 +636,11 @@ export default function DashboardScreen({ navigation }: any) {
                         style={[
                             styles.automationCard,
                             {
-                                backgroundColor: colors.surface,
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
                                 borderColor: item.active
-                                    ? (isDark ? '#FFFFFF' : '#000000')
-                                    : colors.cardBorder,
-                                borderBottomColor: item.active
-                                    ? (isDark ? '#B0B0B8' : '#222228')
-                                    : isDark
-                                    ? '#060608'
-                                    : '#D0D0D0',
-                                borderBottomWidth: item.active ? 2 : 3.5,
-                                transform: [{ translateY: item.active ? 2 : 0 }],
+                                    ? colors.coral
+                                    : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
+                                borderWidth: 1,
                             },
                         ]}
                     >
@@ -838,8 +832,6 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: RADIUS.card,
         borderWidth: 1,
-        borderBottomWidth: 3,
-        borderBottomColor: '#070709',
     },
     podIconHeader: {
         flexDirection: 'row',

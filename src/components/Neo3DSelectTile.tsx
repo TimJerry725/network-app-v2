@@ -211,18 +211,16 @@ export function Neo3DSelectTile({
                         isSelected ? [
                             styles.podActive,
                             {
-                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                borderColor: isDark ? '#FFFFFF' : '#000000',
-                                borderBottomColor: isDark ? '#A0A0A8' : '#222228',
-                                borderBottomWidth: 4, // 3D Physical Extruded Bevel
+                                backgroundColor: isDark ? '#1C1D26' : '#FFFFFF',
+                                borderColor: colors.coral,
+                                borderWidth: 1.5,
                             },
                         ] : [
                             styles.podInactive,
                             {
-                                backgroundColor: isDark ? '#111115' : '#F6F6F8',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                borderBottomWidth: 1.5, // Resting flat wireframe
-                                borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.12)',
+                                backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                borderWidth: 1,
                             },
                         ],
                     ]}
@@ -345,8 +343,8 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     podBase: {
-        borderRadius: RADIUS.tile,
-        borderWidth: 1.5,
+        borderRadius: RADIUS.squircle,
+        borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',

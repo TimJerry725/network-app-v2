@@ -271,15 +271,12 @@ export function Neo3DIcon({
                 style={styles.touchableArea}
             >
                 {isSelected ? (
-                    /* ── SELECTED: 3D NEO-BRUTALIST TACTILE POD ── */
+                    /* ── SELECTED: SOFT SQUIRCLE PILL (REFERENCE IMAGE DOCK) ── */
                     <View
                         style={[
                             styles.pod3DBase,
                             {
-                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                borderColor: isDark ? '#FFFFFF' : '#000000',
-                                borderBottomColor: isDark ? '#A0A0A8' : '#222228',
-                                borderBottomWidth: 3.5, // Physical 3D bottom bevel
+                                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)',
                             },
                         ]}
                     >
@@ -290,19 +287,11 @@ export function Neo3DIcon({
                                 { transform: [{ scale: selectBounce }] },
                             ]}
                         >
-                            {selected3DIcon ?? getLucideIcon(name, size, isDark ? '#000000' : '#FFFFFF', true)}
+                            {selected3DIcon ?? getLucideIcon(name, size, isDark ? '#FFFFFF' : '#0D0E13', true)}
                         </Animated.View>
-
-                        {/* Micro Active Indicator Dot */}
-                        <View
-                            style={[
-                                styles.activeDot,
-                                { backgroundColor: isDark ? '#000000' : '#FFFFFF' },
-                            ]}
-                        />
                     </View>
                 ) : (
-                    /* ── UNSELECTED: OUTLINED ICON (NO BORDER CAPSULE OVER FONTS) ── */
+                    /* ── UNSELECTED: OUTLINED ICON ── */
                     <View style={styles.podOutlineBase}>
                         {outlineIcon ?? getFallbackOutlineIcon(name, size, mutedColor)}
                     </View>
@@ -340,19 +329,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
 
-    // ── Selected 3D Neo-Brutalist Pod ──
+    // ── Selected Soft Squircle Pill ──
     pod3DBase: {
-        width: 50,
-        height: 38,
-        borderRadius: RADIUS.tile,
+        width: 44,
+        height: 34,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
         position: 'relative',
-        overflow: 'hidden',
     },
     layeredIconWrap: {
-        position: 'relative',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -361,9 +347,7 @@ const styles = StyleSheet.create({
         top: 1.5,
         left: 0.5,
     },
-    iconFrontLayer: {
-        // crisp foreground layer
-    },
+    iconFrontLayer: {},
     activeDot: {
         position: 'absolute',
         bottom: 2.5,
@@ -374,55 +358,52 @@ const styles = StyleSheet.create({
 
     // ── Unselected Base ──
     podOutlineBase: {
-        width: 48,
-        height: 38,
+        width: 44,
+        height: 34,
         alignItems: 'center',
         justifyContent: 'center',
     },
 
     podLabel: {
-        fontSize: 10,
-        marginTop: 3,
+        fontSize: 9.5,
+        marginTop: 2,
         letterSpacing: 0.2,
         textAlign: 'center',
     },
 
-    // ── Hero 3D Button (Scan) ──
+    // ── Hero Button (Scan) ──
     heroButtonOuter: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: -16,
+        marginTop: -10,
     },
     heroTouchable: {
         alignItems: 'center',
         justifyContent: 'center',
     },
     heroCore3D: {
-        width: 54,
-        height: 52,
+        width: 48,
+        height: 48,
         borderRadius: RADIUS.circle,
-        borderWidth: 1.8,
-        borderBottomWidth: 3.5,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        overflow: 'hidden',
     },
     heroOutlineRing: {
-        width: 54,
-        height: 54,
+        width: 48,
+        height: 48,
         alignItems: 'center',
         justifyContent: 'center',
     },
     heroActivePip: {
         position: 'absolute',
         bottom: 3.5,
-        width: 4.5,
-        height: 4.5,
+        width: 4,
+        height: 4,
         borderRadius: RADIUS.circle,
     },
     heroLabel: {
-        fontSize: 10,
+        fontSize: 9.5,
         marginTop: 2,
         letterSpacing: 0.2,
     },

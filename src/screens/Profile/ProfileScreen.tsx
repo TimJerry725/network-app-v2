@@ -132,18 +132,14 @@ export default function ProfileScreen() {
                                         styles.quickTopUpPill,
                                         isSelected
                                             ? {
-                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                  borderWidth: 1.5,
-                                                  borderBottomWidth: 3,
-                                                  borderBottomColor: isDark ? '#A0A0A8' : '#222228',
+                                                  backgroundColor: colors.coral,
+                                                  borderColor: colors.coral,
+                                                  borderWidth: 1,
                                               }
                                             : {
-                                                  backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
+                                                  backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
                                                   borderWidth: 1,
-                                                  borderBottomWidth: 2,
-                                                  borderBottomColor: isDark ? '#050508' : '#D0D0D5',
                                               },
                                     ]}
                                     onPress={() => {
@@ -153,7 +149,7 @@ export default function ProfileScreen() {
                                 >
                                     <ThemedText
                                         style={{
-                                            color: isSelected ? (isDark ? '#000000' : '#FFFFFF') : colors.text,
+                                            color: isSelected ? '#FFFFFF' : colors.text,
                                             ...FONTS.caption,
                                             fontWeight: '800',
                                         }}
@@ -292,8 +288,7 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     headerTitle: {
         ...FONTS.h2,
@@ -358,7 +353,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 8,
         alignItems: 'center',
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
     },
     section: {
         marginBottom: SPACING.md,

@@ -164,11 +164,10 @@ const styles = StyleSheet.create({
     logoWrap: {
         width: 68,
         height: 68,
-        borderRadius: RADIUS.cardLg,
+        borderRadius: RADIUS.squircle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderWidth: 1,
         marginBottom: 16,
     },
     brandTitle: {
@@ -208,12 +207,11 @@ const styles = StyleSheet.create({
         marginLeft: 2,
     },
     inputWrap: {
-        borderRadius: RADIUS.input,
+        borderRadius: RADIUS.pill,
         minHeight: 52,
         justifyContent: 'center',
-        paddingHorizontal: SPACING.md,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        paddingHorizontal: SPACING.md + 4,
+        borderWidth: 1,
     },
     input: {
         fontFamily: FONT_FAMILIES.medium,

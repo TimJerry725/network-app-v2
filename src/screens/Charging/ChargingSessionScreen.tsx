@@ -1019,8 +1019,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 10,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     stationInfoWrap: {
         flex: 1,
@@ -1147,21 +1146,18 @@ const styles = StyleSheet.create({
     targetPresetBtn: {
         flex: 1,
         paddingVertical: 10,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
+        borderWidth: 1,
     },
     targetPresetBtnActive: {
-        borderColor: '#FFFFFF',
-        borderBottomColor: '#AAAAAA',
-        borderBottomWidth: 1.5,
-        transform: [{ translateY: 2 }],
+        borderColor: '#FF5B45',
+        backgroundColor: '#FF5B45',
     },
     targetPresetBtnInactive: {
         borderColor: 'rgba(255, 255, 255, 0.08)',
-        borderBottomColor: '#0A0A0D',
-        borderBottomWidth: 3.5, // 3D physical bevel extrusion
+        backgroundColor: '#16171E',
     },
     targetPresetText: {
         fontSize: 12,
@@ -1263,15 +1259,12 @@ const styles = StyleSheet.create({
     miniToggleBtn: {
         paddingVertical: 5,
         paddingHorizontal: 12,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.pill,
         borderWidth: 1,
     },
     miniToggleBtnActive: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#FFFFFF',
-        borderBottomColor: '#AAAAAA',
-        borderBottomWidth: 1.5,
-        transform: [{ translateY: 1 }],
+        backgroundColor: '#FF5B45',
+        borderColor: '#FF5B45',
     },
     miniToggleBtnInactive: {
         backgroundColor: 'transparent',

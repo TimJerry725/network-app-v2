@@ -24,11 +24,9 @@ export default function VehicleListScreen() {
                 style={[
                     styles.sessionCard,
                     {
-                        backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
+                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         borderWidth: 1,
-                        borderBottomWidth: 2.5,
-                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
                     },
                 ]}
             >
@@ -307,12 +305,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 14,
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
         gap: 8,
-        borderWidth: 1.5,
-        borderColor: '#000000',
-        borderBottomWidth: 3.5,
-        borderBottomColor: '#333338',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.12)',
     },
     viewAllText: {
         fontSize: 13,

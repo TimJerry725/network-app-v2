@@ -241,9 +241,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.tactileCircleBtn,
                             {
-                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                             },
                         ]}
                         activeOpacity={0.8}
@@ -264,9 +263,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={[
                                 styles.tactileCircleBtn,
                                 {
-                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                                 },
                             ]}
                             activeOpacity={0.8}
@@ -283,9 +281,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={[
                                 styles.tactileCircleBtn,
                                 {
-                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                                 },
                             ]}
                             activeOpacity={0.8}
@@ -297,7 +294,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
 
                 {/* ── Subtitle / Address ── */}
                 <View style={styles.addressRow}>
-                    <MapPin size={13} color={colors.primary} style={{ marginTop: 1 }} />
+                    <MapPin size={13} color={colors.coral} style={{ marginTop: 1 }} />
                     <ThemedText style={[styles.addressText, { color: colors.textMuted }]} numberOfLines={1}>
                         {station.address}
                     </ThemedText>
@@ -309,16 +306,15 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.openPill,
                             {
-                                backgroundColor: isDark ? 'rgba(34, 197, 94, 0.15)' : '#DCFCE7',
-                                borderColor: isDark ? 'rgba(34, 197, 94, 0.35)' : '#86EFAC',
-                                borderBottomColor: isDark ? '#15803D' : '#4ADE80',
+                                backgroundColor: isDark ? 'rgba(16, 185, 129, 0.15)' : '#DCFCE7',
+                                borderColor: isDark ? 'rgba(16, 185, 129, 0.3)' : '#86EFAC',
                             },
                         ]}
                     >
                         <ThemedText
                             style={[
                                 styles.openPillText,
-                                { color: isDark ? '#4ADE80' : '#14532D' },
+                                { color: isDark ? '#34D399' : '#14532D' },
                             ]}
                         >
                             OPEN
@@ -329,13 +325,12 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.grayPill,
                             {
-                                backgroundColor: isDark ? '#16161C' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
                             },
                         ]}
                     >
-                        <Clock size={12} color={colors.text} />
+                        <Clock size={12} color={colors.textMuted} />
                         <ThemedText style={[styles.grayPillText, { color: colors.text }]}>
                             {station.openTime} - {station.closeTime}
                         </ThemedText>
@@ -345,13 +340,12 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.grayPill,
                             {
-                                backgroundColor: isDark ? '#16161C' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
                             },
                         ]}
                     >
-                        <Navigation size={12} color={colors.text} />
+                        <Navigation size={12} color={colors.lavender} />
                         <ThemedText style={[styles.grayPillText, { color: colors.text }]}>
                             {station.distanceKm} Kms | <ThemedText style={[styles.etaBold, { color: colors.text }]}>ETA:</ThemedText> {station.etaMinutes} Mins
                         </ThemedText>
@@ -372,9 +366,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                 style={[
                                     styles.amenityItem,
                                     {
-                                        backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                        borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                     },
                                 ]}
                             >
@@ -397,8 +390,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={[
                                 styles.galleryImageWrap,
                                 {
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                    borderBottomColor: isDark ? '#050508' : '#C0C0C8',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                                 },
                             ]}
                         >
@@ -423,9 +415,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                 style={[
                                     styles.chargerCard,
                                     {
-                                        backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                        borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                     },
                                 ]}
                             >
@@ -449,12 +440,10 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                 ? {
                                                       backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2',
                                                       borderColor: '#EF4444',
-                                                      borderBottomColor: '#B91C1C',
                                                   }
                                                 : {
-                                                      backgroundColor: isDark ? '#1C1C24' : '#F6F6F8',
-                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                      borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                      backgroundColor: isDark ? '#1C1D26' : '#F6F6F8',
+                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                                                   },
                                         ]}
                                     >
@@ -477,9 +466,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                         style={[
                                             styles.trackingBanner,
                                             {
-                                                backgroundColor: isDark ? '#1A1A22' : '#F4F4F6',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                backgroundColor: isDark ? '#1C1D26' : '#F4F4F6',
+                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                             },
                                         ]}
                                     >
@@ -518,17 +506,15 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                         ? [
                                                               styles.connectorCardSelected,
                                                               {
-                                                                  backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                                  borderBottomColor: isDark ? '#9E9EA8' : '#000000',
+                                                                  backgroundColor: isDark ? '#1C1D26' : '#FFFFFF',
+                                                                  borderColor: colors.coral,
                                                               },
                                                           ]
                                                         : [
                                                               styles.connectorCardUnselected,
                                                               {
-                                                                  backgroundColor: isDark ? '#101014' : '#F7F7F9',
-                                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
-                                                                  borderBottomColor: isDark ? '#050508' : '#D4D4DC',
+                                                                  backgroundColor: isDark ? '#121319' : '#F7F7F9',
+                                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
                                                               },
                                                           ],
                                                 ]}
@@ -548,8 +534,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                                 styles.acDcBadge,
                                                                 currentType === 'DC'
                                                                     ? {
-                                                                          backgroundColor: isDark ? 'rgba(34, 197, 94, 0.18)' : '#DCFCE7',
-                                                                          borderColor: isDark ? 'rgba(34, 197, 94, 0.35)' : '#86EFAC',
+                                                                          backgroundColor: isDark ? 'rgba(16, 185, 129, 0.18)' : '#DCFCE7',
+                                                                          borderColor: isDark ? 'rgba(16, 185, 129, 0.35)' : '#86EFAC',
                                                                       }
                                                                     : {
                                                                           backgroundColor: isDark ? 'rgba(56, 189, 248, 0.18)' : '#E0F2FE',
@@ -562,7 +548,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                                     styles.acDcBadgeText,
                                                                     {
                                                                         color: currentType === 'DC'
-                                                                            ? (isDark ? '#4ADE80' : '#15803D')
+                                                                            ? (isDark ? '#34D399' : '#15803D')
                                                                             : (isDark ? '#38BDF8' : '#0369A1'),
                                                                     },
                                                                 ]}
@@ -588,7 +574,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                                 styles.statusText,
                                                                 {
                                                                     color: isAvailable
-                                                                        ? (isDark ? '#4ADE80' : '#15803D')
+                                                                        ? (isDark ? '#34D399' : '#15803D')
                                                                         : isPreparing
                                                                         ? '#D97706'
                                                                         : colors.textMuted,
@@ -607,9 +593,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                             style={[
                                                                 styles.smartCutoffButton,
                                                                 {
-                                                                    backgroundColor: isDark ? '#22222A' : '#FFFFFF',
-                                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : '#000000',
-                                                                    borderBottomColor: isDark ? '#050508' : '#000000',
+                                                                    backgroundColor: isDark ? '#22232D' : '#FFFFFF',
+                                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
                                                                 },
                                                             ]}
                                                             onPress={() => {
@@ -627,9 +612,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                             style={[
                                                                 styles.startChargingButton,
                                                                 {
-                                                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                                    borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                                    borderBottomColor: isDark ? '#B0B0B8' : '#333338',
+                                                                    backgroundColor: colors.coral,
                                                                 },
                                                             ]}
                                                             onPress={() => {
@@ -638,8 +621,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                             }}
                                                             activeOpacity={0.82}
                                                         >
-                                                            <Zap size={15} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />
-                                                            <ThemedText style={[styles.startChargingText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                                                            <Zap size={15} color="#FFFFFF" fill="#FFFFFF" />
+                                                            <ThemedText style={[styles.startChargingText, { color: '#FFFFFF' }]}>
                                                                 START CHARGING
                                                             </ThemedText>
                                                         </TouchableOpacity>
@@ -659,9 +642,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     style={[
                         styles.tariffScheduleLinkRow,
                         {
-                            backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                            backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         },
                     ]}
                     onPress={() => {
@@ -699,9 +681,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.helpSupportBtn,
                             {
-                                backgroundColor: isDark ? '#181820' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.18)' : '#000000',
-                                borderBottomColor: isDark ? '#050508' : '#000000',
+                                backgroundColor: isDark ? '#1C1D26' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                             },
                         ]}
                         onPress={() => {
@@ -720,9 +701,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.getDirectionBtn,
                             {
-                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                borderColor: isDark ? '#FFFFFF' : '#000000',
-                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
+                                backgroundColor: colors.coral,
                             },
                         ]}
                         onPress={() => {
@@ -731,8 +710,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         }}
                         activeOpacity={0.82}
                     >
-                        <Navigation size={17} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />
-                        <ThemedText style={[styles.getDirectionText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                        <Navigation size={17} color="#FFFFFF" fill="#FFFFFF" />
+                        <ThemedText style={[styles.getDirectionText, { color: '#FFFFFF' }]}>
                             Get Direction
                         </ThemedText>
                     </TouchableOpacity>
@@ -743,15 +722,14 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     style={[
                         styles.walletStrip,
                         {
-                            backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                            backgroundColor: isDark ? '#16171E' : '#F6F6F8',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         },
                     ]}
                 >
                     <View style={styles.walletLeft}>
-                        <View style={[styles.walletGreenIcon, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]}>
-                            <Wallet size={15} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={2} />
+                        <View style={[styles.walletGreenIcon, { backgroundColor: isDark ? '#22232D' : '#E5E7EB' }]}>
+                            <Wallet size={15} color={colors.coral} strokeWidth={2} />
                         </View>
                         <ThemedText style={[styles.walletLabel, { color: colors.textMuted }]}>
                             Available <ThemedText style={[styles.walletLabelBold, { color: colors.text }]}>wallet</ThemedText> balance is{' '}
@@ -763,9 +741,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.addWalletBtn,
                             {
-                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                borderColor: isDark ? '#FFFFFF' : '#000000',
-                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
+                                backgroundColor: colors.coral,
                             },
                         ]}
                         onPress={() => {
@@ -775,8 +751,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         }}
                         activeOpacity={0.82}
                     >
-                        <Plus size={14} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={2.5} />
-                        <ThemedText style={[styles.addWalletText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                        <Plus size={14} color="#FFFFFF" strokeWidth={2.5} />
+                        <ThemedText style={[styles.addWalletText, { color: '#FFFFFF' }]}>
                             Add
                         </ThemedText>
                     </TouchableOpacity>
@@ -795,8 +771,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.modalSheet,
                             {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                             },
                         ]}
                     >
@@ -821,9 +797,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={[
                                 styles.modalTariffBox,
                                 {
-                                    backgroundColor: isDark ? '#1C1C24' : '#F6F6F8',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                    borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                    backgroundColor: isDark ? '#1C1D26' : '#F6F6F8',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
                         >
@@ -851,9 +826,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={[
                                 styles.modalConfirmBtn,
                                 {
-                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                    borderColor: isDark ? '#FFFFFF' : '#000000',
-                                    borderBottomColor: isDark ? '#A0A0A8' : '#333338',
+                                    backgroundColor: colors.coral,
                                 },
                             ]}
                             onPress={() => setShowTariffModal(false)}
@@ -861,7 +834,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             <ThemedText
                                 style={[
                                     styles.modalConfirmText,
-                                    { color: isDark ? '#000000' : '#FFFFFF' },
+                                    { color: '#FFFFFF' },
                                 ]}
                             >
                                 UNDERSTOOD
@@ -883,8 +856,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.modalSheet,
                             {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                             },
                         ]}
                     >
@@ -915,14 +888,12 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                             styles.cutoffOption,
                                             isOptionActive
                                                 ? {
-                                                      backgroundColor: isDark ? '#1E1E26' : '#FFFFFF',
-                                                      borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                      borderBottomColor: isDark ? '#9E9EA8' : '#000000',
+                                                      backgroundColor: isDark ? '#22232D' : '#FFFFFF',
+                                                      borderColor: colors.coral,
                                                   }
                                                 : {
-                                                      backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
-                                                      borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                                      backgroundColor: isDark ? '#16171E' : '#F6F6F8',
+                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                                   },
                                         ]}
                                         onPress={() => {
@@ -936,7 +907,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                             {option}
                                         </ThemedText>
                                         {isOptionActive && (
-                                            <Check size={18} color={colors.primary} strokeWidth={2.5} />
+                                            <Check size={18} color={colors.coral} strokeWidth={2.5} />
                                         )}
                                     </TouchableOpacity>
                                 );
@@ -971,8 +942,7 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     stationTitle: {
         fontSize: 18,
@@ -1007,11 +977,10 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     openPill: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: RADIUS.chip,
-        borderWidth: 1.5,
-        borderBottomWidth: 2.5,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
     },
     openPillText: {
         fontSize: 11,
@@ -1021,11 +990,10 @@ const styles = StyleSheet.create({
     grayPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: RADIUS.chip,
-        borderWidth: 1.5,
-        borderBottomWidth: 2.5,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
         gap: 5,
     },
     grayPillText: {
@@ -1048,11 +1016,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 5,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: RADIUS.chip,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: RADIUS.pill,
         borderWidth: 1,
-        borderBottomWidth: 2,
     },
     amenityText: {
         fontSize: 11,
@@ -1067,10 +1034,9 @@ const styles = StyleSheet.create({
     galleryImageWrap: {
         width: 155,
         height: 130,
-        borderRadius: RADIUS.card,
+        borderRadius: RADIUS.squircle,
         overflow: 'hidden',
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderWidth: 1,
     },
     galleryImage: {
         width: '100%',
@@ -1085,8 +1051,7 @@ const styles = StyleSheet.create({
     chargerCard: {
         borderRadius: RADIUS.cardLg,
         padding: 16,
-        borderWidth: 1.5,
-        borderBottomWidth: 4,
+        borderWidth: 1,
     },
     chargerHeader: {
         flexDirection: 'row',
@@ -1108,11 +1073,10 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.medium,
     },
     trackStatusBtn: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: RADIUS.chip,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: RADIUS.pill,
         borderWidth: 1,
-        borderBottomWidth: 2,
     },
     trackStatusBtnText: {
         fontSize: 11,
@@ -1120,11 +1084,10 @@ const styles = StyleSheet.create({
     },
     trackingBanner: {
         alignItems: 'center',
-        paddingVertical: 6,
-        paddingHorizontal: 10,
-        borderRadius: RADIUS.chip,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: RADIUS.pill,
         borderWidth: 1,
-        borderBottomWidth: 2,
         marginBottom: 12,
     },
     trackingBannerText: {
@@ -1143,15 +1106,13 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.card,
         paddingHorizontal: 14,
         paddingVertical: 12,
-        borderWidth: 1.5,
+        borderWidth: 1,
     },
     connectorCardSelected: {
-        borderWidth: 2,
-        borderBottomWidth: 4.5,
+        borderWidth: 1.5,
     },
     connectorCardUnselected: {
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     connectorInfoRow: {
         flexDirection: 'row',
@@ -1218,12 +1179,11 @@ const styles = StyleSheet.create({
     },
     smartCutoffButton: {
         flex: 1,
-        borderRadius: RADIUS.button,
-        paddingVertical: 11,
+        borderRadius: RADIUS.pill,
+        paddingVertical: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderWidth: 1,
     },
     smartCutoffText: {
         fontSize: 12,
@@ -1231,15 +1191,14 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     startChargingButton: {
-        flex: 1,
+        flex: 1.2,
         flexDirection: 'row',
-        borderRadius: RADIUS.button,
-        paddingVertical: 11,
+        borderRadius: RADIUS.pill,
+        paddingVertical: 12,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderWidth: 0,
     },
     startChargingText: {
         fontSize: 12,
@@ -1256,16 +1215,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 14,
         borderRadius: RADIUS.card,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     tariffScheduleLinkText: {
         fontSize: 13,
         fontFamily: FONT_FAMILIES.bold,
     },
     chevronCircle: {
-        width: 22,
-        height: 22,
+        width: 26,
+        height: 26,
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
@@ -1288,11 +1246,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
         height: 48,
         gap: 8,
-        borderWidth: 1.5,
-        borderBottomWidth: 4,
+        borderWidth: 1,
     },
     helpSupportText: {
         fontSize: 12,
@@ -1300,15 +1257,14 @@ const styles = StyleSheet.create({
         letterSpacing: 0.6,
     },
     getDirectionBtn: {
-        flex: 1,
+        flex: 1.2,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
         height: 48,
         gap: 8,
-        borderWidth: 1.5,
-        borderBottomWidth: 4,
+        borderWidth: 0,
     },
     getDirectionText: {
         fontSize: 12,
@@ -1319,12 +1275,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderRadius: RADIUS.card,
-        paddingHorizontal: 12,
+        borderRadius: RADIUS.pill,
+        paddingHorizontal: 14,
         paddingVertical: 8,
         marginTop: 10,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     walletLeft: {
         flexDirection: 'row',
@@ -1334,7 +1289,7 @@ const styles = StyleSheet.create({
     walletGreenIcon: {
         width: 28,
         height: 28,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1351,12 +1306,11 @@ const styles = StyleSheet.create({
     addWalletBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: RADIUS.button,
-        paddingHorizontal: 12,
+        borderRadius: RADIUS.pill,
+        paddingHorizontal: 14,
         paddingVertical: 6,
         gap: 4,
-        borderWidth: 1,
-        borderBottomWidth: 2.5,
+        borderWidth: 0,
     },
     addWalletText: {
         fontSize: 12,
@@ -1371,7 +1325,7 @@ const styles = StyleSheet.create({
     modalSheet: {
         borderTopLeftRadius: RADIUS.bottomSheet,
         borderTopRightRadius: RADIUS.bottomSheet,
-        borderTopWidth: 2,
+        borderTopWidth: 1,
         padding: SPACING.lg,
         paddingBottom: 36,
     },
@@ -1404,8 +1358,7 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.card,
         padding: 14,
         gap: 12,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     tariffLine: {
         flexDirection: 'row',
@@ -1421,13 +1374,12 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.bold,
     },
     modalConfirmBtn: {
-        borderRadius: RADIUS.button,
+        borderRadius: RADIUS.pill,
         height: 48,
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 18,
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderWidth: 0,
     },
     modalConfirmText: {
         fontFamily: FONT_FAMILIES.bold,
@@ -1439,11 +1391,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 14,
-        paddingHorizontal: 14,
-        borderRadius: RADIUS.button,
+        paddingHorizontal: 16,
+        borderRadius: RADIUS.squircle,
         marginVertical: 4,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     cutoffOptionText: {
         fontSize: 13,

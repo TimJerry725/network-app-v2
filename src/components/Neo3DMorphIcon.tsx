@@ -227,9 +227,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     plate3DBase: {
-        borderRadius: RADIUS.tile,
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderRadius: RADIUS.squircle,
+        borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
