@@ -9,6 +9,7 @@ import VehicleListScreen from '../screens/Profile/VehicleListScreen';
 import ScanScreen from '../screens/Charging/ScanScreen';
 import FavoritesScreen from '../screens/Favorites/FavoritesScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppTheme } from '../hooks/useAppTheme';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,29 +21,48 @@ type TabConfig = {
 const TAB_CONFIG: TabConfig[] = [
     { name: 'Map', label: 'Map' },
     { name: 'Explore', label: 'Trip Planner' },
-    { name: 'Scan', label: 'Scan' },
     { name: 'Favorite', label: 'Favorites' },
     { name: 'Vehicles', label: 'Sessions' },
+    { name: 'Scan', label: 'Scan' },
 ];
 
-function getTabIcon(name: string, isFocused: boolean) {
-    const iconColor = isFocused ? '#0A0D14' : 'rgba(255, 255, 255, 0.45)';
+function getTabIcon(name: string, isFocused: boolean, isDark: boolean) {
     const strokeWidth = isFocused ? 2.4 : 1.9;
     const size = 20;
+
+    let iconColor: string;
+    if (isFocused) {
+        switch (name) {
+            case 'Map':
+                iconColor = '#38BDF8'; // Ice Blue
+                break;
+            case 'Explore':
+                iconColor = '#5B61F6'; // Electric Lavender
+                break;
+            case 'Favorite':
+                iconColor = '#FF5B45'; // Sunset Coral
+                break;
+            case 'Vehicles':
+                iconColor = '#10B981'; // Neo Mint
+                break;
+            default:
+                iconColor = isDark ? '#FFFFFF' : '#0A0D14';
+        }
+    } else {
+        iconColor = isDark ? 'rgba(255, 255, 255, 0.42)' : 'rgba(0, 0, 0, 0.38)';
+    }
 
     switch (name) {
         case 'Map':
             return <House size={size} color={iconColor} strokeWidth={strokeWidth} />;
         case 'Explore':
             return <Compass size={size} color={iconColor} strokeWidth={strokeWidth} />;
-        case 'Scan':
-            return <ScanLine size={size} color={iconColor} strokeWidth={strokeWidth} />;
         case 'Favorite':
             return (
                 <Heart
                     size={size}
                     color={iconColor}
-                    fill={isFocused ? '#0A0D14' : 'none'}
+                    fill={isFocused ? iconColor : 'none'}
                     strokeWidth={strokeWidth}
                 />
             );
@@ -58,9 +78,10 @@ interface TabBarItemProps {
     label: string;
     isFocused: boolean;
     onPress: () => void;
+    isDark: boolean;
 }
 
-function TabBarItem({ name, label, isFocused, onPress }: TabBarItemProps) {
+function TabBarItem({ name, label, isFocused, onPress, isDark }: TabBarItemProps) {
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const handlePressIn = () => {
@@ -99,11 +120,82 @@ function TabBarItem({ name, label, isFocused, onPress }: TabBarItemProps) {
             <Animated.View
                 style={[
                     styles.tabInner,
-                    isFocused && styles.tabInnerActive,
+                    isFocused && {
+                        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.10)' : '#F1F2F6',
+                    },
                     { transform: [{ scale: scaleAnim }] },
                 ]}
             >
-                {getTabIcon(name, isFocused)}
+                {getTabIcon(name, isFocused, isDark)}
+            </Animated.View>
+        </Pressable>
+    );
+}
+
+/**
+ * Standalone Floating Action Button for Scan in the right corner, separated from the main dock
+ */
+function SeparatedScanButton({
+    isFocused,
+    onPress,
+    isDark,
+}: {
+    isFocused: boolean;
+    onPress: () => void;
+    isDark: boolean;
+}) {
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.88,
+            useNativeDriver: true,
+            speed: 30,
+            bounciness: 0,
+        }).start();
+    };
+
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            useNativeDriver: true,
+            speed: 20,
+            bounciness: 8,
+        }).start();
+    };
+
+    const handlePress = () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        onPress();
+    };
+
+    return (
+        <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: isFocused }}
+            accessibilityLabel="Scan QR"
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={handlePress}
+            style={styles.scanButtonOuter}
+        >
+            <Animated.View
+                style={[
+                    styles.scanButtonInner,
+                    isFocused
+                        ? styles.scanButtonActive
+                        : {
+                              backgroundColor: isDark ? '#12131A' : '#FFFFFF',
+                              borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+                          },
+                    { transform: [{ scale: scaleAnim }] },
+                ]}
+            >
+                <ScanLine
+                    size={24}
+                    color={isFocused ? '#FFFFFF' : '#FF5B45'}
+                    strokeWidth={isFocused ? 2.5 : 2.2}
+                />
             </Animated.View>
         </Pressable>
     );
@@ -111,6 +203,7 @@ function TabBarItem({ name, label, isFocused, onPress }: TabBarItemProps) {
 
 function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const insets = useSafeAreaInsets();
+    const { isDark } = useAppTheme();
 
     const currentTabRoute = state.routes[state.index];
     const shouldHideTabBar =
@@ -120,6 +213,25 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         return null;
     }
 
+    // Main dock routes (Map, Explore, Favorite, Vehicles)
+    const mainRoutes = state.routes.filter((r) => r.name !== 'Scan');
+    // Dedicated Scan route placed on the far right corner
+    const scanRoute = state.routes.find((r) => r.name === 'Scan');
+    const isScanFocused = state.routes[state.index]?.name === 'Scan';
+
+    const handleScanPress = () => {
+        if (!scanRoute) return;
+        const event = navigation.emit({
+            type: 'tabPress',
+            target: scanRoute.key,
+            canPreventDefault: true,
+        });
+
+        if (!isScanFocused && !event.defaultPrevented) {
+            navigation.navigate(scanRoute.name);
+        }
+    };
+
     return (
         <View
             style={[
@@ -128,10 +240,18 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             ]}
             pointerEvents="box-none"
         >
-            {/* Floating Matte Obsidian Capsule Dock */}
-            <View style={styles.dockContainer}>
-                {state.routes.map((route, index) => {
-                    const isFocused = state.index === index;
+            {/* Main Navigation Capsule Dock (Left / Center) */}
+            <View
+                style={[
+                    styles.dockContainer,
+                    {
+                        backgroundColor: isDark ? '#12131A' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.09)' : 'rgba(0, 0, 0, 0.08)',
+                    },
+                ]}
+            >
+                {mainRoutes.map((route) => {
+                    const isFocused = state.routes[state.index]?.name === route.name;
                     const config = TAB_CONFIG.find((t) => t.name === route.name) ?? {
                         name: route.name,
                         label: route.name,
@@ -156,10 +276,20 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                             label={config.label}
                             isFocused={isFocused}
                             onPress={onPress}
+                            isDark={isDark}
                         />
                     );
                 })}
             </View>
+
+            {/* Dedicated Scan Floating Action Island in the Right Corner */}
+            {scanRoute && (
+                <SeparatedScanButton
+                    isFocused={isScanFocused}
+                    onPress={handleScanPress}
+                    isDark={isDark}
+                />
+            )}
         </View>
     );
 }
@@ -175,9 +305,9 @@ export default function TabNavigator() {
         >
             <Tab.Screen name="Map" component={StationMapScreen} />
             <Tab.Screen name="Explore" component={TripPlannerScreen} />
-            <Tab.Screen name="Scan" component={ScanScreen} />
             <Tab.Screen name="Favorite" component={FavoritesScreen} />
             <Tab.Screen name="Vehicles" component={VehicleListScreen} />
+            <Tab.Screen name="Scan" component={ScanScreen} />
         </Tab.Navigator>
     );
 }
@@ -185,27 +315,28 @@ export default function TabNavigator() {
 const styles = StyleSheet.create({
     barOuter: {
         position: 'absolute',
-        left: 20,
-        right: 20,
-        alignItems: 'center',
-        zIndex: 1000,
-    },
-    dockContainer: {
-        width: '100%',
-        height: 62,
-        borderRadius: 31,
-        backgroundColor: '#111218',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.09)',
+        left: 16,
+        right: 16,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 8,
+        zIndex: 1000,
+        gap: 12,
+    },
+    dockContainer: {
+        flex: 1,
+        height: 60,
+        borderRadius: 30,
+        borderWidth: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        paddingHorizontal: 6,
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.35,
-        shadowRadius: 20,
-        elevation: 12,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.18,
+        shadowRadius: 16,
+        elevation: 10,
     },
     tabSlot: {
         flex: 1,
@@ -215,12 +346,35 @@ const styles = StyleSheet.create({
     },
     tabInner: {
         width: 48,
-        height: 38,
+        height: 40,
         borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    tabInnerActive: {
-        backgroundColor: '#BAE6FD',
+    scanButtonOuter: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    scanButtonInner: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.18,
+        shadowRadius: 16,
+        elevation: 10,
+    },
+    scanButtonActive: {
+        backgroundColor: '#FF5B45',
+        borderColor: '#FF5B45',
+        shadowColor: '#FF5B45',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.45,
+        shadowRadius: 12,
+        elevation: 12,
     },
 });
