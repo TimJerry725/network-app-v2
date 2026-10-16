@@ -1,34 +1,115 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Animated } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { House, Compass, ScanLine, Heart, History } from 'lucide-react-native';
 import TripPlannerScreen from '../screens/Explore';
 import StationMapScreen from '../screens/Home/StationMapScreen';
 import VehicleListScreen from '../screens/Profile/VehicleListScreen';
 import ScanScreen from '../screens/Charging/ScanScreen';
 import FavoritesScreen from '../screens/Favorites/FavoritesScreen';
-import { useAppTheme } from '../hooks/useAppTheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { RADIUS, SPACING } from '../constants/Tokens';
-import { Neo3DIcon } from '../components/Neo3DIcon';
 
 const Tab = createBottomTabNavigator();
 
 type TabConfig = {
     name: string;
-    icon: string;
     label: string;
 };
 
 const TAB_CONFIG: TabConfig[] = [
-    { name: 'Map', icon: 'map', label: 'Map' },
-    { name: 'Explore', icon: 'compass', label: 'Trip Planner' },
-    { name: 'Scan', icon: 'bolt-lightning', label: 'Scan' },
-    { name: 'Favorite', icon: 'heart', label: 'Favorites' },
-    { name: 'Vehicles', icon: 'clock-rotate-left', label: 'Sessions' },
+    { name: 'Map', label: 'Map' },
+    { name: 'Explore', label: 'Trip Planner' },
+    { name: 'Scan', label: 'Scan' },
+    { name: 'Favorite', label: 'Favorites' },
+    { name: 'Vehicles', label: 'Sessions' },
 ];
 
+function getTabIcon(name: string, isFocused: boolean) {
+    const iconColor = isFocused ? '#0A0D14' : 'rgba(255, 255, 255, 0.45)';
+    const strokeWidth = isFocused ? 2.4 : 1.9;
+    const size = 20;
+
+    switch (name) {
+        case 'Map':
+            return <House size={size} color={iconColor} strokeWidth={strokeWidth} />;
+        case 'Explore':
+            return <Compass size={size} color={iconColor} strokeWidth={strokeWidth} />;
+        case 'Scan':
+            return <ScanLine size={size} color={iconColor} strokeWidth={strokeWidth} />;
+        case 'Favorite':
+            return (
+                <Heart
+                    size={size}
+                    color={iconColor}
+                    fill={isFocused ? '#0A0D14' : 'none'}
+                    strokeWidth={strokeWidth}
+                />
+            );
+        case 'Vehicles':
+            return <History size={size} color={iconColor} strokeWidth={strokeWidth} />;
+        default:
+            return <House size={size} color={iconColor} strokeWidth={strokeWidth} />;
+    }
+}
+
+interface TabBarItemProps {
+    name: string;
+    label: string;
+    isFocused: boolean;
+    onPress: () => void;
+}
+
+function TabBarItem({ name, label, isFocused, onPress }: TabBarItemProps) {
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.88,
+            useNativeDriver: true,
+            speed: 30,
+            bounciness: 0,
+        }).start();
+    };
+
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            useNativeDriver: true,
+            speed: 20,
+            bounciness: 8,
+        }).start();
+    };
+
+    const handlePress = () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onPress();
+    };
+
+    return (
+        <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: isFocused }}
+            accessibilityLabel={label}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={handlePress}
+            style={styles.tabSlot}
+        >
+            <Animated.View
+                style={[
+                    styles.tabInner,
+                    isFocused && styles.tabInnerActive,
+                    { transform: [{ scale: scaleAnim }] },
+                ]}
+            >
+                {getTabIcon(name, isFocused)}
+            </Animated.View>
+        </Pressable>
+    );
+}
+
 function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-    const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
 
     const currentTabRoute = state.routes[state.index];
@@ -43,28 +124,18 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         <View
             style={[
                 styles.barOuter,
-                { bottom: Math.max(16, insets.bottom + 6) },
+                { bottom: Math.max(18, insets.bottom + 8) },
             ]}
             pointerEvents="box-none"
         >
-            {/* Elevated Minimal Floating Capsule Dock Chassis */}
-            <View
-                style={[
-                    styles.dockContainer,
-                    {
-                        backgroundColor: isDark ? 'rgba(20, 21, 28, 0.94)' : 'rgba(255, 255, 255, 0.96)',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                    },
-                ]}
-            >
+            {/* Floating Matte Obsidian Capsule Dock */}
+            <View style={styles.dockContainer}>
                 {state.routes.map((route, index) => {
                     const isFocused = state.index === index;
                     const config = TAB_CONFIG.find((t) => t.name === route.name) ?? {
                         name: route.name,
-                        icon: 'circle',
                         label: route.name,
                     };
-                    const isScan = route.name === 'Scan';
 
                     const onPress = () => {
                         const event = navigation.emit({
@@ -79,18 +150,13 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                     };
 
                     return (
-                        <View
+                        <TabBarItem
                             key={route.key}
-                            style={isScan ? styles.centerScanSlot : styles.wingTabSlot}
-                        >
-                            <Neo3DIcon
-                                name={config.icon}
-                                label={config.label}
-                                isSelected={isFocused}
-                                onPress={onPress}
-                                isPrimaryAction={isScan}
-                            />
-                        </View>
+                            name={route.name}
+                            label={config.label}
+                            isFocused={isFocused}
+                            onPress={onPress}
+                        />
                     );
                 })}
             </View>
@@ -122,34 +188,39 @@ const styles = StyleSheet.create({
         left: 20,
         right: 20,
         alignItems: 'center',
-        zIndex: 999,
+        zIndex: 1000,
     },
     dockContainer: {
         width: '100%',
-        height: 60,
-        borderRadius: RADIUS.pill,
+        height: 62,
+        borderRadius: 31,
+        backgroundColor: '#111218',
         borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.09)',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 8,
-        position: 'relative',
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 6 },
+        shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.35,
-        shadowRadius: 16,
-        elevation: 10,
+        shadowRadius: 20,
+        elevation: 12,
     },
-    wingTabSlot: {
+    tabSlot: {
         flex: 1,
+        height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 2,
     },
-    centerScanSlot: {
-        width: 60,
+    tabInner: {
+        width: 48,
+        height: 38,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 10,
+    },
+    tabInnerActive: {
+        backgroundColor: '#BAE6FD',
     },
 });
