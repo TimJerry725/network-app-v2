@@ -9,6 +9,7 @@ import ChargingSessionScreen from '../screens/Charging/ChargingSessionScreen';
 import PaymentScreen from '../screens/Charging/PaymentScreen';
 import FilterScreen from '../screens/Home/FilterScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
+import EditProfileScreen from '../screens/Profile/EditProfileScreen';
 import { useAppTheme } from '../hooks/useAppTheme';
 
 const Stack = createNativeStackNavigator();
@@ -45,6 +46,7 @@ export default function RootNavigator() {
                 <Stack.Screen name="Payment" component={PaymentScreen} />
                 <Stack.Screen name="Filter" component={FilterScreen} />
                 <Stack.Screen name="Profile" component={ProfileScreen} />
+                <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

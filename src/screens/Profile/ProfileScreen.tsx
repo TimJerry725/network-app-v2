@@ -13,7 +13,10 @@ import {
     Shield,
     PhoneCall,
     Info,
-    Accessibility,
+    Pencil,
+    CarFront,
+    BatteryCharging,
+    Zap,
 } from 'lucide-react-native';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
@@ -24,7 +27,8 @@ import { useVehicles } from '../../context/VehicleContext';
 
 export default function ProfileScreen() {
     const { colors, theme, setTheme, isDark } = useAppTheme();
-    const { user, topUpWallet, toggleSeniorMode } = useVehicles();
+    const { user, topUpWallet, selectedVehicle, vehicles } = useVehicles();
+    const activeVehicle = selectedVehicle ?? vehicles[0];
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
 
@@ -79,7 +83,27 @@ export default function ProfileScreen() {
                             <User size={28} color={colors.primary} />
                         </View>
                         <View style={styles.userInfo}>
-                            <ThemedText style={FONTS.h3}>{user.fullName}</ThemedText>
+                            <View style={styles.userHeaderRow}>
+                                <ThemedText style={FONTS.h3}>{user.fullName}</ThemedText>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.editPillBtn,
+                                        {
+                                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                        },
+                                    ]}
+                                    activeOpacity={0.8}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        navigation.navigate('EditProfile', { tab: 'profile' });
+                                    }}
+                                >
+                                    <Pencil size={11} color={colors.text} style={{ marginRight: 4 }} />
+                                    <ThemedText style={[styles.editPillText, { color: colors.text }]}>EDIT</ThemedText>
+                                </TouchableOpacity>
+                            </View>
                             <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>
                                 {user.phone}
                             </ThemedText>
@@ -87,24 +111,88 @@ export default function ProfileScreen() {
                                 {user.email}
                             </ThemedText>
                         </View>
-                        <View style={[styles.badge, { backgroundColor: colors.primarySoft }]}>
-                            <ThemedText style={{ color: colors.primary, ...FONTS.caption, fontWeight: '700' }}>
-                                {user.membershipTier}
-                            </ThemedText>
-                        </View>
                     </View>
 
                     <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
 
                     <View style={styles.rfidRow}>
-                        <Shield size={16} color={colors.primary} />
+                        <Shield size={15} color={colors.primary} />
                         <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                            Active RFID Tag:
+                            RFID:
                         </ThemedText>
                         <ThemedText style={[FONTS.caption, { fontWeight: '700' }]}>
                             {user.rfidTag}
                         </ThemedText>
                     </View>
+
+                    <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
+
+                    {/* Active Vehicle Details Section */}
+                    <View style={styles.vehicleTitleRow}>
+                        <View style={[styles.vehicleIconCircle, { backgroundColor: colors.primarySoft }]}>
+                            <CarFront size={22} color={colors.primary} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <ThemedText style={FONTS.h3} numberOfLines={1}>
+                                {activeVehicle
+                                    ? `${activeVehicle.make} ${activeVehicle.model}`
+                                    : 'No Vehicle Connected'}
+                            </ThemedText>
+                            <ThemedText style={{ color: colors.textMuted, ...FONTS.caption, marginTop: 2 }}>
+                                {activeVehicle
+                                    ? activeVehicle.registrationNumber
+                                    : 'Connect your EV'}
+                            </ThemedText>
+                        </View>
+                    </View>
+
+                    {activeVehicle && (
+                        <>
+                            <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
+
+                            {/* 3 Telemetry Metrics: Capacity, Est. Range, Max DC Speed */}
+                            <View style={styles.vehicleMetricsRow}>
+                                <View style={styles.vehicleMetricItem}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <Zap size={13} color={colors.primary} />
+                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>CAPACITY</ThemedText>
+                                    </View>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                        {activeVehicle.batteryCapacity} kWh
+                                    </ThemedText>
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
+                                        {activeVehicle.connectorType}
+                                    </ThemedText>
+                                </View>
+
+                                <View style={styles.vehicleMetricItem}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <BatteryCharging size={13} color="#10B981" />
+                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>EST. RANGE</ThemedText>
+                                    </View>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                        ~{activeVehicle.estRangeKm} km
+                                    </ThemedText>
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
+                                        Combined
+                                    </ThemedText>
+                                </View>
+
+                                <View style={styles.vehicleMetricItem}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <Zap size={13} color="#F59E0B" />
+                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>MAX SPEED</ThemedText>
+                                    </View>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                        {activeVehicle.maxDcRateKw} kW
+                                    </ThemedText>
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
+                                        DC Fast
+                                    </ThemedText>
+                                </View>
+                            </View>
+                        </>
+                    )}
                 </CredCard>
 
                 {/* Iris EV Wallet Balance Card */}
@@ -122,8 +210,52 @@ export default function ProfileScreen() {
                         Instant one-tap payment authorization for fast charging hubs.
                     </ThemedText>
 
+                    {/* Custom Recharge Amount Input Field */}
+                    <View style={styles.amountInputContainer}>
+                        <ThemedText style={[styles.inputLabel, { color: colors.textMuted }]}>
+                            RECHARGE AMOUNT
+                        </ThemedText>
+                        <View
+                            style={[
+                                styles.inputBox,
+                                {
+                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
+                                },
+                            ]}
+                        >
+                            <ThemedText style={[styles.currencyPrefix, { color: colors.primary }]}>
+                                ₹
+                            </ThemedText>
+                            <TextInput
+                                style={[styles.textInput, { color: colors.text }]}
+                                placeholder="Enter amount"
+                                placeholderTextColor={colors.textMuted}
+                                keyboardType="number-pad"
+                                value={topUpAmount}
+                                onChangeText={(text) => setTopUpAmount(text.replace(/[^0-9]/g, ''))}
+                                maxLength={6}
+                            />
+                            {topUpAmount.length > 0 && (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setTopUpAmount('');
+                                    }}
+                                    style={styles.clearBtn}
+                                    activeOpacity={0.7}
+                                >
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 11, fontWeight: '700' }}>
+                                        CLEAR
+                                    </ThemedText>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </View>
+
+                    {/* Quick Preset Pills */}
                     <View style={styles.topUpRow}>
-                        {['200', '500', '1000'].map((amt) => {
+                        {['200', '500', '1000', '2000'].map((amt) => {
                             const isSelected = topUpAmount === amt;
                             return (
                                 <TouchableOpacity
@@ -132,14 +264,18 @@ export default function ProfileScreen() {
                                         styles.quickTopUpPill,
                                         isSelected
                                             ? {
-                                                  backgroundColor: colors.coral,
-                                                  borderColor: colors.coral,
-                                                  borderWidth: 1,
+                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                  borderWidth: 1.5,
+                                                  borderBottomWidth: 3,
+                                                  borderBottomColor: isDark ? '#A0A0A8' : '#222228',
                                               }
                                             : {
-                                                  backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                                                  backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
                                                   borderWidth: 1,
+                                                  borderBottomWidth: 2,
+                                                  borderBottomColor: isDark ? '#050508' : '#D0D0D5',
                                               },
                                     ]}
                                     onPress={() => {
@@ -149,7 +285,7 @@ export default function ProfileScreen() {
                                 >
                                     <ThemedText
                                         style={{
-                                            color: isSelected ? '#FFFFFF' : colors.text,
+                                            color: isSelected ? (isDark ? '#000000' : '#FFFFFF') : colors.text,
                                             ...FONTS.caption,
                                             fontWeight: '800',
                                         }}
@@ -162,17 +298,22 @@ export default function ProfileScreen() {
                     </View>
 
                     <CredButton
-                        title={`ADD ₹${topUpAmount} TO WALLET`}
+                        title={
+                            topUpAmount && parseFloat(topUpAmount) > 0
+                                ? `ADD ₹${topUpAmount} TO WALLET`
+                                : 'ENTER AMOUNT TO RECHARGE'
+                        }
                         variant="neon"
                         containerStyle={{ marginTop: 14 }}
                         onPress={handleTopUp}
+                        disabled={!topUpAmount || parseFloat(topUpAmount) <= 0}
                     />
                 </CredCard>
 
-                {/* Accessibility & Preferences */}
+                {/* Display & Preferences */}
                 <CredCard variant="default" style={styles.section}>
                     <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-                        Display & Accessibility
+                        Display & Preferences
                     </ThemedText>
 
                     {/* Dark Mode Toggle */}
@@ -215,43 +356,6 @@ export default function ProfileScreen() {
                             />
                         </TouchableOpacity>
                     </View>
-
-                    {/* Senior / High Contrast Mode Toggle */}
-                    <View style={[styles.row, { marginTop: 12 }]}>
-                        <View style={styles.rowLeft}>
-                            <Accessibility size={22} color={colors.primary} />
-                            <View>
-                                <ThemedText style={[styles.rowTitle, { color: colors.text }]}>
-                                    Senior & Easy View
-                                </ThemedText>
-                                <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                                    Larger touch targets and simplified details
-                                </ThemedText>
-                            </View>
-                        </View>
-                        <TouchableOpacity
-                            style={[
-                                styles.toggleContainer,
-                                {
-                                    backgroundColor: user.isSeniorMode ? colors.primary : colors.surfaceMuted,
-                                    borderWidth: 1,
-                                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                                },
-                            ]}
-                            onPress={toggleSeniorMode}
-                            activeOpacity={0.8}
-                        >
-                            <View
-                                style={[
-                                    styles.toggleKnob,
-                                    {
-                                        backgroundColor: '#FFFFFF',
-                                        transform: [{ translateX: user.isSeniorMode ? 20 : 2 }],
-                                    },
-                                ]}
-                            />
-                        </TouchableOpacity>
-                    </View>
                 </CredCard>
 
                 {/* 24/7 Driver Support Card */}
@@ -288,7 +392,8 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
     },
     headerTitle: {
         ...FONTS.h2,
@@ -298,12 +403,31 @@ const styles = StyleSheet.create({
         paddingBottom: SPACING.xl,
     },
     profileCard: {
-        padding: SPACING.md,
         marginBottom: SPACING.md,
     },
     userTopRow: {
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    userHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 2,
+    },
+    editPillBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
+    },
+    editPillText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: 0.8,
     },
     avatar: {
         width: 52,
@@ -316,11 +440,6 @@ const styles = StyleSheet.create({
     userInfo: {
         flex: 1,
     },
-    badge: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: RADIUS.chip,
-    },
     divider: {
         height: StyleSheet.hairlineWidth,
         marginVertical: 12,
@@ -330,8 +449,28 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
     },
+    vehicleTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        flex: 1,
+    },
+    vehicleIconCircle: {
+        width: 44,
+        height: 44,
+        borderRadius: RADIUS.circle,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    vehicleMetricsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 4,
+    },
+    vehicleMetricItem: {
+        flex: 1,
+    },
     walletCard: {
-        padding: SPACING.md,
         marginBottom: SPACING.md,
     },
     walletHeader: {
@@ -344,6 +483,38 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
     },
+    amountInputContainer: {
+        marginTop: 14,
+    },
+    inputLabel: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: 1.2,
+        marginBottom: 6,
+    },
+    inputBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 50,
+        borderRadius: RADIUS.input,
+        paddingHorizontal: 16,
+        borderWidth: 1,
+    },
+    currencyPrefix: {
+        fontSize: 20,
+        fontFamily: FONT_FAMILIES.bold,
+        marginRight: 6,
+    },
+    textInput: {
+        flex: 1,
+        fontSize: 18,
+        fontFamily: FONT_FAMILIES.bold,
+        height: '100%',
+    },
+    clearBtn: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
     topUpRow: {
         flexDirection: 'row',
         gap: 8,
@@ -353,7 +524,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 8,
         alignItems: 'center',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
     },
     section: {
         marginBottom: SPACING.md,

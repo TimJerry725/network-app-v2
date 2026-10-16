@@ -88,6 +88,7 @@ export function CredButton({
         if (variant === 'lavender') return colors.lavender; // Electric lavender
         if (variant === 'gold') return colors.amber; // Butter amber
         if (variant === 'danger') return '#FF453A';
+        if (variant === 'dark') return isDark ? '#141418' : '#141418';
         if (variant === 'outline') return isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
         return isDark ? colors.surfaceMuted : '#FFFFFF';
     };
@@ -95,6 +96,7 @@ export function CredButton({
     const getTextColor = () => {
         if (disabled) return isDark ? '#6B7280' : '#9CA3AF';
         if (variant === 'neon') return '#0D0E13'; // Deep black on chalk white
+        if (variant === 'dark') return '#FFFFFF'; // Crisp white on dark
         if (variant === 'coral' || variant === 'lavender' || variant === 'danger') return '#FFFFFF';
         if (variant === 'gold') return '#0D0E13';
         if (variant === 'outline') return isDark ? '#FFFFFF' : '#0D0E13';
@@ -102,12 +104,14 @@ export function CredButton({
     };
 
     const getBorderColor = () => {
+        if (variant === 'dark') return isDark ? 'rgba(255, 255, 255, 0.25)' : '#000000';
         if (variant === 'outline') return isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)';
         return 'transparent';
     };
 
     const getTrailingCircleBg = () => {
         if (variant === 'neon') return 'rgba(0, 0, 0, 0.08)';
+        if (variant === 'dark') return 'rgba(255, 255, 255, 0.12)';
         if (variant === 'outline') return isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)';
         return 'rgba(0, 0, 0, 0.14)';
     };
