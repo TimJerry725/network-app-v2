@@ -1012,11 +1012,19 @@ export default function StationMapScreen({ navigation }: any) {
                                 latitude: station.latitude,
                                 longitude: station.longitude,
                             }}
+                            anchor={{ x: 0.5, y: 0.95 }}
+                            zIndex={isSelected ? 999 : 1}
                             onPress={() =>
                                 handleSelectStation(station, { openSheet: true })
                             }
                         >
-                            <DcPinIcon size={38} color={isSelected ? colors.primary : colors.textMuted} />
+                            <DcPinIcon
+                                size={isSelected ? 44 : 36}
+                                color={isSelected ? (isDark ? '#FFFFFF' : '#000000') : (isDark ? '#141418' : '#000000')}
+                                iconColor={isSelected ? (isDark ? '#000000' : '#FFFFFF') : '#FFFFFF'}
+                                stroke={isDark ? (isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.45)') : (isSelected ? '#000000' : 'rgba(255, 255, 255, 0.35)')}
+                                strokeWidth={isSelected ? 1.5 : 1}
+                            />
                         </Marker>
                     );
                 })}
