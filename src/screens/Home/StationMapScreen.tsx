@@ -1103,11 +1103,11 @@ export default function StationMapScreen({ navigation }: any) {
                                                   transform: [{ translateY: 1.5 }],
                                               }
                                             : {
-                                                  backgroundColor: isDark ? '#111115' : '#F6F6F8',
-                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                                  backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.10)',
                                                   borderWidth: 1,
-                                                  borderBottomWidth: 1.5,
-                                                  borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.12)',
+                                                  borderBottomWidth: 2,
+                                                  borderBottomColor: isDark ? '#050508' : '#D0D0D5',
                                               },
                                     ]}
                                     onPress={() => {
@@ -1122,12 +1122,14 @@ export default function StationMapScreen({ navigation }: any) {
                                         isSelected={isActive}
                                         size={12}
                                         activeColor={isDark ? '#000000' : '#FFFFFF'}
-                                        inactiveColor={colors.textMuted}
+                                        inactiveColor={isDark ? '#FFFFFF' : '#1C1C1E'}
                                         style={{ marginRight: 6 }}
                                     />
                                     <ThemedText
                                         style={{
-                                            color: isActive ? (isDark ? '#000000' : '#FFFFFF') : colors.text,
+                                            color: isActive
+                                                ? (isDark ? '#000000' : '#FFFFFF')
+                                                : (isDark ? '#FFFFFF' : '#000000'),
                                             fontSize: 12,
                                             fontWeight: isActive ? '800' : '600',
                                             fontFamily: isActive
@@ -1149,19 +1151,23 @@ export default function StationMapScreen({ navigation }: any) {
                             style={[
                                 styles.filterChip,
                                 {
-                                    backgroundColor: colors.surface,
+                                    backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.10)',
+                                    borderWidth: 1,
+                                    borderBottomWidth: 2,
+                                    borderBottomColor: isDark ? '#050508' : '#D0D0D5',
                                 },
                             ]}
                             onPress={() => navigation.navigate('Profile' as never)}
                         >
                             <Wallet
                                 size={13}
-                                color={colors.primary}
+                                color={isDark ? '#FFFFFF' : '#000000'}
                                 style={{ marginRight: 6 }}
                             />
                             <ThemedText
                                 style={{
-                                    color: colors.text,
+                                    color: isDark ? '#FFFFFF' : '#000000',
                                     ...FONTS.caption,
                                     fontWeight: '700',
                                 }}
@@ -1241,8 +1247,8 @@ export default function StationMapScreen({ navigation }: any) {
                                     },
                                 ]}
                             >
-                                <MapPinned size={14} color={colors.primary} />
-                                <ThemedText style={{ color: colors.text, ...FONTS.caption, fontFamily: FONT_FAMILIES.bold, letterSpacing: 0.8 }}>
+                                <MapPinned size={14} color={isDark ? '#FFFFFF' : '#000000'} />
+                                <ThemedText style={{ color: isDark ? '#FFFFFF' : '#000000', ...FONTS.caption, fontFamily: FONT_FAMILIES.bold, letterSpacing: 0.8 }}>
                                     {nearbyStations.length} STATIONS NEARBY
                                 </ThemedText>
                             </View>
@@ -1337,17 +1343,19 @@ export default function StationMapScreen({ navigation }: any) {
                                                             styles.typeBadge,
                                                             {
                                                                 backgroundColor: isSelected
-                                                                    ? (isDark ? 'rgba(255,255,255,0.15)' : '#E0E0E6')
-                                                                    : colors.primarySoft,
+                                                                    ? (isDark ? 'rgba(255,255,255,0.2)' : '#E0E0E6')
+                                                                    : (isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)'),
+                                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.08)',
+                                                                borderWidth: 1,
                                                             },
                                                         ]}
                                                     >
                                                         <Zap
                                                             size={11}
-                                                            color={isDark ? colors.primary : colors.primaryStrong}
-                                                            fill={isDark ? colors.primary : colors.primaryStrong}
+                                                            color={isDark ? '#FFFFFF' : '#000000'}
+                                                            fill={isDark ? '#FFFFFF' : '#000000'}
                                                         />
-                                                        <ThemedText style={[styles.typeText, { color: colors.primaryStrong }]}>
+                                                        <ThemedText style={[styles.typeText, { color: isDark ? '#FFFFFF' : '#000000', fontWeight: '700' }]}>
                                                             {connector.power}kW
                                                         </ThemedText>
                                                     </View>

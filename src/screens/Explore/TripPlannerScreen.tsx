@@ -711,8 +711,19 @@ export default function TripPlannerScreen({ navigation }: any) {
 
                     {/* Start Marker */}
                     <Marker coordinate={{ latitude: originLocation.latitude, longitude: originLocation.longitude }}>
-                        <View style={[styles.mapStartMarker, { backgroundColor: colors.primary }]}>
-                            <ThemedText style={styles.mapMarkerText}>Start • {originLocation.label}</ThemedText>
+                        <View
+                            style={[
+                                styles.mapStartMarker,
+                                {
+                                    backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                    borderColor: isDark ? '#A0A0A8' : '#333338',
+                                    borderWidth: 1,
+                                },
+                            ]}
+                        >
+                            <ThemedText style={[styles.mapMarkerText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                                Start • {originLocation.label}
+                            </ThemedText>
                         </View>
                     </Marker>
 
@@ -728,9 +739,20 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 })
                             }
                         >
-                            <View style={[styles.mapStopMarker, { backgroundColor: colors.primary }]}>
-                                <Zap size={10} color="#FFFFFF" fill="#FFFFFF" />
-                                <ThemedText style={styles.mapMarkerText}>Stop {i + 1}</ThemedText>
+                            <View
+                                style={[
+                                    styles.mapStopMarker,
+                                    {
+                                        backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                        borderColor: isDark ? '#A0A0A8' : '#333338',
+                                        borderWidth: 1,
+                                    },
+                                ]}
+                            >
+                                <Zap size={10} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />
+                                <ThemedText style={[styles.mapMarkerText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
+                                    Stop {i + 1}
+                                </ThemedText>
                             </View>
                         </Marker>
                     ))}
@@ -764,8 +786,17 @@ export default function TripPlannerScreen({ navigation }: any) {
                         <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                     </TouchableOpacity>
 
-                    <View style={[styles.floatingRoutePill, { backgroundColor: isDark ? colors.surface : '#FFFFFF' }]}>
-                        <ThemedText style={[styles.floatingRoutePillText, { color: colors.text }]} numberOfLines={1}>
+                    <View
+                        style={[
+                            styles.floatingRoutePill,
+                            {
+                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                borderWidth: 1,
+                            },
+                        ]}
+                    >
+                        <ThemedText style={[styles.floatingRoutePillText, { color: isDark ? '#FFFFFF' : '#000000' }]} numberOfLines={1}>
                             {originLocation.label} → {destinationLocation.label} • {activeRouteOption.tag}
                         </ThemedText>
                     </View>
@@ -1238,10 +1269,10 @@ export default function TripPlannerScreen({ navigation }: any) {
                                     Journey Itinerary
                                 </ThemedText>
 
-                                {/* Departure */}
+                                 {/* Departure */}
                                 <View style={styles.stepItemRow}>
                                     <View style={styles.stepIndicatorCol}>
-                                        <View style={[styles.stepDot, { backgroundColor: colors.primary }]} />
+                                        <View style={[styles.stepDot, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]} />
                                         <View style={[styles.stepLine, { backgroundColor: isDark ? '#334155' : '#E2E8F0' }]} />
                                     </View>
                                     <View style={styles.stepDetailsCol}>
@@ -1258,8 +1289,8 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 {activeStops.map((stop, i) => (
                                     <View key={`timeline-stop-${stop.station.id}-${i}`} style={styles.stepItemRow}>
                                         <View style={styles.stepIndicatorCol}>
-                                            <View style={[styles.stepDot, { backgroundColor: colors.primary }]}>
-                                                <Zap size={8} color="#FFFFFF" fill="#FFFFFF" />
+                                            <View style={[styles.stepDot, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]}>
+                                                <Zap size={8} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />
                                             </View>
                                             <View style={[styles.stepLine, { backgroundColor: isDark ? '#334155' : '#E2E8F0' }]} />
                                         </View>
@@ -1439,16 +1470,22 @@ export default function TripPlannerScreen({ navigation }: any) {
                         {POPULAR_ROUTES.map((route) => {
                             const isSelected = route.originId === originId && route.destinationId === destinationId;
                             return (
-                                <TouchableOpacity
+                                 <TouchableOpacity
                                     key={route.id}
                                     style={[
                                         styles.routeShortcutChip,
                                         {
                                             backgroundColor: isSelected
-                                                ? colors.primary
+                                                ? (isDark ? '#FFFFFF' : '#000000')
                                                 : isDark
                                                 ? '#1E293B'
                                                 : colors.backgroundAlt,
+                                            borderColor: isSelected
+                                                ? (isDark ? '#FFFFFF' : '#000000')
+                                                : isDark
+                                                ? 'rgba(255, 255, 255, 0.12)'
+                                                : 'rgba(0, 0, 0, 0.08)',
+                                            borderWidth: 1,
                                         },
                                     ]}
                                     activeOpacity={0.75}
@@ -1460,7 +1497,11 @@ export default function TripPlannerScreen({ navigation }: any) {
                                     <ThemedText
                                         style={[
                                             styles.routeShortcutText,
-                                            { color: isSelected ? '#FFFFFF' : colors.text },
+                                            {
+                                                color: isSelected
+                                                    ? (isDark ? '#000000' : '#FFFFFF')
+                                                    : colors.text,
+                                            },
                                         ]}
                                     >
                                         {route.label}
