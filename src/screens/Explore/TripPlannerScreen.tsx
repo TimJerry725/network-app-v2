@@ -643,41 +643,41 @@ export default function TripPlannerScreen({ navigation }: any) {
                         keyboardShouldPersistTaps="handled"
                     >
                         {/* KPI Metrics */}
-                            <View style={[styles.kpiContainer, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
-                                <View style={styles.kpiItem}>
-                                    <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Distance</ThemedText>
-                                    <ThemedText style={[styles.kpiValue, { color: colors.text }]}>
-                                        {tripPlan.totalDistanceKm} km
-                                    </ThemedText>
-                                </View>
-                                <View style={styles.kpiItem}>
-                                    <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Drive Time</ThemedText>
-                                    <ThemedText style={[styles.kpiValue, { color: colors.text }]}>
-                                        {fmtTime(tripPlan.driveMinutes)}
-                                    </ThemedText>
-                                </View>
-                                <View style={styles.kpiItem}>
-                                    <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Charging</ThemedText>
-                                    <ThemedText style={[styles.kpiValue, { color: colors.primary }]}>
-                                        {totalChargingMins > 0 ? `${totalChargingMins}m` : '0m'}
-                                    </ThemedText>
-                                </View>
-                                <View style={styles.kpiItem}>
-                                    <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Arrival SoC</ThemedText>
-                                    <ThemedText
-                                        style={[
-                                            styles.kpiValue,
-                                            {
-                                                color: tripPlan.arrivalBatteryPercent >= targetArrivalSoc
-                                                    ? colors.primary
-                                                    : '#EF4444',
-                                            },
-                                        ]}
-                                    >
-                                        {tripPlan.arrivalBatteryPercent}%
-                                    </ThemedText>
-                                </View>
+                        <View style={[styles.kpiContainer, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
+                            <View style={styles.kpiItem}>
+                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Distance</ThemedText>
+                                <ThemedText style={[styles.kpiValue, { color: colors.text }]}>
+                                    {tripPlan.totalDistanceKm} km
+                                </ThemedText>
                             </View>
+                            <View style={styles.kpiItem}>
+                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Stops</ThemedText>
+                                <ThemedText style={[styles.kpiValue, { color: colors.text }]}>
+                                    {activeStops.length}
+                                </ThemedText>
+                            </View>
+                            <View style={styles.kpiItem}>
+                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Energy</ThemedText>
+                                <ThemedText style={[styles.kpiValue, { color: colors.primary }]}>
+                                    {tripPlan.energyNeededKWh} kWh
+                                </ThemedText>
+                            </View>
+                            <View style={styles.kpiItem}>
+                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>Arrival SoC</ThemedText>
+                                <ThemedText
+                                    style={[
+                                        styles.kpiValue,
+                                        {
+                                            color: tripPlan.arrivalBatteryPercent >= targetArrivalSoc
+                                                ? colors.primary
+                                                : '#EF4444',
+                                        },
+                                    ]}
+                                >
+                                    {tripPlan.arrivalBatteryPercent}%
+                                </ThemedText>
+                            </View>
+                        </View>
 
                             {/* ── RECOMMENDED CHARGERS ALONG ROUTE ── */}
                             {tripPlan.recommendedStations.length > 0 && (
