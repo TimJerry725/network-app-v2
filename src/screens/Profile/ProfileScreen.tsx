@@ -115,21 +115,14 @@ export default function ProfileScreen() {
 
                     <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
 
-                    <View style={styles.userMetaRow}>
-                        <View style={styles.rfidRow}>
-                            <Shield size={15} color={colors.primary} />
-                            <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                                RFID:
-                            </ThemedText>
-                            <ThemedText style={[FONTS.caption, { fontWeight: '700' }]}>
-                                {user.rfidTag}
-                            </ThemedText>
-                        </View>
-                        <View style={[styles.badge, { backgroundColor: colors.primarySoft }]}>
-                            <ThemedText style={{ color: colors.primary, ...FONTS.caption, fontWeight: '700' }}>
-                                {user.membershipTier}
-                            </ThemedText>
-                        </View>
+                    <View style={styles.rfidRow}>
+                        <Shield size={15} color={colors.primary} />
+                        <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
+                            RFID:
+                        </ThemedText>
+                        <ThemedText style={[FONTS.caption, { fontWeight: '700' }]}>
+                            {user.rfidTag}
+                        </ThemedText>
                     </View>
 
                     <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
@@ -461,11 +454,6 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.extraBold,
         letterSpacing: 0.8,
     },
-    userMetaRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
     avatar: {
         width: 52,
         height: 52,
@@ -476,11 +464,6 @@ const styles = StyleSheet.create({
     },
     userInfo: {
         flex: 1,
-    },
-    badge: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: RADIUS.chip,
     },
     divider: {
         height: StyleSheet.hairlineWidth,

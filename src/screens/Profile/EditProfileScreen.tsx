@@ -35,7 +35,6 @@ import { FONT_FAMILIES, FONTS, SPACING, RADIUS } from '../../constants/Tokens';
 import { useVehicles, ConnectorStandard, Vehicle } from '../../context/VehicleContext';
 
 const CONNECTOR_OPTIONS: ConnectorStandard[] = ['CCS2', 'Type 2', 'CHAdeMO', 'GB/T'];
-const MEMBERSHIP_OPTIONS: ('Standard' | 'Pro' | 'Iris Fleet')[] = ['Standard', 'Pro', 'Iris Fleet'];
 
 export default function EditProfileScreen() {
     const { colors, isDark } = useAppTheme();
@@ -61,7 +60,6 @@ export default function EditProfileScreen() {
     const [phone, setPhone] = useState(user.phone);
     const [email, setEmail] = useState(user.email);
     const [rfidTag, setRfidTag] = useState(user.rfidTag);
-    const [membershipTier, setMembershipTier] = useState(user.membershipTier);
 
     // Active Vehicle Selection
     const [activeVehicleId, setActiveVehicleId] = useState<string>(
@@ -183,7 +181,6 @@ export default function EditProfileScreen() {
             phone: phone.trim(),
             email: email.trim(),
             rfidTag: rfidTag.trim(),
-            membershipTier,
         });
 
         // 2. Update Active Vehicle Details
@@ -448,49 +445,6 @@ export default function EditProfileScreen() {
                                 placeholderTextColor={colors.textMuted}
                                 autoCapitalize="characters"
                             />
-                        </View>
-
-                        <View style={styles.fieldGroup}>
-                            <ThemedText style={[styles.fieldLabel, { color: colors.textMuted }]}>
-                                MEMBERSHIP TIER
-                            </ThemedText>
-                            <View style={styles.pillRow}>
-                                {MEMBERSHIP_OPTIONS.map((tier) => {
-                                    const isSelected = membershipTier === tier;
-                                    return (
-                                        <TouchableOpacity
-                                            key={tier}
-                                            style={[
-                                                styles.choicePill,
-                                                isSelected
-                                                    ? {
-                                                          backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                          borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                      }
-                                                    : {
-                                                          backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                                          borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
-                                                      },
-                                            ]}
-                                            onPress={() => {
-                                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                                setMembershipTier(tier);
-                                            }}
-                                            activeOpacity={0.8}
-                                        >
-                                            <ThemedText
-                                                style={{
-                                                    color: isSelected ? (isDark ? '#000000' : '#FFFFFF') : colors.text,
-                                                    fontSize: 12,
-                                                    fontFamily: FONT_FAMILIES.bold,
-                                                }}
-                                            >
-                                                {tier}
-                                            </ThemedText>
-                                        </TouchableOpacity>
-                                    );
-                                })}
-                            </View>
                         </View>
                     </CredCard>
                 ) : (
@@ -836,20 +790,23 @@ export default function EditProfileScreen() {
                     </CredCard>
                 )}
 
-                {/* Save and Cancel Buttons */}
-                <CredButton
-                    title="SAVE ALL CHANGES"
-                    variant="neon"
-                    containerStyle={{ marginTop: 8 }}
-                    onPress={handleSave}
-                />
-
-                <CredButton
-                    title="CANCEL"
-                    variant="outline"
-                    containerStyle={{ marginTop: 10, marginBottom: 30 }}
-                    onPress={() => navigation.goBack()}
-                />
+                {/* Save and Cancel Buttons in the same row */}
+                <View style={styles.actionButtonsRow}>
+                    <CredButton
+                        title="SAVE"
+                        variant="neon"
+                        showTrailingIcon={false}
+                        containerStyle={{ flex: 1 }}
+                        onPress={handleSave}
+                    />
+                    <CredButton
+                        title="CANCEL"
+                        variant="outline"
+                        showTrailingIcon={false}
+                        containerStyle={{ flex: 1 }}
+                        onPress={() => navigation.goBack()}
+                    />
+                </View>
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -984,5 +941,12 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(239, 68, 68, 0.3)',
         backgroundColor: 'rgba(239, 68, 68, 0.08)',
+    },
+    actionButtonsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginTop: 12,
+        marginBottom: 36,
     },
 });
