@@ -46,6 +46,7 @@ import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
+import { stationService } from '../../services/api/stationService';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const VIEWFINDER_SIZE = Math.min(SCREEN_WIDTH * 0.62, 230);
@@ -134,10 +135,11 @@ export default function ScanScreen({ navigation, route }: any) {
         }
     }, [nearbyStation, selectedConnectorId, selectedVehicle?.connectorType]);
 
-    // Auto-match nearby station & connector when CPID is typed
+    // Auto-match nearby station & connector when CPID is typed (local list & live API)
     useEffect(() => {
         const trimmed = manualCode.trim();
         if (!trimmed) return;
+
         const match = findStationByConnector(trimmed);
         if (match) {
             const idx = stationsList.findIndex((s) => s.id === match.station.id);
@@ -145,6 +147,17 @@ export default function ScanScreen({ navigation, route }: any) {
                 setCurrentStationIndex(idx);
             }
             setSelectedConnectorId(match.connector.id);
+            return;
+        }
+
+        if (trimmed.length >= 4) {
+            stationService.getStationByChargePointId(trimmed)
+                .then((liveStation) => {
+                    if (liveStation && liveStation.connectors.length > 0) {
+                        setSelectedConnectorId(liveStation.connectors[0].id);
+                    }
+                })
+                .catch(() => {});
         }
     }, [manualCode, stationsList]);
 

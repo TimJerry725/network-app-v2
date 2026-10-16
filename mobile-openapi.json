@@ -1,0 +1,4989 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Iris Mobile BFF API",
+        "version": "1.0.0",
+        "description": "API contract used by the ev-flutter mobile application. Paths under `/d2s` are accepted by the BFF and forwarded to network-service. Machine-to-machine webhooks, OCPP callbacks, cron operations, settlement, embed, and external-partner APIs are intentionally excluded."
+    },
+    "servers": [
+        {
+            "url": "https://4xx1pqey53.execute-api.ap-south-1.amazonaws.com/suite-network-dev",
+            "description": "Development"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Configuration"
+        },
+        {
+            "name": "Authentication"
+        },
+        {
+            "name": "Profile"
+        },
+        {
+            "name": "Vehicles"
+        },
+        {
+            "name": "Station discovery"
+        },
+        {
+            "name": "Favourites"
+        },
+        {
+            "name": "Charging"
+        },
+        {
+            "name": "Charging history"
+        },
+        {
+            "name": "Auto-charge"
+        },
+        {
+            "name": "Wallet"
+        },
+        {
+            "name": "Notifications"
+        },
+        {
+            "name": "RFID and auto-charge"
+        },
+        {
+            "name": "Trip planner"
+        },
+        {
+            "name": "Saved trips"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Cognito JWT. Send as `Authorization: Bearer <token>`."
+            }
+        },
+        "schemas": {
+            "ApiResponse": {
+                "type": "object",
+                "description": "Common response envelope. Some legacy endpoints return `code` in the body while the HTTP response remains 200.",
+                "properties": {
+                    "error": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": true
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "code": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "details": {
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": true
+            },
+            "VehicleInput": {
+                "type": "object",
+                "required": [
+                    "manufacturer",
+                    "model",
+                    "number"
+                ],
+                "properties": {
+                    "nickname": {
+                        "type": "string"
+                    },
+                    "manufacturer": {
+                        "type": "string"
+                    },
+                    "model": {
+                        "type": "string"
+                    },
+                    "number": {
+                        "type": "string",
+                        "description": "Vehicle registration number."
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "connectortype": {
+                        "type": "string"
+                    },
+                    "power": {
+                        "type": "number"
+                    },
+                    "is_temporary": {
+                        "type": "boolean"
+                    },
+                    "is_default": {
+                        "type": "boolean"
+                    },
+                    "range": {
+                        "type": "number",
+                        "description": "Estimated vehicle range in kilometres."
+                    },
+                    "master_vehicle_id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "LocationInput": {
+                "type": "object",
+                "required": [
+                    "latitude",
+                    "longitude"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                },
+                "additionalProperties": true
+            }
+        },
+        "responses": {
+            "BadRequest": {
+                "description": "Invalid request",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "Unauthorized": {
+                "description": "Missing or invalid bearer token",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "ValidationError": {
+                "description": "Request validation failed",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "InternalError": {
+                "description": "Internal server error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/v1/tenant/config/{tenantId}": {
+            "get": {
+                "tags": [
+                    "Configuration"
+                ],
+                "summary": "Get public tenant configuration",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1TenantConfigTenantId"
+            }
+        },
+        "/api/v1/auth/otp": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Send a login OTP",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "phone",
+                                    "tenantid"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "pattern": "^\\+[1-9]\\d{6,14}$",
+                                        "description": "E.164 phone number including country code."
+                                    },
+                                    "tenantid": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "signature": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "Android SMS Retriever signature when available."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1AuthOtp"
+            }
+        },
+        "/api/v1/auth/otp/verify": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify OTP and create a session",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "tenantId",
+                                    "phone",
+                                    "otp",
+                                    "deviceType",
+                                    "deviceToken"
+                                ],
+                                "properties": {
+                                    "tenantId": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "pattern": "^\\+[1-9]\\d{6,14}$",
+                                        "description": "E.164 phone number including country code."
+                                    },
+                                    "otp": {
+                                        "type": "string",
+                                        "minLength": 4
+                                    },
+                                    "deviceType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "android",
+                                            "ios"
+                                        ]
+                                    },
+                                    "deviceToken": {
+                                        "type": "string"
+                                    },
+                                    "deviceName": {
+                                        "type": "string"
+                                    },
+                                    "deviceModel": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1AuthOtpVerify"
+            }
+        },
+        "/api/v1/auth/signup": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a customer",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "tenantId",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "tenantId": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "pattern": "^\\+[1-9]\\d{6,14}$",
+                                        "description": "E.164 phone number including country code."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1AuthSignup"
+            }
+        },
+        "/api/v1/auth/logout-all-device/otp": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Send OTP for logout from all devices",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "tenantid",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "tenantid": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "pattern": "^\\+[1-9]\\d{6,14}$",
+                                        "description": "E.164 phone number including country code."
+                                    },
+                                    "signature": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1AuthLogoutAllDeviceOtp"
+            }
+        },
+        "/api/v1/auth/logout-all-device/otp/verify": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify OTP and logout all devices",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "tenantId",
+                                    "phone",
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "tenantId": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "pattern": "^\\+[1-9]\\d{6,14}$",
+                                        "description": "E.164 phone number including country code."
+                                    },
+                                    "otp": {
+                                        "type": "string"
+                                    },
+                                    "deviceType": {
+                                        "type": "string"
+                                    },
+                                    "deviceToken": {
+                                        "type": "string"
+                                    },
+                                    "deviceName": {
+                                        "type": "string"
+                                    },
+                                    "deviceModel": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1AuthLogoutAllDeviceOtpVerify"
+            }
+        },
+        "/api/v1/users/profile": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get the authenticated customer profile",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1UsersProfile"
+            }
+        },
+        "/api/v1/users/{userId}": {
+            "patch": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Update a customer profile",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Customer user ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "customer_address": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "patchApiV1UsersUserId"
+            }
+        },
+        "/api/v1/customers/businessUnit": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Create, update, or clear customer business details",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "user_id",
+                                    "business_unit_details"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "string"
+                                    },
+                                    "business_unit_details": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "gst": {
+                                                "type": "string"
+                                            },
+                                            "address": {
+                                                "type": "string"
+                                            },
+                                            "meta_info": {
+                                                "type": "object",
+                                                "additionalProperties": true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "putApiV1CustomersBusinessUnit"
+            }
+        },
+        "/api/v1/d2s/settings/{tenantId}": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get tenant settings for the signed-in customer",
+                "description": "Forwarded by the BFF to network-service. The response includes tenant settings, `isBrandFilter`, and `activesession` when applicable.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sSettingsTenantId"
+            }
+        },
+        "/api/v1/d2s/device/register": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Register or refresh a mobile device token",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "device_type",
+                                    "device_token"
+                                ],
+                                "properties": {
+                                    "device_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "android",
+                                            "ios"
+                                        ]
+                                    },
+                                    "device_token": {
+                                        "type": "string"
+                                    },
+                                    "device_name": {
+                                        "type": "string"
+                                    },
+                                    "device_model": {
+                                        "type": "string"
+                                    },
+                                    "os_version": {
+                                        "type": "string"
+                                    },
+                                    "app_version": {
+                                        "type": "string"
+                                    },
+                                    "last_active_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "other_metadata": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1D2sDeviceRegister"
+            }
+        },
+        "/api/v1/d2s/customers/get_verification_email": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Send an email verification link",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "userid",
+                                    "customerInfo"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "userid": {
+                                        "type": "string"
+                                    },
+                                    "customerInfo": {
+                                        "type": "object",
+                                        "required": [
+                                            "name"
+                                        ],
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1D2sCustomersGetVerificationEmail"
+            }
+        },
+        "/api/v1/d2s/settings/gst": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Look up GST registration details",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "gstin",
+                        "in": "query",
+                        "required": true,
+                        "description": "GST identification number",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sSettingsGst"
+            }
+        },
+        "/api/v1/d2s/auth/check-user": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Check whether the JWT customer exists",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sAuthCheckUser"
+            }
+        },
+        "/api/v1/d2s/vehicles": {
+            "get": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "List the authenticated customer's vehicles",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sVehicles"
+            },
+            "post": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "Add a vehicle",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/VehicleInput"
+                                    }
+                                ],
+                                "required": [
+                                    "manufacturer",
+                                    "model",
+                                    "number"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1D2sVehicles"
+            }
+        },
+        "/api/v1/d2s/vehicles/{vehicleId}": {
+            "patch": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "Update a vehicle",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "vehicleId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Vehicle ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/VehicleInput"
+                                    }
+                                ],
+                                "description": "Only supplied fields are updated."
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "patchApiV1D2sVehiclesVehicleId"
+            },
+            "delete": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "Delete a vehicle",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "vehicleId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Vehicle ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "deleteApiV1D2sVehiclesVehicleId"
+            }
+        },
+        "/api/v1/d2s/vehicles/vehicledetails": {
+            "get": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "List supported vehicle makes and models",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sVehiclesVehicledetails"
+            }
+        },
+        "/api/v1/discover-stations": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Search stations for a signed-in customer",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "device_lat",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device latitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -90,
+                            "maximum": 90
+                        }
+                    },
+                    {
+                        "name": "device_long",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device longitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "connector_type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated connector type filters",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "station_type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Station or charger type filter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search_long",
+                        "in": "query",
+                        "required": false,
+                        "description": "Longitude of the searched location",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "search_lat",
+                        "in": "query",
+                        "required": false,
+                        "description": "Latitude of the searched location",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "is_expand",
+                        "in": "query",
+                        "required": false,
+                        "description": "Return expanded station data",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "description": "Free-text station or location search",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStations"
+            }
+        },
+        "/api/v1/discover-stations/open_list": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Search stations without signing in",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "device_lat",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device latitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -90,
+                            "maximum": 90
+                        }
+                    },
+                    {
+                        "name": "device_long",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device longitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "connector_type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated connector type filters",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "station_type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Station or charger type filter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search_long",
+                        "in": "query",
+                        "required": false,
+                        "description": "Longitude of the searched location",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "search_lat",
+                        "in": "query",
+                        "required": false,
+                        "description": "Latitude of the searched location",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "is_expand",
+                        "in": "query",
+                        "required": false,
+                        "description": "Return expanded station data",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "description": "Free-text station or location search",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStationsOpenList"
+            }
+        },
+        "/api/v1/discover-stations/open_list_withfilter": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Search public stations within map bounds",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "device_lat",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device latitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -90,
+                            "maximum": 90
+                        }
+                    },
+                    {
+                        "name": "device_long",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device longitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "connector_type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated connector type filters",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "station_type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Station or charger type filter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search_long",
+                        "in": "query",
+                        "required": false,
+                        "description": "Longitude of the searched location",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "search_lat",
+                        "in": "query",
+                        "required": false,
+                        "description": "Latitude of the searched location",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "is_expand",
+                        "in": "query",
+                        "required": false,
+                        "description": "Return expanded station data",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "description": "Free-text station or location search",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "bound_lat_and_long",
+                        "in": "query",
+                        "required": false,
+                        "description": "Visible map bounds encoded by the mobile client",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStationsOpenListWithfilter"
+            }
+        },
+        "/api/v1/discover-stations/open_list_withoutfilter": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Search signed-in stations within map bounds",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "device_lat",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device latitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -90,
+                            "maximum": 90
+                        }
+                    },
+                    {
+                        "name": "device_long",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device longitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "connector_type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated connector type filters",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "station_type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Station or charger type filter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search_long",
+                        "in": "query",
+                        "required": false,
+                        "description": "Longitude of the searched location",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "search_lat",
+                        "in": "query",
+                        "required": false,
+                        "description": "Latitude of the searched location",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "is_expand",
+                        "in": "query",
+                        "required": false,
+                        "description": "Return expanded station data",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "description": "Free-text station or location search",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "bound_lat_and_long",
+                        "in": "query",
+                        "required": false,
+                        "description": "Visible map bounds encoded by the mobile client",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStationsOpenListWithoutfilter"
+            }
+        },
+        "/api/v1/discover-stations/{stationId}": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Get station details",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Station ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "device_lat",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device latitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -90,
+                            "maximum": 90
+                        }
+                    },
+                    {
+                        "name": "device_long",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device longitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_expand",
+                        "in": "query",
+                        "required": false,
+                        "description": "Return expanded station data",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "emsp_station",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whether this is an EMSP/OCPI station",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStationsStationId"
+            }
+        },
+        "/api/v1/discover-stations/open_single/{stationId}": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Get public station details",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Station ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "device_lat",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device latitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -90,
+                            "maximum": 90
+                        }
+                    },
+                    {
+                        "name": "device_long",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device longitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_expand",
+                        "in": "query",
+                        "required": false,
+                        "description": "Return expanded station data",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "emsp_station",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whether this is an EMSP/OCPI station",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStationsOpenSingleStationId"
+            }
+        },
+        "/api/v1/discover-stations/details/{stationId}": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Get compact station map details",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Station ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "device_lat",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device latitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -90,
+                            "maximum": 90
+                        }
+                    },
+                    {
+                        "name": "device_long",
+                        "in": "query",
+                        "required": true,
+                        "description": "Current device longitude",
+                        "schema": {
+                            "type": "number",
+                            "format": "double",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStationsDetailsStationId"
+            }
+        },
+        "/api/v1/discover-stations/get_single/chargepoint/{chargePointId}": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Resolve a station from a charge point ID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "chargePointId",
+                        "in": "path",
+                        "required": true,
+                        "description": "OCPP charge point ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStationsGetSingleChargepointChargePointId"
+            }
+        },
+        "/api/v1/discover-stations/tariff_details/{stationId}": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "Get station tariff details",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Station ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "emsp_station",
+                        "in": "query",
+                        "required": true,
+                        "description": "Whether this is an EMSP/OCPI station",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1DiscoverStationsTariffDetailsStationId"
+            }
+        },
+        "/api/v1/d2s/settings/master/partner": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "List partner charging operators",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "required": false,
+                        "description": "Optional operator-name filter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sSettingsMasterPartner"
+            }
+        },
+        "/api/v1/d2s/settings/master/partner/openlist": {
+            "get": {
+                "tags": [
+                    "Station discovery"
+                ],
+                "summary": "List public partner charging operators",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "tenantid",
+                        "in": "query",
+                        "required": true,
+                        "description": "Tenant UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sSettingsMasterPartnerOpenlist"
+            }
+        },
+        "/api/v1/favorite-stations": {
+            "get": {
+                "tags": [
+                    "Favourites"
+                ],
+                "summary": "List favourite stations",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "emsp_station",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whether the favourite belongs to an EMSP/OCPI station",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1FavoriteStations"
+            },
+            "post": {
+                "tags": [
+                    "Favourites"
+                ],
+                "summary": "Add a favourite station",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "emsp_station",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whether the favourite belongs to an EMSP/OCPI station",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "stationid"
+                                ],
+                                "properties": {
+                                    "stationid": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1FavoriteStations"
+            }
+        },
+        "/api/v1/d2s/favorite-stations/{stationId}": {
+            "delete": {
+                "tags": [
+                    "Favourites"
+                ],
+                "summary": "Remove a favourite station",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Station ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "emsp_station",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whether the favourite belongs to an EMSP/OCPI station",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "deleteApiV1D2sFavoriteStationsStationId"
+            }
+        },
+        "/api/v1/notifications/alerts": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List customer alerts",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Page number",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pagesize",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1NotificationsAlerts"
+            }
+        },
+        "/api/v1/notifications/news": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List customer news",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Page number",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1NotificationsNews"
+            }
+        },
+        "/api/v1/d2s/idtag": {
+            "get": {
+                "tags": [
+                    "RFID and auto-charge"
+                ],
+                "summary": "List the customer's RFID or VID records",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id_type",
+                        "in": "query",
+                        "required": true,
+                        "description": "ID-tag type",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "rfid",
+                                "vid"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sIdtag"
+            }
+        },
+        "/api/v1/idtag/deactivate/otp": {
+            "post": {
+                "tags": [
+                    "RFID and auto-charge"
+                ],
+                "summary": "Send OTP to deactivate an RFID or VID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "id_type",
+                                    "id",
+                                    "signature"
+                                ],
+                                "properties": {
+                                    "id_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "rfid",
+                                            "vid"
+                                        ]
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "signature": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1IdtagDeactivateOtp"
+            }
+        },
+        "/api/v1/idtag/deactivate/otp/verify": {
+            "post": {
+                "tags": [
+                    "RFID and auto-charge"
+                ],
+                "summary": "Verify OTP and deactivate an RFID or VID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "id_type",
+                                    "id",
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "id_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "rfid",
+                                            "vid"
+                                        ]
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "otp": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1IdtagDeactivateOtpVerify"
+            }
+        },
+        "/api/v1/idtag/activate": {
+            "post": {
+                "tags": [
+                    "RFID and auto-charge"
+                ],
+                "summary": "Activate an RFID or VID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "id_type",
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "rfid",
+                                            "vid"
+                                        ]
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1IdtagActivate"
+            }
+        },
+        "/api/v1/idtag/vid/delete/otp": {
+            "post": {
+                "tags": [
+                    "RFID and auto-charge"
+                ],
+                "summary": "Send OTP before deleting a VID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "id_type",
+                                    "id",
+                                    "signature"
+                                ],
+                                "properties": {
+                                    "id_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "vid"
+                                        ]
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "signature": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1IdtagVidDeleteOtp"
+            }
+        },
+        "/api/v1/idtag/vid/{id}": {
+            "delete": {
+                "tags": [
+                    "RFID and auto-charge"
+                ],
+                "summary": "Verify OTP and delete a VID",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "VID record ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "otp": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "deleteApiV1IdtagVidId"
+            }
+        },
+        "/api/v1/rfid/scan_qr/assign": {
+            "patch": {
+                "tags": [
+                    "RFID and auto-charge"
+                ],
+                "summary": "Assign an RFID by scanning its QR code",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "description": "RFID assignment payload produced by the mobile QR scanner.",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "patchApiV1RfidScanQrAssign"
+            }
+        },
+        "/api/v1/charging-sessions": {
+            "post": {
+                "tags": [
+                    "Charging"
+                ],
+                "summary": "Start a charging session",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "is_ocpi_session",
+                        "in": "query",
+                        "required": true,
+                        "description": "Set to true for an OCPI/EMSP charging session",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "charge_point_id",
+                                    "connector_id",
+                                    "vehicle_details",
+                                    "user_id",
+                                    "source"
+                                ],
+                                "properties": {
+                                    "charge_point_id": {
+                                        "type": "string"
+                                    },
+                                    "connector_id": {
+                                        "oneOf": [
+                                            {
+                                                "type": "integer"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    },
+                                    "vehicle_details": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    },
+                                    "user_id": {
+                                        "type": "string"
+                                    },
+                                    "source": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Mobile"
+                                        ]
+                                    },
+                                    "evse_uid": {
+                                        "type": "string"
+                                    },
+                                    "location_id": {
+                                        "type": "string"
+                                    },
+                                    "tid": {
+                                        "type": "integer"
+                                    },
+                                    "pairName": {
+                                        "type": "string"
+                                    },
+                                    "session_rule": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1ChargingSessions"
+            }
+        },
+        "/api/v1/charging-sessions/stop/{sessionId}": {
+            "post": {
+                "tags": [
+                    "Charging"
+                ],
+                "summary": "Stop a charging session",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Charging session ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_ocpi_session",
+                        "in": "query",
+                        "required": true,
+                        "description": "Set to true for an OCPI/EMSP charging session",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "closed_by"
+                                ],
+                                "properties": {
+                                    "closed_by": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Mobile"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1ChargingSessionsStopSessionId"
+            }
+        },
+        "/api/v1/charging-sessions/customer_active_sessions/{userId}": {
+            "get": {
+                "tags": [
+                    "Charging"
+                ],
+                "summary": "Get the customer's active charging sessions",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Customer user ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1ChargingSessionsCustomerActiveSessionsUserId"
+            }
+        },
+        "/api/v1/charging-sessions/{sessionId}": {
+            "get": {
+                "tags": [
+                    "Charging"
+                ],
+                "summary": "Get live charging-session details",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Charging session ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "time_period",
+                        "in": "query",
+                        "required": false,
+                        "description": "Requested live-session time period",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "emsp_session",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whether this is an EMSP session",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1ChargingSessionsSessionId"
+            }
+        },
+        "/api/v1/charging-sessions/ocpi/commands/cpo-command-result/{uid}": {
+            "get": {
+                "tags": [
+                    "Charging"
+                ],
+                "summary": "Poll the result of a mobile OCPI charging command",
+                "description": "This is a mobile polling operation, not an OCPI provider callback.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "required": true,
+                        "description": "OCPI command UID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1ChargingSessionsOcpiCommandsCpoCommandResultUid"
+            }
+        },
+        "/api/v1/charging-points/{chargePointId}/{connectorId}/details": {
+            "get": {
+                "tags": [
+                    "Charging"
+                ],
+                "summary": "Get charger and connector details before charging",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "chargePointId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Charge point ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "connectorId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Connector ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1ChargingPointsChargePointIdConnectorIdDetails"
+            }
+        },
+        "/api/v1/d2s/charging-sessions/update-vehicle-details/{sessionId}": {
+            "patch": {
+                "tags": [
+                    "Charging"
+                ],
+                "summary": "Change the vehicle attached to a session",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "OCPP transaction or charging-session ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_ocpi_session",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whether this is an OCPI session",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "uid",
+                        "in": "query",
+                        "required": false,
+                        "description": "OCPI authorization reference; required for OCPI sessions",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "type",
+                                    "model",
+                                    "number",
+                                    "manufacturer"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "model": {
+                                        "type": "string"
+                                    },
+                                    "number": {
+                                        "type": "string"
+                                    },
+                                    "manufacturer": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "patchApiV1D2sChargingSessionsUpdateVehicleDetailsSessionId"
+            }
+        },
+        "/api/v1/d2s/autocharge/submit/{id}": {
+            "patch": {
+                "tags": [
+                    "Auto-charge"
+                ],
+                "summary": "Submit or postpone an auto-charge request",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Auto-charge request ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "vrn",
+                                    "id"
+                                ],
+                                "properties": {
+                                    "vrn": {
+                                        "type": "string",
+                                        "description": "Vehicle registration number."
+                                    },
+                                    "id": {
+                                        "type": "integer",
+                                        "description": "Vehicle ID."
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "submitted",
+                                            "maybelater"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "patchApiV1D2sAutochargeSubmitId"
+            }
+        },
+        "/api/v1/d2s/liveActivity/addLiveActivity": {
+            "post": {
+                "tags": [
+                    "Charging"
+                ],
+                "summary": "Register an iOS Live Activity token",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "session_id",
+                                    "activity_token"
+                                ],
+                                "properties": {
+                                    "session_id": {
+                                        "type": "integer"
+                                    },
+                                    "activity_token": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1D2sLiveActivityAddLiveActivity"
+            }
+        },
+        "/api/v1/charging-history": {
+            "get": {
+                "tags": [
+                    "Charging history"
+                ],
+                "summary": "List charging history",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "from_dt",
+                        "in": "query",
+                        "required": true,
+                        "description": "Start date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to_dt",
+                        "in": "query",
+                        "required": true,
+                        "description": "End date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Page number",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "is_ocpi_session",
+                        "in": "query",
+                        "required": true,
+                        "description": "Filter local or OCPI sessions",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1ChargingHistory"
+            }
+        },
+        "/api/v1/charging-history/{sessionId}": {
+            "get": {
+                "tags": [
+                    "Charging history"
+                ],
+                "summary": "Get one charging-history record",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Charging history record ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_ocpi_session",
+                        "in": "query",
+                        "required": true,
+                        "description": "Whether this is an OCPI session",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1ChargingHistorySessionId"
+            }
+        },
+        "/api/v1/charging-sessions/invoice/{sessionId}": {
+            "get": {
+                "tags": [
+                    "Charging history"
+                ],
+                "summary": "Generate or download a session invoice",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Charging session ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_session",
+                        "in": "query",
+                        "required": true,
+                        "description": "Treat the identifier as a session ID",
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "is_invoice",
+                        "in": "query",
+                        "required": true,
+                        "description": "Generate an invoice rather than a receipt",
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "is_ocpi_session",
+                        "in": "query",
+                        "required": true,
+                        "description": "Whether this is an OCPI session",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1ChargingSessionsInvoiceSessionId"
+            }
+        },
+        "/api/v1/ocpi/cpo-invoice/generate/{sessionId}": {
+            "post": {
+                "tags": [
+                    "Charging history"
+                ],
+                "summary": "Generate a CPO invoice requested by mobile",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "OCPI session ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1OcpiCpoInvoiceGenerateSessionId"
+            }
+        },
+        "/api/v1/d2s/station-reviews/{stationId}": {
+            "get": {
+                "tags": [
+                    "Charging history"
+                ],
+                "summary": "Check whether the station was reviewed",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Station ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "isocpi",
+                        "in": "query",
+                        "required": true,
+                        "description": "Whether this is an OCPI station",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sStationReviewsStationId"
+            }
+        },
+        "/api/v1/d2s/station-reviews": {
+            "put": {
+                "tags": [
+                    "Charging history"
+                ],
+                "summary": "Mark a station as reviewed",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "stationid",
+                                    "isocpi"
+                                ],
+                                "properties": {
+                                    "stationid": {
+                                        "type": "string"
+                                    },
+                                    "isocpi": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "putApiV1D2sStationReviews"
+            }
+        },
+        "/api/v1/wallet/transactions": {
+            "get": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "List wallet transactions",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Page number",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1WalletTransactions"
+            }
+        },
+        "/api/v1/wallet/top-up": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Create a wallet top-up order",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "amount",
+                                    "currency",
+                                    "userid",
+                                    "payment_gateway_type"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "INR"
+                                    },
+                                    "userid": {
+                                        "type": "string"
+                                    },
+                                    "payment_gateway_type": {
+                                        "type": "string",
+                                        "description": "Configured mobile payment gateway."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1WalletTopUp"
+            }
+        },
+        "/api/v1/d2s/wallet/payment/callback": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Check a mobile Paytm payment result",
+                "description": "Called by the mobile app. Provider-originated payment webhooks are intentionally excluded from this specification.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "ORDERID",
+                                    "MID"
+                                ],
+                                "properties": {
+                                    "ORDERID": {
+                                        "type": "string"
+                                    },
+                                    "MID": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1D2sWalletPaymentCallback"
+            }
+        },
+        "/api/v1/d2s/wallet/payment/order-verify": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Verify a Razorpay payment from mobile",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "order_id",
+                                    "payment_id",
+                                    "razorpay_signature",
+                                    "tenantId"
+                                ],
+                                "properties": {
+                                    "order_id": {
+                                        "type": "string"
+                                    },
+                                    "payment_id": {
+                                        "type": "string"
+                                    },
+                                    "razorpay_signature": {
+                                        "type": "string"
+                                    },
+                                    "tenantId": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1D2sWalletPaymentOrderVerify"
+            }
+        },
+        "/api/v1/voucher/redeem": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Redeem a voucher",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "voucher_code"
+                                ],
+                                "properties": {
+                                    "voucher_code": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1VoucherRedeem"
+            }
+        },
+        "/api/v1/trip-planner/getSuggestedChargersOla": {
+            "post": {
+                "tags": [
+                    "Trip planner"
+                ],
+                "summary": "Get suggested chargers for a route",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "description": "Trip-planning inputs, including route polyline, vehicle range/SOC, locations, and any selected or replacement chargers.",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1TripPlannerGetSuggestedChargersOla"
+            }
+        },
+        "/api/v1/trip-planner/getReplaceSuggestion": {
+            "post": {
+                "tags": [
+                    "Trip planner"
+                ],
+                "summary": "Get replacement charger suggestions",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "description": "Trip-planning inputs, including route polyline, vehicle range/SOC, locations, and any selected or replacement chargers.",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1TripPlannerGetReplaceSuggestion"
+            }
+        },
+        "/api/v1/trip-planner/getReplacedChargeStationsPlanOla": {
+            "post": {
+                "tags": [
+                    "Trip planner"
+                ],
+                "summary": "Recalculate a plan with a replacement charger",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "description": "Trip-planning inputs, including route polyline, vehicle range/SOC, locations, and any selected or replacement chargers.",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1TripPlannerGetReplacedChargeStationsPlanOla"
+            }
+        },
+        "/api/v1/trip-planner/getAllChargers": {
+            "post": {
+                "tags": [
+                    "Trip planner"
+                ],
+                "summary": "Get chargers along an encoded route",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "encodedPolyline"
+                                ],
+                                "properties": {
+                                    "encodedPolyline": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1TripPlannerGetAllChargers"
+            }
+        },
+        "/api/v1/trip-planner/getChargeStationsPlanOla": {
+            "post": {
+                "tags": [
+                    "Trip planner"
+                ],
+                "summary": "Build a charging plan for a route",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "description": "Trip-planning inputs, including route polyline, vehicle range/SOC, locations, and any selected or replacement chargers.",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1TripPlannerGetChargeStationsPlanOla"
+            }
+        },
+        "/api/v1/d2s/savedTrips": {
+            "post": {
+                "tags": [
+                    "Saved trips"
+                ],
+                "summary": "Save a planned or recent trip",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "trip_stations",
+                                    "arrival_soc",
+                                    "vehicle_id",
+                                    "start_soc",
+                                    "end_soc",
+                                    "vehicle_range",
+                                    "start_location",
+                                    "end_location",
+                                    "is_saved",
+                                    "is_dry_zone"
+                                ],
+                                "properties": {
+                                    "trip_stations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    },
+                                    "arrival_soc": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100
+                                    },
+                                    "vehicle_id": {
+                                        "type": "integer"
+                                    },
+                                    "start_soc": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100
+                                    },
+                                    "end_soc": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100
+                                    },
+                                    "vehicle_range": {
+                                        "type": "number"
+                                    },
+                                    "start_location": {
+                                        "$ref": "#/components/schemas/LocationInput"
+                                    },
+                                    "end_location": {
+                                        "$ref": "#/components/schemas/LocationInput"
+                                    },
+                                    "is_saved": {
+                                        "type": "boolean"
+                                    },
+                                    "is_dry_zone": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "postApiV1D2sSavedTrips"
+            },
+            "get": {
+                "tags": [
+                    "Saved trips"
+                ],
+                "summary": "List saved or recent trips",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "tripType",
+                        "in": "query",
+                        "required": true,
+                        "description": "Trip collection to return",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "saved_trip",
+                                "recent_trip"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Page number for saved trips",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pagesize",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page for saved trips",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "getApiV1D2sSavedTrips"
+            }
+        },
+        "/api/v1/d2s/savedTrips/{tripId}": {
+            "patch": {
+                "tags": [
+                    "Saved trips"
+                ],
+                "summary": "Remove a saved or recent trip",
+                "description": "Performs the network-service soft-delete operation.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "tripId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Trip ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "tripType",
+                        "in": "query",
+                        "required": true,
+                        "description": "Trip collection to remove from",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "saved_trip",
+                                "recent_trip"
+                            ]
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalError"
+                    }
+                },
+                "operationId": "patchApiV1D2sSavedTripsTripId"
+            }
+        }
+    }
+}

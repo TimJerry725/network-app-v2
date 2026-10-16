@@ -45,6 +45,7 @@ import {
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles, Vehicle } from '../../context/VehicleContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
+import { tripPlannerService } from '../../services/api/tripPlannerService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -316,6 +317,32 @@ export default function TripPlannerScreen({ navigation }: any) {
         sheetHeight.setValue(sheetSnapMid);
         currentSheetHeight.current = sheetSnapMid;
         setTimeout(fitMapRoute, 400);
+
+        // Persist planned trip via Iris Mobile BFF API
+        tripPlannerService
+            .saveTrip({
+                origin: {
+                    id: originLocation.id,
+                    name: originLocation.label,
+                    latitude: originLocation.latitude,
+                    longitude: originLocation.longitude,
+                },
+                destination: {
+                    id: destinationLocation.id,
+                    name: destinationLocation.label,
+                    latitude: destinationLocation.latitude,
+                    longitude: destinationLocation.longitude,
+                },
+                distanceKm: tripPlan.totalDistanceKm,
+                durationMins: tripPlan.driveMinutes,
+                vehicleId: selectedVehId,
+                initialSoc: departureBattery,
+                targetArrivalSoc,
+                plannedAt: new Date().toISOString(),
+            })
+            .catch((err) => {
+                console.log('tripPlannerService.saveTrip silent catch:', err);
+            });
     };
 
     // Handle Open in Google Maps

@@ -1,4 +1,6 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { vehicleService } from '../services/api/vehicleService';
+import { profileService } from '../services/api/profileService';
 
 export type ConnectorStandard = 'CCS2' | 'Type 2' | 'CHAdeMO' | 'GB/T';
 
@@ -119,8 +121,39 @@ export function VehicleProvider({ children }: { children: React.ReactNode }) {
     const [vehicles, setVehicles] = useState<Vehicle[]>(INITIAL_VEHICLES);
     const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>('1');
 
+    // Fetch live vehicles and profile from Iris Mobile BFF API
+    useEffect(() => {
+        let isMounted = true;
+
+        (async () => {
+            try {
+                const liveVehicles = await vehicleService.getVehicles();
+                if (isMounted && liveVehicles && liveVehicles.length > 0) {
+                    setVehicles(liveVehicles);
+                    setSelectedVehicleId(liveVehicles[0].id);
+                }
+            } catch {
+                // Keep local defaults if offline or unauthenticated
+            }
+
+            try {
+                const liveProfile = await profileService.getProfile();
+                if (isMounted && liveProfile) {
+                    setUser(liveProfile);
+                }
+            } catch {
+                // Keep local defaults if offline or unauthenticated
+            }
+        })();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
     const updateUser = (updates: Partial<UserProfile>) => {
         setUser((prev) => ({ ...prev, ...updates }));
+        profileService.updateProfile(user.id, updates as any).catch(() => {});
     };
 
     const topUpWallet = (amount: number) => {
@@ -134,12 +167,30 @@ export function VehicleProvider({ children }: { children: React.ReactNode }) {
     const addVehicle = (vehicle: Vehicle) => {
         setVehicles((current) => [...current, vehicle]);
         setSelectedVehicleId(vehicle.id);
+        vehicleService
+            .addVehicle({
+                nickname: vehicle.nickname,
+                manufacturer: vehicle.make,
+                model: vehicle.model,
+                number: vehicle.registrationNumber,
+                connectortype: vehicle.connectorType,
+                power: vehicle.maxDcRateKw,
+                range: vehicle.estRangeKm,
+            })
+            .catch(() => {});
     };
 
     const updateVehicle = (id: string, updates: Partial<Vehicle>) => {
         setVehicles((current) =>
             current.map((v) => (v.id === id ? { ...v, ...updates } : v))
         );
+        vehicleService
+            .updateVehicle(id, {
+                nickname: updates.nickname,
+                number: updates.registrationNumber,
+                range: updates.estRangeKm,
+            })
+            .catch(() => {});
     };
 
     const removeVehicle = (id: string) => {
@@ -150,6 +201,7 @@ export function VehicleProvider({ children }: { children: React.ReactNode }) {
             }
             return nextVehicles;
         });
+        vehicleService.deleteVehicle(id).catch(() => {});
     };
 
     const selectVehicle = (id: string) => {

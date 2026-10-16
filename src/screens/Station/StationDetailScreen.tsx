@@ -46,6 +46,7 @@ import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles } from '../../context/VehicleContext';
 import { useFavorites } from '../../context/FavoritesContext';
+import { stationService } from '../../services/api/stationService';
 
 // Helper to render connector icon with type badge pod
 function ConnectorBadge({
@@ -85,12 +86,26 @@ export default function StationDetailScreen({ route, navigation }: any) {
     const insets = useSafeAreaInsets();
     const { user, topUpWallet } = useVehicles();
 
-    const routeStation = route.params?.stationSnapshot as Station | undefined;
+    const [liveStation, setLiveStation] = useState<Station | null>(null);
+
+    const routeStation: Station | undefined = route.params?.stationSnapshot ?? route.params?.station;
+
     const station: Station =
+        liveStation ??
         routeStation ??
         getStationById(route.params?.stationId) ??
         MOCK_STATIONS.find((item) => item.id === route.params?.stationId) ??
         MOCK_STATIONS[0];
+
+    useEffect(() => {
+        const id = route.params?.stationId ?? station.id;
+        if (!id) return;
+        stationService.getPublicStationDetails(id)
+            .then((data) => {
+                if (data) setLiveStation(data);
+            })
+            .catch(() => {});
+    }, [route.params?.stationId]);
 
     const { isFavorite, toggleFavorite } = useFavorites();
     const isFav = isFavorite(station.id);

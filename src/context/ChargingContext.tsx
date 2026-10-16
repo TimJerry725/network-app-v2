@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { chargingService } from '../services/api/chargingService';
 
 export type SessionStatus = 'CONNECTING' | 'PREPARATION' | 'CHARGING' | 'SUSPENDED' | 'FINISHING' | 'COMPLETED' | 'STOPPED';
 
@@ -403,11 +404,36 @@ export function ChargingProvider({ children }: { children: React.ReactNode }) {
             idleFeePerMinute: 5.0,
         };
 
+        // Dispatch session start to real API
+        chargingService
+            .startChargingSession({
+                charge_point_id: params.chargerId,
+                connector_id: params.connectorId,
+                vehicle_details: {
+                    id: params.vehicleId,
+                    number: params.vehicleRegNo,
+                    model: params.vehicleModel,
+                },
+                user_id: 'usr_cpo_982',
+                source: 'Mobile',
+                location_id: params.stationId,
+            })
+            .catch((err) => {
+                console.warn('[IrisAPI] Live session start notice:', err?.message);
+            });
+
         setActiveSession(newSession);
     };
 
     const stopChargingSession = (reason = 'Driver initiated stop'): CompletedSessionReceipt | null => {
         if (!activeSession) return null;
+
+        // Dispatch session stop to real API
+        chargingService
+            .stopChargingSession(activeSession.transactionId)
+            .catch((err) => {
+                console.warn('[IrisAPI] Live session stop notice:', err?.message);
+            });
 
         const durationMinutes = Math.floor(activeSession.elapsedSeconds / 60);
         const durationSecs = activeSession.elapsedSeconds % 60;
