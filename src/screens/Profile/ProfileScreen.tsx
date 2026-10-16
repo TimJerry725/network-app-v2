@@ -131,48 +131,28 @@ export default function ProfileScreen() {
                             </ThemedText>
                         </View>
                     </View>
-                </CredCard>
 
-                {/* Active Vehicle Details Card */}
-                <CredCard variant="default" style={styles.vehicleCard}>
-                    <View style={styles.vehicleCardHeader}>
-                        <View style={styles.vehicleTitleRow}>
-                            <View style={[styles.vehicleIconCircle, { backgroundColor: colors.primarySoft }]}>
-                                <CarFront size={22} color={colors.primary} />
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <ThemedText style={FONTS.h3} numberOfLines={1}>
-                                    {activeVehicle
-                                        ? (activeVehicle.nickname || `${activeVehicle.make} ${activeVehicle.model}`)
-                                        : 'No Vehicle Connected'}
-                                </ThemedText>
-                                <ThemedText style={{ color: colors.textMuted, ...FONTS.caption, marginTop: 2 }}>
-                                    {activeVehicle
-                                        ? (activeVehicle.nickname
-                                            ? `${activeVehicle.make} ${activeVehicle.model} • ${activeVehicle.registrationNumber}`
-                                            : activeVehicle.registrationNumber)
-                                        : 'Connect your EV'}
-                                </ThemedText>
-                            </View>
+                    <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
+
+                    {/* Active Vehicle Details Section */}
+                    <View style={styles.vehicleTitleRow}>
+                        <View style={[styles.vehicleIconCircle, { backgroundColor: colors.primarySoft }]}>
+                            <CarFront size={22} color={colors.primary} />
                         </View>
-                        <TouchableOpacity
-                            style={[
-                                styles.editPillBtn,
-                                {
-                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                                },
-                            ]}
-                            activeOpacity={0.8}
-                            onPress={() => {
-                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                navigation.navigate('EditProfile', { tab: 'vehicle' });
-                            }}
-                        >
-                            <Pencil size={11} color={colors.text} style={{ marginRight: 4 }} />
-                            <ThemedText style={[styles.editPillText, { color: colors.text }]}>EDIT</ThemedText>
-                        </TouchableOpacity>
+                        <View style={{ flex: 1 }}>
+                            <ThemedText style={FONTS.h3} numberOfLines={1}>
+                                {activeVehicle
+                                    ? (activeVehicle.nickname || `${activeVehicle.make} ${activeVehicle.model}`)
+                                    : 'No Vehicle Connected'}
+                            </ThemedText>
+                            <ThemedText style={{ color: colors.textMuted, ...FONTS.caption, marginTop: 2 }}>
+                                {activeVehicle
+                                    ? (activeVehicle.nickname
+                                        ? `${activeVehicle.make} ${activeVehicle.model} • ${activeVehicle.registrationNumber}`
+                                        : activeVehicle.registrationNumber)
+                                    : 'Connect your EV'}
+                            </ThemedText>
+                        </View>
                     </View>
 
                     {activeVehicle && (
@@ -510,15 +490,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-    },
-    vehicleCard: {
-        padding: SPACING.md,
-        marginBottom: SPACING.md,
-    },
-    vehicleCardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
     },
     vehicleTitleRow: {
         flexDirection: 'row',
