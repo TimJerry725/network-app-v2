@@ -22,6 +22,7 @@ import {
     ArrowUpRight,
     Bell,
     Check,
+    CircleCheck,
     ChevronDown,
     ChevronLeft,
     ChevronRight,
@@ -51,7 +52,6 @@ import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { Type2Icon } from '../../components/Type2Icon';
 import { ChademoIcon } from '../../components/ChademoIcon';
 import { Neo3DMorphIcon } from '../../components/Neo3DMorphIcon';
-import { ChatPromptBar } from '../../components/ChatPromptBar';
 export type MapFilterState = {
     chargerTypes: string[];
     connectorTypes: string[];
@@ -91,6 +91,22 @@ const filterOptions = [
     { id: '24/7', label: 'Open 24/7', icon: 'clock' },
     { id: 'Amenities', label: 'Amenities', icon: 'mug-hot' },
 ];
+
+function getFilterIcon(id: string, isActive: boolean, isDark: boolean) {
+    const iconColor = isActive ? (isDark ? '#0D0E13' : '#FFFFFF') : (isDark ? '#E5E5EA' : '#48484A');
+    switch (id) {
+        case 'Fastest':
+            return <Zap size={13} color={iconColor} fill={isActive ? iconColor : 'none'} style={{ marginRight: 6 }} />;
+        case 'Available':
+            return <CircleCheck size={13} color={iconColor} style={{ marginRight: 6 }} />;
+        case '24/7':
+            return <Clock3 size={13} color={iconColor} style={{ marginRight: 6 }} />;
+        case 'Amenities':
+            return <Coffee size={13} color={iconColor} style={{ marginRight: 6 }} />;
+        default:
+            return <Zap size={13} color={iconColor} style={{ marginRight: 6 }} />;
+    }
+}
 
 export type ConnectorFilterItem = {
     id: string;
@@ -1038,41 +1054,100 @@ export default function StationMapScreen({ navigation }: any) {
 
             <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
                 <View style={styles.topOverlay} pointerEvents="box-none">
-                    {/* Top Row: User Avatar, Location Pill, Wallet Pill */}
-                    <View style={styles.topHeaderRow}>
-                        <TouchableOpacity
-                            style={[
-                                styles.profileCapsule,
-                                {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                                },
-                            ]}
-                            activeOpacity={0.8}
-                            onPress={() => navigation.navigate('Profile' as never)}
-                        >
-                            <User size={16} color={colors.text} />
-                        </TouchableOpacity>
+                    {/* Search Bar at Top - Nothing above it */}
+                    <View
+                        style={[
+                            styles.searchBarWrapper,
+                            {
+                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                            },
+                        ]}
+                    >
+                        <Search size={18} color={colors.textSoft} />
+                        <TextInput
+                            style={[styles.searchInput, { color: colors.text }]}
+                            placeholder="Search stations, cities or areas..."
+                            placeholderTextColor={colors.textSoft}
+                            value={searchText}
+                            onChangeText={setSearchText}
+                        />
+                        <View style={styles.searchActions}>
+                            <TouchableOpacity
+                                style={styles.searchActionIcon}
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    setTempFilterCriteria({ ...filterCriteria });
+                                    setIsFilterSheetVisible(true);
+                                }}
+                            >
+                                <SlidersHorizontal size={17} color={colors.textSoft} />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.profileWrapper}
+                                activeOpacity={0.8}
+                                onPress={() => navigation.navigate('Profile' as never)}
+                            >
+                                <View style={[styles.profileCircle, { backgroundColor: isDark ? '#22242F' : '#F3F4F8' }]}>
+                                    <User size={15} color={colors.text} />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
 
-                        <TouchableOpacity
-                            style={[
-                                styles.locationPill,
-                                {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                                },
-                            ]}
-                            activeOpacity={0.8}
-                            onPress={handleLocateMe}
-                        >
-                            <MapPin size={13} color={colors.coral} fill={colors.coral} />
-                            <ThemedText style={[styles.locationPillText, { color: colors.text }]}>
-                                Bengaluru, KA
-                            </ThemedText>
-                            <ChevronDown size={14} color={colors.textMuted} />
-                        </TouchableOpacity>
+                    {/* Filter Chips Scroll */}
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.filterScroll}
+                        contentContainerStyle={styles.filterContainer}
+                        pointerEvents="auto"
+                    >
+                        {filterOptions.map((filter) => {
+                            const isActive = activeFilter === filter.id;
 
+                            return (
+                                <TouchableOpacity
+                                    key={filter.id}
+                                    activeOpacity={0.82}
+                                    style={[
+                                        styles.filterChip,
+                                        isActive
+                                            ? {
+                                                  backgroundColor: isDark ? '#FFFFFF' : '#0D0E13',
+                                                  borderColor: isDark ? '#FFFFFF' : '#0D0E13',
+                                              }
+                                            : {
+                                                  backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                              },
+                                    ]}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') {
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        }
+                                        setActiveFilter((prev) => (prev === filter.id ? '' : filter.id));
+                                    }}
+                                >
+                                    {getFilterIcon(filter.id, isActive, isDark)}
+                                    <ThemedText
+                                        style={{
+                                            color: isActive ? (isDark ? '#0D0E13' : '#FFFFFF') : colors.text,
+                                            fontSize: 12,
+                                            fontFamily: FONT_FAMILIES.bold,
+                                        }}
+                                    >
+                                        {filter.label}
+                                    </ThemedText>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+
+                    {/* Wallet Balance Pill below Search Bar & Filters */}
+                    <View style={styles.walletFilterRow} pointerEvents="box-none">
                         <TouchableOpacity
+                            activeOpacity={0.8}
                             style={[
                                 styles.walletHeaderPill,
                                 {
@@ -1080,7 +1155,6 @@ export default function StationMapScreen({ navigation }: any) {
                                     borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
-                            activeOpacity={0.8}
                             onPress={() => navigation.navigate('Profile' as never)}
                         >
                             <Wallet size={13} color={colors.amber} />
@@ -1089,29 +1163,6 @@ export default function StationMapScreen({ navigation }: any) {
                             </ThemedText>
                         </TouchableOpacity>
                     </View>
-
-                    {/* Chat Prompt Bar with Waveform & Quick Action Chips */}
-                    <ChatPromptBar
-                        value={searchText}
-                        onChangeText={setSearchText}
-                        onSelectPrompt={(prompt: string) => {
-                            if (prompt.includes('60kW') || prompt.includes('Fast')) {
-                                setActiveFilter((prev) => (prev === 'Fastest' ? '' : 'Fastest'));
-                            } else if (prompt.includes('Mysuru') || prompt.includes('trip') || prompt.includes('Trip')) {
-                                navigation.navigate('TripPlanner');
-                            } else if (prompt.includes('Available')) {
-                                setActiveFilter((prev) => (prev === 'Available' ? '' : 'Available'));
-                            } else if (prompt.includes('Amenities')) {
-                                setActiveFilter((prev) => (prev === 'Amenities' ? '' : 'Amenities'));
-                            } else {
-                                setSearchText(prompt);
-                            }
-                        }}
-                        onActionPress={() => {
-                            setTempFilterCriteria({ ...filterCriteria });
-                            setIsFilterSheetVisible(true);
-                        }}
-                    />
                 </View>
 
                 {/* Bottom Stations Cards Carousel */}
@@ -1877,33 +1928,69 @@ const styles = StyleSheet.create({
         right: 0,
         paddingHorizontal: SPACING.md,
     },
-    topHeaderRow: {
+    searchBarWrapper: {
+        height: 50,
+        borderRadius: RADIUS.input,
+        paddingHorizontal: SPACING.md,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-        paddingHorizontal: 2,
+        borderWidth: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 4,
     },
-    profileCapsule: {
-        width: 38,
-        height: 38,
+    searchInput: {
+        flex: 1,
+        ...FONTS.body,
+        marginLeft: 10,
+        height: '100%',
+    },
+    searchActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    searchActionIcon: {
+        padding: 4,
+    },
+    profileWrapper: {
+        marginLeft: 2,
+    },
+    profileCircle: {
+        width: 32,
+        height: 32,
         borderRadius: RADIUS.circle,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1,
     },
-    locationPill: {
+    filterScroll: {
+        marginTop: 10,
+        flexGrow: 0,
+    },
+    filterContainer: {
+        paddingRight: SPACING.md,
+        gap: 8,
+    },
+    filterChip: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: RADIUS.pill,
-        gap: 6,
         borderWidth: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    locationPillText: {
-        fontSize: 13,
-        fontFamily: FONT_FAMILIES.bold,
+    walletFilterRow: {
+        marginTop: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
     },
     walletHeaderPill: {
         flexDirection: 'row',
@@ -1913,6 +2000,11 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.pill,
         gap: 6,
         borderWidth: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
     },
     walletHeaderText: {
         fontSize: 13,
