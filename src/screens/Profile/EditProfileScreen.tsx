@@ -479,8 +479,7 @@ export default function EditProfileScreen() {
                                     {
                                         backgroundColor: isDark ? '#141418' : '#F6F6F8',
                                         color: colors.text,
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                     },
                                 ]}
                                 value={fullName}
@@ -500,8 +499,7 @@ export default function EditProfileScreen() {
                                     {
                                         backgroundColor: isDark ? '#141418' : '#F6F6F8',
                                         color: colors.text,
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                     },
                                 ]}
                                 value={phone}
@@ -522,8 +520,7 @@ export default function EditProfileScreen() {
                                     {
                                         backgroundColor: isDark ? '#141418' : '#F6F6F8',
                                         color: colors.text,
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                     },
                                 ]}
                                 value={email}
@@ -545,8 +542,7 @@ export default function EditProfileScreen() {
                                     {
                                         backgroundColor: isDark ? '#141418' : '#F6F6F8',
                                         color: colors.text,
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                     },
                                 ]}
                                 value={rfidTag}
@@ -636,8 +632,7 @@ export default function EditProfileScreen() {
                                         styles.dropdownTrigger,
                                         {
                                             backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                         },
                                     ]}
                                     onPress={() => {
@@ -662,8 +657,7 @@ export default function EditProfileScreen() {
                                         styles.dropdownTrigger,
                                         {
                                             backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                         },
                                     ]}
                                     onPress={() => {
@@ -691,8 +685,7 @@ export default function EditProfileScreen() {
                                     {
                                         backgroundColor: isDark ? '#141418' : '#F6F6F8',
                                         color: colors.text,
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                     },
                                 ]}
                                 value={vehicleRegNo}
@@ -739,8 +732,7 @@ export default function EditProfileScreen() {
                                         {
                                             backgroundColor: isDark ? '#141418' : '#F6F6F8',
                                             color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                         },
                                     ]}
                                     value={batteryCapacity}
@@ -760,8 +752,7 @@ export default function EditProfileScreen() {
                                         {
                                             backgroundColor: isDark ? '#141418' : '#F6F6F8',
                                             color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                         },
                                     ]}
                                     value={maxDcRateKw}
@@ -784,8 +775,7 @@ export default function EditProfileScreen() {
                                     {
                                         backgroundColor: isDark ? '#141418' : '#F6F6F8',
                                         color: colors.text,
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
-                                        borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                     },
                                 ]}
                                 value={estRangeKm}
@@ -1089,8 +1079,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         fontSize: 14,
         fontFamily: FONT_FAMILIES.bold,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     rowTwoCols: {
         flexDirection: 'row',
@@ -1119,8 +1108,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     dropdownValue: {
         fontSize: 13,

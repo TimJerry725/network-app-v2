@@ -220,8 +220,7 @@ export default function ProfileScreen() {
                                 styles.inputBox,
                                 {
                                     backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
-                                    borderBottomColor: isDark ? '#050508' : '#D0D0D5',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                 },
                             ]}
                         >
@@ -499,8 +498,7 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: RADIUS.input,
         paddingHorizontal: 16,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     currencyPrefix: {
         fontSize: 20,

@@ -1048,8 +1048,7 @@ export default function StationMapScreen({ navigation }: any) {
                             styles.searchBarWrapper,
                             {
                                 backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                             },
                         ]}
                     >
@@ -1960,8 +1959,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: SPACING.md,
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1.5,
-        borderBottomWidth: 3.5,
+        borderWidth: 1,
     },
     searchInput: {
         flex: 1,

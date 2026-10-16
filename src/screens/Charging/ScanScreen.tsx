@@ -1418,8 +1418,7 @@ const styles = StyleSheet.create({
     modalInputWrap: {
         marginTop: 16,
         borderRadius: RADIUS.input,
-        borderWidth: 1.8,
-        borderBottomWidth: 3.5,
+        borderWidth: 1,
         paddingHorizontal: 14,
         height: 54,
         justifyContent: 'center',

@@ -83,8 +83,7 @@ export default function LoginScreen({ navigation }: any) {
                                         styles.inputWrap,
                                         {
                                             backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                                            borderBottomColor: isDark ? '#08080C' : '#D0D0D8',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                         },
                                     ]}
                                 >
@@ -111,8 +110,7 @@ export default function LoginScreen({ navigation }: any) {
                                         styles.inputWrap,
                                         {
                                             backgroundColor: isDark ? '#141418' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                                            borderBottomColor: isDark ? '#08080C' : '#D0D0D8',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.10)',
                                         },
                                     ]}
                                 >
@@ -212,8 +210,7 @@ const styles = StyleSheet.create({
         minHeight: 52,
         justifyContent: 'center',
         paddingHorizontal: SPACING.md,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        borderWidth: 1,
     },
     input: {
         fontFamily: FONT_FAMILIES.medium,
