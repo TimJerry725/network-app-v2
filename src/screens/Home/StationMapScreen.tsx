@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
     Animated,
+    Dimensions,
     Easing,
     Image,
     Modal,
+    PanResponder,
     ScrollView,
     StyleSheet,
     Switch,
@@ -26,6 +28,7 @@ import {
     ChevronDown,
     ChevronLeft,
     ChevronRight,
+    ChevronUp,
     Clock3,
     Coffee,
     MapPin,
@@ -926,6 +929,103 @@ export default function StationMapScreen({ navigation }: any) {
         : undefined;
     const tabBarOffset = 72 + insets.bottom;
 
+    const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+    const sheetSnapMin = tabBarOffset + 76;
+    const sheetSnapMid = Math.round(SCREEN_HEIGHT * 0.44);
+    const sheetSnapMax = Math.round(SCREEN_HEIGHT * 0.82);
+
+    const snapMinRef = useRef(sheetSnapMin);
+    const snapMidRef = useRef(sheetSnapMid);
+    const snapMaxRef = useRef(sheetSnapMax);
+
+    useEffect(() => {
+        snapMinRef.current = sheetSnapMin;
+        snapMidRef.current = sheetSnapMid;
+        snapMaxRef.current = sheetSnapMax;
+    }, [sheetSnapMin, sheetSnapMid, sheetSnapMax]);
+
+    const [isSheetExpanded, setIsSheetExpanded] = useState(true);
+    const sheetHeight = useRef(new Animated.Value(sheetSnapMid)).current;
+    const currentSheetHeight = useRef(sheetSnapMid);
+    const dragStartHeight = useRef(sheetSnapMid);
+
+    useEffect(() => {
+        const id = sheetHeight.addListener(({ value }) => {
+            currentSheetHeight.current = value;
+        });
+        return () => sheetHeight.removeListener(id);
+    }, [sheetHeight]);
+
+    const snapTo = (target: number) => {
+        Animated.spring(sheetHeight, {
+            toValue: target,
+            useNativeDriver: false,
+            bounciness: 4,
+            speed: 14,
+        }).start();
+        currentSheetHeight.current = target;
+        setIsSheetExpanded(target > snapMinRef.current + 20);
+    };
+
+    const toggleSheet = () => {
+        if (currentSheetHeight.current <= snapMinRef.current + 30) {
+            snapTo(snapMidRef.current);
+        } else {
+            snapTo(snapMinRef.current);
+        }
+    };
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => false,
+            onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 4,
+            onStartShouldSetPanResponderCapture: () => false,
+            onMoveShouldSetPanResponderCapture: (_, gestureState) => Math.abs(gestureState.dy) > 4,
+            onPanResponderGrant: () => {
+                dragStartHeight.current = currentSheetHeight.current;
+            },
+            onPanResponderMove: (_, gestureState) => {
+                const newHeight = Math.max(
+                    snapMinRef.current,
+                    Math.min(snapMaxRef.current, dragStartHeight.current - gestureState.dy)
+                );
+                sheetHeight.setValue(newHeight);
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                const currentH = currentSheetHeight.current;
+                const vy = gestureState.vy;
+                const minH = snapMinRef.current;
+                const midH = snapMidRef.current;
+                const maxH = snapMaxRef.current;
+
+                let targetSnap = midH;
+                if (vy < -0.35) {
+                    targetSnap = currentH > midH - 20 ? maxH : midH;
+                } else if (vy > 0.35) {
+                    targetSnap = currentH < midH + 20 ? minH : midH;
+                } else {
+                    const thresholdLow = (minH + midH) / 2;
+                    const thresholdHigh = (midH + maxH) / 2;
+                    if (currentH < thresholdLow) {
+                        targetSnap = minH;
+                    } else if (currentH > thresholdHigh) {
+                        targetSnap = maxH;
+                    } else {
+                        targetSnap = midH;
+                    }
+                }
+
+                snapTo(targetSnap);
+            },
+        })
+    ).current;
+
+    const floatingButtonsOpacity = sheetHeight.interpolate({
+        inputRange: [sheetSnapMid, sheetSnapMax - 50],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+    });
+
 
     useEffect(() => {
         if (!selectedStation && visibleStations[0]) {
@@ -1044,9 +1144,12 @@ export default function StationMapScreen({ navigation }: any) {
                             }}
                             anchor={{ x: 0.5, y: 0.95 }}
                             zIndex={isSelected ? 999 : 1}
-                            onPress={() =>
-                                handleSelectStation(station, { openSheet: true })
-                            }
+                            onPress={() => {
+                                handleSelectStation(station, { openSheet: false });
+                                if (currentSheetHeight.current <= snapMinRef.current + 30) {
+                                    snapTo(snapMidRef.current);
+                                }
+                            }}
                         >
                             <DcPinIcon
                                 size={isSelected ? 44 : 36}
@@ -1186,90 +1289,220 @@ export default function StationMapScreen({ navigation }: any) {
                         </TouchableOpacity>
                     </View>
                 </View>
+            </SafeAreaView>
 
-                {/* Bottom Stations Cards Carousel */}
-                <View
-                    style={[styles.bottomOverlay, { bottom: tabBarOffset + 18 }]}
-                    pointerEvents="box-none"
+            {/* Floating Action Buttons above Bottom Sheet */}
+            <Animated.View
+                style={[
+                    styles.floatingActionStack,
+                    {
+                        bottom: Animated.add(sheetHeight, 14),
+                        opacity: floatingButtonsOpacity,
+                    },
+                ]}
+                pointerEvents="box-none"
+            >
+                <TouchableOpacity
+                    style={[
+                        styles.floatingActionButton,
+                        {
+                            backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                        },
+                    ]}
+                    activeOpacity={0.82}
+                    onPress={() => {
+                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        handleLocateMe();
+                    }}
                 >
-                    <View style={styles.floatingActionStack} pointerEvents="box-none">
-                        <TouchableOpacity
-                            style={[
-                                styles.floatingActionButton,
-                                {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                                },
-                            ]}
-                            activeOpacity={0.82}
-                            onPress={() => {
-                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                handleLocateMe();
-                            }}
-                        >
-                            <Navigation size={18} color={colors.text} fill={colors.text} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[
-                                styles.floatingActionButton,
-                                {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                                },
-                            ]}
-                            activeOpacity={0.82}
-                            onPress={() => {
-                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                setTempFilterCriteria({ ...filterCriteria });
-                                setIsFilterSheetVisible(true);
-                            }}
-                        >
-                            <Filter size={18} color={colors.text} />
-                        </TouchableOpacity>
-                    </View>
+                    <Navigation size={18} color={colors.text} fill={colors.text} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.floatingActionButton,
+                        {
+                            backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                        },
+                    ]}
+                    activeOpacity={0.82}
+                    onPress={() => {
+                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        setTempFilterCriteria({ ...filterCriteria });
+                        setIsFilterSheetVisible(true);
+                    }}
+                >
+                    <Filter size={18} color={colors.text} />
+                </TouchableOpacity>
+            </Animated.View>
 
-                    <View style={styles.sheetHeader}>
+            {/* ── Draggable Bottom Sheet ── */}
+            <Animated.View
+                style={[
+                    styles.bottomSheetContainer,
+                    {
+                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                        height: sheetHeight,
+                    },
+                ]}
+            >
+                {/* Drag Handle & Header Area (PanResponder) */}
+                <View {...panResponder.panHandlers} style={styles.sheetHeaderWrapper}>
+                    <TouchableOpacity
+                        style={styles.sheetHandleTouchArea}
+                        activeOpacity={0.8}
+                        onPress={toggleSheet}
+                    >
                         <View
                             style={[
-                                styles.countBadge,
+                                styles.bottomSheetDragHandleBar,
+                                { backgroundColor: isDark ? '#3E4150' : '#D1D5DB' },
+                            ]}
+                        />
+                    </TouchableOpacity>
+
+                    <View style={styles.sheetHeaderRow}>
+                        <TouchableOpacity
+                            style={{ flex: 1, marginRight: 8 }}
+                            activeOpacity={0.85}
+                            onPress={toggleSheet}
+                        >
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <MapPinned size={15} color={colors.coral} />
+                                <ThemedText
+                                    style={[styles.sheetTitle, { color: colors.text }]}
+                                    numberOfLines={1}
+                                >
+                                    Nearby Stations
+                                </ThemedText>
+                                <View
+                                    style={[
+                                        styles.countBadge,
+                                        {
+                                            backgroundColor: isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFE5E0',
+                                            borderColor: 'transparent',
+                                            paddingVertical: 2,
+                                            paddingHorizontal: 8,
+                                        },
+                                    ]}
+                                >
+                                    <ThemedText
+                                        style={{
+                                            color: colors.coral,
+                                            fontSize: 11,
+                                            fontFamily: FONT_FAMILIES.sansBold,
+                                            fontWeight: '700',
+                                        }}
+                                    >
+                                        {visibleStations.length}
+                                    </ThemedText>
+                                </View>
+                            </View>
+                            <ThemedText
+                                style={[styles.sheetSubtitle, { color: colors.textMuted }]}
+                                numberOfLines={1}
+                            >
+                                {selectedStation
+                                    ? `${selectedStation.name} • ${selectedStation.distanceKm} km away`
+                                    : 'Select a station on the map'}
+                            </ThemedText>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.sheetExpandToggleBtn,
                                 {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                                 },
                             ]}
+                            activeOpacity={0.8}
+                            onPress={toggleSheet}
                         >
-                            <MapPinned size={14} color={colors.coral} />
-                            <ThemedText style={{ color: colors.text, ...FONTS.caption, fontFamily: FONT_FAMILIES.bold, letterSpacing: 0.5 }}>
-                                {nearbyStations.length} STATIONS NEARBY
+                            {isSheetExpanded ? (
+                                <ChevronDown size={18} color={colors.text} />
+                            ) : (
+                                <ChevronUp size={18} color={colors.text} />
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* Collapsed Peek Row */}
+                {!isSheetExpanded && selectedStation && (
+                    <TouchableOpacity
+                        style={[
+                            styles.collapsedPeekRow,
+                            {
+                                backgroundColor: isDark ? '#1C1D26' : '#F8FAFC',
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                            },
+                        ]}
+                        activeOpacity={0.88}
+                        onPress={() => snapTo(sheetSnapMid)}
+                    >
+                        <View style={{ flex: 1, marginRight: 8 }}>
+                            <ThemedText
+                                style={[styles.peekStationName, { color: colors.text }]}
+                                numberOfLines={1}
+                            >
+                                {selectedStation.name}
+                            </ThemedText>
+                            <ThemedText
+                                style={[styles.peekStationMeta, { color: colors.textMuted }]}
+                                numberOfLines={1}
+                            >
+                                {selectedStation.distanceKm} km • {recommendedConnector?.power ?? 60}kW Fast • ₹{recommendedConnector?.pricePerKWh.toFixed(0) ?? 21}/kWh
                             </ThemedText>
                         </View>
-                    </View>
 
+                        <TouchableOpacity
+                            style={[styles.peekViewBtn, { backgroundColor: colors.coral }]}
+                            activeOpacity={0.82}
+                            onPress={() => {
+                                navigation.navigate('StationDetails', {
+                                    stationId: selectedStation.id,
+                                    stationSnapshot: selectedStation,
+                                });
+                            }}
+                        >
+                            <ThemedText style={styles.peekViewBtnText}>View</ThemedText>
+                            <ArrowUpRight size={14} color="#FFFFFF" strokeWidth={2.5} />
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                )}
+
+                {/* Expanded Scrollable List of Stations */}
+                {isSheetExpanded && (
                     <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.listContent}
-                        snapToInterval={290 + 12}
-                        decelerationRate="fast"
+                        showsVerticalScrollIndicator={false}
+                        nestedScrollEnabled={true}
+                        contentContainerStyle={[
+                            styles.sheetScrollListContent,
+                            { paddingBottom: tabBarOffset + 30 },
+                        ]}
                     >
-                        {nearbyStations.map((station: Station) => {
+                        {visibleStations.map((station: Station) => {
                             const connector = getRecommendedConnector(
                                 station,
                                 selectedVehicle?.connectorType
                             );
                             const isSelected = station.id === selectedStation?.id;
-                            const availableCount = station.connectors.filter(c => c.status === 'Available').length;
+                            const availableCount = station.connectors.filter(
+                                (c) => c.status === 'Available'
+                            ).length;
 
                             return (
                                 <TouchableOpacity
                                     key={station.id}
                                     activeOpacity={0.88}
                                     style={[
-                                        styles.stationRow,
+                                        styles.sheetStationCard,
                                         {
                                             backgroundColor: isSelected
                                                 ? (isDark ? '#1C1D26' : '#FFFFFF')
-                                                : (isDark ? '#16171E' : '#FFFFFF'),
+                                                : (isDark ? '#14151D' : '#F9FAFB'),
                                             borderColor: isSelected
                                                 ? colors.coral
                                                 : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
@@ -1278,37 +1511,42 @@ export default function StationMapScreen({ navigation }: any) {
                                     ]}
                                     onPress={() => {
                                         if (Platform.OS !== 'web') {
-                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                         }
-                                        handleSelectStation(station, {
-                                            openSheet: true,
-                                        });
+                                        handleSelectStation(station, { openSheet: false });
                                     }}
                                 >
-                                    <View style={styles.stationRowTop}>
-                                        <View style={styles.stationInfo}>
+                                    <View style={styles.sheetStationCardTop}>
+                                        <View style={styles.sheetStationCardInfo}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                                <ThemedText
+                                                    style={[
+                                                        styles.sheetStationCardName,
+                                                        { color: colors.text },
+                                                    ]}
+                                                    numberOfLines={1}
+                                                >
+                                                    {station.name}
+                                                </ThemedText>
+                                                {station.rating && (
+                                                    <View style={styles.ratingBadge}>
+                                                        <Star size={10} color="#F59E0B" fill="#F59E0B" />
+                                                        <ThemedText style={styles.ratingText}>
+                                                            {station.rating.toFixed(1)}
+                                                        </ThemedText>
+                                                    </View>
+                                                )}
+                                            </View>
                                             <ThemedText
-                                                style={[
-                                                    styles.stationName,
-                                                    { color: colors.text },
-                                                ]}
-                                                numberOfLines={1}
-                                            >
-                                                {station.name}
-                                            </ThemedText>
-                                            <ThemedText
-                                                style={{
-                                                    color: colors.textMuted,
-                                                    ...FONTS.caption,
-                                                }}
+                                                style={[styles.sheetStationCardAddress, { color: colors.textMuted }]}
                                                 numberOfLines={1}
                                             >
                                                 {resolvedAddresses[station.id] ?? station.address}
                                             </ThemedText>
                                         </View>
 
-                                        {/* Button-in-Button Diagonal Arrow (↗) Action */}
-                                        <View
+                                        {/* Button-in-Button Action Arrow (↗) navigates to StationDetails */}
+                                        <TouchableOpacity
                                             style={[
                                                 styles.cardActionCircle,
                                                 {
@@ -1317,21 +1555,30 @@ export default function StationMapScreen({ navigation }: any) {
                                                         : (isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'),
                                                 },
                                             ]}
+                                            activeOpacity={0.8}
+                                            onPress={() => {
+                                                if (Platform.OS !== 'web') {
+                                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                                }
+                                                handleSelectStation(station, { openSheet: true });
+                                            }}
                                         >
                                             <ArrowUpRight
                                                 size={16}
                                                 color={isSelected ? '#FFFFFF' : colors.text}
                                                 strokeWidth={2.5}
                                             />
-                                        </View>
+                                        </TouchableOpacity>
                                     </View>
 
-                                    <View style={styles.stationMetaRow}>
+                                    <View style={styles.sheetStationMetaRow}>
                                         <View
                                             style={[
                                                 styles.typeBadge,
                                                 {
-                                                    backgroundColor: isDark ? 'rgba(255, 91, 69, 0.14)' : '#FFE5E0',
+                                                    backgroundColor: isDark
+                                                        ? 'rgba(255, 91, 69, 0.14)'
+                                                        : '#FFE5E0',
                                                 },
                                             ]}
                                         >
@@ -1340,7 +1587,9 @@ export default function StationMapScreen({ navigation }: any) {
                                                 color={colors.coral}
                                                 fill={colors.coral}
                                             />
-                                            <ThemedText style={[styles.typeText, { color: colors.coral }]}>
+                                            <ThemedText
+                                                style={[styles.typeText, { color: colors.coral }]}
+                                            >
                                                 {connector.power}kW Fast
                                             </ThemedText>
                                         </View>
@@ -1349,12 +1598,23 @@ export default function StationMapScreen({ navigation }: any) {
                                             style={[
                                                 styles.typeBadge,
                                                 {
-                                                    backgroundColor: isDark ? 'rgba(16, 185, 129, 0.14)' : '#D1FAE5',
+                                                    backgroundColor: isDark
+                                                        ? (availableCount > 0 ? 'rgba(16, 185, 129, 0.14)' : 'rgba(245, 158, 11, 0.14)')
+                                                        : (availableCount > 0 ? '#D1FAE5' : '#FEF3C7'),
                                                 },
                                             ]}
                                         >
-                                            <ThemedText style={[styles.typeText, { color: colors.mint }]}>
-                                                {availableCount > 0 ? `${availableCount} available` : 'In use'}
+                                            <ThemedText
+                                                style={[
+                                                    styles.typeText,
+                                                    {
+                                                        color: availableCount > 0 ? colors.mint : colors.accent,
+                                                    },
+                                                ]}
+                                            >
+                                                {availableCount > 0
+                                                    ? `${availableCount} available`
+                                                    : 'In use'}
                                             </ThemedText>
                                         </View>
 
@@ -1368,12 +1628,38 @@ export default function StationMapScreen({ navigation }: any) {
                                             {station.distanceKm} km • ₹{connector.pricePerKWh.toFixed(0)}/kWh
                                         </ThemedText>
                                     </View>
+
+                                    {/* Amenities micro chips */}
+                                    {station.amenities && station.amenities.length > 0 && (
+                                        <View style={styles.amenitiesPreviewRow}>
+                                            {station.amenities.slice(0, 3).map((amenity, idx) => (
+                                                <View
+                                                    key={idx}
+                                                    style={[
+                                                        styles.amenityPreviewChip,
+                                                        {
+                                                            backgroundColor: isDark
+                                                                ? 'rgba(255, 255, 255, 0.05)'
+                                                                : 'rgba(0, 0, 0, 0.03)',
+                                                        },
+                                                    ]}
+                                                >
+                                                    <AmenityIcon amenity={amenity} color={colors.textMuted} />
+                                                    <ThemedText
+                                                        style={[styles.amenityPreviewText, { color: colors.textMuted }]}
+                                                    >
+                                                        {amenity}
+                                                    </ThemedText>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    )}
                                 </TouchableOpacity>
                             );
                         })}
                     </ScrollView>
-                </View>
-            </SafeAreaView>
+                )}
+            </Animated.View>
 
             {/* ── Filter Bottom Sheet Modal ── */}
             <Modal
@@ -2041,11 +2327,10 @@ const styles = StyleSheet.create({
     },
     floatingActionStack: {
         position: 'absolute',
-        top: -110,
         right: SPACING.md,
         alignItems: 'center',
         gap: 8,
-        zIndex: 10,
+        zIndex: 25,
     },
     floatingActionButton: {
         width: 44,
@@ -2060,18 +2345,165 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 4,
     },
-    bottomOverlay: {
+    bottomSheetContainer: {
         position: 'absolute',
+        bottom: 0,
         left: 0,
         right: 0,
-        paddingHorizontal: 0,
+        borderTopLeftRadius: RADIUS.bottomSheet,
+        borderTopRightRadius: RADIUS.bottomSheet,
+        borderTopWidth: 1,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        overflow: 'hidden',
+        zIndex: 30,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 16,
+        elevation: 12,
     },
-    sheetHeader: {
+    sheetHeaderWrapper: {
+        paddingBottom: 6,
+    },
+    sheetHandleTouchArea: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 8,
+    },
+    bottomSheetDragHandleBar: {
+        width: 38,
+        height: 4.5,
+        borderRadius: RADIUS.pill,
+    },
+    sheetHeaderRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        marginBottom: SPACING.sm,
+        paddingHorizontal: SPACING.md,
+        paddingBottom: 4,
+    },
+    sheetTitle: {
+        fontSize: 15,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+    },
+    sheetSubtitle: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.sansMedium,
+        fontWeight: '500',
+        marginTop: 2,
+    },
+    sheetExpandToggleBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: RADIUS.circle,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    collapsedPeekRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginHorizontal: SPACING.md,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: RADIUS.card,
+        borderWidth: 1,
+    },
+    peekStationName: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+    },
+    peekStationMeta: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.sansMedium,
+        fontWeight: '500',
+        marginTop: 2,
+    },
+    peekActionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    peekViewBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: RADIUS.chip,
+    },
+    peekViewBtnText: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+        color: '#FFFFFF',
+    },
+    sheetScrollListContent: {
+        paddingHorizontal: SPACING.md,
+        paddingTop: 6,
+        gap: 10,
+    },
+    sheetStationCard: {
+        borderRadius: RADIUS.card,
+        padding: 14,
+        gap: 8,
+    },
+    sheetStationCardTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 8,
+    },
+    sheetStationCardInfo: {
+        flex: 1,
+    },
+    sheetStationCardName: {
+        ...FONTS.h3,
+        fontSize: 14,
+    },
+    sheetStationCardAddress: {
+        ...FONTS.caption,
+        fontSize: 11,
+        marginTop: 2,
+    },
+    ratingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        backgroundColor: 'rgba(245, 158, 11, 0.14)',
+        paddingHorizontal: 5,
+        paddingVertical: 1,
+        borderRadius: RADIUS.pill,
+    },
+    ratingText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.bold,
+        color: '#F59E0B',
+    },
+    sheetStationMetaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    amenitiesPreviewRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 2,
+    },
+    amenityPreviewChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 7,
+        paddingVertical: 3,
+        borderRadius: RADIUS.chip,
+    },
+    amenityPreviewText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.sansMedium,
     },
     countBadge: {
         paddingVertical: 6,
