@@ -27,7 +27,7 @@ import { useVehicles } from '../../context/VehicleContext';
 
 export default function ProfileScreen() {
     const { colors, theme, setTheme, isDark } = useAppTheme();
-    const { user, topUpWallet, selectedVehicle, vehicles } = useVehicles();
+    const { user, topUpWallet, selectedVehicle, vehicles, selectVehicle } = useVehicles();
     const activeVehicle = selectedVehicle ?? vehicles[0];
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
@@ -97,7 +97,7 @@ export default function ProfileScreen() {
                                     activeOpacity={0.8}
                                     onPress={() => {
                                         if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                        navigation.navigate('EditProfile');
+                                        navigation.navigate('EditProfile', { tab: 'profile' });
                                     }}
                                 >
                                     <Pencil size={11} color={colors.text} style={{ marginRight: 4 }} />
@@ -170,13 +170,53 @@ export default function ProfileScreen() {
                             activeOpacity={0.8}
                             onPress={() => {
                                 if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                navigation.navigate('EditProfile');
+                                navigation.navigate('EditProfile', { tab: 'vehicle' });
                             }}
                         >
                             <Pencil size={11} color={colors.text} style={{ marginRight: 4 }} />
                             <ThemedText style={[styles.editPillText, { color: colors.text }]}>EDIT</ThemedText>
                         </TouchableOpacity>
                     </View>
+
+                    {/* Multi-vehicle quick switch chips */}
+                    {vehicles.length > 1 && (
+                        <View style={styles.vehicleSwitcherRow}>
+                            {vehicles.map((v) => {
+                                const isSelected = activeVehicle?.id === v.id;
+                                return (
+                                    <TouchableOpacity
+                                        key={v.id}
+                                        onPress={() => {
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                            selectVehicle(v.id);
+                                        }}
+                                        style={[
+                                            styles.vehicleSwitchPill,
+                                            isSelected
+                                                ? {
+                                                      backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                      borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                  }
+                                                : {
+                                                      backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                                  },
+                                        ]}
+                                    >
+                                        <ThemedText
+                                            style={{
+                                                color: isSelected ? (isDark ? '#000000' : '#FFFFFF') : colors.textMuted,
+                                                fontSize: 11,
+                                                fontFamily: FONT_FAMILIES.bold,
+                                            }}
+                                        >
+                                            {v.nickname || `${v.make} ${v.model}`}
+                                        </ThemedText>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    )}
 
                     {activeVehicle && (
                         <>
@@ -568,6 +608,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+    },
+    vehicleSwitcherRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginTop: 10,
+        marginBottom: 2,
+    },
+    vehicleSwitchPill: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
     },
     walletCard: {
         padding: SPACING.md,
