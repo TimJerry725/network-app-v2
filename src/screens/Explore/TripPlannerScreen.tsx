@@ -1094,14 +1094,14 @@ export default function TripPlannerScreen({ navigation }: any) {
                                             </ThemedText>
                                             {customAddedStationIds.length > 0 ? (
                                                 <View style={[styles.routeActivePill, { backgroundColor: isDark ? 'rgba(30, 151, 49, 0.2)' : '#DCFCE7' }]}>
-                                                    <ThemedText style={[styles.routeActivePillText, { color: colors.primary }]}>
+                                                    <ThemedText style={[styles.routeActivePillText, { color: isDark ? '#4ADE80' : '#15803D' }]}>
                                                         {customAddedStationIds.length} ADDED
                                                     </ThemedText>
                                                 </View>
                                             ) : (
                                                 tripPlan.stops.length > 0 && (
                                                     <View style={[styles.routeActivePill, { backgroundColor: isDark ? 'rgba(30, 151, 49, 0.2)' : '#DCFCE7' }]}>
-                                                        <ThemedText style={[styles.routeActivePillText, { color: colors.primary }]}>
+                                                        <ThemedText style={[styles.routeActivePillText, { color: isDark ? '#4ADE80' : '#15803D' }]}>
                                                             {tripPlan.stops.length} IN PLAN
                                                         </ThemedText>
                                                     </View>
@@ -1158,10 +1158,10 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                                 <View
                                                                     style={[
                                                                         styles.stationAvatar,
-                                                                        { backgroundColor: isInPlan ? colors.primary : (isDark ? '#334155' : '#E2E8F0') },
+                                                                        { backgroundColor: isInPlan ? (isDark ? '#FFFFFF' : '#000000') : (isDark ? '#334155' : '#E2E8F0') },
                                                                     ]}
                                                                 >
-                                                                    <Zap size={14} color={isInPlan ? '#FFFFFF' : colors.primary} />
+                                                                    <Zap size={14} color={isInPlan ? (isDark ? '#000000' : '#FFFFFF') : colors.primary} />
                                                                 </View>
 
                                                                 <View style={{ flex: 1 }}>
@@ -1199,7 +1199,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                                             {
                                                                                 backgroundColor: isCustomAdded
                                                                                     ? (isDark ? 'rgba(30, 151, 49, 0.25)' : '#DCFCE7')
-                                                                                    : colors.primary,
+                                                                                    : (isDark ? '#FFFFFF' : '#000000'),
                                                                             },
                                                                         ]}
                                                                         activeOpacity={0.8}
@@ -1214,8 +1214,8 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                                             </>
                                                                         ) : (
                                                                             <>
-                                                                                <Plus size={13} color="#FFFFFF" />
-                                                                                <ThemedText style={[styles.addStopBtnText, { color: '#FFFFFF' }]}>
+                                                                                <Plus size={13} color={isDark ? '#000000' : '#FFFFFF'} />
+                                                                                <ThemedText style={[styles.addStopBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
                                                                                     Add
                                                                                 </ThemedText>
                                                                             </>
