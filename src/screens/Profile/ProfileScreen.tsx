@@ -13,6 +13,10 @@ import {
     Shield,
     PhoneCall,
     Info,
+    Pencil,
+    CarFront,
+    BatteryCharging,
+    Zap,
 } from 'lucide-react-native';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
@@ -23,7 +27,8 @@ import { useVehicles } from '../../context/VehicleContext';
 
 export default function ProfileScreen() {
     const { colors, theme, setTheme, isDark } = useAppTheme();
-    const { user, topUpWallet } = useVehicles();
+    const { user, topUpWallet, selectedVehicle, vehicles } = useVehicles();
+    const activeVehicle = selectedVehicle ?? vehicles[0];
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
 
@@ -78,12 +83,46 @@ export default function ProfileScreen() {
                             <User size={28} color={colors.primary} />
                         </View>
                         <View style={styles.userInfo}>
-                            <ThemedText style={FONTS.h3}>{user.fullName}</ThemedText>
+                            <View style={styles.userHeaderRow}>
+                                <ThemedText style={FONTS.h3}>{user.fullName}</ThemedText>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.editPillBtn,
+                                        {
+                                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                        },
+                                    ]}
+                                    activeOpacity={0.8}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        navigation.navigate('EditProfile');
+                                    }}
+                                >
+                                    <Pencil size={11} color={colors.text} style={{ marginRight: 4 }} />
+                                    <ThemedText style={[styles.editPillText, { color: colors.text }]}>EDIT</ThemedText>
+                                </TouchableOpacity>
+                            </View>
                             <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>
                                 {user.phone}
                             </ThemedText>
                             <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
                                 {user.email}
+                            </ThemedText>
+                        </View>
+                    </View>
+
+                    <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
+
+                    <View style={styles.userMetaRow}>
+                        <View style={styles.rfidRow}>
+                            <Shield size={15} color={colors.primary} />
+                            <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
+                                RFID:
+                            </ThemedText>
+                            <ThemedText style={[FONTS.caption, { fontWeight: '700' }]}>
+                                {user.rfidTag}
                             </ThemedText>
                         </View>
                         <View style={[styles.badge, { backgroundColor: colors.primarySoft }]}>
@@ -92,18 +131,121 @@ export default function ProfileScreen() {
                             </ThemedText>
                         </View>
                     </View>
+                </CredCard>
 
-                    <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
-
-                    <View style={styles.rfidRow}>
-                        <Shield size={16} color={colors.primary} />
-                        <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
-                            Active RFID Tag:
-                        </ThemedText>
-                        <ThemedText style={[FONTS.caption, { fontWeight: '700' }]}>
-                            {user.rfidTag}
-                        </ThemedText>
+                {/* Active Vehicle Details Card */}
+                <CredCard variant="default" style={styles.vehicleCard}>
+                    <View style={styles.vehicleCardHeader}>
+                        <View style={styles.vehicleTitleRow}>
+                            <View style={[styles.vehicleIconCircle, { backgroundColor: colors.primarySoft }]}>
+                                <CarFront size={22} color={colors.primary} />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <View style={styles.vehicleModelRow}>
+                                    <ThemedText style={FONTS.h3} numberOfLines={1}>
+                                        {activeVehicle ? `${activeVehicle.make} ${activeVehicle.model}` : 'No Vehicle Connected'}
+                                    </ThemedText>
+                                    {activeVehicle?.nickname ? (
+                                        <View style={[styles.nicknameBadge, { backgroundColor: isDark ? '#1C1C24' : '#F0F0F4' }]}>
+                                            <ThemedText style={[styles.nicknameText, { color: colors.textMuted }]}>
+                                                {activeVehicle.nickname}
+                                            </ThemedText>
+                                        </View>
+                                    ) : null}
+                                </View>
+                                <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
+                                    {activeVehicle ? `${activeVehicle.year} • ${activeVehicle.registrationNumber}` : 'Connect your EV'}
+                                </ThemedText>
+                            </View>
+                        </View>
+                        <TouchableOpacity
+                            style={[
+                                styles.editPillBtn,
+                                {
+                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                },
+                            ]}
+                            activeOpacity={0.8}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                navigation.navigate('EditProfile');
+                            }}
+                        >
+                            <Pencil size={11} color={colors.text} style={{ marginRight: 4 }} />
+                            <ThemedText style={[styles.editPillText, { color: colors.text }]}>EDIT</ThemedText>
+                        </TouchableOpacity>
                     </View>
+
+                    {activeVehicle && (
+                        <>
+                            <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
+
+                            {/* 3 Telemetry Metrics: Battery, Capacity, Max DC */}
+                            <View style={styles.vehicleMetricsRow}>
+                                <View style={styles.vehicleMetricItem}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <BatteryCharging size={13} color="#10B981" />
+                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>BATTERY</ThemedText>
+                                    </View>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                        {activeVehicle.currentBattery}%
+                                    </ThemedText>
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
+                                        ~{activeVehicle.estRangeKm} km
+                                    </ThemedText>
+                                </View>
+
+                                <View style={styles.vehicleMetricItem}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <Zap size={13} color={colors.primary} />
+                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>CAPACITY</ThemedText>
+                                    </View>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                        {activeVehicle.batteryCapacity} kWh
+                                    </ThemedText>
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
+                                        {activeVehicle.connectorType}
+                                    </ThemedText>
+                                </View>
+
+                                <View style={styles.vehicleMetricItem}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <Zap size={13} color="#F59E0B" />
+                                        <ThemedText style={[FONTS.caption, { color: colors.textMuted, fontSize: 10 }]}>MAX SPEED</ThemedText>
+                                    </View>
+                                    <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 2 }]}>
+                                        {activeVehicle.maxDcRateKw} kW
+                                    </ThemedText>
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 10 }}>
+                                        DC Fast
+                                    </ThemedText>
+                                </View>
+                            </View>
+
+                            {/* Autocharge Bar */}
+                            <View
+                                style={[
+                                    styles.autochargeBar,
+                                    {
+                                        backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                    },
+                                ]}
+                            >
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <Shield size={14} color={activeVehicle.autochargeEnabled ? '#10B981' : colors.textMuted} />
+                                    <ThemedText style={{ fontSize: 11, fontFamily: FONT_FAMILIES.bold, color: colors.text }}>
+                                        {activeVehicle.autochargeEnabled ? 'Autocharge / Plug & Charge Active' : 'Autocharge Disabled'}
+                                    </ThemedText>
+                                </View>
+                                <ThemedText style={{ fontSize: 10, fontFamily: FONT_FAMILIES.medium, color: colors.textMuted }}>
+                                    {activeVehicle.vidTag ?? 'No Tag'}
+                                </ThemedText>
+                            </View>
+                        </>
+                    )}
                 </CredCard>
 
                 {/* Iris EV Wallet Balance Card */}
@@ -322,6 +464,31 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
+    userHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 2,
+    },
+    editPillBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1.5,
+        borderBottomWidth: 3,
+    },
+    editPillText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: 0.8,
+    },
+    userMetaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
     avatar: {
         width: 52,
         height: 52,
@@ -346,6 +513,61 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
+    },
+    vehicleCard: {
+        padding: SPACING.md,
+        marginBottom: SPACING.md,
+    },
+    vehicleCardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    vehicleTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        flex: 1,
+    },
+    vehicleIconCircle: {
+        width: 44,
+        height: 44,
+        borderRadius: RADIUS.circle,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    vehicleModelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        flexWrap: 'wrap',
+    },
+    nicknameBadge: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: RADIUS.chip,
+    },
+    nicknameText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.bold,
+    },
+    vehicleMetricsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 4,
+    },
+    vehicleMetricItem: {
+        flex: 1,
+    },
+    autochargeBar: {
+        marginTop: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: RADIUS.card,
+        borderWidth: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     walletCard: {
         padding: SPACING.md,
