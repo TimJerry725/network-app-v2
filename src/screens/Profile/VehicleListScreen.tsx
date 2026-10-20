@@ -37,11 +37,6 @@ export default function VehicleListScreen() {
         return sum > 0 ? (sum * 0.48).toFixed(0) : '186';
     }, [sessionHistory]);
 
-    const treesEquiv = useMemo(() => {
-        const num = parseFloat(co2Avoided);
-        return Math.round(num * 0.5) || 94;
-    }, [co2Avoided]);
-
     const renderBentoHeader = () => {
         return (
             <View style={styles.bentoHeaderWrap}>
@@ -73,12 +68,7 @@ export default function VehicleListScreen() {
                             <View style={styles.heroCo2IconWrap}>
                                 <Leaf size={12} color="#FFFFFF" />
                             </View>
-                            <View>
-                                <ThemedText style={styles.heroCo2Label}>CO₂ AVOIDED</ThemedText>
-                                <ThemedText style={styles.heroCo2SubText}>
-                                    {treesEquiv} Trees Equiv
-                                </ThemedText>
-                            </View>
+                            <ThemedText style={styles.heroCo2Label}>CO₂ AVOIDED</ThemedText>
                         </View>
                         <ThemedText style={styles.heroCo2Val}>{co2Avoided} kg</ThemedText>
                     </View>
@@ -273,7 +263,7 @@ const styles = StyleSheet.create({
     },
     bentoHeaderWrap: {
         paddingTop: SPACING.sm,
-        paddingBottom: SPACING.md,
+        paddingBottom: 0,
     },
     heroCoralCard: {
         backgroundColor: '#FF5B45',
@@ -329,7 +319,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.16)',
         borderRadius: RADIUS.input,
         paddingHorizontal: 12,
-        paddingVertical: 9,
+        paddingVertical: 8,
     },
     heroCo2Left: {
         flexDirection: 'row',
@@ -345,16 +335,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     heroCo2Label: {
-        fontSize: 9,
+        fontSize: 10,
         fontFamily: FONT_FAMILIES.bold,
         color: 'rgba(255, 255, 255, 0.85)',
         letterSpacing: 0.6,
-    },
-    heroCo2SubText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.medium,
-        color: '#FFFFFF',
-        marginTop: 1,
     },
     heroCo2Val: {
         fontSize: 18,
@@ -366,7 +350,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginTop: 4,
-        marginBottom: 8,
+        marginBottom: 0,
     },
     sessionTitleGroup: {
         flexDirection: 'row',
