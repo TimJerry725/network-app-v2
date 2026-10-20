@@ -20,6 +20,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
 import {
+    ArrowUpRight,
     Bell,
     Check,
     CircleCheck,
@@ -1455,6 +1456,7 @@ export default function StationMapScreen({ navigation }: any) {
                             }}
                         >
                             <ThemedText style={[styles.peekViewBtnText, { color: isDark ? '#0A0D14' : '#FFFFFF' }]}>View</ThemedText>
+                            <ArrowUpRight size={13} color={isDark ? '#0A0D14' : '#FFFFFF'} strokeWidth={2.4} />
                         </TouchableOpacity>
                     </TouchableOpacity>
                 )}
@@ -1556,7 +1558,7 @@ export default function StationMapScreen({ navigation }: any) {
                                             </ThemedText>
                                         </View>
 
-                                        {/* Action Button: Fully colored, no arrow */}
+                                        {/* Action Button: View with diagonal arrow ( ↗ ) like before */}
                                         <TouchableOpacity
                                             style={[
                                                 styles.stationCardBtn,
@@ -1567,7 +1569,10 @@ export default function StationMapScreen({ navigation }: any) {
                                                 if (Platform.OS !== 'web') {
                                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                                                 }
-                                                handleSelectStation(station, { openSheet: true });
+                                                navigation.navigate('StationDetails', {
+                                                    stationId: station.id,
+                                                    stationSnapshot: station,
+                                                });
                                             }}
                                         >
                                             <ThemedText
@@ -1578,6 +1583,11 @@ export default function StationMapScreen({ navigation }: any) {
                                             >
                                                 View
                                             </ThemedText>
+                                            <ArrowUpRight
+                                                size={13}
+                                                color={btnTextColor}
+                                                strokeWidth={2.4}
+                                            />
                                         </TouchableOpacity>
                                     </View>
 
@@ -2433,9 +2443,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     peekViewBtn: {
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 14,
+        gap: 4,
+        paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: RADIUS.button,
     },
@@ -2446,9 +2458,11 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
     },
     stationCardBtn: {
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 14,
+        gap: 4,
+        paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: RADIUS.button,
     },
