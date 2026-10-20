@@ -13,11 +13,13 @@ import { ThemedText } from '../../components/ThemedText';
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useCharging, CompletedSessionReceipt } from '../../context/ChargingContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
+import { SessionReceiptModal } from '../../components/SessionReceiptModal';
 
 export default function VehicleListScreen() {
     const { colors, isDark } = useAppTheme();
     const { sessionHistory } = useCharging();
     const [showAll, setShowAll] = useState(false);
+    const [selectedReceipt, setSelectedReceipt] = useState<CompletedSessionReceipt | null>(null);
 
     const displayedSessions = showAll ? sessionHistory : sessionHistory.slice(0, 5);
     const hasMore = sessionHistory.length > 5;
@@ -102,7 +104,9 @@ export default function VehicleListScreen() {
 
     const renderSessionCard = ({ item }: { item: CompletedSessionReceipt }) => {
         return (
-            <View
+            <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => setSelectedReceipt(item)}
                 style={[
                     styles.sessionCard,
                     {
@@ -201,7 +205,7 @@ export default function VehicleListScreen() {
                         </ThemedText>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     };
 
@@ -252,6 +256,12 @@ export default function VehicleListScreen() {
                         </ThemedText>
                     </View>
                 }
+            />
+            {/* Full-Screen Detailed Session Receipt Modal (Inspired by user design) */}
+            <SessionReceiptModal
+                visible={!!selectedReceipt}
+                receipt={selectedReceipt}
+                onClose={() => setSelectedReceipt(null)}
             />
         </SafeAreaView>
     );
