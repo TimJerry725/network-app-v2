@@ -20,8 +20,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
 import {
-    ArrowRight,
-    ArrowUpRight,
     Bell,
     Check,
     CircleCheck,
@@ -1457,7 +1455,6 @@ export default function StationMapScreen({ navigation }: any) {
                             }}
                         >
                             <ThemedText style={styles.peekViewBtnText}>View</ThemedText>
-                            <ArrowUpRight size={14} color="#FFFFFF" strokeWidth={2.5} />
                         </TouchableOpacity>
                     </TouchableOpacity>
                 )}
@@ -1482,6 +1479,30 @@ export default function StationMapScreen({ navigation }: any) {
                                 (c) => c.status === 'Available'
                             ).length;
 
+                            const cardBg = isSelected
+                                ? colors.coral
+                                : (isDark ? '#14151D' : '#F9FAFB');
+                            const cardBorder = isSelected
+                                ? colors.coral
+                                : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)');
+                            const nameColor = isSelected ? '#FFFFFF' : colors.text;
+                            const addressColor = isSelected ? 'rgba(255, 255, 255, 0.85)' : colors.textMuted;
+                            const metaColor = isSelected ? 'rgba(255, 255, 255, 0.92)' : colors.textMuted;
+                            const btnBg = isSelected ? '#FFFFFF' : colors.coral;
+                            const btnTextColor = isSelected ? colors.coral : '#FFFFFF';
+                            const badgeBg = isSelected
+                                ? 'rgba(255, 255, 255, 0.22)'
+                                : (isDark ? 'rgba(255, 91, 69, 0.14)' : '#FFE5E0');
+                            const badgeTextColor = isSelected ? '#FFFFFF' : colors.coral;
+                            const availBadgeBg = isSelected
+                                ? 'rgba(255, 255, 255, 0.22)'
+                                : isDark
+                                ? (availableCount > 0 ? 'rgba(16, 185, 129, 0.14)' : 'rgba(245, 158, 11, 0.14)')
+                                : (availableCount > 0 ? '#D1FAE5' : '#FEF3C7');
+                            const availTextColor = isSelected
+                                ? '#FFFFFF'
+                                : (availableCount > 0 ? colors.mint : colors.accent);
+
                             return (
                                 <TouchableOpacity
                                     key={station.id}
@@ -1489,12 +1510,8 @@ export default function StationMapScreen({ navigation }: any) {
                                     style={[
                                         styles.sheetStationCard,
                                         {
-                                            backgroundColor: isSelected
-                                                ? (isDark ? '#1C1D26' : '#FFFFFF')
-                                                : (isDark ? '#14151D' : '#F9FAFB'),
-                                            borderColor: isSelected
-                                                ? colors.coral
-                                                : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
+                                            backgroundColor: cardBg,
+                                            borderColor: cardBorder,
                                             borderWidth: isSelected ? 1.5 : 1,
                                         },
                                     ]}
@@ -1511,40 +1528,41 @@ export default function StationMapScreen({ navigation }: any) {
                                                 <ThemedText
                                                     style={[
                                                         styles.sheetStationCardName,
-                                                        { color: colors.text },
+                                                        { color: nameColor },
                                                     ]}
                                                     numberOfLines={1}
                                                 >
                                                     {station.name}
                                                 </ThemedText>
                                                 {station.rating && (
-                                                    <View style={styles.ratingBadge}>
-                                                        <Star size={10} color="#F59E0B" fill="#F59E0B" />
-                                                        <ThemedText style={styles.ratingText}>
+                                                    <View
+                                                        style={[
+                                                            styles.ratingBadge,
+                                                            isSelected && { backgroundColor: 'rgba(255, 255, 255, 0.22)' },
+                                                        ]}
+                                                    >
+                                                        <Star size={10} color={isSelected ? '#FFFFFF' : '#F59E0B'} fill={isSelected ? '#FFFFFF' : '#F59E0B'} />
+                                                        <ThemedText style={[styles.ratingText, isSelected && { color: '#FFFFFF' }]}>
                                                             {station.rating.toFixed(1)}
                                                         </ThemedText>
                                                     </View>
                                                 )}
                                             </View>
                                             <ThemedText
-                                                style={[styles.sheetStationCardAddress, { color: colors.textMuted }]}
+                                                style={[styles.sheetStationCardAddress, { color: addressColor }]}
                                                 numberOfLines={1}
                                             >
                                                 {resolvedAddresses[station.id] ?? station.address}
                                             </ThemedText>
                                         </View>
 
-                                        {/* Button-in-Button Action Arrow (↗) navigates to StationDetails */}
+                                        {/* Action Button: Fully colored, no arrow */}
                                         <TouchableOpacity
                                             style={[
-                                                styles.cardActionCircle,
-                                                {
-                                                    backgroundColor: isSelected
-                                                        ? colors.coral
-                                                        : (isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'),
-                                                },
+                                                styles.stationCardBtn,
+                                                { backgroundColor: btnBg },
                                             ]}
-                                            activeOpacity={0.8}
+                                            activeOpacity={0.82}
                                             onPress={() => {
                                                 if (Platform.OS !== 'web') {
                                                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -1552,11 +1570,14 @@ export default function StationMapScreen({ navigation }: any) {
                                                 handleSelectStation(station, { openSheet: true });
                                             }}
                                         >
-                                            <ArrowUpRight
-                                                size={16}
-                                                color={isSelected ? '#FFFFFF' : colors.text}
-                                                strokeWidth={2.5}
-                                            />
+                                            <ThemedText
+                                                style={[
+                                                    styles.stationCardBtnText,
+                                                    { color: btnTextColor },
+                                                ]}
+                                            >
+                                                View
+                                            </ThemedText>
                                         </TouchableOpacity>
                                     </View>
 
@@ -1564,20 +1585,16 @@ export default function StationMapScreen({ navigation }: any) {
                                         <View
                                             style={[
                                                 styles.typeBadge,
-                                                {
-                                                    backgroundColor: isDark
-                                                        ? 'rgba(255, 91, 69, 0.14)'
-                                                        : '#FFE5E0',
-                                                },
+                                                { backgroundColor: badgeBg },
                                             ]}
                                         >
                                             <Zap
                                                 size={11}
-                                                color={colors.coral}
-                                                fill={colors.coral}
+                                                color={badgeTextColor}
+                                                fill={badgeTextColor}
                                             />
                                             <ThemedText
-                                                style={[styles.typeText, { color: colors.coral }]}
+                                                style={[styles.typeText, { color: badgeTextColor }]}
                                             >
                                                 {connector.power}kW Fast
                                             </ThemedText>
@@ -1586,19 +1603,13 @@ export default function StationMapScreen({ navigation }: any) {
                                         <View
                                             style={[
                                                 styles.typeBadge,
-                                                {
-                                                    backgroundColor: isDark
-                                                        ? (availableCount > 0 ? 'rgba(16, 185, 129, 0.14)' : 'rgba(245, 158, 11, 0.14)')
-                                                        : (availableCount > 0 ? '#D1FAE5' : '#FEF3C7'),
-                                                },
+                                                { backgroundColor: availBadgeBg },
                                             ]}
                                         >
                                             <ThemedText
                                                 style={[
                                                     styles.typeText,
-                                                    {
-                                                        color: availableCount > 0 ? colors.mint : colors.accent,
-                                                    },
+                                                    { color: availTextColor },
                                                 ]}
                                             >
                                                 {availableCount > 0
@@ -1609,7 +1620,7 @@ export default function StationMapScreen({ navigation }: any) {
 
                                         <ThemedText
                                             style={{
-                                                color: colors.textMuted,
+                                                color: metaColor,
                                                 ...FONTS.caption,
                                                 marginLeft: 'auto',
                                             }}
@@ -1627,15 +1638,20 @@ export default function StationMapScreen({ navigation }: any) {
                                                     style={[
                                                         styles.amenityPreviewChip,
                                                         {
-                                                            backgroundColor: isDark
+                                                            backgroundColor: isSelected
+                                                                ? 'rgba(255, 255, 255, 0.20)'
+                                                                : isDark
                                                                 ? 'rgba(255, 255, 255, 0.05)'
                                                                 : 'rgba(0, 0, 0, 0.03)',
                                                         },
                                                     ]}
                                                 >
-                                                    <AmenityIcon amenity={amenity} color={colors.textMuted} />
+                                                    <AmenityIcon amenity={amenity} color={isSelected ? '#FFFFFF' : colors.textMuted} />
                                                     <ThemedText
-                                                        style={[styles.amenityPreviewText, { color: colors.textMuted }]}
+                                                        style={[
+                                                            styles.amenityPreviewText,
+                                                            { color: isSelected ? '#FFFFFF' : colors.textMuted },
+                                                        ]}
                                                     >
                                                         {amenity}
                                                     </ThemedText>
@@ -2416,10 +2432,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     peekViewBtn: {
-        flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 12,
+        justifyContent: 'center',
+        paddingHorizontal: 14,
         paddingVertical: 6,
         borderRadius: RADIUS.chip,
     },
@@ -2428,6 +2443,18 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
         color: '#FFFFFF',
+    },
+    stationCardBtn: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: RADIUS.chip,
+    },
+    stationCardBtnText: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
     },
     sheetScrollListContent: {
         paddingHorizontal: SPACING.md,

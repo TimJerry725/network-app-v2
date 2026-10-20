@@ -45,34 +45,39 @@ export const TAB_THEME: Record<string, {
     bgLight: string;
     borderDark: string;
     borderLight: string;
+    contentColor: string;
 }> = {
     Map: {
-        color: '#38BDF8', // Ice Blue
-        bgDark: 'rgba(56, 189, 248, 0.16)',
-        bgLight: 'rgba(56, 189, 248, 0.12)',
-        borderDark: 'rgba(56, 189, 248, 0.32)',
-        borderLight: 'rgba(56, 189, 248, 0.28)',
+        color: '#0A0D14',
+        bgDark: '#38BDF8', // Solid Ice Blue
+        bgLight: '#38BDF8',
+        borderDark: '#38BDF8',
+        borderLight: '#38BDF8',
+        contentColor: '#0A0D14',
     },
     Explore: {
-        color: '#5B61F6', // Electric Lavender
-        bgDark: 'rgba(91, 97, 246, 0.16)',
-        bgLight: 'rgba(91, 97, 246, 0.12)',
-        borderDark: 'rgba(91, 97, 246, 0.32)',
-        borderLight: 'rgba(91, 97, 246, 0.28)',
+        color: '#FFFFFF',
+        bgDark: '#5B61F6', // Solid Electric Lavender
+        bgLight: '#5B61F6',
+        borderDark: '#5B61F6',
+        borderLight: '#5B61F6',
+        contentColor: '#FFFFFF',
     },
     Favorite: {
-        color: '#FF5B45', // Sunset Coral
-        bgDark: 'rgba(255, 91, 69, 0.16)',
-        bgLight: 'rgba(255, 91, 69, 0.12)',
-        borderDark: 'rgba(255, 91, 69, 0.32)',
-        borderLight: 'rgba(255, 91, 69, 0.28)',
+        color: '#FFFFFF',
+        bgDark: '#FF5B45', // Solid Sunset Coral
+        bgLight: '#FF5B45',
+        borderDark: '#FF5B45',
+        borderLight: '#FF5B45',
+        contentColor: '#FFFFFF',
     },
     Vehicles: {
-        color: '#10B981', // Neo Mint
-        bgDark: 'rgba(16, 185, 129, 0.16)',
-        bgLight: 'rgba(16, 185, 129, 0.12)',
-        borderDark: 'rgba(16, 185, 129, 0.32)',
-        borderLight: 'rgba(16, 185, 129, 0.28)',
+        color: '#0A0D14',
+        bgDark: '#10B981', // Solid Neo Mint
+        bgLight: '#10B981',
+        borderDark: '#10B981',
+        borderLight: '#10B981',
+        contentColor: '#0A0D14',
     },
 };
 
@@ -82,7 +87,7 @@ function getTabIcon(name: string, isFocused: boolean, isDark: boolean) {
 
     let iconColor: string;
     if (isFocused) {
-        iconColor = TAB_THEME[name]?.color ?? (isDark ? '#FFFFFF' : '#0A0D14');
+        iconColor = TAB_THEME[name]?.contentColor ?? (isDark ? '#FFFFFF' : '#0A0D14');
     } else {
         iconColor = isDark ? 'rgba(255, 255, 255, 0.42)' : 'rgba(0, 0, 0, 0.38)';
     }
@@ -157,6 +162,7 @@ function TabBarItem({ name, label, isFocused, onPress, isDark }: TabBarItemProps
         bgLight: '#F1F2F6',
         borderDark: 'rgba(255, 255, 255, 0.16)',
         borderLight: 'rgba(0, 0, 0, 0.08)',
+        contentColor: isDark ? '#FFFFFF' : '#0A0D14',
     };
 
     return (
@@ -193,7 +199,7 @@ function TabBarItem({ name, label, isFocused, onPress, isDark }: TabBarItemProps
                         style={[
                             styles.tabLabel,
                             {
-                                color: theme.color,
+                                color: theme.contentColor,
                                 opacity: labelOpacity,
                             },
                         ]}
