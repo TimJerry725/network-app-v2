@@ -817,7 +817,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 <CredButton
                     title="Stop Charging"
                     subtitle={`Tap to disconnect at ${soc}% & view receipt`}
-                    variant="neon"
+                    variant="danger"
                     onPress={() => setIsStopConfirmVisible(true)}
                 />
             </ScrollView>

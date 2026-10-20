@@ -86,7 +86,7 @@ export function CredButton({
         if (variant === 'secondary' || variant === 'coral') return colors.secondary;
         if (variant === 'tertiary' || variant === 'mint') return colors.tertiary;
         if (variant === 'neon') return '#FFFFFF';
-        if (variant === 'danger') return '#FF453A';
+        if (variant === 'danger') return isDark ? '#EF4444' : '#DC2626';
         if (variant === 'dark') return isDark ? '#141418' : '#141418';
         if (variant === 'outline') return isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
         return colors.primary;
