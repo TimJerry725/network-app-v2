@@ -130,7 +130,7 @@ export default function LoginScreen({ navigation }: any) {
 
                             <CredButton
                                 title="AUTHENTICATE & ENTER"
-                                variant="neon"
+                                variant="primary"
                                 containerStyle={styles.loginButton}
                                 onPress={handleContinue}
                             />

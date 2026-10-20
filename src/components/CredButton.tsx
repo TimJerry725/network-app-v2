@@ -94,6 +94,7 @@ export function CredButton({
 
     const getTextColor = () => {
         if (disabled) return isDark ? '#6B7280' : '#9CA3AF';
+        if (variant === 'neon') return '#0D0E13';
         if (variant === 'secondary' || variant === 'coral' || variant === 'danger' || variant === 'dark') return '#FFFFFF';
         if (variant === 'tertiary' || variant === 'mint') return '#0A0D14';
         if (variant === 'outline') return isDark ? '#FFFFFF' : '#0D0E13';

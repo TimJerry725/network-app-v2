@@ -1446,7 +1446,7 @@ export default function StationMapScreen({ navigation }: any) {
                         </View>
 
                         <TouchableOpacity
-                            style={[styles.peekViewBtn, { backgroundColor: colors.primary }]}
+                            style={[styles.cardActionCircle, { backgroundColor: colors.primary }]}
                             activeOpacity={0.82}
                             onPress={() => {
                                 navigation.navigate('StationDetails', {
@@ -1455,8 +1455,7 @@ export default function StationMapScreen({ navigation }: any) {
                                 });
                             }}
                         >
-                            <ThemedText style={[styles.peekViewBtnText, { color: isDark ? '#0A0D14' : '#FFFFFF' }]}>View</ThemedText>
-                            <ArrowUpRight size={13} color={isDark ? '#0A0D14' : '#FFFFFF'} strokeWidth={2.4} />
+                            <ArrowUpRight size={16} color={isDark ? '#0A0D14' : '#FFFFFF'} strokeWidth={2.4} />
                         </TouchableOpacity>
                     </TouchableOpacity>
                 )}
@@ -1558,10 +1557,10 @@ export default function StationMapScreen({ navigation }: any) {
                                             </ThemedText>
                                         </View>
 
-                                        {/* Action Button: View with diagonal arrow ( ↗ ) like before */}
+                                        {/* Action Button: Only diagonal arrow ( ↗ ), no View text */}
                                         <TouchableOpacity
                                             style={[
-                                                styles.stationCardBtn,
+                                                styles.cardActionCircle,
                                                 { backgroundColor: btnBg },
                                             ]}
                                             activeOpacity={0.82}
@@ -1575,16 +1574,8 @@ export default function StationMapScreen({ navigation }: any) {
                                                 });
                                             }}
                                         >
-                                            <ThemedText
-                                                style={[
-                                                    styles.stationCardBtnText,
-                                                    { color: btnTextColor },
-                                                ]}
-                                            >
-                                                View
-                                            </ThemedText>
                                             <ArrowUpRight
-                                                size={13}
+                                                size={16}
                                                 color={btnTextColor}
                                                 strokeWidth={2.4}
                                             />
@@ -2441,35 +2432,6 @@ const styles = StyleSheet.create({
     peekActionRow: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    peekViewBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: RADIUS.button,
-    },
-    peekViewBtnText: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-        color: '#FFFFFF',
-    },
-    stationCardBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: RADIUS.button,
-    },
-    stationCardBtnText: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
     },
     sheetScrollListContent: {
         paddingHorizontal: SPACING.md,
