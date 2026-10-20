@@ -31,7 +31,7 @@ interface SessionReceiptModalProps {
 }
 
 export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceiptModalProps) {
-    const { isDark } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
 
     if (!receipt) return null;
 
@@ -281,7 +281,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
                         <TouchableOpacity
                             style={[
                                 styles.dockBtn,
-                                { backgroundColor: isDark ? '#FF5B45' : '#111827' },
+                                { backgroundColor: colors.coral },
                             ]}
                             onPress={handleDownload}
                             activeOpacity={0.8}
