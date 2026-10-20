@@ -1,14 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { FlatList, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 import {
     Clock,
     ChevronDown,
     ArrowUpRight,
     Zap,
     Leaf,
-    BatteryCharging,
     Receipt,
     TrendingUp,
 } from 'lucide-react-native';
@@ -17,21 +15,10 @@ import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useCharging, CompletedSessionReceipt } from '../../context/ChargingContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
-const WEEKLY_ENERGY_DATA = [
-    { day: 'M', kwh: 32, height: 40 },
-    { day: 'T', kwh: 54, height: 65 },
-    { day: 'W', kwh: 24, height: 32 },
-    { day: 'T', kwh: 48, height: 58 },
-    { day: 'F', kwh: 82, height: 95, active: true },
-    { day: 'S', kwh: 60, height: 72 },
-    { day: 'S', kwh: 38, height: 46 },
-];
-
 export default function VehicleListScreen() {
     const { colors, isDark } = useAppTheme();
     const { sessionHistory } = useCharging();
     const [showAll, setShowAll] = useState(false);
-    const [selectedBarIndex, setSelectedBarIndex] = useState<number>(4); // Default to Friday
 
     const displayedSessions = showAll ? sessionHistory : sessionHistory.slice(0, 5);
     const hasMore = sessionHistory.length > 5;
@@ -76,59 +63,10 @@ export default function VehicleListScreen() {
                             AVG SPEED: 48 kW
                         </ThemedText>
                     </View>
-
-                    {/* Weekly Bar Chart Component */}
-                    <View style={styles.chartContainer}>
-                        <View style={styles.chartBarsRow}>
-                            {WEEKLY_ENERGY_DATA.map((item, idx) => {
-                                const isSelected = selectedBarIndex === idx;
-                                return (
-                                    <TouchableOpacity
-                                        key={idx}
-                                        activeOpacity={0.85}
-                                        style={styles.chartBarCol}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                            setSelectedBarIndex(idx);
-                                        }}
-                                    >
-                                        {/* Floating Tooltip Bubble for Active Bar */}
-                                        {isSelected && (
-                                            <View style={styles.chartTooltip}>
-                                                <ThemedText style={styles.chartTooltipText}>
-                                                    {item.kwh} kWh
-                                                </ThemedText>
-                                            </View>
-                                        )}
-                                        <View style={styles.barTrack}>
-                                            <View
-                                                style={[
-                                                    styles.barFill,
-                                                    {
-                                                        height: `${item.height}%`,
-                                                        backgroundColor: isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.45)',
-                                                    },
-                                                ]}
-                                            />
-                                        </View>
-                                        <ThemedText
-                                            style={[
-                                                styles.barDayText,
-                                                { color: isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.75)' },
-                                            ]}
-                                        >
-                                            {item.day}
-                                        </ThemedText>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </View>
-                    </View>
                 </View>
 
-                {/* ── 2-TILE SPLIT BENTO GRID (Unified 3-Color Theory: Neo Mint & Ice Blue) ── */}
+                {/* ── CO2 OFFSET IMPACT TILE (Tertiary: Neo Mint) ── */}
                 <View style={styles.bentoSplitGrid}>
-                    {/* Left Tile: CO2 Offset (Tertiary: Neo Mint) */}
                     <View style={[styles.bentoSplitTile, { backgroundColor: '#10B981' }]}>
                         <View style={styles.splitTileTopRow}>
                             <ThemedText style={styles.splitTileEyebrowWhite}>CO₂ AVOIDED</ThemedText>
@@ -140,21 +78,6 @@ export default function VehicleListScreen() {
                         <View style={styles.splitTilePillWhite}>
                             <Leaf size={10} color="#FFFFFF" />
                             <ThemedText style={styles.splitTilePillTextWhite}>94 Trees Equiv</ThemedText>
-                        </View>
-                    </View>
-
-                    {/* Right Tile: Battery Health (Primary: Ice Blue) */}
-                    <View style={[styles.bentoSplitTile, { backgroundColor: '#38BDF8' }]}>
-                        <View style={styles.splitTileTopRow}>
-                            <ThemedText style={[styles.splitTileEyebrowDark, { color: '#0A0D14' }]}>BATTERY HEALTH</ThemedText>
-                            <View style={[styles.splitTileActionCircle, { backgroundColor: 'rgba(10, 13, 20, 0.15)' }]}>
-                                <BatteryCharging size={12} color="#0A0D14" />
-                            </View>
-                        </View>
-                        <ThemedText style={[styles.splitTileMainValDark, { color: '#0A0D14' }]}>98.2%</ThemedText>
-                        <View style={[styles.splitTilePillDark, { backgroundColor: 'rgba(10, 13, 20, 0.12)' }]}>
-                            <BatteryCharging size={10} color="#0A0D14" />
-                            <ThemedText style={[styles.splitTilePillTextDark, { color: '#0A0D14' }]}>Optimal Cycle</ThemedText>
                         </View>
                     </View>
                 </View>
@@ -407,7 +330,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginBottom: 16,
+        marginBottom: 0,
     },
     heroCoralSubText: {
         color: 'rgba(255, 255, 255, 0.85)',
@@ -418,62 +341,6 @@ const styles = StyleSheet.create({
     heroCoralDot: {
         color: 'rgba(255, 255, 255, 0.6)',
         fontSize: 12,
-    },
-    chartContainer: {
-        marginTop: 6,
-        paddingTop: 8,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255, 255, 255, 0.18)',
-    },
-    chartBarsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        height: 120,
-        paddingHorizontal: 6,
-    },
-    chartBarCol: {
-        alignItems: 'center',
-        flex: 1,
-        height: '100%',
-        justifyContent: 'flex-end',
-        position: 'relative',
-    },
-    chartTooltip: {
-        position: 'absolute',
-        top: 2,
-        backgroundColor: '#FFFFFF',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: RADIUS.chip,
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 4,
-        zIndex: 5,
-    },
-    chartTooltipText: {
-        color: '#FF5B45',
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.bold,
-    },
-    barTrack: {
-        width: 14,
-        height: 76,
-        backgroundColor: 'rgba(255, 255, 255, 0.16)',
-        borderRadius: RADIUS.badge,
-        justifyContent: 'flex-end',
-        overflow: 'hidden',
-    },
-    barFill: {
-        width: '100%',
-        borderRadius: RADIUS.badge,
-    },
-    barDayText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.bold,
-        marginTop: 6,
     },
     bentoSplitGrid: {
         flexDirection: 'row',
@@ -498,12 +365,6 @@ const styles = StyleSheet.create({
         color: 'rgba(255, 255, 255, 0.85)',
         letterSpacing: 0.6,
     },
-    splitTileEyebrowDark: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.bold,
-        color: 'rgba(16, 17, 20, 0.72)',
-        letterSpacing: 0.6,
-    },
     splitTileActionCircle: {
         width: 26,
         height: 26,
@@ -515,12 +376,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontFamily: FONT_FAMILIES.bold,
         color: '#FFFFFF',
-        marginBottom: 8,
-    },
-    splitTileMainValDark: {
-        fontSize: 24,
-        fontFamily: FONT_FAMILIES.bold,
-        color: '#101114',
         marginBottom: 8,
     },
     splitTilePillWhite: {
@@ -537,21 +392,6 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontFamily: FONT_FAMILIES.medium,
         color: '#FFFFFF',
-    },
-    splitTilePillDark: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        backgroundColor: 'rgba(0, 0, 0, 0.12)',
-        borderRadius: RADIUS.chip,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        alignSelf: 'flex-start',
-    },
-    splitTilePillTextDark: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.medium,
-        color: '#101114',
     },
     sessionSectionHeader: {
         flexDirection: 'row',
