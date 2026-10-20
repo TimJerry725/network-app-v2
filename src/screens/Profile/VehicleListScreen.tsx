@@ -8,7 +8,6 @@ import {
     Zap,
     Leaf,
     Receipt,
-    TrendingUp,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
@@ -46,18 +45,12 @@ export default function VehicleListScreen() {
     const renderBentoHeader = () => {
         return (
             <View style={styles.bentoHeaderWrap}>
-                {/* ── HERO BENTO CARD (Sunset Coral - Total Energy & CO2 Impact) ── */}
+                {/* ── HERO BENTO CARD (Sunset Coral - Compact) ── */}
                 <View style={styles.heroCoralCard}>
-                    {/* Header Row */}
-                    <View style={styles.heroCoralTopRow}>
-                        <View style={styles.heroCoralTagPill}>
-                            <Zap size={12} color="#FFFFFF" fill="#FFFFFF" />
-                            <ThemedText style={styles.heroCoralTagText}>TOTAL ENERGY CHARGED</ThemedText>
-                        </View>
-                        <View style={styles.heroCoralGrowthBadge}>
-                            <TrendingUp size={11} color="#FFFFFF" />
-                            <ThemedText style={styles.heroCoralGrowthText}>+18.4%</ThemedText>
-                        </View>
+                    {/* Clean Heading */}
+                    <View style={styles.heroHeadingRow}>
+                        <Zap size={13} color="rgba(255, 255, 255, 0.9)" fill="rgba(255, 255, 255, 0.9)" />
+                        <ThemedText style={styles.heroHeadingText}>TOTAL ENERGY CHARGED</ThemedText>
                     </View>
 
                     {/* Giant Metric */}
@@ -78,7 +71,7 @@ export default function VehicleListScreen() {
                     <View style={styles.heroCo2Strip}>
                         <View style={styles.heroCo2Left}>
                             <View style={styles.heroCo2IconWrap}>
-                                <Leaf size={14} color="#FFFFFF" />
+                                <Leaf size={12} color="#FFFFFF" />
                             </View>
                             <View>
                                 <ThemedText style={styles.heroCo2Label}>CO₂ AVOIDED</ThemedText>
@@ -284,109 +277,87 @@ const styles = StyleSheet.create({
     },
     heroCoralCard: {
         backgroundColor: '#FF5B45',
-        borderRadius: RADIUS.card,
-        padding: 20,
-        marginBottom: 20,
+        borderRadius: RADIUS.tile,
+        padding: 16,
+        marginBottom: 16,
         shadowColor: '#FF5B45',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
-        elevation: 6,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.18,
+        shadowRadius: 10,
+        elevation: 4,
     },
-    heroCoralTopRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-    },
-    heroCoralTagPill: {
+    heroHeadingRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        backgroundColor: 'rgba(255, 255, 255, 0.22)',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: RADIUS.chip,
+        marginBottom: 6,
     },
-    heroCoralTagText: {
-        color: '#FFFFFF',
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.bold,
-        letterSpacing: 0.6,
-    },
-    heroCoralGrowthBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.24)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: RADIUS.chip,
-    },
-    heroCoralGrowthText: {
-        color: '#FFFFFF',
+    heroHeadingText: {
+        color: 'rgba(255, 255, 255, 0.9)',
         fontSize: 11,
         fontFamily: FONT_FAMILIES.bold,
+        letterSpacing: 0.8,
+        textTransform: 'uppercase',
     },
     heroCoralGiantVal: {
         color: '#FFFFFF',
-        fontSize: 34,
+        fontSize: 28,
         fontFamily: FONT_FAMILIES.bold,
-        lineHeight: 40,
+        lineHeight: 34,
         marginBottom: 4,
     },
     heroCoralSubRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginBottom: 14,
+        marginBottom: 12,
     },
     heroCoralSubText: {
         color: 'rgba(255, 255, 255, 0.85)',
-        fontSize: 11,
+        fontSize: 10,
         fontFamily: FONT_FAMILIES.bold,
-        letterSpacing: 0.4,
+        letterSpacing: 0.3,
     },
     heroCoralDot: {
         color: 'rgba(255, 255, 255, 0.6)',
-        fontSize: 12,
+        fontSize: 11,
     },
     heroCo2Strip: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         backgroundColor: 'rgba(255, 255, 255, 0.16)',
-        borderRadius: RADIUS.tile,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
+        borderRadius: RADIUS.input,
+        paddingHorizontal: 12,
+        paddingVertical: 9,
     },
     heroCo2Left: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 8,
     },
     heroCo2IconWrap: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 26,
+        height: 26,
+        borderRadius: 13,
         backgroundColor: 'rgba(255, 255, 255, 0.22)',
         alignItems: 'center',
         justifyContent: 'center',
     },
     heroCo2Label: {
-        fontSize: 10,
+        fontSize: 9,
         fontFamily: FONT_FAMILIES.bold,
         color: 'rgba(255, 255, 255, 0.85)',
         letterSpacing: 0.6,
     },
     heroCo2SubText: {
-        fontSize: 11,
+        fontSize: 10,
         fontFamily: FONT_FAMILIES.medium,
         color: '#FFFFFF',
         marginTop: 1,
     },
     heroCo2Val: {
-        fontSize: 22,
+        fontSize: 18,
         fontFamily: FONT_FAMILIES.bold,
         color: '#FFFFFF',
     },
