@@ -54,10 +54,6 @@ import { useCharging } from '../../context/ChargingContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CHART_HEIGHT = 150;
-const RING_SIZE = 170;
-const RING_STROKE = 10;
-const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 export default function ChargingSessionScreen({ navigation, route }: any) {
     const { colors, isDark } = useAppTheme();
@@ -178,18 +174,11 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
         perks: [],
     };
 
-    // ── Hero Ring Coordinates ──
     const clampedSoc = Math.min(Math.max(soc, 0), 100);
-    const ringDashoffset = RING_CIRCUMFERENCE * (1 - clampedSoc / 100);
-
-    // Target Marker position on the circular ring
-    const targetAngleRad = ((targetSoc / 100) * 360 - 90) * (Math.PI / 180);
-    const targetMarkerX = RING_SIZE / 2 + RING_RADIUS * Math.cos(targetAngleRad);
-    const targetMarkerY = RING_SIZE / 2 + RING_RADIUS * Math.sin(targetAngleRad);
 
     // ── Chart Geometry: Speed vs SoC & Speed vs Time ──
-    const [cardContentWidth, setCardContentWidth] = useState(SCREEN_WIDTH - 32);
-    const yAxisWidth = 32;
+    const [cardContentWidth, setCardContentWidth] = useState(SCREEN_WIDTH - 64);
+    const yAxisWidth = 48;
     const chartW = Math.max(100, cardContentWidth - yAxisWidth);
     const padTop = 18;
     const padBottom = 16;
@@ -292,7 +281,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 28 }]}
             >
-                {/* ── 2. HERO BATTERY & TIME STATUS CARD (CRED DOUBLE-BEZEL) ── */}
+                {/* ── 2. HERO BATTERY & POWER GRAPH HERO CARD (CRED DOUBLE-BEZEL) ── */}
                 <View
                     style={[
                         styles.heroCard,
@@ -301,66 +290,263 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             borderColor: colors.cardBorder,
                         },
                     ]}
+                    onLayout={(e) => {
+                        const w = e.nativeEvent.layout.width - 32;
+                        if (w > 0) setCardContentWidth(w);
+                    }}
                 >
-                    {/* Ring Container */}
-                    <View style={styles.ringCenterWrap}>
-                        <Svg width={RING_SIZE} height={RING_SIZE}>
-                            {/* Track Circle */}
-                            <Circle
-                                cx={RING_SIZE / 2}
-                                cy={RING_SIZE / 2}
-                                r={RING_RADIUS}
-                                stroke={isDark ? 'rgba(255, 255, 255, 0.08)' : '#E2E8F0'}
-                                strokeWidth={RING_STROKE}
-                                fill="none"
-                            />
+                    {/* Live SoC & Curve Switch Header */}
+                    <View style={styles.chartHeaderRow}>
+                        <View style={styles.heroMetricsCol}>
+                            <View style={styles.heroSocRow}>
+                                <ThemedText style={[styles.heroSocPercent, { color: colors.text }]}>
+                                    {soc}%
+                                </ThemedText>
+                                <View
+                                    style={[
+                                        styles.heroPowerPill,
+                                        {
+                                            backgroundColor: isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE',
+                                            borderColor: isDark ? 'rgba(56, 189, 248, 0.3)' : '#BAE6FD',
+                                        },
+                                    ]}
+                                >
+                                    <Zap size={13} color={colors.primary} fill={colors.primary} />
+                                    <ThemedText style={[styles.heroPowerText, { color: colors.primary }]}>
+                                        {currentPower} kW Fast
+                                    </ThemedText>
+                                </View>
+                            </View>
 
-                            {/* Active Emerald Progress Arc */}
-                            <Circle
-                                cx={RING_SIZE / 2}
-                                cy={RING_SIZE / 2}
-                                r={RING_RADIUS}
-                                stroke={colors.primary}
-                                strokeWidth={RING_STROKE}
-                                strokeDasharray={RING_CIRCUMFERENCE}
-                                strokeDashoffset={ringDashoffset}
-                                strokeLinecap="round"
-                                fill="none"
-                                transform={`rotate(-90 ${RING_SIZE / 2} ${RING_SIZE / 2})`}
-                            />
+                            <ThemedText style={[styles.heroRangeAdded, { color: colors.textMuted }]}>
+                                +{rangeAdded} km range added
+                            </ThemedText>
+                        </View>
 
-                            {/* Target Marker Tick on Ring */}
-                            <Circle
-                                cx={targetMarkerX}
-                                cy={targetMarkerY}
-                                r={5}
-                                fill={isDark ? '#F5A623' : '#D97706'}
-                            />
-                            <Circle
-                                cx={targetMarkerX}
-                                cy={targetMarkerY}
-                                r={2}
-                                fill="#FFFFFF"
-                            />
-                        </Svg>
+                        {/* Rocker Switch: Speed vs Time */}
+                        <View
+                            style={[
+                                styles.miniToggleWrap,
+                                {
+                                    backgroundColor: isDark ? '#1C1D26' : '#EEF2F6',
+                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : '#E2E8F0',
+                                },
+                            ]}
+                        >
+                            <TouchableOpacity
+                                style={[
+                                    styles.miniToggleBtn,
+                                    curveType === 'speed' && [
+                                        styles.miniToggleBtnActive,
+                                        { backgroundColor: colors.primary, borderColor: colors.primary },
+                                    ],
+                                ]}
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setCurveType('speed');
+                                }}
+                            >
+                                <ThemedText
+                                    style={[
+                                        styles.miniToggleText,
+                                        {
+                                            color:
+                                                curveType === 'speed'
+                                                    ? (isDark ? '#0A0D14' : '#FFFFFF')
+                                                    : (isDark ? '#94A3B8' : '#475569'),
+                                        },
+                                    ]}
+                                >
+                                    SoC %
+                                </ThemedText>
+                            </TouchableOpacity>
 
-                        {/* Inside Ring Content */}
-                        <View style={styles.ringInterior} pointerEvents="none">
-                            <View style={styles.boltPill}>
-                                <Zap size={13} color={colors.primary} fill={colors.primary} />
-                                <ThemedText style={[styles.boltRateText, { color: colors.primary }]}>
-                                    {currentPower} kW
+                            <TouchableOpacity
+                                style={[
+                                    styles.miniToggleBtn,
+                                    curveType === 'time' && [
+                                        styles.miniToggleBtnActive,
+                                        { backgroundColor: colors.primary, borderColor: colors.primary },
+                                    ],
+                                ]}
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    setCurveType('time');
+                                }}
+                            >
+                                <ThemedText
+                                    style={[
+                                        styles.miniToggleText,
+                                        {
+                                            color:
+                                                curveType === 'time'
+                                                    ? (isDark ? '#0A0D14' : '#FFFFFF')
+                                                    : (isDark ? '#94A3B8' : '#475569'),
+                                        },
+                                    ]}
+                                >
+                                    Time
+                                </ThemedText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* Power Flow Analytics Chart */}
+                    <View style={styles.chartContainer}>
+                        {/* High-Contrast Y-Axis Column */}
+                        <View style={styles.yAxisColumn}>
+                            <ThemedText style={[styles.yTickText, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>
+                                {maxPower} kW
+                            </ThemedText>
+                            <ThemedText style={[styles.yTickText, { color: isDark ? '#CBD5E1' : '#334155' }]}>
+                                {Math.round(maxPower / 2)} kW
+                            </ThemedText>
+                            <ThemedText style={[styles.yTickText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+                                0 kW
+                            </ThemedText>
+                        </View>
+
+                        {/* Chart Area */}
+                        <View style={[styles.canvasBox, { width: chartW, height: CHART_HEIGHT }]}>
+                            <Svg width={chartW} height={CHART_HEIGHT}>
+                                <Defs>
+                                    <SvgGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <Stop offset="0%" stopColor={colors.primary} stopOpacity={isDark ? '0.65' : '0.45'} />
+                                        <Stop offset="100%" stopColor={colors.primary} stopOpacity={isDark ? '0.12' : '0.08'} />
+                                    </SvgGradient>
+                                </Defs>
+
+                                {/* 80% to 100% BMS Taper Zone Background */}
+                                {curveType === 'speed' && (
+                                    <Rect
+                                        x={taperX}
+                                        y={padTop}
+                                        width={chartW - taperX}
+                                        height={usableH}
+                                        fill={isDark ? 'rgba(255, 91, 69, 0.08)' : 'rgba(255, 91, 69, 0.06)'}
+                                    />
+                                )}
+
+                                {/* 80% Taper Divider Line */}
+                                {curveType === 'speed' && (
+                                    <Line
+                                        x1={taperX}
+                                        y1={padTop}
+                                        x2={taperX}
+                                        y2={yBase}
+                                        stroke={isDark ? 'rgba(255, 91, 69, 0.50)' : 'rgba(239, 68, 68, 0.40)'}
+                                        strokeWidth={1.5}
+                                        strokeDasharray="3 3"
+                                    />
+                                )}
+
+                                {/* Baseline Track Line */}
+                                <Line
+                                    x1={0}
+                                    y1={yBase}
+                                    x2={chartW}
+                                    y2={yBase}
+                                    stroke={isDark ? 'rgba(255, 255, 255, 0.22)' : '#CBD5E1'}
+                                    strokeWidth={1.5}
+                                />
+
+                                {/* Filled Curve Wave */}
+                                <Path
+                                    d={curveType === 'speed' ? speedFilledPath : timeFilledPath}
+                                    fill="url(#curveGradient)"
+                                />
+
+                                {/* Top Crest Stroke */}
+                                <Path
+                                    d={curveType === 'speed' ? speedCrestPath : timeCrestPath}
+                                    stroke={colors.primary}
+                                    strokeWidth={2.5}
+                                    fill="none"
+                                    strokeLinecap="round"
+                                />
+
+                                {/* Live Vertical Guideline */}
+                                <Line
+                                    x1={curveType === 'speed' ? speedCurrX : timeCurrX}
+                                    y1={curveType === 'speed' ? speedCurrY : timeCurrY}
+                                    x2={curveType === 'speed' ? speedCurrX : timeCurrX}
+                                    y2={yBase}
+                                    stroke={colors.primary}
+                                    strokeWidth={1.5}
+                                    strokeDasharray="2 2"
+                                />
+
+                                {/* Live Front Point Beacon */}
+                                <Circle
+                                    cx={curveType === 'speed' ? speedCurrX : timeCurrX}
+                                    cy={curveType === 'speed' ? speedCurrY : timeCurrY}
+                                    r={5}
+                                    fill={colors.primary}
+                                />
+                                <Circle
+                                    cx={curveType === 'speed' ? speedCurrX : timeCurrX}
+                                    cy={curveType === 'speed' ? speedCurrY : timeCurrY}
+                                    r={2}
+                                    fill="#FFFFFF"
+                                />
+                            </Svg>
+
+                            {/* Watermark in center */}
+                            <View style={styles.watermarkWrap} pointerEvents="none">
+                                <ThemedText
+                                    style={[
+                                        styles.watermarkText,
+                                        { color: isDark ? 'rgba(56, 189, 248, 0.20)' : 'rgba(2, 132, 199, 0.16)' },
+                                    ]}
+                                >
+                                    {curveType === 'speed' ? `${soc}%` : `${elapsedMinutes}m`}
                                 </ThemedText>
                             </View>
 
-                            <ThemedText style={[styles.ringBigPercent, { color: colors.text }]}>
-                                {soc}%
-                            </ThemedText>
-
-                            <ThemedText style={[styles.ringRangeAdded, { color: colors.textMuted }]}>
-                                +{rangeAdded} km added
-                            </ThemedText>
+                            {/* BMS Taper Tag at Top Right */}
+                            {curveType === 'speed' && (
+                                <View
+                                    style={[
+                                        styles.trickleTag,
+                                        {
+                                            backgroundColor: isDark ? 'rgba(255, 91, 69, 0.20)' : '#FFF0ED',
+                                            borderColor: isDark ? 'rgba(255, 91, 69, 0.40)' : '#FFD2CC',
+                                        },
+                                    ]}
+                                    pointerEvents="none"
+                                >
+                                    <ThemedText
+                                        style={[
+                                            styles.trickleTagText,
+                                            { color: isDark ? '#FF8A7A' : '#D93822' },
+                                        ]}
+                                    >
+                                        BMS Taper (80%+)
+                                    </ThemedText>
+                                </View>
+                            )}
                         </View>
+                    </View>
+
+                    {/* High-Contrast X-Axis Scale */}
+                    <View style={[styles.xAxisRow, { paddingLeft: yAxisWidth }]}>
+                        {curveType === 'speed' ? (
+                            <>
+                                <ThemedText style={[styles.xTickText, { color: isDark ? '#F1F5F9' : '#0F172A' }]}>0%</ThemedText>
+                                <ThemedText style={[styles.xAxisLabel, { color: colors.primary }]}>Battery SoC Curve</ThemedText>
+                                <ThemedText style={[styles.xTickText, { color: isDark ? '#FF8A7A' : '#D93822' }]}>80%</ThemedText>
+                                <ThemedText style={[styles.xTickText, { color: isDark ? '#F1F5F9' : '#0F172A' }]}>100%</ThemedText>
+                            </>
+                        ) : (
+                            <>
+                                <ThemedText style={[styles.xTickText, { color: isDark ? '#F1F5F9' : '#0F172A' }]}>0m</ThemedText>
+                                <ThemedText style={[styles.xAxisLabel, { color: colors.primary }]}>Charging Duration</ThemedText>
+                                <ThemedText style={[styles.xTickText, { color: isDark ? '#94A3B8' : '#475569' }]}>15m</ThemedText>
+                                <ThemedText style={[styles.xTickText, { color: isDark ? '#F1F5F9' : '#0F172A' }]}>30m</ThemedText>
+                            </>
+                        )}
                     </View>
 
                     {/* Time Remaining & Target ETA Banner */}
@@ -527,217 +713,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     </View>
                 </View>
 
-                {/* ── 4. POWER INTAKE CURVE CARD (CRED DOUBLE-BEZEL) ── */}
-                <View
-                    style={[
-                        styles.curveCard,
-                        {
-                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
-                            borderColor: colors.cardBorder,
-                        },
-                    ]}
-                    onLayout={(e) => {
-                        const w = e.nativeEvent.layout.width - 20;
-                        if (w > 0) setCardContentWidth(w);
-                    }}
-                >
-                    <View style={styles.curveHeader}>
-                        <View>
-                            <ThemedText style={[styles.curveCardTitle, { color: colors.text }]}>
-                                Power Flow Analytics
-                            </ThemedText>
-                            <ThemedText style={[styles.curveCardSub, { color: colors.textMuted }]}>
-                                Real-time dispenser intake rate
-                            </ThemedText>
-                        </View>
-
-                        {/* 3D Neo-Brutalist Tactile Rocker Switch: Speed vs Time */}
-                        <View style={styles.miniToggleWrap}>
-                            <TouchableOpacity
-                                style={[
-                                    styles.miniToggleBtn,
-                                    curveType === 'speed' ? styles.miniToggleBtnActive : styles.miniToggleBtnInactive,
-                                ]}
-                                activeOpacity={0.8}
-                                onPress={() => {
-                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    setCurveType('speed');
-                                }}
-                            >
-                                <ThemedText
-                                    style={[
-                                        styles.miniToggleText,
-                                        { color: curveType === 'speed' ? '#000000' : colors.textMuted },
-                                    ]}
-                                >
-                                    SoC %
-                                </ThemedText>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[
-                                    styles.miniToggleBtn,
-                                    curveType === 'time' ? styles.miniToggleBtnActive : styles.miniToggleBtnInactive,
-                                ]}
-                                activeOpacity={0.8}
-                                onPress={() => {
-                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    setCurveType('time');
-                                }}
-                            >
-                                <ThemedText
-                                    style={[
-                                        styles.miniToggleText,
-                                        { color: curveType === 'time' ? '#000000' : colors.textMuted },
-                                    ]}
-                                >
-                                    Time
-                                </ThemedText>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    {/* Chart Svg Canvas */}
-                    <View style={styles.chartContainer}>
-                        {/* Y-Axis Column */}
-                        <View style={styles.yAxisColumn}>
-                            <ThemedText style={[styles.yTickText, { color: colors.textMuted }]}>
-                                {maxPower}
-                            </ThemedText>
-                            <ThemedText style={[styles.yAxisLabel, { color: colors.textMuted }]}>
-                                Speed (kW)
-                            </ThemedText>
-                            <ThemedText style={[styles.yTickText, { color: colors.textMuted }]}>
-                                0
-                            </ThemedText>
-                        </View>
-
-                        {/* Chart Area */}
-                        <View style={[styles.canvasBox, { width: chartW, height: CHART_HEIGHT }]}>
-                            <Svg width={chartW} height={CHART_HEIGHT}>
-                                <Defs>
-                                    <SvgGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <Stop offset="0%" stopColor={colors.primary} stopOpacity={isDark ? '0.65' : '0.45'} />
-                                        <Stop offset="100%" stopColor={colors.primary} stopOpacity={isDark ? '0.12' : '0.08'} />
-                                    </SvgGradient>
-                                </Defs>
-
-                                {/* 80% to 100% BMS Taper Zone Background */}
-                                {curveType === 'speed' && (
-                                    <Rect
-                                        x={taperX}
-                                        y={padTop}
-                                        width={chartW - taperX}
-                                        height={usableH}
-                                        fill={isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 229, 117, 0.05)'}
-                                    />
-                                )}
-
-                                {/* 80% Taper Divider Line */}
-                                {curveType === 'speed' && (
-                                    <Line
-                                        x1={taperX}
-                                        y1={padTop}
-                                        x2={taperX}
-                                        y2={yBase}
-                                        stroke={isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 229, 117, 0.2)'}
-                                        strokeWidth={1.5}
-                                    />
-                                )}
-
-                                {/* Baseline Track Line */}
-                                <Line
-                                    x1={0}
-                                    y1={yBase}
-                                    x2={chartW}
-                                    y2={yBase}
-                                    stroke={isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}
-                                    strokeWidth={1}
-                                />
-
-                                {/* Filled Curve Wave */}
-                                <Path
-                                    d={curveType === 'speed' ? speedFilledPath : timeFilledPath}
-                                    fill="url(#curveGradient)"
-                                />
-
-                                {/* Top Crest Stroke */}
-                                <Path
-                                    d={curveType === 'speed' ? speedCrestPath : timeCrestPath}
-                                    stroke={colors.primary}
-                                    strokeWidth={2.5}
-                                    fill="none"
-                                    strokeLinecap="round"
-                                />
-
-                                {/* Live Vertical Guideline */}
-                                <Line
-                                    x1={curveType === 'speed' ? speedCurrX : timeCurrX}
-                                    y1={curveType === 'speed' ? speedCurrY : timeCurrY}
-                                    x2={curveType === 'speed' ? speedCurrX : timeCurrX}
-                                    y2={yBase}
-                                    stroke={colors.primary}
-                                    strokeWidth={1}
-                                    strokeDasharray="2 2"
-                                />
-
-                                {/* Live Front Point Beacon */}
-                                <Circle
-                                    cx={curveType === 'speed' ? speedCurrX : timeCurrX}
-                                    cy={curveType === 'speed' ? speedCurrY : timeCurrY}
-                                    r={5}
-                                    fill={colors.primary}
-                                />
-                                <Circle
-                                    cx={curveType === 'speed' ? speedCurrX : timeCurrX}
-                                    cy={curveType === 'speed' ? speedCurrY : timeCurrY}
-                                    r={2}
-                                    fill="#FFFFFF"
-                                />
-                            </Svg>
-
-                            {/* Watermark in center */}
-                            <View style={styles.watermarkWrap} pointerEvents="none">
-                                <ThemedText
-                                    style={[
-                                        styles.watermarkText,
-                                        { color: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 229, 117, 0.14)' },
-                                    ]}
-                                >
-                                    {curveType === 'speed' ? `${soc}%` : `${elapsedMinutes}m`}
-                                </ThemedText>
-                            </View>
-
-                            {/* 3 kW Trickle Tag at Bottom Right */}
-                            {curveType === 'speed' && (
-                                <View style={styles.trickleTag} pointerEvents="none">
-                                    <ThemedText style={[styles.trickleTagText, { color: isDark ? '#A1A1AA' : '#94A3B8' }]}>
-                                        3 kW Trickle
-                                    </ThemedText>
-                                </View>
-                            )}
-                        </View>
-                    </View>
-
-                    {/* X-Axis Scale */}
-                    <View style={[styles.xAxisRow, { paddingLeft: yAxisWidth }]}>
-                        {curveType === 'speed' ? (
-                            <>
-                                <ThemedText style={[styles.xTickText, { color: colors.textMuted }]}>0</ThemedText>
-                                <ThemedText style={[styles.xAxisLabel, { color: colors.textMuted }]}>Battery SoC (%)</ThemedText>
-                                <ThemedText style={[styles.xTickText, { color: colors.textMuted }]}>80%</ThemedText>
-                                <ThemedText style={[styles.xTickText, { color: colors.textMuted }]}>100%</ThemedText>
-                            </>
-                        ) : (
-                            <>
-                                <ThemedText style={[styles.xTickText, { color: colors.textMuted }]}>0m</ThemedText>
-                                <ThemedText style={[styles.xAxisLabel, { color: colors.textMuted }]}>Charging Time (min)</ThemedText>
-                                <ThemedText style={[styles.xTickText, { color: colors.textMuted }]}>15m</ThemedText>
-                                <ThemedText style={[styles.xTickText, { color: colors.textMuted }]}>30m</ThemedText>
-                            </>
-                        )}
-                    </View>
-                </View>
 
                 {/* ── 5. CONNECTED VEHICLE & AUTOCHARGE CARD ── */}
                 <View
@@ -1054,22 +1029,104 @@ const styles = StyleSheet.create({
         gap: 12,
     },
 
-    // ── 2. HERO BATTERY & TIME STATUS CARD ──
+    // ── 2. HERO BATTERY & POWER GRAPH HERO CARD ──
     heroCard: {
         borderRadius: RADIUS.card,
-        paddingVertical: 18,
+        paddingVertical: 16,
         paddingHorizontal: 16,
-        alignItems: 'center',
         borderWidth: 1,
     },
-    ringCenterWrap: {
-        position: 'relative',
-        width: RING_SIZE,
-        height: RING_SIZE,
-        alignItems: 'center',
-        justifyContent: 'center',
+    chartHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: 10,
     },
-    ringInterior: {
+    heroMetricsCol: {
+        flex: 1,
+    },
+    heroSocRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    heroSocPercent: {
+        fontSize: 38,
+        fontFamily: FONT_FAMILIES.serifHeading,
+        fontWeight: '800',
+        lineHeight: 42,
+        letterSpacing: -1,
+    },
+    heroPowerPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 9,
+        paddingVertical: 4,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
+    },
+    heroPowerText: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+    },
+    heroRangeAdded: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.sansSemiBold,
+        fontWeight: '600',
+        marginTop: 2,
+    },
+    miniToggleWrap: {
+        flexDirection: 'row',
+        borderRadius: RADIUS.pill,
+        padding: 3,
+        borderWidth: 1,
+    },
+    miniToggleBtn: {
+        paddingVertical: 5,
+        paddingHorizontal: 11,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    miniToggleBtnActive: {
+        // dynamic backgroundColor and borderColor
+    },
+    miniToggleBtnInactive: {
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+    },
+    miniToggleText: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+    },
+    chartContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        width: '100%',
+    },
+    yAxisColumn: {
+        width: 48,
+        height: CHART_HEIGHT,
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingVertical: 2,
+        paddingRight: 6,
+    },
+    yTickText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+    },
+    canvasBox: {
+        position: 'relative',
+        borderRadius: RADIUS.chip,
+        overflow: 'hidden',
+    },
+    watermarkWrap: {
         position: 'absolute',
         top: 0,
         left: 0,
@@ -1078,29 +1135,43 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    boltPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 3,
-        marginBottom: 2,
+    watermarkText: {
+        fontSize: 46,
+        fontFamily: FONT_FAMILIES.serifDisplayBlack,
+        fontWeight: '900',
+        letterSpacing: -1,
     },
-    boltRateText: {
-        fontSize: 12,
+    trickleTag: {
+        position: 'absolute',
+        right: 8,
+        top: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
+    },
+    trickleTagText: {
+        fontSize: 10,
         fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
-    ringBigPercent: {
-        fontSize: 42,
-        fontFamily: FONT_FAMILIES.serifHeading,
-        fontWeight: '800',
-        lineHeight: 48,
-        letterSpacing: -1,
+    xAxisRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 8,
+        paddingRight: 6,
+        width: '100%',
     },
-    ringRangeAdded: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-        marginTop: 2,
+    xTickText: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
+    },
+    xAxisLabel: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.sansBold,
+        fontWeight: '700',
     },
 
     // Time Countdown Banner
@@ -1236,130 +1307,7 @@ const styles = StyleSheet.create({
         marginVertical: 4,
     },
 
-    // ── 4. POWER INTAKE CURVE CARD ──
-    curveCard: {
-        borderRadius: RADIUS.card,
-        paddingVertical: 12,
-        paddingHorizontal: 12,
-        borderWidth: 1,
-    },
-    curveHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 8,
-    },
-    curveCardTitle: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    curveCardSub: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginTop: 1,
-    },
-    miniToggleWrap: {
-        flexDirection: 'row',
-        borderRadius: RADIUS.tile,
-        padding: 3,
-        backgroundColor: '#0F0F12',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.06)',
-    },
-    miniToggleBtn: {
-        paddingVertical: 5,
-        paddingHorizontal: 12,
-        borderRadius: RADIUS.pill,
-        borderWidth: 1,
-    },
-    miniToggleBtnActive: {
-        backgroundColor: '#FF5B45',
-        borderColor: '#FF5B45',
-    },
-    miniToggleBtnInactive: {
-        backgroundColor: 'transparent',
-        borderColor: 'transparent',
-    },
-    miniToggleText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        fontWeight: '800',
-    },
 
-    chartContainer: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-    },
-    yAxisColumn: {
-        width: 32,
-        height: CHART_HEIGHT,
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        paddingVertical: 4,
-    },
-    yTickText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-    },
-    yAxisLabel: {
-        fontSize: 9,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-        transform: [{ rotate: '-90deg' }],
-        width: 60,
-        textAlign: 'center',
-        marginLeft: -14,
-    },
-    canvasBox: {
-        position: 'relative',
-        borderRadius: RADIUS.chip,
-        overflow: 'hidden',
-    },
-    watermarkWrap: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    watermarkText: {
-        fontSize: 42,
-        fontFamily: FONT_FAMILIES.serifDisplayBlack,
-        fontWeight: '800',
-        letterSpacing: -1,
-    },
-    trickleTag: {
-        position: 'absolute',
-        right: 8,
-        bottom: 18,
-    },
-    trickleTagText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-    },
-    xAxisRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 6,
-        paddingRight: 6,
-    },
-    xTickText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-    },
-    xAxisLabel: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-    },
 
     // ── 5. CONNECTED VEHICLE CARD ──
     vehicleCard: {
