@@ -31,7 +31,6 @@ import {
     Info,
     Pencil,
     ShieldCheck,
-    Star,
     Users,
     Wifi,
     X,
@@ -63,7 +62,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
         activeSession,
         startChargingSession,
         stopChargingSession,
-        updateTargetSoc: setContextTargetSoc,
     } = useCharging();
 
     // ── Station & Connector Resolution ──
@@ -111,14 +109,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
         }
     }, [activeSession, connector, selectedVehicle, startChargingSession, station, targetSoc]);
 
-    // Handle updating charge limit with haptics
-    const handleSelectTargetSoc = (newTarget: number) => {
-        if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }
-        setTargetSoc(newTarget);
-        setContextTargetSoc(newTarget);
-    };
 
     // Live Metrics
     const soc = activeSession ? Math.round(activeSession.currentSoc) : (selectedVehicle?.currentBattery ?? 45);
@@ -568,64 +558,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         </ThemedText>
                     </View>
 
-                    {/* Target Limit Selector with 3D Neo-Brutalist Mechanical Push-Tiles */}
-                    <View style={styles.targetLimitSection}>
-                        <View style={styles.targetLimitHeaderRow}>
-                            <ThemedText style={[styles.targetLimitLabel, { color: colors.textMuted }]}>
-                                Charge Target Limit
-                            </ThemedText>
-                            <ThemedText style={[styles.targetLimitValue, { color: colors.primary }]}>
-                                {targetSoc}% {targetSoc === 80 ? '• Recommended' : ''}
-                            </ThemedText>
-                        </View>
 
-                        {/* 3D Mechanical Preset Tiles */}
-                        <View style={styles.targetPresetRow}>
-                            {[70, 80, 90, 100].map((preset) => {
-                                const isSelected = targetSoc === preset;
-                                return (
-                                    <TouchableOpacity
-                                        key={`preset-${preset}`}
-                                        style={[
-                                            styles.targetPresetBtn,
-                                            isSelected ? [
-                                                styles.targetPresetBtnActive,
-                                                { backgroundColor: colors.primary },
-                                            ] : [
-                                                styles.targetPresetBtnInactive,
-                                                { backgroundColor: isDark ? '#16161B' : '#F1F5F9' },
-                                            ],
-                                        ]}
-                                        activeOpacity={0.8}
-                                        onPress={() => handleSelectTargetSoc(preset)}
-                                    >
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                                            <ThemedText
-                                                style={[
-                                                    styles.targetPresetText,
-                                                    { color: isSelected ? '#000000' : colors.text },
-                                                    isSelected && { fontFamily: FONT_FAMILIES.sansExtraBold, fontWeight: '800' },
-                                                ]}
-                                            >
-                                                {preset}%
-                                            </ThemedText>
-                                            {preset === 80 && (
-                                                <Star
-                                                    size={11}
-                                                    color={isSelected ? '#000000' : colors.amber}
-                                                    fill={isSelected ? '#000000' : colors.amber}
-                                                />
-                                            )}
-                                        </View>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </View>
-
-                        <ThemedText style={[styles.bmsAdviceNote, { color: colors.textMuted }]}>
-                            Tip: 80% daily charge protects battery health and charges 3× faster.
-                        </ThemedText>
-                    </View>
                 </View>
 
                 {/* ── 3. TELEMETRY DASHBOARD (CRED 2×2 QUADRANT) ── */}
@@ -1198,62 +1131,7 @@ const styles = StyleSheet.create({
         marginLeft: 4,
     },
 
-    // Target Limit Controls with 3D Neo-Brutalist Mechanical Push-Tiles
-    targetLimitSection: {
-        width: '100%',
-        marginTop: 14,
-        paddingTop: 14,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255, 255, 255, 0.06)',
-    },
-    targetLimitHeaderRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    targetLimitLabel: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-    },
-    targetLimitValue: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    targetPresetRow: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    targetPresetBtn: {
-        flex: 1,
-        paddingVertical: 10,
-        borderRadius: RADIUS.pill,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-    },
-    targetPresetBtnActive: {
-        borderColor: '#FF5B45',
-        backgroundColor: '#FF5B45',
-    },
-    targetPresetBtnInactive: {
-        borderColor: 'rgba(255, 255, 255, 0.08)',
-        backgroundColor: '#16171E',
-    },
-    targetPresetText: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    bmsAdviceNote: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginTop: 8,
-        textAlign: 'center',
-    },
+
 
     // ── 3. TELEMETRY DASHBOARD ──
     telemetryCard: {
