@@ -63,7 +63,6 @@ export type MapFilterState = {
     chargerTypeFilter: 'Any' | 'AC' | 'DC';
     selectedBrands: string[];
 };
-import { SlidersHorizontal } from 'lucide-react-native';
 import {
     Connector,
     Station,
@@ -1195,16 +1194,6 @@ export default function StationMapScreen({ navigation }: any) {
                             onChangeText={setSearchText}
                         />
                         <View style={styles.searchActions}>
-                            <TouchableOpacity
-                                style={styles.searchActionIcon}
-                                activeOpacity={0.8}
-                                onPress={() => {
-                                    setTempFilterCriteria({ ...filterCriteria });
-                                    setIsFilterSheetVisible(true);
-                                }}
-                            >
-                                <SlidersHorizontal size={17} color={colors.textSoft} />
-                            </TouchableOpacity>
                             <TouchableOpacity
                                 style={styles.profileWrapper}
                                 activeOpacity={0.8}
