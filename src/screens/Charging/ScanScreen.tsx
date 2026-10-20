@@ -654,7 +654,7 @@ export default function ScanScreen({ navigation, route }: any) {
                                                 style={[
                                                     styles.startChargingButton,
                                                     {
-                                                        backgroundColor: colors.coral,
+                                                        backgroundColor: colors.primary,
                                                     },
                                                 ]}
                                                 onPress={() => {
@@ -667,16 +667,16 @@ export default function ScanScreen({ navigation, route }: any) {
                                             >
                                                 <Zap
                                                     size={15}
-                                                    color="#FFFFFF"
-                                                    fill="#FFFFFF"
+                                                    color={isDark ? '#0A0D14' : '#FFFFFF'}
+                                                    fill={isDark ? '#0A0D14' : '#FFFFFF'}
                                                 />
                                                 <ThemedText
                                                     style={[
                                                         styles.startChargingText,
-                                                        { color: '#FFFFFF' },
+                                                        { color: isDark ? '#0A0D14' : '#FFFFFF' },
                                                     ]}
                                                 >
-                                                    Start Charging
+                                                    START CHARGING
                                                 </ThemedText>
                                             </TouchableOpacity>
                                         </View>

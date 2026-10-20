@@ -19,7 +19,7 @@ export interface CredButtonProps extends TouchableOpacityProps {
     title: string;
     subtitle?: string;
     icon?: React.ReactNode;
-    variant?: 'neon' | 'gold' | 'coral' | 'lavender' | 'dark' | 'outline' | 'danger';
+    variant?: 'primary' | 'secondary' | 'tertiary' | 'neon' | 'gold' | 'coral' | 'mint' | 'lavender' | 'dark' | 'outline' | 'danger';
     showTrailingIcon?: boolean;
     trailingIcon?: React.ReactNode;
     depth?: number;
@@ -39,8 +39,8 @@ export function CredButton({
     title,
     subtitle,
     icon,
-    variant = 'neon',
-    showTrailingIcon = true,
+    variant = 'primary',
+    showTrailingIcon = false,
     trailingIcon,
     style,
     containerStyle,
@@ -80,27 +80,24 @@ export function CredButton({
         onPress?.(e);
     };
 
-    // ── Face & Text Colors ──
+    // ── Face & Text Colors (Unified 3-Color Theory: Primary Ice Blue, Secondary Coral, Tertiary Mint) ──
     const getBgColor = () => {
         if (disabled) return isDark ? '#1F2128' : '#E5E7EB';
-        if (variant === 'neon') return '#FFFFFF'; // Pure crisp pill white
-        if (variant === 'coral') return colors.coral; // Sunset coral
-        if (variant === 'lavender') return colors.lavender; // Electric lavender
-        if (variant === 'gold') return colors.amber; // Butter amber
+        if (variant === 'secondary' || variant === 'coral') return colors.secondary;
+        if (variant === 'tertiary' || variant === 'mint') return colors.tertiary;
+        if (variant === 'neon') return '#FFFFFF';
         if (variant === 'danger') return '#FF453A';
         if (variant === 'dark') return isDark ? '#141418' : '#141418';
         if (variant === 'outline') return isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
-        return isDark ? colors.surfaceMuted : '#FFFFFF';
+        return colors.primary;
     };
 
     const getTextColor = () => {
         if (disabled) return isDark ? '#6B7280' : '#9CA3AF';
-        if (variant === 'neon') return '#0D0E13'; // Deep black on chalk white
-        if (variant === 'dark') return '#FFFFFF'; // Crisp white on dark
-        if (variant === 'coral' || variant === 'lavender' || variant === 'danger') return '#FFFFFF';
-        if (variant === 'gold') return '#0D0E13';
+        if (variant === 'secondary' || variant === 'coral' || variant === 'danger' || variant === 'dark') return '#FFFFFF';
+        if (variant === 'tertiary' || variant === 'mint') return '#0A0D14';
         if (variant === 'outline') return isDark ? '#FFFFFF' : '#0D0E13';
-        return isDark ? '#FFFFFF' : '#0D0E13';
+        return isDark ? '#0A0D14' : '#FFFFFF';
     };
 
     const getBorderColor = () => {

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Heart, MapPin, Zap, ArrowUpRight } from 'lucide-react-native';
+import { Heart, MapPin, Zap, Navigation } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
 import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
@@ -12,36 +12,24 @@ import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
 function getBentoFavTheme(index: number, isDark: boolean) {
-    const cycle = index % 5;
+    const cycle = index % 4;
     if (cycle === 0) {
         return {
-            bg: '#FFC043',
-            textColor: '#101114',
-            subColor: 'rgba(16, 17, 20, 0.72)',
+            bg: '#38BDF8', // Primary: Ice Blue
+            textColor: '#0A0D14',
+            subColor: 'rgba(10, 13, 20, 0.75)',
             pillBg: 'rgba(0, 0, 0, 0.12)',
-            pillText: '#101114',
-            actionBg: '#101114',
-            actionColor: '#FFC043',
-            tag: 'FAVORITE STOP',
+            pillText: '#0A0D14',
+            actionBg: '#0A0D14',
+            actionColor: '#38BDF8',
+            tag: 'TOP PICK',
         };
     }
     if (cycle === 1) {
         return {
-            bg: '#5B61F6',
+            bg: '#FF5B45', // Secondary: Sunset Coral
             textColor: '#FFFFFF',
-            subColor: 'rgba(255, 255, 255, 0.82)',
-            pillBg: 'rgba(255, 255, 255, 0.22)',
-            pillText: '#FFFFFF',
-            actionBg: '#FFFFFF',
-            actionColor: '#5B61F6',
-            tag: 'FREQUENT PICK',
-        };
-    }
-    if (cycle === 2) {
-        return {
-            bg: '#FF5B45',
-            textColor: '#FFFFFF',
-            subColor: 'rgba(255, 255, 255, 0.82)',
+            subColor: 'rgba(255, 255, 255, 0.85)',
             pillBg: 'rgba(255, 255, 255, 0.22)',
             pillText: '#FFFFFF',
             actionBg: '#FFFFFF',
@@ -49,26 +37,26 @@ function getBentoFavTheme(index: number, isDark: boolean) {
             tag: 'RAPID CHARGER',
         };
     }
-    if (cycle === 3) {
+    if (cycle === 2) {
         return {
-            bg: '#10B981',
+            bg: '#10B981', // Tertiary: Neo Mint
             textColor: '#FFFFFF',
             subColor: 'rgba(255, 255, 255, 0.85)',
             pillBg: 'rgba(255, 255, 255, 0.22)',
             pillText: '#FFFFFF',
             actionBg: '#FFFFFF',
             actionColor: '#10B981',
-            tag: 'SOLAR POWERED',
+            tag: 'AVAILABLE NOW',
         };
     }
     return {
         bg: isDark ? '#16171E' : '#FFFFFF',
         textColor: isDark ? '#FFFFFF' : '#101114',
         subColor: isDark ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.6)',
-        pillBg: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-        pillText: isDark ? '#F4F4F6' : '#101114',
-        actionBg: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.08)',
-        actionColor: isDark ? '#FFFFFF' : '#101114',
+        pillBg: isDark ? 'rgba(56, 189, 248, 0.14)' : 'rgba(56, 189, 248, 0.10)',
+        pillText: '#38BDF8',
+        actionBg: isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.10)',
+        actionColor: '#38BDF8',
         tag: 'SAVED CHARGER',
     };
 }
@@ -194,10 +182,10 @@ export default function FavoritesScreen({ navigation }: any) {
                                             },
                                         ]}
                                     >
-                                        <ArrowUpRight
-                                            size={16}
+                                        <Navigation
+                                            size={13}
                                             color={theme.actionColor}
-                                            strokeWidth={2.5}
+                                            fill={theme.actionColor}
                                         />
                                     </View>
                                 </View>

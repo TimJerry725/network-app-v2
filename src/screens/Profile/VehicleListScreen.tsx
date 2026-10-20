@@ -126,14 +126,14 @@ export default function VehicleListScreen() {
                     </View>
                 </View>
 
-                {/* ── 2-TILE SPLIT BENTO GRID (Lavender & Butter Amber) ── */}
+                {/* ── 2-TILE SPLIT BENTO GRID (Unified 3-Color Theory: Neo Mint & Ice Blue) ── */}
                 <View style={styles.bentoSplitGrid}>
-                    {/* Left Tile: CO2 Offset (Electric Lavender) */}
-                    <View style={[styles.bentoSplitTile, { backgroundColor: '#5B61F6' }]}>
+                    {/* Left Tile: CO2 Offset (Tertiary: Neo Mint) */}
+                    <View style={[styles.bentoSplitTile, { backgroundColor: '#10B981' }]}>
                         <View style={styles.splitTileTopRow}>
                             <ThemedText style={styles.splitTileEyebrowWhite}>CO₂ AVOIDED</ThemedText>
-                            <View style={[styles.splitTileActionCircle, { backgroundColor: '#FFFFFF' }]}>
-                                <ArrowUpRight size={13} color="#5B61F6" strokeWidth={2.5} />
+                            <View style={[styles.splitTileActionCircle, { backgroundColor: 'rgba(255, 255, 255, 0.25)' }]}>
+                                <Leaf size={12} color="#FFFFFF" />
                             </View>
                         </View>
                         <ThemedText style={styles.splitTileMainValWhite}>186 kg</ThemedText>
@@ -143,18 +143,18 @@ export default function VehicleListScreen() {
                         </View>
                     </View>
 
-                    {/* Right Tile: Battery Health (Buttercup Amber) */}
-                    <View style={[styles.bentoSplitTile, { backgroundColor: '#FFC043' }]}>
+                    {/* Right Tile: Battery Health (Primary: Ice Blue) */}
+                    <View style={[styles.bentoSplitTile, { backgroundColor: '#38BDF8' }]}>
                         <View style={styles.splitTileTopRow}>
-                            <ThemedText style={styles.splitTileEyebrowDark}>BATTERY HEALTH</ThemedText>
-                            <View style={[styles.splitTileActionCircle, { backgroundColor: '#101114' }]}>
-                                <ArrowUpRight size={13} color="#FFC043" strokeWidth={2.5} />
+                            <ThemedText style={[styles.splitTileEyebrowDark, { color: '#0A0D14' }]}>BATTERY HEALTH</ThemedText>
+                            <View style={[styles.splitTileActionCircle, { backgroundColor: 'rgba(10, 13, 20, 0.15)' }]}>
+                                <BatteryCharging size={12} color="#0A0D14" />
                             </View>
                         </View>
-                        <ThemedText style={styles.splitTileMainValDark}>98.2%</ThemedText>
-                        <View style={styles.splitTilePillDark}>
-                            <BatteryCharging size={10} color="#101114" />
-                            <ThemedText style={styles.splitTilePillTextDark}>Optimal Cycle</ThemedText>
+                        <ThemedText style={[styles.splitTileMainValDark, { color: '#0A0D14' }]}>98.2%</ThemedText>
+                        <View style={[styles.splitTilePillDark, { backgroundColor: 'rgba(10, 13, 20, 0.12)' }]}>
+                            <BatteryCharging size={10} color="#0A0D14" />
+                            <ThemedText style={[styles.splitTilePillTextDark, { color: '#0A0D14' }]}>Optimal Cycle</ThemedText>
                         </View>
                     </View>
                 </View>

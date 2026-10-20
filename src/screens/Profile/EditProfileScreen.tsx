@@ -401,7 +401,7 @@ export default function EditProfileScreen() {
                         style={[
                             styles.tabOption,
                             activeTab === 'vehicle' && {
-                                backgroundColor: '#5B61F6',
+                                backgroundColor: '#10B981',
                             },
                         ]}
                         onPress={() => {
@@ -538,8 +538,8 @@ export default function EditProfileScreen() {
                         {/* Vehicle Selector Header with Add Button */}
                         <View style={styles.vehicleSelectHeader}>
                             <View style={styles.sectionHeaderRow}>
-                                <View style={[styles.sectionIconPod, { backgroundColor: isDark ? 'rgba(91, 97, 246, 0.16)' : '#EEF0FF' }]}>
-                                    <CarFront size={16} color="#5B61F6" strokeWidth={2.5} />
+                                <View style={[styles.sectionIconPod, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.16)' : '#ECFDF5' }]}>
+                                    <CarFront size={16} color="#10B981" strokeWidth={2.5} />
                                 </View>
                                 <ThemedText style={FONTS.h3}>Vehicle Garage</ThemedText>
                             </View>
@@ -547,15 +547,15 @@ export default function EditProfileScreen() {
                                 style={[
                                     styles.addEvBtn,
                                     {
-                                        backgroundColor: isDark ? 'rgba(91, 97, 246, 0.16)' : '#EEF0FF',
-                                        borderColor: isDark ? 'rgba(91, 97, 246, 0.35)' : 'rgba(91, 97, 246, 0.25)',
+                                        backgroundColor: isDark ? 'rgba(16, 185, 129, 0.16)' : '#ECFDF5',
+                                        borderColor: isDark ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.25)',
                                     },
                                 ]}
                                 onPress={handleAddNewVehicle}
                                 activeOpacity={0.8}
                             >
-                                <Plus size={12} color="#5B61F6" strokeWidth={2.5} style={{ marginRight: 4 }} />
-                                <ThemedText style={{ fontSize: 11, fontFamily: FONT_FAMILIES.bold, color: '#5B61F6' }}>
+                                <Plus size={12} color="#10B981" strokeWidth={2.5} style={{ marginRight: 4 }} />
+                                <ThemedText style={{ fontSize: 11, fontFamily: FONT_FAMILIES.bold, color: '#10B981' }}>
                                     ADD EV
                                 </ThemedText>
                             </TouchableOpacity>
@@ -573,8 +573,8 @@ export default function EditProfileScreen() {
                                                 styles.choicePill,
                                                 isSelected
                                                     ? {
-                                                          backgroundColor: '#5B61F6',
-                                                          borderColor: '#5B61F6',
+                                                          backgroundColor: '#10B981',
+                                                          borderColor: '#10B981',
                                                       }
                                                     : {
                                                           backgroundColor: isDark ? '#16171E' : '#FFFFFF',
@@ -885,7 +885,7 @@ export default function EditProfileScreen() {
                                             styles.modalItemRow,
                                             {
                                                 backgroundColor: isSelected
-                                                    ? (isDark ? 'rgba(91, 97, 246, 0.16)' : '#EEF0FF')
+                                                    ? (isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE')
                                                     : 'transparent',
                                                 borderColor: colors.surfaceMuted,
                                             },
@@ -897,12 +897,12 @@ export default function EditProfileScreen() {
                                             style={{
                                                 fontSize: 14,
                                                 fontFamily: isSelected ? FONT_FAMILIES.bold : FONT_FAMILIES.medium,
-                                                color: isSelected ? '#5B61F6' : colors.text,
+                                                color: isSelected ? colors.primary : colors.text,
                                             }}
                                         >
                                             {make}
                                         </ThemedText>
-                                        {isSelected && <Check size={16} color="#5B61F6" strokeWidth={2.5} />}
+                                        {isSelected && <Check size={16} color={colors.primary} strokeWidth={2.5} />}
                                     </TouchableOpacity>
                                 );
                             })}
@@ -927,7 +927,7 @@ export default function EditProfileScreen() {
                     <CredCard variant="default" style={styles.modalCard}>
                         <View style={styles.modalHeader}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                                <Car size={18} color="#FF5B45" />
+                                <Car size={18} color={colors.primary} />
                                 <ThemedText style={FONTS.h3}>{vehicleMake} Models</ThemedText>
                             </View>
                             <TouchableOpacity
@@ -947,7 +947,7 @@ export default function EditProfileScreen() {
                                             styles.modalItemRow,
                                             {
                                                 backgroundColor: isSelected
-                                                    ? (isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFF0ED')
+                                                    ? (isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE')
                                                     : 'transparent',
                                                 borderColor: colors.surfaceMuted,
                                             },
@@ -959,12 +959,12 @@ export default function EditProfileScreen() {
                                             style={{
                                                 fontSize: 14,
                                                 fontFamily: isSelected ? FONT_FAMILIES.bold : FONT_FAMILIES.medium,
-                                                color: isSelected ? '#FF5B45' : colors.text,
+                                                color: isSelected ? colors.primary : colors.text,
                                             }}
                                         >
                                             {m}
                                         </ThemedText>
-                                        {isSelected && <Check size={16} color="#FF5B45" strokeWidth={2.5} />}
+                                        {isSelected && <Check size={16} color={colors.primary} strokeWidth={2.5} />}
                                     </TouchableOpacity>
                                 );
                             })}

@@ -48,7 +48,7 @@ export const TAB_THEME: Record<string, {
     contentColor: string;
 }> = {
     Map: {
-        color: '#38BDF8', // Ice Blue
+        color: '#38BDF8', // Primary: Ice Blue
         bgDark: 'rgba(56, 189, 248, 0.18)',
         bgLight: 'rgba(56, 189, 248, 0.12)',
         borderDark: 'rgba(56, 189, 248, 0.28)',
@@ -56,15 +56,15 @@ export const TAB_THEME: Record<string, {
         contentColor: '#38BDF8',
     },
     Explore: {
-        color: '#A78BFA', // Soft Electric Lavender (matching the reference image)
-        bgDark: 'rgba(167, 139, 250, 0.18)',
-        bgLight: 'rgba(167, 139, 250, 0.12)',
-        borderDark: 'rgba(167, 139, 250, 0.28)',
-        borderLight: 'rgba(167, 139, 250, 0.18)',
-        contentColor: '#A78BFA',
+        color: '#38BDF8', // Primary: Ice Blue
+        bgDark: 'rgba(56, 189, 248, 0.18)',
+        bgLight: 'rgba(56, 189, 248, 0.12)',
+        borderDark: 'rgba(56, 189, 248, 0.28)',
+        borderLight: 'rgba(56, 189, 248, 0.18)',
+        contentColor: '#38BDF8',
     },
     Favorite: {
-        color: '#FF5B45', // Sunset Coral
+        color: '#FF5B45', // Secondary: Sunset Coral
         bgDark: 'rgba(255, 91, 69, 0.18)',
         bgLight: 'rgba(255, 91, 69, 0.12)',
         borderDark: 'rgba(255, 91, 69, 0.28)',
@@ -72,7 +72,7 @@ export const TAB_THEME: Record<string, {
         contentColor: '#FF5B45',
     },
     Vehicles: {
-        color: '#10B981', // Neo Mint
+        color: '#10B981', // Tertiary: Neo Mint
         bgDark: 'rgba(16, 185, 129, 0.18)',
         bgLight: 'rgba(16, 185, 129, 0.12)',
         borderDark: 'rgba(16, 185, 129, 0.28)',

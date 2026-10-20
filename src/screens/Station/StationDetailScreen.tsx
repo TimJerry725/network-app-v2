@@ -612,7 +612,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                             style={[
                                                                 styles.startChargingButton,
                                                                 {
-                                                                    backgroundColor: colors.coral,
+                                                                    backgroundColor: colors.primary,
                                                                 },
                                                             ]}
                                                             onPress={() => {
@@ -621,8 +621,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                             }}
                                                             activeOpacity={0.82}
                                                         >
-                                                            <Zap size={15} color="#FFFFFF" fill="#FFFFFF" />
-                                                            <ThemedText style={[styles.startChargingText, { color: '#FFFFFF' }]}>
+                                                            <Zap size={15} color={isDark ? '#0A0D14' : '#FFFFFF'} fill={isDark ? '#0A0D14' : '#FFFFFF'} />
+                                                            <ThemedText style={[styles.startChargingText, { color: isDark ? '#0A0D14' : '#FFFFFF' }]}>
                                                                 START CHARGING
                                                             </ThemedText>
                                                         </TouchableOpacity>
@@ -701,7 +701,7 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.getDirectionBtn,
                             {
-                                backgroundColor: colors.coral,
+                                backgroundColor: colors.primary,
                             },
                         ]}
                         onPress={() => {
@@ -710,8 +710,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         }}
                         activeOpacity={0.82}
                     >
-                        <Navigation size={17} color="#FFFFFF" fill="#FFFFFF" />
-                        <ThemedText style={[styles.getDirectionText, { color: '#FFFFFF' }]}>
+                        <Navigation size={17} color={isDark ? '#0A0D14' : '#FFFFFF'} fill={isDark ? '#0A0D14' : '#FFFFFF'} />
+                        <ThemedText style={[styles.getDirectionText, { color: isDark ? '#0A0D14' : '#FFFFFF' }]}>
                             Get Direction
                         </ThemedText>
                     </TouchableOpacity>

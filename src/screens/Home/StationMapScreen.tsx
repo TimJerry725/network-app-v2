@@ -93,11 +93,11 @@ const filterOptions = [
 ];
 
 export const FILTER_CHIP_COLORS: Record<string, { color: string }> = {
-    Fastest: { color: '#FF5B45' },
-    Cheapest: { color: '#F59E0B' },
-    Available: { color: '#10B981' },
-    '24/7': { color: '#0284C7' },
-    Amenities: { color: '#5B61F6' },
+    Fastest: { color: '#FF5B45' }, // Secondary: Coral (Speed)
+    Cheapest: { color: '#38BDF8' }, // Primary: Ice Blue
+    Available: { color: '#10B981' }, // Tertiary: Mint (Availability)
+    '24/7': { color: '#38BDF8' }, // Primary: Ice Blue
+    Amenities: { color: '#38BDF8' }, // Primary: Ice Blue
 };
 
 function getFilterIcon(id: string, isActive: boolean, isDark: boolean) {
@@ -1445,7 +1445,7 @@ export default function StationMapScreen({ navigation }: any) {
                         </View>
 
                         <TouchableOpacity
-                            style={[styles.peekViewBtn, { backgroundColor: colors.coral }]}
+                            style={[styles.peekViewBtn, { backgroundColor: colors.primary }]}
                             activeOpacity={0.82}
                             onPress={() => {
                                 navigation.navigate('StationDetails', {
@@ -1454,7 +1454,7 @@ export default function StationMapScreen({ navigation }: any) {
                                 });
                             }}
                         >
-                            <ThemedText style={styles.peekViewBtnText}>View</ThemedText>
+                            <ThemedText style={[styles.peekViewBtnText, { color: isDark ? '#0A0D14' : '#FFFFFF' }]}>View</ThemedText>
                         </TouchableOpacity>
                     </TouchableOpacity>
                 )}
@@ -1480,28 +1480,28 @@ export default function StationMapScreen({ navigation }: any) {
                             ).length;
 
                             const cardBg = isSelected
-                                ? colors.coral
+                                ? colors.primary
                                 : (isDark ? '#14151D' : '#F9FAFB');
                             const cardBorder = isSelected
-                                ? colors.coral
+                                ? colors.primary
                                 : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)');
-                            const nameColor = isSelected ? '#FFFFFF' : colors.text;
-                            const addressColor = isSelected ? 'rgba(255, 255, 255, 0.85)' : colors.textMuted;
-                            const metaColor = isSelected ? 'rgba(255, 255, 255, 0.92)' : colors.textMuted;
-                            const btnBg = isSelected ? '#FFFFFF' : colors.coral;
-                            const btnTextColor = isSelected ? colors.coral : '#FFFFFF';
+                            const nameColor = isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.text;
+                            const addressColor = isSelected ? (isDark ? 'rgba(10, 13, 20, 0.85)' : 'rgba(255, 255, 255, 0.85)') : colors.textMuted;
+                            const metaColor = isSelected ? (isDark ? 'rgba(10, 13, 20, 0.92)' : 'rgba(255, 255, 255, 0.92)') : colors.textMuted;
+                            const btnBg = isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.primary;
+                            const btnTextColor = isSelected ? colors.primary : (isDark ? '#0A0D14' : '#FFFFFF');
                             const badgeBg = isSelected
-                                ? 'rgba(255, 255, 255, 0.22)'
-                                : (isDark ? 'rgba(255, 91, 69, 0.14)' : '#FFE5E0');
-                            const badgeTextColor = isSelected ? '#FFFFFF' : colors.coral;
+                                ? 'rgba(0, 0, 0, 0.14)'
+                                : (isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFE5E0');
+                            const badgeTextColor = isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.secondary;
                             const availBadgeBg = isSelected
-                                ? 'rgba(255, 255, 255, 0.22)'
+                                ? 'rgba(0, 0, 0, 0.14)'
                                 : isDark
-                                ? (availableCount > 0 ? 'rgba(16, 185, 129, 0.14)' : 'rgba(245, 158, 11, 0.14)')
-                                : (availableCount > 0 ? '#D1FAE5' : '#FEF3C7');
+                                ? (availableCount > 0 ? 'rgba(16, 185, 129, 0.16)' : 'rgba(255, 91, 69, 0.16)')
+                                : (availableCount > 0 ? '#D1FAE5' : '#FEE2E2');
                             const availTextColor = isSelected
-                                ? '#FFFFFF'
-                                : (availableCount > 0 ? colors.mint : colors.accent);
+                                ? (isDark ? '#0A0D14' : '#FFFFFF')
+                                : (availableCount > 0 ? colors.tertiary : colors.secondary);
 
                             return (
                                 <TouchableOpacity

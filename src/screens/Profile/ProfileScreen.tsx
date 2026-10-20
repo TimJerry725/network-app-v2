@@ -114,7 +114,7 @@ export default function ProfileScreen() {
                     <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
                     <View style={styles.rfidRow}>
-                        <Shield size={15} color="#5B61F6" />
+                        <Shield size={15} color={colors.primary} />
                         <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
                             RFID Card:
                         </ThemedText>
@@ -127,8 +127,8 @@ export default function ProfileScreen() {
 
                     {/* Active Vehicle Details Section */}
                     <View style={styles.vehicleTitleRow}>
-                        <View style={[styles.vehicleIconCircle, { backgroundColor: 'rgba(91, 97, 246, 0.14)' }]}>
-                            <CarFront size={22} color="#5B61F6" />
+                        <View style={[styles.vehicleIconCircle, { backgroundColor: isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE' }]}>
+                            <CarFront size={22} color={colors.primary} />
                         </View>
                         <View style={{ flex: 1 }}>
                             <ThemedText style={FONTS.h3} numberOfLines={1}>
@@ -146,12 +146,12 @@ export default function ProfileScreen() {
 
                     {activeVehicle && (
                         <>
-                            {/* 3 Colorful Telemetry Pods */}
+                            {/* 3 Telemetry Pods (Primary Ice Blue, Tertiary Mint, Secondary Coral) */}
                             <View style={styles.vehicleMetricsRow}>
-                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(91, 97, 246, 0.10)' : '#EEF0FF' }]}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(56, 189, 248, 0.12)' : '#E0F2FE' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Zap size={12} color="#5B61F6" />
-                                        <ThemedText style={[FONTS.caption, { color: '#5B61F6', fontSize: 10, fontWeight: '700' }]}>CAPACITY</ThemedText>
+                                        <Zap size={12} color="#38BDF8" />
+                                        <ThemedText style={[FONTS.caption, { color: '#38BDF8', fontSize: 10, fontWeight: '700' }]}>CAPACITY</ThemedText>
                                     </View>
                                     <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 4, fontSize: 16 }]}>
                                         {activeVehicle.batteryCapacity} kWh
@@ -161,7 +161,7 @@ export default function ProfileScreen() {
                                     </ThemedText>
                                 </View>
 
-                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.10)' : '#ECFDF5' }]}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.12)' : '#ECFDF5' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                         <BatteryCharging size={12} color="#10B981" />
                                         <ThemedText style={[FONTS.caption, { color: '#10B981', fontSize: 10, fontWeight: '700' }]}>EST. RANGE</ThemedText>
@@ -174,10 +174,10 @@ export default function ProfileScreen() {
                                     </ThemedText>
                                 </View>
 
-                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.10)' : '#FEF3C7' }]}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(255, 91, 69, 0.12)' : '#FFE5E0' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Zap size={12} color="#F59E0B" />
-                                        <ThemedText style={[FONTS.caption, { color: '#F59E0B', fontSize: 10, fontWeight: '700' }]}>MAX DC</ThemedText>
+                                        <Zap size={12} color="#FF5B45" />
+                                        <ThemedText style={[FONTS.caption, { color: '#FF5B45', fontSize: 10, fontWeight: '700' }]}>MAX DC</ThemedText>
                                     </View>
                                     <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 4, fontSize: 16 }]}>
                                         {activeVehicle.maxDcRateKw} kW
@@ -262,8 +262,8 @@ export default function ProfileScreen() {
                                         styles.quickTopUpPill,
                                         isSelected
                                             ? {
-                                                  backgroundColor: '#FF5B45',
-                                                  borderColor: '#FF5B45',
+                                                  backgroundColor: '#38BDF8',
+                                                  borderColor: '#38BDF8',
                                               }
                                             : {
                                                   backgroundColor: isDark ? '#1C1D26' : '#F3F4F8',
@@ -277,7 +277,7 @@ export default function ProfileScreen() {
                                 >
                                     <ThemedText
                                         style={{
-                                            color: isSelected ? '#FFFFFF' : colors.text,
+                                            color: isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.text,
                                             ...FONTS.caption,
                                             fontWeight: '800',
                                         }}
@@ -295,7 +295,7 @@ export default function ProfileScreen() {
                                 ? `ADD ₹${topUpAmount} TO WALLET`
                                 : 'ENTER AMOUNT TO RECHARGE'
                         }
-                        variant="coral"
+                        variant="primary"
                         containerStyle={{ marginTop: 14 }}
                         onPress={handleTopUp}
                         disabled={!topUpAmount || parseFloat(topUpAmount) <= 0}
@@ -312,9 +312,9 @@ export default function ProfileScreen() {
                     <View style={styles.row}>
                         <View style={styles.rowLeft}>
                             {theme === 'dark' ? (
-                                <Moon size={22} color="#5B61F6" />
+                                <Moon size={22} color={colors.primary} />
                             ) : (
-                                <Sun size={22} color="#F59E0B" />
+                                <Sun size={22} color={colors.secondary} />
                             )}
                             <View>
                                 <ThemedText style={[styles.rowTitle, { color: colors.text }]}>

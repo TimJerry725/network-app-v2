@@ -20,6 +20,7 @@ import * as Haptics from 'expo-haptics';
 import {
     ArrowUpDown,
     ArrowUpRight,
+    BatteryCharging,
     Bookmark,
     BookmarkCheck,
     Check,
@@ -970,32 +971,34 @@ export default function TripPlannerScreen({ navigation }: any) {
                                         let cardBorder = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
                                         let textColor = colors.text;
                                         let subTextColor = colors.textMuted;
-                                        let tagBg = isDark ? 'rgba(91, 97, 246, 0.2)' : '#EEF0FF';
-                                        let tagColor = colors.lavender;
+                                        let tagBg = isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE';
+                                        let tagColor = colors.primary;
                                         let actionBg = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
                                         let actionColor = colors.text;
 
                                         if (isSelected) {
                                             if (opt.tag === 'Fastest') {
-                                                cardBg = '#5B61F6';
-                                                cardBorder = '#5B61F6';
+                                                // Primary: Ice Blue
+                                                cardBg = '#38BDF8';
+                                                cardBorder = '#38BDF8';
+                                                textColor = '#0A0D14';
+                                                subTextColor = 'rgba(10, 13, 20, 0.75)';
+                                                tagBg = 'rgba(10, 13, 20, 0.12)';
+                                                tagColor = '#0A0D14';
+                                                actionBg = '#0A0D14';
+                                                actionColor = '#38BDF8';
+                                            } else if (opt.tag === 'Scenic') {
+                                                // Secondary: Sunset Coral
+                                                cardBg = '#FF5B45';
+                                                cardBorder = '#FF5B45';
                                                 textColor = '#FFFFFF';
-                                                subTextColor = 'rgba(255, 255, 255, 0.82)';
+                                                subTextColor = 'rgba(255, 255, 255, 0.85)';
                                                 tagBg = 'rgba(255, 255, 255, 0.22)';
                                                 tagColor = '#FFFFFF';
                                                 actionBg = '#FFFFFF';
-                                                actionColor = '#5B61F6';
-                                            } else if (opt.tag === 'Scenic') {
-                                                cardBg = '#FFC043';
-                                                cardBorder = '#FFC043';
-                                                textColor = '#101114';
-                                                subTextColor = 'rgba(16, 17, 20, 0.75)';
-                                                tagBg = 'rgba(0, 0, 0, 0.12)';
-                                                tagColor = '#101114';
-                                                actionBg = '#101114';
-                                                actionColor = '#FFC043';
+                                                actionColor = '#FF5B45';
                                             } else {
-                                                // Eco
+                                                // Tertiary: Neo Mint (Eco)
                                                 cardBg = '#10B981';
                                                 cardBorder = '#10B981';
                                                 textColor = '#FFFFFF';
@@ -1075,53 +1078,55 @@ export default function TripPlannerScreen({ navigation }: any) {
                             )}
                         </View>
 
-                        {/* Expressive Saturated Bento Color Block KPI Tiles */}
+                        {/* Expressive Bento 3-Color Block KPI Tiles (Primary Ice Blue, Secondary Coral, Tertiary Mint) */}
                         <View style={styles.kpiGrid}>
-                            {/* Distance: Electric Lavender */}
+                            {/* Distance: Primary Ice Blue */}
                             <View
                                 style={[
                                     styles.kpiBlock,
                                     {
-                                        backgroundColor: '#5B61F6',
-                                    },
-                                ]}
-                            >
-                                <View style={styles.kpiTopMicroRow}>
-                                    <ThemedText style={styles.kpiBlockLabelWhite}>
-                                        DISTANCE
-                                    </ThemedText>
-                                    <View style={styles.kpiMicroCircleWhite}>
-                                        <ArrowUpRight size={10} color="#5B61F6" strokeWidth={2.5} />
-                                    </View>
-                                </View>
-                                <ThemedText style={styles.kpiBlockValueWhite}>
-                                    {tripPlan.totalDistanceKm} km
-                                </ThemedText>
-                            </View>
-
-                            {/* Stops: Buttercup Amber */}
-                            <View
-                                style={[
-                                    styles.kpiBlock,
-                                    {
-                                        backgroundColor: '#FFC043',
+                                        backgroundColor: '#38BDF8',
                                     },
                                 ]}
                             >
                                 <View style={styles.kpiTopMicroRow}>
                                     <ThemedText style={styles.kpiBlockLabelDark}>
-                                        STOPS
+                                        DISTANCE
                                     </ThemedText>
                                     <View style={styles.kpiMicroCircleDark}>
-                                        <ArrowUpRight size={10} color="#FFC043" strokeWidth={2.5} />
+                                        <Navigation size={10} color="#38BDF8" fill="#38BDF8" />
                                     </View>
                                 </View>
                                 <ThemedText style={styles.kpiBlockValueDark}>
+                                    {tripPlan.totalDistanceKm} km
+                                </ThemedText>
+                            </View>
+
+                            {/* Stops: Primary Tint */}
+                            <View
+                                style={[
+                                    styles.kpiBlock,
+                                    {
+                                        backgroundColor: isDark ? 'rgba(56, 189, 248, 0.14)' : '#E0F2FE',
+                                        borderColor: 'rgba(56, 189, 248, 0.28)',
+                                        borderWidth: 1,
+                                    },
+                                ]}
+                            >
+                                <View style={styles.kpiTopMicroRow}>
+                                    <ThemedText style={[styles.kpiBlockLabelDark, { color: '#38BDF8' }]}>
+                                        STOPS
+                                    </ThemedText>
+                                    <View style={[styles.kpiMicroCircleDark, { backgroundColor: '#38BDF8' }]}>
+                                        <MapPin size={10} color="#0A0D14" fill="#0A0D14" />
+                                    </View>
+                                </View>
+                                <ThemedText style={[styles.kpiBlockValueWhite, { color: isDark ? '#FFFFFF' : '#0A0D14' }]}>
                                     {activeStops.length}
                                 </ThemedText>
                             </View>
 
-                            {/* Energy: Sunset Coral */}
+                            {/* Energy: Secondary Sunset Coral */}
                             <View
                                 style={[
                                     styles.kpiBlock,
@@ -1135,7 +1140,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                                         ENERGY
                                     </ThemedText>
                                     <View style={styles.kpiMicroCircleWhite}>
-                                        <ArrowUpRight size={10} color="#FF5B45" strokeWidth={2.5} />
+                                        <Zap size={10} color="#FF5B45" fill="#FF5B45" />
                                     </View>
                                 </View>
                                 <ThemedText style={styles.kpiBlockValueWhite}>
@@ -1143,7 +1148,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 </ThemedText>
                             </View>
 
-                            {/* Arrival SoC: Neo Mint */}
+                            {/* Arrival SoC: Tertiary Neo Mint */}
                             <View
                                 style={[
                                     styles.kpiBlock,
@@ -1153,14 +1158,14 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 ]}
                             >
                                 <View style={styles.kpiTopMicroRow}>
-                                    <ThemedText style={styles.kpiBlockLabelWhite}>
+                                    <ThemedText style={styles.kpiBlockLabelDark}>
                                         ARRIVAL
                                     </ThemedText>
-                                    <View style={styles.kpiMicroCircleWhite}>
-                                        <ArrowUpRight size={10} color="#10B981" strokeWidth={2.5} />
+                                    <View style={styles.kpiMicroCircleDark}>
+                                        <BatteryCharging size={10} color="#10B981" />
                                     </View>
                                 </View>
-                                <ThemedText style={styles.kpiBlockValueWhite}>
+                                <ThemedText style={styles.kpiBlockValueDark}>
                                     {tripPlan.arrivalBatteryPercent}%
                                 </ThemedText>
                             </View>
