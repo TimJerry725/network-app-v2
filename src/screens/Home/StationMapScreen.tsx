@@ -1388,14 +1388,6 @@ export default function StationMapScreen({ navigation }: any) {
                                     </ThemedText>
                                 </View>
                             </View>
-                            <ThemedText
-                                style={[styles.sheetSubtitle, { color: colors.textMuted }]}
-                                numberOfLines={1}
-                            >
-                                {selectedStation
-                                    ? `${selectedStation.name} • ${selectedStation.distanceKm} km away`
-                                    : 'Select a station on the map'}
-                            </ThemedText>
                         </TouchableOpacity>
 
                         <TouchableOpacity
@@ -2394,12 +2386,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
-    },
-    sheetSubtitle: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginTop: 2,
     },
     sheetExpandToggleBtn: {
         width: 32,
