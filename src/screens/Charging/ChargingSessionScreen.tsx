@@ -38,7 +38,6 @@ import {
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
 import { CredButton } from '../../components/CredButton';
-import { CredBadge } from '../../components/CredBadge';
 import {
     MOCK_STATIONS,
     Station,
@@ -261,9 +260,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         Bay 02 • {connector.type} {connector.power} kW Fast Charger
                     </ThemedText>
                 </View>
-
-                {/* Live CRED Pulse Badge */}
-                <CredBadge label="CHARGING" variant="neon" dot />
             </View>
 
             <ScrollView
