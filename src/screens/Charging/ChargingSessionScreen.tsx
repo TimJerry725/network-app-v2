@@ -118,7 +118,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
     const deliveredKwh = activeSession ? activeSession.energyDeliveredKwh : 5.50;
     const totalCost = activeSession ? activeSession.totalCost : Number((deliveredKwh * connector.pricePerKWh).toFixed(2));
     const elapsedSecondsTotal = activeSession ? activeSession.elapsedSeconds : 15 * 60 + 5;
-    const rangeAdded = Math.round(deliveredKwh * 6.36); // ~35 km for 5.5 kWh
 
     // Driver Insights & Calculations
     const remainingSoc = Math.max(0, targetSoc - soc);
@@ -307,10 +306,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                     </ThemedText>
                                 </View>
                             </View>
-
-                            <ThemedText style={[styles.heroRangeAdded, { color: colors.textMuted }]}>
-                                +{rangeAdded} km range added
-                            </ThemedText>
                         </View>
 
                         {/* Rocker Switch: Speed vs Time */}
@@ -994,12 +989,6 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
-    },
-    heroRangeAdded: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-        marginTop: 2,
     },
     miniToggleWrap: {
         flexDirection: 'row',
