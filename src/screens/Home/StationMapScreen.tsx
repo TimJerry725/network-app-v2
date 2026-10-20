@@ -2336,6 +2336,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
         zIndex: 25,
+        elevation: 6,
     },
     floatingActionButton: {
         width: 44,
@@ -2361,12 +2362,12 @@ const styles = StyleSheet.create({
         borderLeftWidth: 1,
         borderRightWidth: 1,
         overflow: 'hidden',
-        zIndex: 30,
+        zIndex: 10,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: -4 },
         shadowOpacity: 0.12,
         shadowRadius: 16,
-        elevation: 12,
+        elevation: 4,
     },
     sheetHeaderWrapper: {
         paddingBottom: 6,

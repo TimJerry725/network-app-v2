@@ -398,6 +398,15 @@ export default function TabNavigator() {
             tabBar={(props) => <AppTabBar {...props} />}
             screenOptions={{
                 headerShown: false,
+                tabBarStyle: {
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: 'transparent',
+                    borderTopWidth: 0,
+                    elevation: 0,
+                },
             }}
         >
             <Tab.Screen name="Map" component={StationMapScreen} />
@@ -417,7 +426,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        zIndex: 1000,
+        zIndex: 99999,
+        elevation: 999,
         gap: 10,
     },
     dockContainer: {
@@ -433,7 +443,8 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.18,
         shadowRadius: 16,
-        elevation: 10,
+        elevation: 999,
+        zIndex: 100000,
     },
     tabSlot: {
         flex: 1,
@@ -474,6 +485,8 @@ const styles = StyleSheet.create({
     scanButtonOuter: {
         alignItems: 'center',
         justifyContent: 'center',
+        zIndex: 100000,
+        elevation: 999,
     },
     scanButtonInner: {
         width: 56,
@@ -486,7 +499,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.18,
         shadowRadius: 16,
-        elevation: 10,
+        elevation: 999,
     },
     scanButtonActive: {
         backgroundColor: '#FF5B45',
@@ -495,6 +508,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.45,
         shadowRadius: 12,
-        elevation: 12,
+        elevation: 1000,
     },
 });

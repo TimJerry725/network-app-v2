@@ -2103,7 +2103,8 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: RADIUS.bottomSheet,
         borderTopRightRadius: RADIUS.bottomSheet,
         overflow: 'hidden',
-        zIndex: 30,
+        zIndex: 10,
+        elevation: 4,
     },
     sheetHeaderWrapper: {
         paddingBottom: 6,
