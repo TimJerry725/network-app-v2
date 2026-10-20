@@ -207,10 +207,10 @@ const styles = StyleSheet.create({
         marginLeft: 2,
     },
     inputWrap: {
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.input,
         minHeight: 52,
         justifyContent: 'center',
-        paddingHorizontal: SPACING.md + 4,
+        paddingHorizontal: SPACING.md,
         borderWidth: 1,
     },
     input: {
