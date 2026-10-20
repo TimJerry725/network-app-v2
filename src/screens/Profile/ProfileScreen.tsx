@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         borderWidth: 1,
     },
     editPillText: {
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     },
     metricPod: {
         flex: 1,
-        borderRadius: 18,
+        borderRadius: RADIUS.tile,
         padding: 10,
     },
     walletCard: {
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     walletIconPod: {
         width: 36,
         height: 36,
-        borderRadius: 14,
+        borderRadius: RADIUS.tile,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         height: 52,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.input,
         paddingHorizontal: 16,
         borderWidth: 1,
     },
@@ -526,13 +526,13 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 9,
         alignItems: 'center',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         borderWidth: 1,
     },
     supportIconPod: {
         width: 36,
         height: 36,
-        borderRadius: 14,
+        borderRadius: RADIUS.tile,
         alignItems: 'center',
         justifyContent: 'center',
     },

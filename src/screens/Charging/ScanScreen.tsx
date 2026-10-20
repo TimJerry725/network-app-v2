@@ -1324,7 +1324,7 @@ const styles = StyleSheet.create({
     smartCutoffButton: {
         flex: 1,
         flexDirection: 'row',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         paddingVertical: 12,
         alignItems: 'center',
         justifyContent: 'center',
@@ -1339,7 +1339,7 @@ const styles = StyleSheet.create({
     startChargingButton: {
         flex: 1.2,
         flexDirection: 'row',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         paddingVertical: 12,
         alignItems: 'center',
         justifyContent: 'center',

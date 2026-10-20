@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     headerBadge: {
         minWidth: 52,
         height: 38,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         paddingHorizontal: 14,
         alignItems: 'center',
         justifyContent: 'center',
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     bentoFavCard: {
-        borderRadius: 24,
+        borderRadius: RADIUS.card,
         padding: 18,
         marginBottom: 14,
         shadowColor: '#000000',
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
         gap: 5,
         paddingHorizontal: 10,
         paddingVertical: 4,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         alignSelf: 'flex-start',
     },
     bentoPillText: {

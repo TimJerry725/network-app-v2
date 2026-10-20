@@ -57,6 +57,5 @@ const styles = StyleSheet.create({
     card: {
         borderRadius: RADIUS.card,
         borderWidth: 1,
-        borderBottomWidth: 2.5,
     },
 });

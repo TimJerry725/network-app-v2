@@ -979,7 +979,7 @@ const styles = StyleSheet.create({
     openPill: {
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         borderWidth: 1,
     },
     openPillText: {
@@ -992,7 +992,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         borderWidth: 1,
         gap: 5,
     },
@@ -1018,7 +1018,7 @@ const styles = StyleSheet.create({
         gap: 5,
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         borderWidth: 1,
     },
     amenityText: {
@@ -1075,7 +1075,7 @@ const styles = StyleSheet.create({
     trackStatusBtn: {
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         borderWidth: 1,
     },
     trackStatusBtnText: {
@@ -1086,7 +1086,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 8,
         paddingHorizontal: 12,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         borderWidth: 1,
         marginBottom: 12,
     },
@@ -1179,7 +1179,7 @@ const styles = StyleSheet.create({
     },
     smartCutoffButton: {
         flex: 1,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         paddingVertical: 12,
         alignItems: 'center',
         justifyContent: 'center',
@@ -1193,7 +1193,7 @@ const styles = StyleSheet.create({
     startChargingButton: {
         flex: 1.2,
         flexDirection: 'row',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         paddingVertical: 12,
         alignItems: 'center',
         justifyContent: 'center',
@@ -1246,7 +1246,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         height: 48,
         gap: 8,
         borderWidth: 1,
@@ -1261,7 +1261,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         height: 48,
         gap: 8,
         borderWidth: 0,
@@ -1275,7 +1275,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         paddingHorizontal: 14,
         paddingVertical: 8,
         marginTop: 10,
@@ -1306,7 +1306,7 @@ const styles = StyleSheet.create({
     addWalletBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         paddingHorizontal: 14,
         paddingVertical: 6,
         gap: 4,
@@ -1374,7 +1374,7 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.bold,
     },
     modalConfirmBtn: {
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         height: 48,
         alignItems: 'center',
         justifyContent: 'center',

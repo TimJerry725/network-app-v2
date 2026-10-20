@@ -142,24 +142,25 @@ export const SPACING = {
     xxl: 48,
 };
 
-// Radius tokens with ultra-smooth squircle & capsule hierarchy (matches reference)
+// Radius tokens following UX Concentric Scale (Inner Radius = Outer Radius - Padding)
 export const RADIUS = {
-    chip: 9999,
-    input: 9999,
-    button: 9999,
-    card: 28,
-    cardLg: 32,
-    squircle: 24,
-    bezelOuter: 28,
-    bezelInner: 24,
-    bottomSheet: 32,
-    modal: 28,
-    tile: 20,
+    badge: 8,
+    chip: 10,
+    button: 14,
+    input: 14,
+    tile: 16,
+    squircle: 18,
+    card: 22,
+    cardLg: 24,
+    bezelOuter: 24,
+    bezelInner: 16,
+    bottomSheet: 28,
+    modal: 24,
     pill: 9999,
     circle: 9999,
 
     // Aliases for backward compatibility
-    neoBox: 24,
+    neoBox: 18,
 };
 
 // Minimal Smooth Architecture (Replaces 3D Neo-Brutalism with Soft Modern Touch)

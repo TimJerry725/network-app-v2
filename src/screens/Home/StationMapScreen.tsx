@@ -2291,7 +2291,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 14,
         paddingVertical: 8,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         borderWidth: 1,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
@@ -2310,7 +2310,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 8,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         gap: 6,
         borderWidth: 1,
         shadowColor: '#000000',
@@ -2436,7 +2436,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 14,
         paddingVertical: 6,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.button,
     },
     peekViewBtnText: {
         fontSize: 12,
@@ -2449,7 +2449,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 14,
         paddingVertical: 6,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.button,
     },
     stationCardBtnText: {
         fontSize: 12,
@@ -2491,7 +2491,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(245, 158, 11, 0.14)',
         paddingHorizontal: 5,
         paddingVertical: 1,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.badge,
     },
     ratingText: {
         fontSize: 10,
@@ -2524,7 +2524,7 @@ const styles = StyleSheet.create({
     countBadge: {
         paddingVertical: 6,
         paddingHorizontal: 12,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -2870,7 +2870,7 @@ const styles = StyleSheet.create({
     },
     segmentedControl: {
         flexDirection: 'row',
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         padding: 3,
         borderWidth: 1,
         width: 140,
@@ -2878,7 +2878,7 @@ const styles = StyleSheet.create({
     segmentOption: {
         flex: 1,
         paddingVertical: 7,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
         alignItems: 'center',
         justifyContent: 'center',
     },

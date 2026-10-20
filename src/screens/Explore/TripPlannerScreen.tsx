@@ -1833,7 +1833,7 @@ const styles = StyleSheet.create({
     walletBadge: {
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.button,
     },
     walletBadgeText: {
         fontSize: 13,
@@ -2131,7 +2131,7 @@ const styles = StyleSheet.create({
         gap: 5,
         paddingHorizontal: 9,
         paddingVertical: 5,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         borderWidth: 1,
     },
     saveTripBtnText: {
@@ -2211,7 +2211,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 11,
         paddingHorizontal: 16,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         borderWidth: 1,
     },
     routeOptionsTitleRow: {
@@ -2227,7 +2227,7 @@ const styles = StyleSheet.create({
     routeActivePill: {
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.chip,
     },
     routeActivePillText: {
         fontSize: 10,
@@ -2277,7 +2277,7 @@ const styles = StyleSheet.create({
     routeTagBadge: {
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.badge,
     },
     routeTagText: {
         fontSize: 9.5,
@@ -2311,7 +2311,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 10,
         paddingHorizontal: 8,
-        borderRadius: 18,
+        borderRadius: RADIUS.tile,
         justifyContent: 'space-between',
     },
     kpiTopMicroRow: {
@@ -2468,7 +2468,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 9,
         paddingVertical: 5,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.badge,
     },
     inPlanBadgeText: {
         fontSize: 11,
@@ -2481,7 +2481,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 10,
         paddingVertical: 6,
-        borderRadius: RADIUS.chip,
+        borderRadius: RADIUS.button,
     },
     addStopBtnText: {
         fontSize: 11,

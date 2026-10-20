@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     capsuleChassis: {
         width: '100%',
         minHeight: 52,
-        borderRadius: RADIUS.pill,
+        borderRadius: RADIUS.button,
         borderWidth: 1,
         flexDirection: 'row',
         alignItems: 'center',
