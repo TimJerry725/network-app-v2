@@ -165,6 +165,9 @@ export function CredButton({
                         ) : null}
                     </View>
 
+                    {/* Right spacer to balance leading icon if no trailing icon */}
+                    {icon && !showTrailingIcon && <View style={styles.iconSpacer} />}
+
                     {/* Nested Button-in-Button Trailing Action Icon ( ↗ ) */}
                     {showTrailingIcon && (
                         <View
@@ -197,16 +200,21 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
     },
     leadingIconSlot: {
-        marginRight: 10,
+        marginRight: 8,
         alignItems: 'center',
         justifyContent: 'center',
     },
+    iconSpacer: {
+        width: 18 + 8,
+    },
     textContainer: {
         flex: 1,
+        alignItems: 'center',
         justifyContent: 'center',
     },
     title: {
@@ -214,12 +222,14 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.sansExtraBold,
         fontWeight: '800',
         textTransform: 'uppercase',
+        textAlign: 'center',
     },
     subtitle: {
         fontSize: 11,
         fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
-        marginTop: 1,
+        marginTop: 2,
+        textAlign: 'center',
     },
     trailingCircle: {
         width: 32,
