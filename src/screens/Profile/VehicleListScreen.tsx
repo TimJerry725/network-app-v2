@@ -33,10 +33,20 @@ export default function VehicleListScreen() {
         return sum > 0 ? (sum * 0.42).toFixed(0) : '4,620';
     }, [sessionHistory]);
 
+    const co2Avoided = useMemo(() => {
+        const sum = sessionHistory.reduce((acc, s) => acc + (s.energyDeliveredKwh || 0), 0);
+        return sum > 0 ? (sum * 0.48).toFixed(0) : '186';
+    }, [sessionHistory]);
+
+    const treesEquiv = useMemo(() => {
+        const num = parseFloat(co2Avoided);
+        return Math.round(num * 0.5) || 94;
+    }, [co2Avoided]);
+
     const renderBentoHeader = () => {
         return (
             <View style={styles.bentoHeaderWrap}>
-                {/* ── HERO BENTO CARD (Sunset Coral - Inspired by Screen 2 GROSS REVENUE) ── */}
+                {/* ── HERO BENTO CARD (Sunset Coral - Total Energy & CO2 Impact) ── */}
                 <View style={styles.heroCoralCard}>
                     {/* Header Row */}
                     <View style={styles.heroCoralTopRow}>
@@ -63,22 +73,21 @@ export default function VehicleListScreen() {
                             AVG SPEED: 48 kW
                         </ThemedText>
                     </View>
-                </View>
 
-                {/* ── CO2 OFFSET IMPACT TILE (Tertiary: Neo Mint) ── */}
-                <View style={styles.bentoSplitGrid}>
-                    <View style={[styles.bentoSplitTile, { backgroundColor: '#10B981' }]}>
-                        <View style={styles.splitTileTopRow}>
-                            <ThemedText style={styles.splitTileEyebrowWhite}>CO₂ AVOIDED</ThemedText>
-                            <View style={[styles.splitTileActionCircle, { backgroundColor: 'rgba(255, 255, 255, 0.25)' }]}>
-                                <Leaf size={12} color="#FFFFFF" />
+                    {/* Integrated CO2 Impact Strip */}
+                    <View style={styles.heroCo2Strip}>
+                        <View style={styles.heroCo2Left}>
+                            <View style={styles.heroCo2IconWrap}>
+                                <Leaf size={14} color="#FFFFFF" />
+                            </View>
+                            <View>
+                                <ThemedText style={styles.heroCo2Label}>CO₂ AVOIDED</ThemedText>
+                                <ThemedText style={styles.heroCo2SubText}>
+                                    {treesEquiv} Trees Equiv
+                                </ThemedText>
                             </View>
                         </View>
-                        <ThemedText style={styles.splitTileMainValWhite}>186 kg</ThemedText>
-                        <View style={styles.splitTilePillWhite}>
-                            <Leaf size={10} color="#FFFFFF" />
-                            <ThemedText style={styles.splitTilePillTextWhite}>94 Trees Equiv</ThemedText>
-                        </View>
+                        <ThemedText style={styles.heroCo2Val}>{co2Avoided} kg</ThemedText>
                     </View>
                 </View>
 
@@ -277,7 +286,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FF5B45',
         borderRadius: RADIUS.card,
         padding: 20,
-        marginBottom: 12,
+        marginBottom: 20,
         shadowColor: '#FF5B45',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.25,
@@ -330,7 +339,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginBottom: 0,
+        marginBottom: 14,
     },
     heroCoralSubText: {
         color: 'rgba(255, 255, 255, 0.85)',
@@ -342,55 +351,43 @@ const styles = StyleSheet.create({
         color: 'rgba(255, 255, 255, 0.6)',
         fontSize: 12,
     },
-    bentoSplitGrid: {
-        flexDirection: 'row',
-        gap: 12,
-        marginBottom: 20,
-    },
-    bentoSplitTile: {
-        flex: 1,
-        borderRadius: RADIUS.card,
-        padding: 16,
-        justifyContent: 'space-between',
-    },
-    splitTileTopRow: {
+    heroCo2Strip: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.16)',
+        borderRadius: RADIUS.tile,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
     },
-    splitTileEyebrowWhite: {
+    heroCo2Left: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    heroCo2IconWrap: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.22)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    heroCo2Label: {
         fontSize: 10,
         fontFamily: FONT_FAMILIES.bold,
         color: 'rgba(255, 255, 255, 0.85)',
         letterSpacing: 0.6,
     },
-    splitTileActionCircle: {
-        width: 26,
-        height: 26,
-        borderRadius: 13,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    splitTileMainValWhite: {
-        fontSize: 24,
-        fontFamily: FONT_FAMILIES.bold,
-        color: '#FFFFFF',
-        marginBottom: 8,
-    },
-    splitTilePillWhite: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.22)',
-        borderRadius: RADIUS.chip,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        alignSelf: 'flex-start',
-    },
-    splitTilePillTextWhite: {
-        fontSize: 10,
+    heroCo2SubText: {
+        fontSize: 11,
         fontFamily: FONT_FAMILIES.medium,
+        color: '#FFFFFF',
+        marginTop: 1,
+    },
+    heroCo2Val: {
+        fontSize: 22,
+        fontFamily: FONT_FAMILIES.bold,
         color: '#FFFFFF',
     },
     sessionSectionHeader: {
