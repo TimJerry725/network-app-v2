@@ -483,17 +483,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                 />
                             </Svg>
 
-                            {/* Watermark in center */}
-                            <View style={styles.watermarkWrap} pointerEvents="none">
-                                <ThemedText
-                                    style={[
-                                        styles.watermarkText,
-                                        { color: isDark ? 'rgba(56, 189, 248, 0.20)' : 'rgba(2, 132, 199, 0.16)' },
-                                    ]}
-                                >
-                                    {curveType === 'speed' ? `${soc}%` : `${elapsedMinutes}m`}
-                                </ThemedText>
-                            </View>
+
 
                             {/* BMS Taper Tag at Top Right */}
                             {curveType === 'speed' && (
@@ -1059,21 +1049,7 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.chip,
         overflow: 'hidden',
     },
-    watermarkWrap: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    watermarkText: {
-        fontSize: 46,
-        fontFamily: FONT_FAMILIES.serifDisplayBlack,
-        fontWeight: '900',
-        letterSpacing: -1,
-    },
+
     trickleTag: {
         position: 'absolute',
         right: 8,
