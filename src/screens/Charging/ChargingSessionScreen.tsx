@@ -732,7 +732,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 {/* ── 7. CRED SIGNATURE STOP CHARGING BUTTON ── */}
                 <CredButton
                     title="Stop Charging"
-                    subtitle={`Tap to disconnect at ${soc}% & view receipt`}
                     variant="danger"
                     showTrailingIcon={false}
                     onPress={() => setIsStopConfirmVisible(true)}
