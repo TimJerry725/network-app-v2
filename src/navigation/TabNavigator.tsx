@@ -32,9 +32,9 @@ type TabConfig = {
 };
 
 const TAB_CONFIG: TabConfig[] = [
-    { name: 'Map', label: 'Map' },
-    { name: 'Explore', label: 'Trip Planner' },
-    { name: 'Favorite', label: 'Favorites' },
+    { name: 'Map', label: 'Home' },
+    { name: 'Explore', label: 'Trips' },
+    { name: 'Favorite', label: 'Saved' },
     { name: 'Vehicles', label: 'Sessions' },
     { name: 'Scan', label: 'Scan' },
 ];
@@ -48,42 +48,42 @@ export const TAB_THEME: Record<string, {
     contentColor: string;
 }> = {
     Map: {
-        color: '#0A0D14',
-        bgDark: '#38BDF8', // Solid Ice Blue
-        bgLight: '#38BDF8',
-        borderDark: '#38BDF8',
-        borderLight: '#38BDF8',
-        contentColor: '#0A0D14',
+        color: '#38BDF8', // Ice Blue
+        bgDark: 'rgba(56, 189, 248, 0.18)',
+        bgLight: 'rgba(56, 189, 248, 0.12)',
+        borderDark: 'rgba(56, 189, 248, 0.28)',
+        borderLight: 'rgba(56, 189, 248, 0.18)',
+        contentColor: '#38BDF8',
     },
     Explore: {
-        color: '#FFFFFF',
-        bgDark: '#5B61F6', // Solid Electric Lavender
-        bgLight: '#5B61F6',
-        borderDark: '#5B61F6',
-        borderLight: '#5B61F6',
-        contentColor: '#FFFFFF',
+        color: '#A78BFA', // Soft Electric Lavender (matching the reference image)
+        bgDark: 'rgba(167, 139, 250, 0.18)',
+        bgLight: 'rgba(167, 139, 250, 0.12)',
+        borderDark: 'rgba(167, 139, 250, 0.28)',
+        borderLight: 'rgba(167, 139, 250, 0.18)',
+        contentColor: '#A78BFA',
     },
     Favorite: {
-        color: '#FFFFFF',
-        bgDark: '#FF5B45', // Solid Sunset Coral
-        bgLight: '#FF5B45',
-        borderDark: '#FF5B45',
-        borderLight: '#FF5B45',
-        contentColor: '#FFFFFF',
+        color: '#FF5B45', // Sunset Coral
+        bgDark: 'rgba(255, 91, 69, 0.18)',
+        bgLight: 'rgba(255, 91, 69, 0.12)',
+        borderDark: 'rgba(255, 91, 69, 0.28)',
+        borderLight: 'rgba(255, 91, 69, 0.18)',
+        contentColor: '#FF5B45',
     },
     Vehicles: {
-        color: '#0A0D14',
-        bgDark: '#10B981', // Solid Neo Mint
-        bgLight: '#10B981',
-        borderDark: '#10B981',
-        borderLight: '#10B981',
-        contentColor: '#0A0D14',
+        color: '#10B981', // Neo Mint
+        bgDark: 'rgba(16, 185, 129, 0.18)',
+        bgLight: 'rgba(16, 185, 129, 0.12)',
+        borderDark: 'rgba(16, 185, 129, 0.28)',
+        borderLight: 'rgba(16, 185, 129, 0.18)',
+        contentColor: '#10B981',
     },
 };
 
 function getTabIcon(name: string, isFocused: boolean, isDark: boolean) {
-    const strokeWidth = isFocused ? 2.4 : 1.9;
-    const size = 19;
+    const strokeWidth = isFocused ? 2.2 : 1.9;
+    const size = 18;
 
     let iconColor: string;
     if (isFocused) {
@@ -94,7 +94,14 @@ function getTabIcon(name: string, isFocused: boolean, isDark: boolean) {
 
     switch (name) {
         case 'Map':
-            return <House size={size} color={iconColor} strokeWidth={strokeWidth} />;
+            return (
+                <House
+                    size={size}
+                    color={iconColor}
+                    fill={isFocused ? iconColor : 'none'}
+                    strokeWidth={strokeWidth}
+                />
+            );
         case 'Explore':
             return <Compass size={size} color={iconColor} strokeWidth={strokeWidth} />;
         case 'Favorite':
@@ -411,12 +418,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         zIndex: 1000,
-        gap: 12,
+        gap: 10,
     },
     dockContainer: {
         flex: 1,
-        height: 60,
-        borderRadius: 30,
+        height: 56,
+        borderRadius: 28,
         borderWidth: 1,
         flexDirection: 'row',
         alignItems: 'center',
@@ -435,38 +442,43 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     tabSlotFocused: {
-        flex: 2.3,
+        flex: 1.45,
     },
     tabInner: {
-        height: 40,
-        borderRadius: 20,
+        height: 36,
+        borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
     },
     tabInnerUnfocused: {
-        width: 44,
+        width: 36,
+        height: 36,
     },
     tabInnerFocused: {
         flexDirection: 'row',
-        paddingHorizontal: 11,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 10,
+        height: 36,
+        borderRadius: 18,
         borderWidth: 1,
         maxWidth: '100%',
     },
     tabLabel: {
-        fontSize: 11.5,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-        letterSpacing: -0.2,
-        marginLeft: 6,
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.semiBold,
+        fontWeight: '600',
+        letterSpacing: -0.1,
+        marginLeft: 5,
     },
     scanButtonOuter: {
         alignItems: 'center',
         justifyContent: 'center',
     },
     scanButtonInner: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
