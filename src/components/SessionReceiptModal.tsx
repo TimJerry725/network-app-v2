@@ -45,6 +45,9 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
 
     const cgst = receipt.cgstAmount ? receipt.cgstAmount.toFixed(2) : (receipt.energyCost * 0.09).toFixed(2);
     const sgst = receipt.sgstAmount ? receipt.sgstAmount.toFixed(2) : (receipt.energyCost * 0.09).toFixed(2);
+    const formattedTotalAmount = receipt.totalAmountPaid != null
+        ? Number(receipt.totalAmountPaid).toFixed(2)
+        : '0.00';
 
     const handleShare = async () => {
         try {
@@ -115,8 +118,11 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
                                 <ThemedText style={[styles.totalAmountLabel, { color: textMutedColor }]}>
                                     TOTAL AMOUNT
                                 </ThemedText>
-                                <ThemedText style={[styles.giantAmountText, { color: textColor }]}>
-                                    ₹{receipt.totalAmountPaid.toFixed(2)}
+                                <ThemedText
+                                    type="heroStat"
+                                    style={[styles.giantAmountText, { color: textColor }]}
+                                >
+                                    ₹{formattedTotalAmount}
                                 </ThemedText>
 
                                 {/* 3-Column Metrics: Energy, Duration, Avg Speed */}
@@ -314,6 +320,7 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.bold,
         color: '#FFFFFF',
         letterSpacing: -0.3,
+        lineHeight: 28,
     },
     closeCircle: {
         width: 36,
@@ -352,6 +359,8 @@ const styles = StyleSheet.create({
     giantAmountText: {
         fontSize: 38,
         fontFamily: FONT_FAMILIES.bold,
+        lineHeight: 46,
+        minHeight: 46,
         textAlign: 'center',
         letterSpacing: -0.8,
         marginBottom: 20,
