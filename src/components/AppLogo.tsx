@@ -35,7 +35,7 @@ export function AppLogo({
     if (useBrandThemeGradient) {
         resolvedGradient = [
             colors.primary ?? '#38BDF8',
-            colors.lavender ?? colors.accent ?? '#818CF8',
+            (colors as any).lavender ?? colors.accent ?? '#818CF8',
             colors.secondary ?? '#FF5B45',
         ];
     }
