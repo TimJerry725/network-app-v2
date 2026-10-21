@@ -58,7 +58,8 @@ export interface ChatMessage {
 export default function GeminiChatScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
-    const { selectedVehicle } = useVehicles();
+    const { selectedVehicle, user } = useVehicles();
+    const firstName = user?.fullName ? user.fullName.split(' ')[0] : 'Tim';
     const { stations: allStations } = useIndiaChargingStations();
     const { setMode } = useAppMode();
 
@@ -420,10 +421,20 @@ export default function GeminiChatScreen({ navigation }: any) {
                                     </ThemedText>
                                 </LinearGradient>
 
-                                <ThemedText style={styles.greetingTitle}>
-                                    Hello, Tim
+                                <ThemedText
+                                    style={[
+                                        styles.greetingTitle,
+                                        { color: isDark ? '#FFFFFF' : '#0A0D14' },
+                                    ]}
+                                >
+                                    Hello, {firstName}
                                 </ThemedText>
-                                <ThemedText style={[styles.greetingSubtitle, { color: colors.textMuted }]}>
+                                <ThemedText
+                                    style={[
+                                        styles.greetingSubtitle,
+                                        { color: isDark ? 'rgba(255, 255, 255, 0.70)' : '#475569' },
+                                    ]}
+                                >
                                     How can I assist your journey and charging today?
                                 </ThemedText>
                             </View>
@@ -794,14 +805,14 @@ const styles = StyleSheet.create({
     },
     emptyScrollContent: {
         flexGrow: 1,
-        justifyContent: 'center',
     },
     starterContainer: {
-        paddingVertical: 12,
+        paddingTop: 8,
+        paddingBottom: 20,
     },
     greetingHeader: {
         alignItems: 'center',
-        marginBottom: 26,
+        marginBottom: 20,
     },
     greetingGradientPill: {
         flexDirection: 'row',
@@ -810,7 +821,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 4,
         borderRadius: RADIUS.pill,
-        marginBottom: 12,
+        marginBottom: 10,
     },
     greetingPillText: {
         color: '#FFFFFF',
@@ -819,11 +830,11 @@ const styles = StyleSheet.create({
         letterSpacing: 0.4,
     },
     greetingTitle: {
-        fontSize: 28,
+        fontSize: 30,
         fontFamily: FONT_FAMILIES.bold,
         marginBottom: 6,
         textAlign: 'center',
-        letterSpacing: -0.4,
+        letterSpacing: -0.5,
     },
     greetingSubtitle: {
         fontSize: 14,
