@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Heart, MapPin, Zap, Navigation } from 'lucide-react-native';
+import { ArrowUpRight, Heart, MapPin, Zap } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
 import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
@@ -149,7 +149,7 @@ export default function FavoritesScreen({ navigation }: any) {
                                             {station.name}
                                         </ThemedText>
                                         <ThemedText
-                                            style={{ color: theme.subColor, ...FONTS.caption }}
+                                            style={[styles.stationMeta, { color: theme.subColor }]}
                                             numberOfLines={1}
                                         >
                                             {station.distanceKm} km away{station.etaMinutes ? ` • ${station.etaMinutes} min ETA` : ''}
@@ -164,11 +164,6 @@ export default function FavoritesScreen({ navigation }: any) {
                                                     backgroundColor: isFav
                                                         ? theme.heartBgFav
                                                         : theme.pillBg,
-                                                    shadowColor: '#000000',
-                                                    shadowOffset: { width: 0, height: 2 },
-                                                    shadowOpacity: isFav ? 0.15 : 0,
-                                                    shadowRadius: 3,
-                                                    elevation: isFav ? 2 : 0,
                                                 },
                                             ]}
                                             onPress={(e) => {
@@ -187,20 +182,27 @@ export default function FavoritesScreen({ navigation }: any) {
                                             />
                                         </TouchableOpacity>
 
-                                        <View
+                                        <TouchableOpacity
                                             style={[
                                                 styles.cardActionCircle,
                                                 {
                                                     backgroundColor: theme.actionBg,
                                                 },
                                             ]}
+                                            onPress={() => {
+                                                if (Platform.OS !== 'web') {
+                                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                }
+                                                navigation.navigate('StationDetails', { stationId: station.id });
+                                            }}
+                                            activeOpacity={0.75}
                                         >
-                                            <Navigation
-                                                size={13}
+                                            <ArrowUpRight
+                                                size={16}
                                                 color={theme.actionColor}
-                                                fill={theme.actionColor}
+                                                strokeWidth={2.4}
                                             />
-                                        </View>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
 
@@ -253,17 +255,19 @@ const styles = StyleSheet.create({
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         marginBottom: 12,
     },
     stationTitleWrap: {
         flex: 1,
         marginRight: 12,
+        justifyContent: 'center',
     },
     cardTopActions: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        height: 34,
     },
     bentoPill: {
         flexDirection: 'row',
@@ -280,23 +284,38 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     favoriteHeartBtn: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 34,
+        height: 34,
+        borderRadius: 17,
         alignItems: 'center',
         justifyContent: 'center',
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.12,
+        shadowRadius: 2,
+        elevation: 1,
     },
     cardActionCircle: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 34,
+        height: 34,
+        borderRadius: 17,
         alignItems: 'center',
         justifyContent: 'center',
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.12,
+        shadowRadius: 2,
+        elevation: 1,
     },
     stationName: {
         ...FONTS.h3,
         fontSize: 18,
+        lineHeight: 22,
         marginBottom: 3,
+    },
+    stationMeta: {
+        ...FONTS.caption,
+        lineHeight: 16,
     },
     bottomMetaRow: {
         flexDirection: 'row',
