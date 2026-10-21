@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import SplashScreen from '../screens/Auth/SplashScreen';
 import LoginScreen from '../screens/Auth/LoginScreen';
 import TabNavigator from './TabNavigator';
 import StationDetailScreen from '../screens/Station/StationDetailScreen';
@@ -32,12 +33,14 @@ export default function RootNavigator() {
     return (
         <NavigationContainer theme={navigationTheme}>
             <Stack.Navigator
+                initialRouteName="Splash"
                 screenOptions={{
                     headerShown: false,
-                    animation: 'slide_from_right',
+                    animation: 'fade',
                     contentStyle: { backgroundColor: colors.background },
                 }}
             >
+                <Stack.Screen name="Splash" component={SplashScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Main" component={TabNavigator} />
                 <Stack.Screen name="StationDetails" component={StationDetailScreen} />
