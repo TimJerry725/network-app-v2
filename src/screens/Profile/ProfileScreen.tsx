@@ -17,11 +17,17 @@ import {
     CarFront,
     BatteryCharging,
     Zap,
+    Bell,
+    Compass,
+    Heart,
+    ChevronRight,
+    FileText,
 } from 'lucide-react-native';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
 import { CredCard } from '../../components/CredCard';
-import { CredButton } from '../../components/CredButton';
+import { RetroButton } from '../../components/RetroButton';
+import { RetroMascot } from '../../components/RetroMascot';
 import { FONT_FAMILIES, FONTS, SPACING, SHADOWS, RADIUS } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
 
@@ -33,6 +39,7 @@ export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
 
     const [topUpAmount, setTopUpAmount] = useState('500');
+    const [isAlertsEnabled, setIsAlertsEnabled] = useState(true);
 
     const handleThemeToggle = () => {
         if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -54,27 +61,71 @@ export default function ProfileScreen() {
         <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity
-                    onPress={() => {
-                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        navigation.goBack();
-                    }}
-                    style={[
-                        styles.backButton,
-                        {
-                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
-                        },
-                    ]}
-                    activeOpacity={0.8}
-                >
-                    <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
-                </TouchableOpacity>
-                <ThemedText style={[styles.headerTitle, { color: colors.text }]}>Profile & Account</ThemedText>
+                {navigation.canGoBack() ? (
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            navigation.goBack();
+                        }}
+                        style={[
+                            styles.backButton,
+                            {
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
+                            },
+                        ]}
+                        activeOpacity={0.8}
+                    >
+                        <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
+                    </TouchableOpacity>
+                ) : (
+                    <View style={{ width: 38 }} />
+                )}
+                <ThemedText style={[styles.headerTitle, { color: colors.text }]}>More & Settings</ThemedText>
                 <View style={{ width: 38 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+                {/* ── Mascot Companion Welcome Banner ── */}
+                <View style={[styles.mascotWelcomeCard, { backgroundColor: isDark ? colors.surface : '#FFFFFF', borderColor: colors.cardBorder }]}>
+                    <RetroMascot size={64} expression="wink" animated />
+                    <View style={styles.mascotWelcomeTextWrap}>
+                        <ThemedText style={[styles.mascotGreeting, { color: colors.text }]}>
+                            Hello, {user.fullName.split(' ')[0]}!
+                        </ThemedText>
+                        <ThemedText style={[styles.mascotTagline, { color: colors.textMuted }]}>
+                            Ready to charge forward? Manage vehicles, wallet, trip planning, and driver rights here.
+                        </ThemedText>
+                    </View>
+                </View>
+
+                {/* Quick Shortcuts: Trip Planner & Saved Favorites */}
+                <View style={styles.shortcutsRow}>
+                    <TouchableOpacity
+                        style={[styles.shortcutCard, { backgroundColor: isDark ? colors.surface : '#FFFFFF', borderColor: colors.cardBorder }]}
+                        activeOpacity={0.85}
+                        onPress={() => navigation.navigate('Explore')}
+                    >
+                        <View style={[styles.shortcutIconPod, { backgroundColor: 'rgba(34, 211, 238, 0.16)' }]}>
+                            <Compass size={20} color="#22D3EE" />
+                        </View>
+                        <ThemedText style={[styles.shortcutTitle, { color: colors.text }]}>Trip Planner</ThemedText>
+                        <ThemedText style={[styles.shortcutSub, { color: colors.textMuted }]}>Multi-stop routes</ThemedText>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.shortcutCard, { backgroundColor: isDark ? colors.surface : '#FFFFFF', borderColor: colors.cardBorder }]}
+                        activeOpacity={0.85}
+                        onPress={() => navigation.navigate('Favorite')}
+                    >
+                        <View style={[styles.shortcutIconPod, { backgroundColor: 'rgba(251, 191, 36, 0.16)' }]}>
+                            <Heart size={20} color="#FBBF24" fill="#FBBF24" />
+                        </View>
+                        <ThemedText style={[styles.shortcutTitle, { color: colors.text }]}>Favorites</ThemedText>
+                        <ThemedText style={[styles.shortcutSub, { color: colors.textMuted }]}>Saved stations</ThemedText>
+                    </TouchableOpacity>
+                </View>
+
                 {/* User & EV Unified Card */}
                 <CredCard variant="default" style={styles.profileCard}>
                     <View style={styles.userTopRow}>
@@ -289,14 +340,14 @@ export default function ProfileScreen() {
                         })}
                     </View>
 
-                    <CredButton
+                    <RetroButton
                         title={
                             topUpAmount && parseFloat(topUpAmount) > 0
-                                ? `ADD ₹${topUpAmount} TO WALLET`
-                                : 'ENTER AMOUNT TO RECHARGE'
+                                ? `Add ₹${topUpAmount} to Wallet`
+                                : 'Enter Amount to Recharge'
                         }
-                        variant="primary"
-                        containerStyle={{ marginTop: 14 }}
+                        pill
+                        size="lg"
                         onPress={handleTopUp}
                         disabled={!topUpAmount || parseFloat(topUpAmount) <= 0}
                     />
@@ -329,7 +380,7 @@ export default function ProfileScreen() {
                             style={[
                                 styles.toggleContainer,
                                 {
-                                    backgroundColor: theme === 'dark' ? '#10B981' : colors.surfaceMuted,
+                                    backgroundColor: theme === 'dark' ? '#22D3A7' : colors.surfaceMuted,
                                     borderWidth: 1,
                                     borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
                                 },
@@ -343,6 +394,44 @@ export default function ProfileScreen() {
                                     {
                                         backgroundColor: '#FFFFFF',
                                         transform: [{ translateX: theme === 'dark' ? 20 : 2 }],
+                                    },
+                                ]}
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Charging Alerts Toggle */}
+                    <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)' }]} />
+                    <View style={styles.row}>
+                        <View style={styles.rowLeft}>
+                            <Bell size={22} color={colors.primary} />
+                            <View>
+                                <ThemedText style={[styles.rowTitle, { color: colors.text }]}>
+                                    Charging Alerts
+                                </ThemedText>
+                                <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>
+                                    Push alerts when battery reaches target
+                                </ThemedText>
+                            </View>
+                        </View>
+                        <TouchableOpacity
+                            style={[
+                                styles.toggleContainer,
+                                {
+                                    backgroundColor: isAlertsEnabled ? '#22D3A7' : colors.surfaceMuted,
+                                    borderWidth: 1,
+                                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
+                                },
+                            ]}
+                            onPress={() => setIsAlertsEnabled(!isAlertsEnabled)}
+                            activeOpacity={0.8}
+                        >
+                            <View
+                                style={[
+                                    styles.toggleKnob,
+                                    {
+                                        backgroundColor: '#FFFFFF',
+                                        transform: [{ translateX: isAlertsEnabled ? 20 : 2 }],
                                     },
                                 ]}
                             />
@@ -363,6 +452,32 @@ export default function ProfileScreen() {
                             </ThemedText>
                         </View>
                     </View>
+                </CredCard>
+
+                {/* About & Legal Information */}
+                <CredCard variant="default" style={styles.section}>
+                    <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
+                        About & Legal
+                    </ThemedText>
+                    <View style={styles.legalItem}>
+                        <FileText size={18} color={colors.primary} />
+                        <ThemedText style={[styles.legalText, { color: colors.text }]}>
+                            Terms of Service & Driver Rights
+                        </ThemedText>
+                        <ChevronRight size={16} color={colors.textMuted} />
+                    </View>
+                    <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)' }]} />
+                    <View style={styles.legalItem}>
+                        <Shield size={18} color="#22D3A7" />
+                        <ThemedText style={[styles.legalText, { color: colors.text }]}>
+                            Privacy Policy & Data Security
+                        </ThemedText>
+                        <ChevronRight size={16} color={colors.textMuted} />
+                    </View>
+                    <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)' }]} />
+                    <ThemedText style={[styles.versionText, { color: colors.textMuted }]}>
+                        Iris EV Network • v2.4 (Playful Retro-Futurism)
+                    </ThemedText>
                 </CredCard>
             </ScrollView>
         </View>
@@ -577,5 +692,72 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: SPACING.sm,
+    },
+    mascotWelcomeCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: RADIUS.card,
+        borderWidth: 1,
+        marginBottom: 14,
+        gap: 14,
+    },
+    mascotWelcomeTextWrap: {
+        flex: 1,
+    },
+    mascotGreeting: {
+        fontSize: 17,
+        fontFamily: FONT_FAMILIES.bold,
+        marginBottom: 2,
+    },
+    mascotTagline: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.medium,
+        lineHeight: 16,
+    },
+    shortcutsRow: {
+        flexDirection: 'row',
+        gap: 12,
+        marginBottom: 14,
+    },
+    shortcutCard: {
+        flex: 1,
+        padding: 14,
+        borderRadius: RADIUS.card,
+        borderWidth: 1,
+    },
+    shortcutIconPod: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 8,
+    },
+    shortcutTitle: {
+        fontSize: 14,
+        fontFamily: FONT_FAMILIES.bold,
+        marginBottom: 2,
+    },
+    shortcutSub: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.medium,
+    },
+    legalItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        gap: 10,
+    },
+    legalText: {
+        flex: 1,
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.medium,
+    },
+    versionText: {
+        fontSize: 11,
+        fontFamily: FONT_FAMILIES.medium,
+        textAlign: 'center',
+        marginTop: 6,
     },
 });

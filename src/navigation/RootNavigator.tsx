@@ -11,6 +11,9 @@ import PaymentScreen from '../screens/Charging/PaymentScreen';
 import FilterScreen from '../screens/Home/FilterScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import EditProfileScreen from '../screens/Profile/EditProfileScreen';
+import TripPlannerScreen from '../screens/Explore';
+import FavoritesScreen from '../screens/Favorites/FavoritesScreen';
+import VehicleListScreen from '../screens/Profile/VehicleListScreen';
 import { useAppTheme } from '../hooks/useAppTheme';
 
 const Stack = createNativeStackNavigator();
@@ -50,6 +53,12 @@ export default function RootNavigator() {
                 <Stack.Screen name="Filter" component={FilterScreen} />
                 <Stack.Screen name="Profile" component={ProfileScreen} />
                 <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+                <Stack.Screen name="Explore" component={TripPlannerScreen} />
+                <Stack.Screen name="TripPlanner" component={TripPlannerScreen} />
+                <Stack.Screen name="Favorite" component={FavoritesScreen} />
+                <Stack.Screen name="Favorites" component={FavoritesScreen} />
+                <Stack.Screen name="Vehicles" component={VehicleListScreen} />
+                <Stack.Screen name="Sessions" component={VehicleListScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

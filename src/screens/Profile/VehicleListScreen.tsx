@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import {
     Clock,
     ChevronDown,
@@ -8,21 +9,31 @@ import {
     Zap,
     Leaf,
     Receipt,
+    BatteryCharging,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useCharging, CompletedSessionReceipt } from '../../context/ChargingContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { SessionReceiptModal } from '../../components/SessionReceiptModal';
+import { RetroMascot } from '../../components/RetroMascot';
 
 export default function VehicleListScreen() {
+    const navigation = useNavigation<any>();
     const { colors, isDark } = useAppTheme();
-    const { sessionHistory } = useCharging();
+    const { sessionHistory, activeSession } = useCharging();
     const [showAll, setShowAll] = useState(false);
+    const [filterType, setFilterType] = useState<'All' | 'DC' | 'AC'>('All');
     const [selectedReceipt, setSelectedReceipt] = useState<CompletedSessionReceipt | null>(null);
 
-    const displayedSessions = showAll ? sessionHistory : sessionHistory.slice(0, 5);
-    const hasMore = sessionHistory.length > 5;
+    const filteredSessions = useMemo(() => {
+        if (filterType === 'DC') return sessionHistory.filter((s) => (s.connectorType || '').includes('CCS') || (s.connectorType || '').includes('CHA'));
+        if (filterType === 'AC') return sessionHistory.filter((s) => (s.connectorType || '').includes('Type 2'));
+        return sessionHistory;
+    }, [sessionHistory, filterType]);
+
+    const displayedSessions = showAll ? filteredSessions : filteredSessions.slice(0, 5);
+    const hasMore = filteredSessions.length > 5;
 
     const totalEnergy = useMemo(() => {
         const sum = sessionHistory.reduce((acc, s) => acc + (s.energyDeliveredKwh || 0), 0);
@@ -42,11 +53,41 @@ export default function VehicleListScreen() {
     const renderBentoHeader = () => {
         return (
             <View style={styles.bentoHeaderWrap}>
-                {/* ── HERO BENTO CARD (Sunset Coral - Compact) ── */}
+                {/* ── Active Session In Progress Banner ── */}
+                {activeSession && (
+                    <TouchableOpacity
+                        activeOpacity={0.88}
+                        onPress={() => navigation.navigate('ChargingSession')}
+                        style={styles.activeBannerCard}
+                    >
+                        <View style={styles.activeBannerHeader}>
+                            <View style={styles.activeLiveDot} />
+                            <ThemedText style={styles.activeBannerTag}>ACTIVE SESSION</ThemedText>
+                        </View>
+                        <View style={styles.activeBannerMainRow}>
+                            <View style={{ flex: 1 }}>
+                                <ThemedText style={styles.activeBannerStationName} numberOfLines={1}>
+                                    {activeSession.stationName}
+                                </ThemedText>
+                                <ThemedText style={styles.activeBannerMeta}>
+                                    {activeSession.currentPowerKw} kW • {activeSession.energyDeliveredKwh.toFixed(2)} kWh
+                                </ThemedText>
+                            </View>
+                            <View style={styles.activeSocPill}>
+                                <ThemedText style={styles.activeSocText}>
+                                    {Math.round(activeSession.currentSoc)}%
+                                </ThemedText>
+                                <ArrowUpRight size={14} color="#22D3A7" />
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                )}
+
+                {/* ── HERO BENTO CARD (Retro Cosmic Surface) ── */}
                 <View style={styles.heroCoralCard}>
                     {/* Clean Heading */}
                     <View style={styles.heroHeadingRow}>
-                        <Zap size={13} color="rgba(255, 255, 255, 0.9)" fill="rgba(255, 255, 255, 0.9)" />
+                        <Zap size={13} color="#22D3EE" fill="#22D3EE" />
                         <ThemedText style={styles.heroHeadingText}>TOTAL ENERGY CHARGED</ThemedText>
                     </View>
 
@@ -68,7 +109,7 @@ export default function VehicleListScreen() {
                     <View style={styles.heroCo2Strip}>
                         <View style={styles.heroCo2Left}>
                             <View style={styles.heroCo2IconWrap}>
-                                <Leaf size={12} color="#FFFFFF" />
+                                <Leaf size={12} color="#22D3EE" />
                             </View>
                             <ThemedText style={styles.heroCo2Label}>CO₂ AVOIDED</ThemedText>
                         </View>
@@ -76,10 +117,42 @@ export default function VehicleListScreen() {
                     </View>
                 </View>
 
+                {/* Quick Filter Chips */}
+                <View style={styles.filterPillsRow}>
+                    {(['All', 'DC', 'AC'] as const).map((tab) => {
+                        const isActive = filterType === tab;
+                        return (
+                            <TouchableOpacity
+                                key={tab}
+                                activeOpacity={0.8}
+                                onPress={() => setFilterType(tab)}
+                                style={[
+                                    styles.filterPill,
+                                    isActive
+                                        ? { backgroundColor: '#3B82F6', borderColor: '#3B82F6' }
+                                        : {
+                                              backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                              borderColor: colors.cardBorder,
+                                          },
+                                ]}
+                            >
+                                <ThemedText
+                                    style={[
+                                        styles.filterPillText,
+                                        { color: isActive ? '#FFFFFF' : colors.text },
+                                    ]}
+                                >
+                                    {tab === 'All' ? 'All Sessions' : tab === 'DC' ? 'Fast DC' : 'AC Normal'}
+                                </ThemedText>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+
                 {/* Section Header */}
                 <View style={styles.sessionSectionHeader}>
                     <View style={styles.sessionTitleGroup}>
-                        <Receipt size={16} color={colors.coral} />
+                        <Receipt size={16} color={colors.primary} />
                         <ThemedText style={[styles.sessionSectionTitle, { color: colors.text }]}>
                             Charging Receipts
                         </ThemedText>
@@ -88,13 +161,13 @@ export default function VehicleListScreen() {
                         style={[
                             styles.sessionCountPill,
                             {
-                                backgroundColor: isDark ? '#1C1D26' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                                backgroundColor: isDark ? 'rgba(59, 130, 246, 0.12)' : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                     >
-                        <ThemedText style={[styles.sessionCountText, { color: colors.textMuted }]}>
-                            {sessionHistory.length} Total
+                        <ThemedText style={[styles.sessionCountText, { color: colors.primary }]}>
+                            {filteredSessions.length} Total
                         </ThemedText>
                     </View>
                 </View>
@@ -110,8 +183,8 @@ export default function VehicleListScreen() {
                 style={[
                     styles.sessionCard,
                     {
-                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                        backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                        borderColor: colors.cardBorder,
                         borderWidth: 1,
                     },
                 ]}
@@ -127,11 +200,11 @@ export default function VehicleListScreen() {
                         </ThemedText>
                     </View>
                     <View style={styles.amountWrap}>
-                        <ThemedText style={[styles.amountText, { color: colors.coral }]}>
+                        <ThemedText style={[styles.amountText, { color: '#22D3A7' }]}>
                             ₹{item.totalAmountPaid.toFixed(2)}
                         </ThemedText>
                         <View style={styles.cardActionCircle}>
-                            <ArrowUpRight size={14} color={colors.text} strokeWidth={2.5} />
+                            <ArrowUpRight size={14} color="#FFFFFF" strokeWidth={2.5} />
                         </View>
                     </View>
                 </View>
@@ -145,65 +218,37 @@ export default function VehicleListScreen() {
                         style={[
                             styles.connectorPill,
                             {
-                                backgroundColor: isDark ? 'rgba(255, 91, 69, 0.12)' : '#FFE5E0',
+                                backgroundColor: isDark ? 'rgba(59, 130, 246, 0.16)' : '#E0F2FE',
                             },
                         ]}
                     >
-                        <ThemedText
-                            style={[
-                                styles.connectorPillText,
-                                { color: colors.coral, fontFamily: FONT_FAMILIES.bold, fontSize: 10 },
-                            ]}
-                        >
+                        <ThemedText style={[styles.connectorPillText, { color: colors.primary }]}>
                             {item.connectorType}
-                        </ThemedText>
-                    </View>
-                    <View
-                        style={[
-                            styles.paymentMethodPill,
-                            { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.backgroundAlt },
-                        ]}
-                    >
-                        <ThemedText style={[styles.paymentMethodText, { color: colors.textMuted }]}>
-                            {item.paymentMethod}
                         </ThemedText>
                     </View>
                 </View>
 
-                {/* Flat Divider */}
-                <View
-                    style={[
-                        styles.cardDivider,
-                        { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.backgroundAlt },
-                    ]}
-                />
-
-                {/* 4-Item Telemetry Stats Grid */}
-                <View style={styles.statsRow}>
-                    <View style={styles.statItem}>
-                        <ThemedText style={[styles.statLabel, { color: colors.textMuted }]}>Delivered</ThemedText>
-                        <ThemedText style={[styles.statValue, { color: colors.text }]}>
-                            {item.energyDeliveredKwh} kWh
+                {/* Energy & Duration Badge Row */}
+                <View style={styles.specsRow}>
+                    <View style={styles.specItem}>
+                        <Zap size={13} color={colors.primary} />
+                        <ThemedText style={[styles.specText, { color: colors.text }]}>
+                            {item.energyDeliveredKwh.toFixed(1)} kWh
                         </ThemedText>
                     </View>
-                    <View style={styles.statItem}>
-                        <ThemedText style={[styles.statLabel, { color: colors.textMuted }]}>Duration</ThemedText>
-                        <ThemedText style={[styles.statValue, { color: colors.text }]}>
+                    <View style={styles.specItem}>
+                        <Clock size={13} color={colors.textMuted} />
+                        <ThemedText style={[styles.specText, { color: colors.textMuted }]}>
                             {item.durationFormatted}
                         </ThemedText>
                     </View>
-                    <View style={styles.statItem}>
-                        <ThemedText style={[styles.statLabel, { color: colors.textMuted }]}>Peak Rate</ThemedText>
-                        <ThemedText style={[styles.statValue, { color: colors.text }]}>
-                            {item.peakPowerKw} kW
-                        </ThemedText>
-                    </View>
-                    <View style={styles.statItem}>
-                        <ThemedText style={[styles.statLabel, { color: colors.textMuted }]}>Battery</ThemedText>
-                        <ThemedText style={[styles.statValue, { color: colors.text }]}>
-                            {item.startSoc}% → {item.endSoc}%
-                        </ThemedText>
-                    </View>
+                    {item.peakPowerKw ? (
+                        <View style={styles.specItem}>
+                            <ThemedText style={[styles.specText, { color: '#22D3EE' }]}>
+                                {item.peakPowerKw} kW peak
+                            </ThemedText>
+                        </View>
+                    ) : null}
                 </View>
             </TouchableOpacity>
         );
@@ -250,14 +295,19 @@ export default function VehicleListScreen() {
                 contentContainerStyle={styles.listContent}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <Clock size={40} color={colors.textMuted} />
+                        <RetroMascot size={90} expression="chill" animated style={{ marginBottom: 12 }} />
+                        <ThemedText style={[styles.emptyTitle, { color: colors.text }]}>
+                            No Past Sessions
+                        </ThemedText>
                         <ThemedText style={[styles.emptyText, { color: colors.textMuted }]}>
-                            No past charging sessions found
+                            {filterType === 'All'
+                                ? 'Plug in at any Iris station to track your live telemetry and instant receipts.'
+                                : `No ${filterType} sessions found in your history.`}
                         </ThemedText>
                     </View>
                 }
             />
-            {/* Full-Screen Detailed Session Receipt Modal (Inspired by user design) */}
+            {/* Full-Screen Detailed Session Receipt Modal */}
             <SessionReceiptModal
                 visible={!!selectedReceipt}
                 receipt={selectedReceipt}
@@ -275,14 +325,88 @@ const styles = StyleSheet.create({
         paddingTop: SPACING.sm,
         paddingBottom: 0,
     },
+    activeBannerCard: {
+        backgroundColor: 'rgba(34, 211, 167, 0.14)',
+        borderColor: '#22D3A7',
+        borderWidth: 1,
+        borderRadius: RADIUS.card,
+        padding: 14,
+        marginBottom: 14,
+    },
+    activeBannerHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 6,
+    },
+    activeLiveDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#22D3A7',
+    },
+    activeBannerTag: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.bold,
+        color: '#22D3A7',
+        letterSpacing: 1,
+    },
+    activeBannerMainRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    activeBannerStationName: {
+        fontSize: 15,
+        fontFamily: FONT_FAMILIES.bold,
+        color: '#F8FAFC',
+    },
+    activeBannerMeta: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.medium,
+        color: '#94A3B8',
+        marginTop: 2,
+    },
+    activeSocPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(34, 211, 167, 0.2)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: RADIUS.pill,
+        gap: 4,
+    },
+    activeSocText: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.monoVal,
+        color: '#22D3A7',
+    },
+    filterPillsRow: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 4,
+        marginBottom: 12,
+    },
+    filterPill: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1,
+    },
+    filterPillText: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.bold,
+    },
     heroCoralCard: {
-        backgroundColor: '#FF5B45',
-        borderRadius: RADIUS.tile,
+        backgroundColor: '#142C50',
+        borderRadius: RADIUS.card,
         padding: 16,
-        marginBottom: 16,
-        shadowColor: '#FF5B45',
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(59, 130, 246, 0.35)',
+        shadowColor: '#0B1E3B',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.18,
+        shadowOpacity: 0.25,
         shadowRadius: 10,
         elevation: 4,
     },
@@ -293,17 +417,17 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     heroHeadingText: {
-        color: 'rgba(255, 255, 255, 0.9)',
+        color: '#22D3EE',
         fontSize: 11,
         fontFamily: FONT_FAMILIES.bold,
         letterSpacing: 0.8,
         textTransform: 'uppercase',
     },
     heroCoralGiantVal: {
-        color: '#FFFFFF',
-        fontSize: 28,
-        fontFamily: FONT_FAMILIES.bold,
-        lineHeight: 34,
+        color: '#F8FAFC',
+        fontSize: 30,
+        fontFamily: FONT_FAMILIES.monoVal,
+        lineHeight: 36,
         marginBottom: 4,
     },
     heroCoralSubRow: {
@@ -326,10 +450,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: 'rgba(255, 255, 255, 0.16)',
+        backgroundColor: 'rgba(34, 211, 238, 0.12)',
         borderRadius: RADIUS.input,
         paddingHorizontal: 12,
         paddingVertical: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(34, 211, 238, 0.22)',
     },
     heroCo2Left: {
         flexDirection: 'row',
@@ -340,7 +466,7 @@ const styles = StyleSheet.create({
         width: 26,
         height: 26,
         borderRadius: 13,
-        backgroundColor: 'rgba(255, 255, 255, 0.22)',
+        backgroundColor: 'rgba(34, 211, 238, 0.25)',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -352,8 +478,8 @@ const styles = StyleSheet.create({
     },
     heroCo2Val: {
         fontSize: 18,
-        fontFamily: FONT_FAMILIES.bold,
-        color: '#FFFFFF',
+        fontFamily: FONT_FAMILIES.monoVal,
+        color: '#22D3EE',
     },
     sessionSectionHeader: {
         flexDirection: 'row',
@@ -460,6 +586,25 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.sansBold,
         fontWeight: '700',
     },
+    specsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+        marginTop: 12,
+        paddingTop: 10,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255, 255, 255, 0.06)',
+    },
+    specItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+    },
+    specText: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.monoRegular,
+        fontWeight: '500',
+    },
     cardDivider: {
         height: 1,
         marginVertical: 12,
@@ -509,11 +654,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 60,
-        gap: 12,
+        paddingHorizontal: 24,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontFamily: FONT_FAMILIES.bold,
+        marginBottom: 6,
     },
     emptyText: {
-        fontSize: 14,
+        fontSize: 13,
         fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
+        textAlign: 'center',
+        lineHeight: 18,
     },
 });

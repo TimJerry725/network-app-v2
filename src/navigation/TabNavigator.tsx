@@ -10,12 +10,13 @@ import {
     UIManager,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { House, Compass, ScanLine, Heart, History, Sparkles } from 'lucide-react-native';
+import { House, Compass, ScanLine, Heart, History, Sparkles, SlidersHorizontal } from 'lucide-react-native';
 import TripPlannerScreen from '../screens/Explore';
 import HomeScreen from '../screens/Home/HomeScreen';
 import VehicleListScreen from '../screens/Profile/VehicleListScreen';
 import ScanScreen from '../screens/Charging/ScanScreen';
 import FavoritesScreen from '../screens/Favorites/FavoritesScreen';
+import ProfileScreen from '../screens/Profile/ProfileScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppMode } from '../context/AppModeContext';
@@ -33,11 +34,10 @@ type TabConfig = {
 };
 
 const TAB_CONFIG: TabConfig[] = [
-    { name: 'Map', label: 'Home' },
-    { name: 'Explore', label: 'Trips' },
-    { name: 'Favorite', label: 'Favorites' },
-    { name: 'Vehicles', label: 'Sessions' },
-    { name: 'Scan', label: 'Scan' },
+    { name: 'Map', label: 'Map' },
+    { name: 'Sessions', label: 'Sessions' },
+    { name: 'More', label: 'More' },
+    { name: 'Scan', label: 'Scan QR' },
 ];
 
 export const TAB_THEME: Record<string, {
@@ -56,15 +56,15 @@ export const TAB_THEME: Record<string, {
         borderLight: 'rgba(59, 130, 246, 0.20)',
         contentColor: '#3B82F6',
     },
-    Explore: {
-        color: '#22D3EE', // Retro Neon Cyan
-        bgDark: 'rgba(34, 211, 238, 0.20)',
-        bgLight: 'rgba(34, 211, 238, 0.12)',
-        borderDark: 'rgba(34, 211, 238, 0.35)',
-        borderLight: 'rgba(34, 211, 238, 0.20)',
-        contentColor: '#22D3EE',
+    Sessions: {
+        color: '#22D3A7', // Retro Mint Green
+        bgDark: 'rgba(34, 211, 167, 0.20)',
+        bgLight: 'rgba(34, 211, 167, 0.12)',
+        borderDark: 'rgba(34, 211, 167, 0.35)',
+        borderLight: 'rgba(34, 211, 167, 0.20)',
+        contentColor: '#22D3A7',
     },
-    Favorite: {
+    More: {
         color: '#FBBF24', // Retro Sun Yellow
         bgDark: 'rgba(251, 191, 36, 0.20)',
         bgLight: 'rgba(251, 191, 36, 0.12)',
@@ -72,8 +72,33 @@ export const TAB_THEME: Record<string, {
         borderLight: 'rgba(251, 191, 36, 0.20)',
         contentColor: '#FBBF24',
     },
+    Scan: {
+        color: '#3B82F6', // Retro Electric Blue
+        bgDark: 'rgba(59, 130, 246, 0.20)',
+        bgLight: 'rgba(59, 130, 246, 0.12)',
+        borderDark: 'rgba(34, 211, 238, 0.40)',
+        borderLight: 'rgba(59, 130, 246, 0.20)',
+        contentColor: '#3B82F6',
+    },
+    // Backwards compatibility mappings
+    Explore: {
+        color: '#22D3EE',
+        bgDark: 'rgba(34, 211, 238, 0.20)',
+        bgLight: 'rgba(34, 211, 238, 0.12)',
+        borderDark: 'rgba(34, 211, 238, 0.35)',
+        borderLight: 'rgba(34, 211, 238, 0.20)',
+        contentColor: '#22D3EE',
+    },
+    Favorite: {
+        color: '#FBBF24',
+        bgDark: 'rgba(251, 191, 36, 0.20)',
+        bgLight: 'rgba(251, 191, 36, 0.12)',
+        borderDark: 'rgba(251, 191, 36, 0.35)',
+        borderLight: 'rgba(251, 191, 36, 0.20)',
+        contentColor: '#FBBF24',
+    },
     Vehicles: {
-        color: '#22D3A7', // Retro Mint Green
+        color: '#22D3A7',
         bgDark: 'rgba(34, 211, 167, 0.20)',
         bgLight: 'rgba(34, 211, 167, 0.12)',
         borderDark: 'rgba(34, 211, 167, 0.35)',
@@ -113,6 +138,13 @@ function getTabIcon(name: string, isFocused: boolean, isDark: boolean, isAiMode?
                     strokeWidth={strokeWidth}
                 />
             );
+        case 'Sessions':
+        case 'Vehicles':
+            return <History size={size} color={iconColor} strokeWidth={strokeWidth} />;
+        case 'More':
+            return <SlidersHorizontal size={size} color={iconColor} strokeWidth={strokeWidth} />;
+        case 'Scan':
+            return <ScanLine size={size} color={iconColor} strokeWidth={strokeWidth} />;
         case 'Explore':
             return <Compass size={size} color={iconColor} strokeWidth={strokeWidth} />;
         case 'Favorite':
@@ -124,8 +156,6 @@ function getTabIcon(name: string, isFocused: boolean, isDark: boolean, isAiMode?
                     strokeWidth={strokeWidth}
                 />
             );
-        case 'Vehicles':
-            return <History size={size} color={iconColor} strokeWidth={strokeWidth} />;
         default:
             return <House size={size} color={iconColor} strokeWidth={strokeWidth} />;
     }
@@ -428,9 +458,8 @@ export default function TabNavigator() {
             }}
         >
             <Tab.Screen name="Map" component={HomeScreen} />
-            <Tab.Screen name="Explore" component={TripPlannerScreen} />
-            <Tab.Screen name="Favorite" component={FavoritesScreen} />
-            <Tab.Screen name="Vehicles" component={VehicleListScreen} />
+            <Tab.Screen name="Sessions" component={VehicleListScreen} />
+            <Tab.Screen name="More" component={ProfileScreen} />
             <Tab.Screen name="Scan" component={ScanScreen} />
         </Tab.Navigator>
     );

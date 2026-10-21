@@ -12,7 +12,7 @@ import Svg, {
     Stop,
 } from 'react-native-svg';
 
-export type MascotExpression = 'happy' | 'wink' | 'chill';
+export type MascotExpression = 'happy' | 'wink' | 'chill' | 'searching' | 'charging' | 'error';
 
 export interface RetroMascotProps {
     size?: number;
@@ -302,6 +302,88 @@ export function RetroMascot({
                                 d="M96 73 C 98 76, 102 76, 104 73"
                                 stroke="#22D3EE"
                                 strokeWidth="2"
+                                strokeLinecap="round"
+                            />
+                        </G>
+                    )}
+
+                    {expression === 'searching' && (
+                        <G>
+                            {/* Left Radar Eye */}
+                            <Circle cx="80" cy="63" r="7" stroke="#22D3EE" strokeWidth="2.5" fill="none" />
+                            <Circle cx="80" cy="63" r="3" fill="#22D3EE" />
+                            {/* Right Radar Eye */}
+                            <Circle cx="120" cy="63" r="7" stroke="#22D3EE" strokeWidth="2.5" fill="none" />
+                            <Circle cx="120" cy="63" r="3" fill="#22D3EE" />
+                            {/* Radar Scan Wave Arc */}
+                            <Path
+                                d="M90 51 C 96 47, 104 47, 110 51"
+                                stroke="#22D3EE"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                            />
+                            {/* Curious Focused O-Mouth */}
+                            <Circle cx="100" cy="74" r="2.5" fill="#22D3EE" />
+                        </G>
+                    )}
+
+                    {expression === 'charging' && (
+                        <G>
+                            {/* Left Energy Lightning Eye */}
+                            <Path
+                                d="M77 58 L84 63 L79 65 L85 70"
+                                stroke="#22D3A7"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                            {/* Right Energy Lightning Eye */}
+                            <Path
+                                d="M115 58 L122 63 L117 65 L123 70"
+                                stroke="#22D3A7"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                            {/* Mint Cheeks */}
+                            <Circle cx="72" cy="71" r="3.5" fill="#22D3A7" opacity="0.8" />
+                            <Circle cx="128" cy="71" r="3.5" fill="#22D3A7" opacity="0.8" />
+                            {/* Wide Energized Smile */}
+                            <Path
+                                d="M96 73 C 98 78, 102 78, 104 73"
+                                stroke="#22D3A7"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                            />
+                        </G>
+                    )}
+
+                    {expression === 'error' && (
+                        <G>
+                            {/* Left Concerned Slanted Eye */}
+                            <Path
+                                d="M76 66 L86 59"
+                                stroke="#FBBF24"
+                                strokeWidth="3.5"
+                                strokeLinecap="round"
+                            />
+                            {/* Right Concerned Slanted Eye */}
+                            <Path
+                                d="M114 59 L124 66"
+                                stroke="#FBBF24"
+                                strokeWidth="3.5"
+                                strokeLinecap="round"
+                            />
+                            {/* Alert Sweat Drop */}
+                            <Path
+                                d="M136 49 C 136 46, 139 43, 139 43 C 139 43, 142 46, 142 49 C 142 51, 139 53, 139 53 C 139 53, 136 51, 136 49 Z"
+                                fill="#22D3EE"
+                            />
+                            {/* Wavy Concerned Mouth */}
+                            <Path
+                                d="M95 76 C 98 73, 102 78, 105 75"
+                                stroke="#FBBF24"
+                                strokeWidth="2.5"
                                 strokeLinecap="round"
                             />
                         </G>

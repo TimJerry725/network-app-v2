@@ -61,24 +61,28 @@ export type AppTheme = {
   pillDark: string;
 };
 
-// Playful Retro-Futurism Master Color Palette (Specification from Design Board)
+// Playful Retro-Futurism Master Color Palette (Specification from Design Board & Master Prompt)
 export const RETRO_PALETTE = {
-  spaceBlue: '#0B1E3B',        // Primary Canvas (Deep Space)
-  spaceBlueDark: '#07152B',    // Deepest Cosmos
-  spaceBlueElevated: '#102548',// Elevated Retro-Futuristic Card
-  spaceBlueSurface: '#0E2140', // Surface Container
-  electricBlue: '#3B82F6',     // Primary Interactive / Button / Active
-  electricBlueDark: '#2563EB', // Pressed State / Deep Cobalt
+  spaceBlue: '#0B1E3B',         // Primary Canvas
+  electricBlue: '#3B82F6',      // Primary Action / Interactive / Buttons
+  neonCyan: '#22D3EE',          // Energy Accent / Glow / Orbital
+  mintGreen: '#22D3A7',         // Charging / Success / Live Available
+  sunYellow: '#FBBF24',         // Rating / Highlights / Warning
+  cream: '#F8FAFC',             // Primary Text / High-Contrast Elements
+  slate: '#64748B',             // Muted Slate / Icons
+  deepBackground: '#07111F',    // Deep Space Background
+  elevatedSurface: '#142C50',   // Elevated Surface Card
+  spaceBlueElevated: '#142C50', // Alias for elevated surface
+  spaceBlueSurface: '#0E2140',  // Surface Container
+  border: '#263F60',            // Structural Border
+  primaryTextDark: '#F8FAFC',   // Primary Text on Dark
+  secondaryTextDark: '#B7C8E2', // Secondary Text on Dark
+  electricBlueDark: '#2563EB',  // Active / Pressed
   electricBlueSoft: 'rgba(59, 130, 246, 0.18)',
-  neonCyan: '#22D3EE',         // Energy Accent / Glowing Orbital Ring
   neonCyanSoft: 'rgba(34, 211, 238, 0.18)',
-  mintGreen: '#22D3A7',        // Success / Live Available / Active Power
   mintGreenSoft: 'rgba(34, 211, 167, 0.18)',
-  sunYellow: '#FBBF24',        // Rating / Highlight / Star / Warning
   sunYellowSoft: 'rgba(251, 191, 36, 0.18)',
-  cream: '#F8FAFC',            // Crisp Text / High-Contrast Elements
-  slate: '#64748B',            // Muted Text / Icons
-  slateLight: '#94A3B8',       // Subtitles / Secondary Labels
+  cardBorder: 'rgba(59, 130, 246, 0.28)',
 };
 
 export const Colors: Record<ThemeName, AppTheme> = {
@@ -93,33 +97,33 @@ export const Colors: Record<ThemeName, AppTheme> = {
     tertiarySoft: RETRO_PALETTE.mintGreenSoft,
     accent: RETRO_PALETTE.electricBlue,
     background: RETRO_PALETTE.spaceBlue,
-    backgroundAlt: RETRO_PALETTE.spaceBlueDark,
-    surface: RETRO_PALETTE.spaceBlueElevated,
-    surfaceMuted: RETRO_PALETTE.spaceBlueSurface,
-    card: RETRO_PALETTE.spaceBlueElevated,
-    inputBackground: RETRO_PALETTE.spaceBlueSurface,
-    border: 'rgba(59, 130, 246, 0.20)',
-    cardBorder: 'rgba(59, 130, 246, 0.24)',
+    backgroundAlt: RETRO_PALETTE.deepBackground,
+    surface: RETRO_PALETTE.elevatedSurface,
+    surfaceMuted: '#0E2140',
+    card: RETRO_PALETTE.elevatedSurface,
+    inputBackground: '#0E2140',
+    border: RETRO_PALETTE.border,
+    cardBorder: RETRO_PALETTE.cardBorder,
     cardHighlight: 'rgba(34, 211, 238, 0.30)',
     neon: RETRO_PALETTE.neonCyan,
     gold: RETRO_PALETTE.sunYellow,
-    obsidian: RETRO_PALETTE.spaceBlue,
-    onyx: RETRO_PALETTE.spaceBlueElevated,
-    overlay: 'rgba(11, 30, 59, 0.88)',
-    text: RETRO_PALETTE.cream,
-    textMuted: RETRO_PALETTE.slateLight,
+    obsidian: RETRO_PALETTE.deepBackground,
+    onyx: RETRO_PALETTE.elevatedSurface,
+    overlay: 'rgba(7, 17, 31, 0.88)',
+    text: RETRO_PALETTE.primaryTextDark,
+    textMuted: RETRO_PALETTE.secondaryTextDark,
     textSoft: RETRO_PALETTE.slate,
     icon: RETRO_PALETTE.cream,
     tint: RETRO_PALETTE.electricBlue,
     tabIconDefault: RETRO_PALETTE.slate,
     tabIconSelected: RETRO_PALETTE.electricBlue,
     tabBar: 'rgba(11, 30, 59, 0.96)',
-    tabBarBorder: 'rgba(59, 130, 246, 0.20)',
+    tabBarBorder: 'rgba(59, 130, 246, 0.25)',
     success: RETRO_PALETTE.mintGreen,
     warning: RETRO_PALETTE.sunYellow,
-    error: '#FF453A',
-    shadow: 'rgba(11, 30, 59, 0.7)',
-    heroGradient: [RETRO_PALETTE.spaceBlue, RETRO_PALETTE.spaceBlueElevated, RETRO_PALETTE.spaceBlue],
+    error: '#EF4444',
+    shadow: 'rgba(7, 17, 31, 0.7)',
+    heroGradient: [RETRO_PALETTE.spaceBlue, RETRO_PALETTE.elevatedSurface, RETRO_PALETTE.deepBackground],
     primaryGradient: [RETRO_PALETTE.electricBlue, RETRO_PALETTE.neonCyan],
     rewardGradient: [RETRO_PALETTE.sunYellow, '#F59E0B'],
 
