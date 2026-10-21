@@ -153,15 +153,6 @@ export default function FavoritesScreen({ navigation }: any) {
                                             </TouchableOpacity>
                                         </View>
                                     </View>
-
-                                    {station.tagline ? (
-                                        <ThemedText
-                                            style={[styles.tagline, { color: colors.textMuted }]}
-                                            numberOfLines={2}
-                                        >
-                                            {station.tagline}
-                                        </ThemedText>
-                                    ) : null}
                                 </CredCard>
                             </TouchableOpacity>
                         );
@@ -243,11 +234,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         marginBottom: 6,
-    },
-    tagline: {
-        marginTop: 10,
-        ...FONTS.body,
-        lineHeight: 20,
     },
     emptyContainer: {
         alignItems: 'center',
