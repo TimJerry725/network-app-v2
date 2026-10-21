@@ -241,8 +241,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.tactileCircleBtn,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                         activeOpacity={0.8}
@@ -263,8 +263,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={[
                                 styles.tactileCircleBtn,
                                 {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                    backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                    borderColor: colors.cardBorder,
                                 },
                             ]}
                             activeOpacity={0.8}
@@ -281,8 +281,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={[
                                 styles.tactileCircleBtn,
                                 {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                    backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                    borderColor: colors.cardBorder,
                                 },
                             ]}
                             activeOpacity={0.8}
@@ -325,8 +325,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.grayPill,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                     >
@@ -340,8 +340,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.grayPill,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                     >
@@ -366,8 +366,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                 style={[
                                     styles.amenityItem,
                                     {
-                                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                        backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                        borderColor: colors.cardBorder,
                                     },
                                 ]}
                             >
@@ -415,8 +415,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                 style={[
                                     styles.chargerCard,
                                     {
-                                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                        backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                        borderColor: colors.cardBorder,
                                     },
                                 ]}
                             >
@@ -442,8 +442,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                       borderColor: '#EF4444',
                                                   }
                                                 : {
-                                                      backgroundColor: isDark ? '#1C1D26' : '#F6F6F8',
-                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                                      backgroundColor: isDark ? 'rgba(59, 130, 246, 0.12)' : '#F6F6F8',
+                                                      borderColor: colors.cardBorder,
                                                   },
                                         ]}
                                     >
@@ -466,8 +466,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                         style={[
                                             styles.trackingBanner,
                                             {
-                                                backgroundColor: isDark ? '#1C1D26' : '#F4F4F6',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                                backgroundColor: isDark ? 'rgba(7, 21, 43, 0.65)' : '#F4F4F6',
+                                                borderColor: colors.cardBorder,
                                             },
                                         ]}
                                     >
@@ -506,15 +506,15 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                         ? [
                                                               styles.connectorCardSelected,
                                                               {
-                                                                  backgroundColor: isDark ? '#1C1D26' : '#FFFFFF',
-                                                                  borderColor: colors.coral,
+                                                                  backgroundColor: isDark ? 'rgba(59, 130, 246, 0.16)' : '#FFFFFF',
+                                                                  borderColor: colors.primary,
                                                               },
                                                           ]
                                                         : [
                                                               styles.connectorCardUnselected,
                                                               {
-                                                                  backgroundColor: isDark ? '#121319' : '#F7F7F9',
-                                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
+                                                                  backgroundColor: isDark ? 'rgba(7, 21, 43, 0.65)' : '#F7F7F9',
+                                                                  borderColor: colors.cardBorder,
                                                               },
                                                           ],
                                                 ]}
@@ -621,8 +621,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                                             }}
                                                             activeOpacity={0.82}
                                                         >
-                                                            <Zap size={15} color={isDark ? '#0A0D14' : '#FFFFFF'} fill={isDark ? '#0A0D14' : '#FFFFFF'} />
-                                                            <ThemedText style={[styles.startChargingText, { color: isDark ? '#0A0D14' : '#FFFFFF' }]}>
+                                                            <Zap size={15} color="#FFFFFF" fill="#FFFFFF" />
+                                                            <ThemedText style={[styles.startChargingText, { color: '#FFFFFF' }]}>
                                                                 START CHARGING
                                                             </ThemedText>
                                                         </TouchableOpacity>

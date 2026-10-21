@@ -11,6 +11,19 @@ import {
     Montserrat_800ExtraBold,
     Montserrat_900Black,
 } from '@expo-google-fonts/montserrat';
+import {
+    Sora_400Regular,
+    Sora_500Medium,
+    Sora_600SemiBold,
+    Sora_700Bold,
+    Sora_800ExtraBold,
+} from '@expo-google-fonts/sora';
+import {
+    SpaceGrotesk_400Regular,
+    SpaceGrotesk_500Medium,
+    SpaceGrotesk_600SemiBold,
+    SpaceGrotesk_700Bold,
+} from '@expo-google-fonts/space-grotesk';
 import RootNavigator from './src/navigation/RootNavigator';
 import { VehicleProvider } from './src/context/VehicleContext';
 import { FavoritesProvider } from './src/context/FavoritesContext';
@@ -21,13 +34,25 @@ import { AppModeProvider } from './src/context/AppModeContext';
 
 export default function App() {
     const [fontsLoaded] = useFonts({
-        // Primary Modern Font: Montserrat
+        // Primary Modern Grotesque: Montserrat
         Montserrat_400Regular,
         Montserrat_500Medium,
         Montserrat_600SemiBold,
         Montserrat_700Bold,
         Montserrat_800ExtraBold,
         Montserrat_900Black,
+
+        // Playful Retro-Futurism Signature Fonts
+        Sora_400Regular,
+        Sora_500Medium,
+        Sora_600SemiBold,
+        Sora_700Bold,
+        Sora_800ExtraBold,
+
+        SpaceGrotesk_400Regular,
+        SpaceGrotesk_500Medium,
+        SpaceGrotesk_600SemiBold,
+        SpaceGrotesk_700Bold,
     });
 
     if (!fontsLoaded) {

@@ -10,7 +10,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Sparkles, Zap, ShieldCheck } from 'lucide-react-native';
-import { AppLogo } from '../../components/AppLogo';
+import { RetroMascot } from '../../components/RetroMascot';
+import { RetroAppIcon } from '../../components/RetroAppIcon';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { FONT_FAMILIES, RADIUS } from '../../constants/Tokens';
@@ -99,15 +100,15 @@ export default function SplashScreen({ navigation }: any) {
                     colors={
                         isDark
                             ? [
-                                  'rgba(56, 189, 248, 0.22)',
-                                  'rgba(129, 140, 248, 0.12)',
-                                  'rgba(255, 91, 69, 0.08)',
+                                  'rgba(59, 130, 246, 0.35)',
+                                  'rgba(34, 211, 238, 0.20)',
+                                  'rgba(34, 211, 167, 0.10)',
                                   'transparent',
                               ]
                             : [
-                                  'rgba(56, 189, 248, 0.16)',
-                                  'rgba(16, 185, 129, 0.10)',
-                                  'rgba(255, 91, 69, 0.06)',
+                                  'rgba(59, 130, 246, 0.20)',
+                                  'rgba(34, 211, 238, 0.12)',
+                                  'rgba(34, 211, 167, 0.08)',
                                   'transparent',
                               ]
                     }
@@ -117,21 +118,30 @@ export default function SplashScreen({ navigation }: any) {
 
             {/* Central Brand Showcase */}
             <View style={styles.centerSection}>
-                {/* Logo with Spring Animation */}
+                {/* Orbital Retro App Icon Badge */}
                 <Animated.View
                     style={[
-                        styles.logoContainer,
+                        styles.appIconBadge,
                         {
                             opacity: logoOpacity,
                             transform: [{ scale: logoScale }],
                         },
                     ]}
                 >
-                    {/* Official Vector Logo in App Theme */}
-                    <AppLogo
-                        width={240}
-                        height={50}
-                    />
+                    <RetroAppIcon size={64} />
+                </Animated.View>
+
+                {/* Animated Playful Mascot */}
+                <Animated.View
+                    style={[
+                        styles.mascotContainer,
+                        {
+                            opacity: logoOpacity,
+                            transform: [{ scale: logoScale }],
+                        },
+                    ]}
+                >
+                    <RetroMascot size={150} expression="happy" animated />
                 </Animated.View>
 
                 {/* Subtitle & Tagline */}
@@ -142,11 +152,16 @@ export default function SplashScreen({ navigation }: any) {
                     ]}
                 >
                     <ThemedText style={[styles.brandHeadline, { color: colors.text }]}>
-                        IRIS NETWORK
+                        Charge Forward
                     </ThemedText>
                     <ThemedText style={[styles.brandSubtext, { color: colors.textMuted }]}>
-                        INTELLIGENT EV CHARGING PROTOCOL
+                        Smarter charging for a cleaner tomorrow.
                     </ThemedText>
+                    <View style={styles.brandPillTag}>
+                        <ThemedText style={styles.brandPillText}>
+                            IRIS NETWORK
+                        </ThemedText>
+                    </View>
                 </Animated.View>
             </View>
 
@@ -163,7 +178,7 @@ export default function SplashScreen({ navigation }: any) {
                         styles.progressTrack,
                         {
                             backgroundColor: isDark
-                                ? 'rgba(255, 255, 255, 0.08)'
+                                ? 'rgba(59, 130, 246, 0.18)'
                                 : 'rgba(0, 0, 0, 0.06)',
                         },
                     ]}
@@ -183,13 +198,13 @@ export default function SplashScreen({ navigation }: any) {
                 <View style={styles.statusRow}>
                     <View style={styles.pulseDot} />
                     <ThemedText style={[styles.statusText, { color: colors.textMuted }]}>
-                        Connecting to Iris Charging Grid...
+                        Grid Online • Connecting to Space Station
                     </ThemedText>
                 </View>
 
                 {/* Version badge */}
                 <ThemedText style={[styles.versionText, { color: colors.textSoft }]}>
-                    v2.5 • Tap anywhere to continue
+                    Playful Retro-Futurism v3.0 • Tap anywhere
                 </ThemedText>
             </Animated.View>
         </TouchableOpacity>
@@ -224,26 +239,50 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '100%',
     },
-    logoContainer: {
+    appIconBadge: {
+        marginBottom: 16,
+        shadowColor: '#3B82F6',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.45,
+        shadowRadius: 18,
+        elevation: 8,
+    },
+    mascotContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 24,
+        marginBottom: 18,
     },
     taglineBlock: {
         alignItems: 'center',
     },
     brandHeadline: {
-        fontSize: 22,
+        fontSize: 28,
         fontFamily: FONT_FAMILIES.extraBold,
-        letterSpacing: 3,
+        letterSpacing: -0.5,
         textAlign: 'center',
-        marginBottom: 6,
+        marginBottom: 8,
     },
     brandSubtext: {
-        fontSize: 11,
+        fontSize: 13,
         fontFamily: FONT_FAMILIES.medium,
-        letterSpacing: 2,
         textAlign: 'center',
+        maxWidth: 260,
+        marginBottom: 14,
+        lineHeight: 18,
+    },
+    brandPillTag: {
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: RADIUS.pill,
+        backgroundColor: 'rgba(59, 130, 246, 0.16)',
+        borderWidth: 1,
+        borderColor: 'rgba(59, 130, 246, 0.35)',
+    },
+    brandPillText: {
+        fontSize: 10,
+        fontFamily: FONT_FAMILIES.bold,
+        color: '#22D3EE',
+        letterSpacing: 1.5,
     },
     bottomSection: {
         width: '100%',

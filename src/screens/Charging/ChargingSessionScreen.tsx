@@ -37,6 +37,9 @@ import {
     Zap,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
+import { RetroButton } from '../../components/RetroButton';
+import { RetroCircularGauge } from '../../components/RetroCircularGauge';
+import { RetroMascot } from '../../components/RetroMascot';
 import { CredButton } from '../../components/CredButton';
 import {
     MOCK_STATIONS,
@@ -266,7 +269,15 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 28 }]}
             >
-                {/* ── 2. HERO BATTERY & POWER GRAPH HERO CARD (CRED DOUBLE-BEZEL) ── */}
+                {/* ── 1. RETRO-FUTURISTIC CIRCULAR ENERGY GAUGE & COMPANION MASCOT ── */}
+                <RetroCircularGauge
+                    percentage={soc}
+                    chargingSpeedKw={currentPower}
+                    mascotExpression="chill"
+                    style={{ marginBottom: 12 }}
+                />
+
+                {/* ── 2. HERO BATTERY & POWER GRAPH HERO CARD ── */}
                 <View
                     style={[
                         styles.heroCard,
@@ -727,10 +738,12 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     </View>
                 </View>
 
-                {/* ── 7. CRED SIGNATURE STOP CHARGING BUTTON ── */}
-                <CredButton
-                    title="Stop Charging"
+                {/* ── 7. RETRO-FUTURISTIC END SESSION BUTTON ── */}
+                <RetroButton
+                    title="End Session"
                     variant="danger"
+                    size="lg"
+                    pill
                     onPress={() => setIsStopConfirmVisible(true)}
                 />
             </ScrollView>
@@ -751,7 +764,8 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         style={[
                             styles.modalSheet,
                             {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                                 paddingBottom: insets.bottom + 16,
                             },
                         ]}
@@ -774,24 +788,24 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         </ThemedText>
 
                         {/* Session Snapshot in Modal */}
-                        <View style={[styles.modalSummaryBox, { backgroundColor: isDark ? '#1C1C22' : '#F8FAFC' }]}>
+                        <View style={[styles.modalSummaryBox, { backgroundColor: isDark ? 'rgba(7, 21, 43, 0.65)' : '#F8FAFC', borderColor: colors.cardBorder }]}>
                             <View style={styles.modalSummaryItem}>
                                 <ThemedText style={[styles.modalSummaryLabel, { color: colors.textMuted }]}>Battery</ThemedText>
-                                <ThemedText style={[styles.modalSummaryVal, { color: colors.text }]}>{soc}%</ThemedText>
+                                <ThemedText style={[styles.modalSummaryVal, { color: colors.text, fontFamily: FONT_FAMILIES.monoVal }]}>{soc}%</ThemedText>
                             </View>
                             <View style={styles.modalSummaryItem}>
                                 <ThemedText style={[styles.modalSummaryLabel, { color: colors.textMuted }]}>Energy</ThemedText>
-                                <ThemedText style={[styles.modalSummaryVal, { color: colors.text }]}>{deliveredKwh.toFixed(2)} kWh</ThemedText>
+                                <ThemedText style={[styles.modalSummaryVal, { color: colors.text, fontFamily: FONT_FAMILIES.monoVal }]}>{deliveredKwh.toFixed(2)} kWh</ThemedText>
                             </View>
                             <View style={styles.modalSummaryItem}>
                                 <ThemedText style={[styles.modalSummaryLabel, { color: colors.textMuted }]}>Amount</ThemedText>
-                                <ThemedText style={[styles.modalSummaryVal, { color: colors.primary }]}>₹{totalCost.toFixed(2)}</ThemedText>
+                                <ThemedText style={[styles.modalSummaryVal, { color: colors.primary, fontFamily: FONT_FAMILIES.monoVal }]}>₹{totalCost.toFixed(2)}</ThemedText>
                             </View>
                         </View>
 
                         <View style={styles.modalActionButtonsRow}>
                             <TouchableOpacity
-                                style={[styles.modalCancelBtn, { backgroundColor: isDark ? '#222228' : '#F1F5F9' }]}
+                                style={[styles.modalCancelBtn, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : '#F1F5F9' }]}
                                 activeOpacity={0.8}
                                 onPress={() => setIsStopConfirmVisible(false)}
                             >
@@ -801,7 +815,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={[styles.modalConfirmStopBtn, { backgroundColor: '#DC2626' }]}
+                                style={[styles.modalConfirmStopBtn, { backgroundColor: '#EF4444' }]}
                                 activeOpacity={0.85}
                                 onPress={executeStopCharging}
                             >
@@ -1121,8 +1135,8 @@ const styles = StyleSheet.create({
     },
     telemetryMainVal: {
         fontSize: 18,
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        fontWeight: '800',
+        fontFamily: FONT_FAMILIES.monoVal,
+        fontWeight: '700',
     },
     telemetryUnit: {
         fontSize: 12,

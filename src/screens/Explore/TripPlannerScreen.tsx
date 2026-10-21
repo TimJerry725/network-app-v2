@@ -39,6 +39,7 @@ import {
     Zap,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
+import { RetroButton } from '../../components/RetroButton';
 import { CredButton } from '../../components/CredButton';
 import {
     POPULAR_ROUTES,
@@ -55,6 +56,15 @@ import { useAppTheme } from '../../hooks/useAppTheme';
 import { tripPlannerService } from '../../services/api/tripPlannerService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const RETRO_MAP_STYLE = [
+    { elementType: 'geometry', stylers: [{ color: '#0B1E3B' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#94A3B8' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#07152B' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#102548' }] },
+    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#0E2140' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#07152B' }] },
+];
 
 export interface TripRouteOption {
     id: string;
@@ -680,6 +690,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                     style={StyleSheet.absoluteFill}
                     provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
                     userInterfaceStyle={isDark ? 'dark' : 'light'}
+                    customMapStyle={isDark ? RETRO_MAP_STYLE : undefined}
                     initialRegion={{
                         latitude: (originLocation.latitude + destinationLocation.latitude) / 2,
                         longitude: (originLocation.longitude + destinationLocation.longitude) / 2,
@@ -752,8 +763,8 @@ export default function TripPlannerScreen({ navigation }: any) {
                         style={[
                             styles.floatingBackBtn,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                         activeOpacity={0.8}
@@ -765,14 +776,14 @@ export default function TripPlannerScreen({ navigation }: any) {
                         <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                     </TouchableOpacity>
 
-                    <View style={[styles.floatingRoutePill, { backgroundColor: isDark ? '#16171E' : '#FFFFFF', borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]}>
+                    <View style={[styles.floatingRoutePill, { backgroundColor: isDark ? colors.surface : '#FFFFFF', borderColor: colors.cardBorder }]}>
                         <ThemedText style={[styles.floatingRoutePillText, { color: colors.text }]} numberOfLines={1}>
                             {originLocation.label} → {destinationLocation.label} • {activeRouteOption.tag}
                         </ThemedText>
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.floatingIconBtn, { backgroundColor: isDark ? '#16171E' : '#FFFFFF', borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]}
+                        style={[styles.floatingIconBtn, { backgroundColor: isDark ? colors.surface : '#FFFFFF', borderColor: colors.cardBorder }]}
                         activeOpacity={0.8}
                         onPress={fitMapRoute}
                     >
@@ -1414,11 +1425,13 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 </View>
                             </View>
 
-                            {/* Start Navigation 3D Neo-Brutalist Primary Button */}
-                            <CredButton
-                                title="START NAVIGATION"
+                            {/* Start Navigation Retro Pill Button */}
+                            <RetroButton
+                                title="Start Navigation"
                                 subtitle="Turn-by-turn route via Google Maps"
-                                icon={<Navigation size={18} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />}
+                                icon={<Navigation size={18} color="#FFFFFF" />}
+                                pill
+                                size="lg"
                                 onPress={handleStartNavigation}
                             />
 
@@ -1705,11 +1718,13 @@ export default function TripPlannerScreen({ navigation }: any) {
                 </View>
 
                 {/* ═════════════════════════════════════════════════════════════
-                    3. PLAN TRIP BUTTON
+                    3. PLAN TRIP RETRO PILL BUTTON
                 ═════════════════════════════════════════════════════════════ */}
-                <CredButton
-                    title="PLAN TRIP"
-                    icon={<Zap size={18} color={isDark ? '#000000' : '#FFFFFF'} fill={isDark ? '#000000' : '#FFFFFF'} />}
+                <RetroButton
+                    title="Plan Trip"
+                    icon={<Zap size={18} color="#FFFFFF" />}
+                    pill
+                    size="lg"
                     onPress={handlePlanTrip}
                 />
 

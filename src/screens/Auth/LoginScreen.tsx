@@ -23,6 +23,8 @@ import {
 
 import { AppLogo } from '../../components/AppLogo';
 import { CredButton } from '../../components/CredButton';
+import { RetroButton } from '../../components/RetroButton';
+import { RetroMascot } from '../../components/RetroMascot';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
@@ -90,9 +92,13 @@ export default function LoginScreen({ navigation }: any) {
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
-                        {/* 1. Header with Official Vector App Logo */}
+                        {/* 1. Header with Official Vector App Logo & Playful Mascot */}
                         <View style={styles.brandHeader}>
+                            <RetroMascot size={110} expression="wink" animated style={{ marginBottom: 12 }} />
                             <AppLogo width={220} height={46} />
+                            <ThemedText style={[styles.brandSubtitle, { color: colors.textMuted }]}>
+                                Pilot Authentication • EV Space Grid
+                            </ThemedText>
                         </View>
 
                         {/* 2. Modern Glassmorphic Login Card */}
@@ -101,10 +107,10 @@ export default function LoginScreen({ navigation }: any) {
                                 styles.loginCard,
                                 {
                                     backgroundColor: isDark
-                                        ? 'rgba(20, 22, 32, 0.88)'
-                                        : 'rgba(255, 255, 255, 0.96)',
+                                        ? '#102548'
+                                        : '#FFFFFF',
                                     borderColor: isDark
-                                        ? 'rgba(255, 255, 255, 0.10)'
+                                        ? 'rgba(59, 130, 246, 0.28)'
                                         : 'rgba(0, 0, 0, 0.08)',
                                 },
                             ]}
@@ -112,15 +118,15 @@ export default function LoginScreen({ navigation }: any) {
                             {/* Email Input */}
                             <View style={styles.inputGroup}>
                                 <ThemedText style={[styles.inputLabel, { color: colors.textMuted }]}>
-                                    REGISTERED EMAIL
+                                    REGISTERED PILOT EMAIL
                                 </ThemedText>
                                 <View
                                     style={[
                                         styles.inputWrap,
                                         {
-                                            backgroundColor: isDark ? '#141622' : '#F8FAFC',
+                                            backgroundColor: isDark ? '#0E2140' : '#F8FAFC',
                                             borderColor: isDark
-                                                ? 'rgba(255, 255, 255, 0.12)'
+                                                ? 'rgba(59, 130, 246, 0.24)'
                                                 : 'rgba(0, 0, 0, 0.08)',
                                         },
                                     ]}
@@ -140,10 +146,10 @@ export default function LoginScreen({ navigation }: any) {
                                         <View
                                             style={[
                                                 styles.verifiedDot,
-                                                isCred && { backgroundColor: 'rgba(255, 255, 255, 0.14)' },
+                                                { backgroundColor: 'rgba(34, 211, 167, 0.18)' },
                                             ]}
                                         >
-                                            <Check size={11} color={isCred ? colors.text : '#10B981'} />
+                                            <Check size={11} color="#22D3A7" />
                                         </View>
                                     )}
                                 </View>
@@ -153,7 +159,7 @@ export default function LoginScreen({ navigation }: any) {
                             <View style={styles.inputGroup}>
                                 <View style={styles.labelRow}>
                                     <ThemedText style={[styles.inputLabel, { color: colors.textMuted }]}>
-                                        ACCESS KEY / PASSWORD
+                                        ACCESS CODE / PASSWORD
                                     </ThemedText>
                                     <TouchableOpacity
                                         activeOpacity={0.7}
@@ -161,7 +167,7 @@ export default function LoginScreen({ navigation }: any) {
                                             if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                         }}
                                     >
-                                        <ThemedText style={[styles.forgotLink, isCred && { color: colors.textMuted }]}>
+                                        <ThemedText style={[styles.forgotLink, { color: colors.primary }]}>
                                             Forgot?
                                         </ThemedText>
                                     </TouchableOpacity>
@@ -170,9 +176,9 @@ export default function LoginScreen({ navigation }: any) {
                                     style={[
                                         styles.inputWrap,
                                         {
-                                            backgroundColor: isDark ? '#141622' : '#F8FAFC',
+                                            backgroundColor: isDark ? '#0E2140' : '#F8FAFC',
                                             borderColor: isDark
-                                                ? 'rgba(255, 255, 255, 0.12)'
+                                                ? 'rgba(59, 130, 246, 0.24)'
                                                 : 'rgba(0, 0, 0, 0.08)',
                                         },
                                     ]}
@@ -215,17 +221,17 @@ export default function LoginScreen({ navigation }: any) {
                                     style={[
                                         styles.checkbox,
                                         rememberMe && styles.checkboxActive,
-                                        rememberMe && { backgroundColor: isCred ? (isDark ? '#FFFFFF' : '#000000') : colors.primary },
+                                        rememberMe && { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
                                     ]}
                                 >
-                                    {rememberMe && <Check size={11} color={isCred ? (isDark ? '#000000' : '#FFFFFF') : '#FFFFFF'} />}
+                                    {rememberMe && <Check size={11} color="#FFFFFF" />}
                                 </View>
                                 <ThemedText style={[styles.rememberText, { color: colors.textMuted }]}>
                                     Remember this vehicle device
                                 </ThemedText>
                             </TouchableOpacity>
 
-                            {/* Primary Sign In Button: Adaptive per UI Theme */}
+                            {/* Primary Sign In Button: RetroButton / CredButton */}
                             {isCred ? (
                                 <CredButton
                                     title={isLoading ? 'AUTHENTICATING...' : 'AUTHENTICATE & ENTER'}
@@ -240,30 +246,14 @@ export default function LoginScreen({ navigation }: any) {
                                     }
                                 />
                             ) : (
-                                <TouchableOpacity
-                                    style={styles.signInButton}
-                                    activeOpacity={0.85}
+                                <RetroButton
+                                    title="AUTHENTICATE & ENTER"
                                     onPress={handleContinue}
-                                    disabled={isLoading}
-                                >
-                                    <LinearGradient
-                                        colors={['#FF5B45', '#FF7A66']}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 0 }}
-                                        style={styles.signInGradient}
-                                    >
-                                        {isLoading ? (
-                                            <ActivityIndicator size="small" color="#FFFFFF" />
-                                        ) : (
-                                            <>
-                                                <ThemedText style={styles.signInText}>
-                                                    AUTHENTICATE & ENTER
-                                                </ThemedText>
-                                                <ArrowRight size={15} color="#FFFFFF" />
-                                            </>
-                                        )}
-                                    </LinearGradient>
-                                </TouchableOpacity>
+                                    loading={isLoading}
+                                    variant="primary"
+                                    pill={true}
+                                    size="lg"
+                                />
                             )}
                         </View>
                     </ScrollView>
@@ -300,8 +290,14 @@ const styles = StyleSheet.create({
     brandHeader: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 32,
+        marginBottom: 24,
         paddingTop: 8,
+    },
+    brandSubtitle: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.medium,
+        marginTop: 6,
+        letterSpacing: 0.5,
     },
     loginCard: {
         borderRadius: RADIUS.card,

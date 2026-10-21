@@ -29,6 +29,7 @@ import {
     Zap,
 } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
+import { RetroMascot } from '../../components/RetroMascot';
 import { CredButton } from '../../components/CredButton';
 import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { Type2Icon } from '../../components/Type2Icon';
@@ -382,8 +383,11 @@ export default function ScanScreen({ navigation, route }: any) {
                         </View>
                     </View>
 
-                    {/* Hint text below reticle */}
+                    {/* Hint text below reticle with Volt companion mascot */}
                     <View style={styles.reticleHint} pointerEvents="none">
+                        <View style={{ alignItems: 'center', marginBottom: 4 }}>
+                            <RetroMascot size={38} expression="happy" animated />
+                        </View>
                         <ThemedText style={styles.reticleHintText}>
                             Point camera at QR code on charger dispenser
                         </ThemedText>
@@ -445,8 +449,8 @@ export default function ScanScreen({ navigation, route }: any) {
                 style={[
                     styles.bottomDrawer,
                     {
-                        backgroundColor: isDark ? '#0D0E13' : '#FFFFFF',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                        backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                        borderColor: colors.cardBorder,
                         paddingBottom: Math.max(88, insets.bottom + 76),
                     },
                 ]}
@@ -667,13 +671,13 @@ export default function ScanScreen({ navigation, route }: any) {
                                             >
                                                 <Zap
                                                     size={15}
-                                                    color={isDark ? '#0A0D14' : '#FFFFFF'}
-                                                    fill={isDark ? '#0A0D14' : '#FFFFFF'}
+                                                    color="#FFFFFF"
+                                                    fill="#FFFFFF"
                                                 />
                                                 <ThemedText
                                                     style={[
                                                         styles.startChargingText,
-                                                        { color: isDark ? '#0A0D14' : '#FFFFFF' },
+                                                        { color: '#FFFFFF' },
                                                     ]}
                                                 >
                                                     START CHARGING

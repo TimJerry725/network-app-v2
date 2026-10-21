@@ -1,26 +1,32 @@
 import { StyleSheet, TextStyle } from 'react-native';
 
-// Modern Montserrat Font Stack (Single-Lined, Clean, Solid Geometric Grotesque)
+// Playful Retro-Futurism Typography Stack (Sora + Space Grotesk)
 export const FONT_FAMILIES = {
-    regular: 'Montserrat_400Regular',
-    medium: 'Montserrat_500Medium',
-    semiBold: 'Montserrat_600SemiBold',
-    bold: 'Montserrat_700Bold',
-    extraBold: 'Montserrat_800ExtraBold',
-    black: 'Montserrat_900Black',
+    regular: 'Sora_400Regular',
+    medium: 'Sora_500Medium',
+    semiBold: 'Sora_600SemiBold',
+    bold: 'Sora_700Bold',
+    extraBold: 'Sora_800ExtraBold',
+    black: 'Sora_800ExtraBold',
 
-    // Grotesque Aliases
-    sansRegular: 'Montserrat_400Regular',
-    sansMedium: 'Montserrat_500Medium',
-    sansSemiBold: 'Montserrat_600SemiBold',
-    sansBold: 'Montserrat_700Bold',
-    sansExtraBold: 'Montserrat_800ExtraBold',
+    // Grotesque / Sans Aliases
+    sansRegular: 'Sora_400Regular',
+    sansMedium: 'Sora_500Medium',
+    sansSemiBold: 'Sora_600SemiBold',
+    sansBold: 'Sora_700Bold',
+    sansExtraBold: 'Sora_800ExtraBold',
 
-    // Pure Montserrat for headings/display (No double-lined/inline serif fonts)
-    serifDisplay: 'Montserrat_800ExtraBold',
-    serifDisplayBlack: 'Montserrat_900Black',
-    serifHeading: 'Montserrat_800ExtraBold',
-    serifExtraBold: 'Montserrat_900Black',
+    // Space Grotesk for Technical Numerals & Energy Accents
+    monoVal: 'SpaceGrotesk_700Bold',
+    monoNumbers: 'SpaceGrotesk_700Bold',
+    monoRegular: 'SpaceGrotesk_500Medium',
+    grotesk: 'SpaceGrotesk_700Bold',
+
+    // Display Aliases
+    serifDisplay: 'Sora_800ExtraBold',
+    serifDisplayBlack: 'Sora_800ExtraBold',
+    serifHeading: 'Sora_800ExtraBold',
+    serifExtraBold: 'Sora_800ExtraBold',
 };
 
 // Typography tokens with Montserrat hierarchy
@@ -142,25 +148,25 @@ export const SPACING = {
     xxl: 48,
 };
 
-// Radius tokens following UX Concentric Scale (Inner Radius = Outer Radius - Padding)
+// Radius tokens: Soft, friendly, futuristic rounded capsules & squircles
 export const RADIUS = {
-    badge: 8,
-    chip: 10,
-    button: 14,
-    input: 14,
-    tile: 16,
-    squircle: 18,
-    card: 22,
+    badge: 9999,
+    chip: 9999,
+    button: 16,
+    input: 16,
+    tile: 18,
+    squircle: 20,
+    card: 20,
     cardLg: 24,
     bezelOuter: 24,
     bezelInner: 16,
-    bottomSheet: 28,
+    bottomSheet: 32,
     modal: 24,
     pill: 9999,
     circle: 9999,
 
-    // Aliases for backward compatibility
-    neoBox: 18,
+    // Backward compatibility
+    neoBox: 20,
 };
 
 // Minimal Smooth Architecture (Replaces 3D Neo-Brutalism with Soft Modern Touch)

@@ -49,36 +49,36 @@ export const TAB_THEME: Record<string, {
     contentColor: string;
 }> = {
     Map: {
-        color: '#38BDF8', // Primary: Ice Blue
-        bgDark: 'rgba(56, 189, 248, 0.18)',
-        bgLight: 'rgba(56, 189, 248, 0.12)',
-        borderDark: 'rgba(56, 189, 248, 0.28)',
-        borderLight: 'rgba(56, 189, 248, 0.18)',
-        contentColor: '#38BDF8',
+        color: '#3B82F6', // Retro Electric Blue
+        bgDark: 'rgba(59, 130, 246, 0.20)',
+        bgLight: 'rgba(59, 130, 246, 0.12)',
+        borderDark: 'rgba(59, 130, 246, 0.35)',
+        borderLight: 'rgba(59, 130, 246, 0.20)',
+        contentColor: '#3B82F6',
     },
     Explore: {
-        color: '#38BDF8', // Primary: Ice Blue
-        bgDark: 'rgba(56, 189, 248, 0.18)',
-        bgLight: 'rgba(56, 189, 248, 0.12)',
-        borderDark: 'rgba(56, 189, 248, 0.28)',
-        borderLight: 'rgba(56, 189, 248, 0.18)',
-        contentColor: '#38BDF8',
+        color: '#22D3EE', // Retro Neon Cyan
+        bgDark: 'rgba(34, 211, 238, 0.20)',
+        bgLight: 'rgba(34, 211, 238, 0.12)',
+        borderDark: 'rgba(34, 211, 238, 0.35)',
+        borderLight: 'rgba(34, 211, 238, 0.20)',
+        contentColor: '#22D3EE',
     },
     Favorite: {
-        color: '#FF5B45', // Secondary: Sunset Coral
-        bgDark: 'rgba(255, 91, 69, 0.18)',
-        bgLight: 'rgba(255, 91, 69, 0.12)',
-        borderDark: 'rgba(255, 91, 69, 0.28)',
-        borderLight: 'rgba(255, 91, 69, 0.18)',
-        contentColor: '#FF5B45',
+        color: '#FBBF24', // Retro Sun Yellow
+        bgDark: 'rgba(251, 191, 36, 0.20)',
+        bgLight: 'rgba(251, 191, 36, 0.12)',
+        borderDark: 'rgba(251, 191, 36, 0.35)',
+        borderLight: 'rgba(251, 191, 36, 0.20)',
+        contentColor: '#FBBF24',
     },
     Vehicles: {
-        color: '#10B981', // Tertiary: Neo Mint
-        bgDark: 'rgba(16, 185, 129, 0.18)',
-        bgLight: 'rgba(16, 185, 129, 0.12)',
-        borderDark: 'rgba(16, 185, 129, 0.28)',
-        borderLight: 'rgba(16, 185, 129, 0.18)',
-        contentColor: '#10B981',
+        color: '#22D3A7', // Retro Mint Green
+        bgDark: 'rgba(34, 211, 167, 0.20)',
+        bgLight: 'rgba(34, 211, 167, 0.12)',
+        borderDark: 'rgba(34, 211, 167, 0.35)',
+        borderLight: 'rgba(34, 211, 167, 0.20)',
+        contentColor: '#22D3A7',
     },
 };
 
@@ -285,15 +285,15 @@ function SeparatedScanButton({
                     isFocused
                         ? styles.scanButtonActive
                         : {
-                              backgroundColor: isDark ? '#12131A' : '#FFFFFF',
-                              borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+                              backgroundColor: isDark ? 'rgba(11, 30, 59, 0.94)' : '#FFFFFF',
+                              borderColor: isDark ? 'rgba(59, 130, 246, 0.3)' : 'rgba(0, 0, 0, 0.08)',
                           },
                     { transform: [{ scale: scaleAnim }] },
                 ]}
             >
                 <ScanLine
                     size={24}
-                    color={isFocused ? '#FFFFFF' : '#FF5B45'}
+                    color={isFocused ? '#FFFFFF' : '#3B82F6'}
                     strokeWidth={isFocused ? 2.5 : 2.2}
                 />
             </Animated.View>
@@ -356,8 +356,8 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 style={[
                     styles.dockContainer,
                     {
-                        backgroundColor: isDark ? '#12131A' : '#FFFFFF',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.09)' : 'rgba(0, 0, 0, 0.08)',
+                        backgroundColor: isDark ? 'rgba(11, 30, 59, 0.94)' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(59, 130, 246, 0.25)' : 'rgba(0, 0, 0, 0.08)',
                     },
                 ]}
             >
@@ -520,9 +520,9 @@ const styles = StyleSheet.create({
         elevation: 999,
     },
     scanButtonActive: {
-        backgroundColor: '#FF5B45',
-        borderColor: '#FF5B45',
-        shadowColor: '#FF5B45',
+        backgroundColor: '#3B82F6',
+        borderColor: '#22D3EE',
+        shadowColor: '#3B82F6',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.45,
         shadowRadius: 12,

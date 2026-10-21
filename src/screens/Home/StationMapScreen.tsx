@@ -42,6 +42,7 @@ import {
     Zap,
     Navigation,
     Wallet,
+    Compass,
     Plus,
     Plug,
     User,
@@ -79,12 +80,12 @@ import {
 } from '../../services/googleMaps';
 
 const DARK_MAP_STYLE = [
-    { elementType: 'geometry', stylers: [{ color: '#1A1A1A' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#A0C0A8' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#1A1A1A' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2C2C2C' }] },
-    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#202020' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#121212' }] },
+    { elementType: 'geometry', stylers: [{ color: '#0B1E3B' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#94A3B8' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#07152B' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#102548' }] },
+    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#0E2140' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#07152B' }] },
 ];
 
 const filterOptions = [
@@ -96,11 +97,11 @@ const filterOptions = [
 ];
 
 export const FILTER_CHIP_COLORS: Record<string, { color: string }> = {
-    Fastest: { color: '#FF5B45' }, // Secondary: Coral (Speed)
-    Cheapest: { color: '#38BDF8' }, // Primary: Ice Blue
-    Available: { color: '#10B981' }, // Tertiary: Mint (Availability)
-    '24/7': { color: '#38BDF8' }, // Primary: Ice Blue
-    Amenities: { color: '#38BDF8' }, // Primary: Ice Blue
+    Fastest: { color: '#FBBF24' },   // Retro Sun Yellow (Speed)
+    Cheapest: { color: '#22D3EE' },  // Retro Neon Cyan (Value)
+    Available: { color: '#22D3A7' }, // Retro Mint Green (Availability)
+    '24/7': { color: '#3B82F6' },    // Retro Electric Blue (All Hours)
+    Amenities: { color: '#FBBF24' }, // Retro Sun Yellow (Amenities)
 };
 
 function getFilterIcon(id: string, isActive: boolean, isDark: boolean) {
@@ -1182,8 +1183,8 @@ export default function StationMapScreen({ navigation }: any) {
                         style={[
                             styles.searchBarWrapper,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                     >
@@ -1270,7 +1271,7 @@ export default function StationMapScreen({ navigation }: any) {
                         })}
                     </ScrollView>
 
-                    {/* Mode Switcher & Wallet Balance Pill below Search Bar & Filters */}
+                    {/* Mode Switcher, Trip Planner Shortcut, & Wallet Balance Pill */}
                     <View style={styles.walletFilterRow} pointerEvents="box-none">
                         <GeminiModeSwitcher compact={true} />
                         <TouchableOpacity
@@ -1278,14 +1279,31 @@ export default function StationMapScreen({ navigation }: any) {
                             style={[
                                 styles.walletHeaderPill,
                                 {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                    backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                    borderColor: colors.cardBorder,
+                                },
+                            ]}
+                            onPress={() => navigation.navigate('Explore' as never)}
+                        >
+                            <Compass size={13} color="#22D3EE" />
+                            <ThemedText style={[styles.walletHeaderText, { color: colors.text }]}>
+                                Trip Planner &gt;
+                            </ThemedText>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            activeOpacity={0.8}
+                            style={[
+                                styles.walletHeaderPill,
+                                {
+                                    backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                    borderColor: colors.cardBorder,
                                 },
                             ]}
                             onPress={() => navigation.navigate('Profile' as never)}
                         >
-                            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(245, 158, 11, 0.18)', alignItems: 'center', justifyContent: 'center' }}>
-                                <Wallet size={12} color="#F59E0B" />
+                            <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: 'rgba(251, 191, 36, 0.18)', alignItems: 'center', justifyContent: 'center' }}>
+                                <Wallet size={11} color="#FBBF24" />
                             </View>
                             <ThemedText style={[styles.walletHeaderText, { color: colors.text }]}>
                                 ₹{user.walletBalance.toFixed(0)}
@@ -1346,8 +1364,8 @@ export default function StationMapScreen({ navigation }: any) {
                 style={[
                     styles.bottomSheetContainer,
                     {
-                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                        backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                        borderColor: colors.cardBorder,
                         height: sheetHeight,
                     },
                 ]}
@@ -1362,7 +1380,7 @@ export default function StationMapScreen({ navigation }: any) {
                         <View
                             style={[
                                 styles.bottomSheetDragHandleBar,
-                                { backgroundColor: isDark ? '#3E4150' : '#D1D5DB' },
+                                { backgroundColor: isDark ? 'rgba(59, 130, 246, 0.4)' : '#D1D5DB' },
                             ]}
                         />
                     </TouchableOpacity>
@@ -1374,7 +1392,7 @@ export default function StationMapScreen({ navigation }: any) {
                             onPress={toggleSheet}
                         >
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                <MapPinned size={15} color={colors.coral} />
+                                <MapPinned size={15} color={colors.primary} />
                                 <ThemedText
                                     style={[styles.sheetTitle, { color: colors.text }]}
                                     numberOfLines={1}
@@ -1385,7 +1403,7 @@ export default function StationMapScreen({ navigation }: any) {
                                     style={[
                                         styles.countBadge,
                                         {
-                                            backgroundColor: isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFE5E0',
+                                            backgroundColor: 'rgba(34, 211, 167, 0.16)',
                                             borderColor: 'transparent',
                                             paddingVertical: 2,
                                             paddingHorizontal: 8,
@@ -1394,7 +1412,7 @@ export default function StationMapScreen({ navigation }: any) {
                                 >
                                     <ThemedText
                                         style={{
-                                            color: colors.coral,
+                                            color: '#22D3A7',
                                             fontSize: 11,
                                             fontFamily: FONT_FAMILIES.sansBold,
                                             fontWeight: '700',
@@ -1410,7 +1428,7 @@ export default function StationMapScreen({ navigation }: any) {
                             style={[
                                 styles.sheetExpandToggleBtn,
                                 {
-                                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                                    backgroundColor: isDark ? 'rgba(59, 130, 246, 0.16)' : 'rgba(0, 0, 0, 0.05)',
                                 },
                             ]}
                             activeOpacity={0.8}
@@ -1431,8 +1449,8 @@ export default function StationMapScreen({ navigation }: any) {
                         style={[
                             styles.collapsedPeekRow,
                             {
-                                backgroundColor: isDark ? '#1C1D26' : '#F8FAFC',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                backgroundColor: isDark ? 'rgba(7, 21, 43, 0.75)' : '#F8FAFC',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                         activeOpacity={0.88}
