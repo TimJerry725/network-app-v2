@@ -17,13 +17,9 @@ import {
     Check,
     Eye,
     EyeOff,
-    Fingerprint,
     Lock,
     Mail,
-    Nfc,
     ShieldCheck,
-    Sparkles,
-    Zap,
 } from 'lucide-react-native';
 
 import { AppLogo } from '../../components/AppLogo';
@@ -53,20 +49,6 @@ export default function LoginScreen({ navigation }: any) {
                 params: { showGracePeriod: true },
             });
         }, 500);
-    };
-
-    const handleBiometricLogin = () => {
-        if (Platform.OS !== 'web') {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        }
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            navigation.replace('Main', {
-                screen: 'Map',
-                params: { showGracePeriod: true },
-            });
-        }, 300);
     };
 
     return (
@@ -117,13 +99,6 @@ export default function LoginScreen({ navigation }: any) {
                             >
                                 <AppLogo width={200} height={42} />
                             </View>
-
-                            <ThemedText style={[styles.brandTitle, { color: colors.text }]}>
-                                Driver Portal
-                            </ThemedText>
-                            <ThemedText style={[styles.brandSubtitle, { color: colors.textMuted }]}>
-                                Intelligent EV Charging & Navigation Protocol
-                            </ThemedText>
                         </View>
 
                         {/* 2. Modern Glassmorphic Login Card */}
@@ -140,19 +115,6 @@ export default function LoginScreen({ navigation }: any) {
                                 },
                             ]}
                         >
-                            {/* Card Tag */}
-                            <View style={styles.cardHeaderRow}>
-                                <View style={styles.authBadge}>
-                                    <ShieldCheck size={13} color="#10B981" />
-                                    <ThemedText style={styles.authBadgeText}>
-                                        SECURE ACCESS
-                                    </ThemedText>
-                                </View>
-                                <ThemedText style={[styles.demoTag, { color: colors.textMuted }]}>
-                                    Demo Mode Ready
-                                </ThemedText>
-                            </View>
-
                             {/* Email Input */}
                             <View style={styles.inputGroup}>
                                 <ThemedText style={[styles.inputLabel, { color: colors.textMuted }]}>
@@ -289,52 +251,6 @@ export default function LoginScreen({ navigation }: any) {
                                     )}
                                 </LinearGradient>
                             </TouchableOpacity>
-
-                            {/* Divider */}
-                            <View style={styles.dividerRow}>
-                                <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }]} />
-                                <ThemedText style={[styles.dividerText, { color: colors.textSoft }]}>
-                                    OR QUICK ACCESS
-                                </ThemedText>
-                                <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }]} />
-                            </View>
-
-                            {/* Quick Action Badges: Biometrics & RFID */}
-                            <View style={styles.quickAccessRow}>
-                                <TouchableOpacity
-                                    style={[
-                                        styles.quickPill,
-                                        {
-                                            backgroundColor: isDark ? '#1C1F2E' : '#F1F5F9',
-                                            borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
-                                        },
-                                    ]}
-                                    activeOpacity={0.78}
-                                    onPress={handleBiometricLogin}
-                                >
-                                    <Fingerprint size={16} color="#38BDF8" />
-                                    <ThemedText style={styles.quickPillText}>
-                                        Face ID / Touch
-                                    </ThemedText>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[
-                                        styles.quickPill,
-                                        {
-                                            backgroundColor: isDark ? '#1C1F2E' : '#F1F5F9',
-                                            borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
-                                        },
-                                    ]}
-                                    activeOpacity={0.78}
-                                    onPress={handleBiometricLogin}
-                                >
-                                    <Nfc size={16} color="#10B981" />
-                                    <ThemedText style={styles.quickPillText}>
-                                        RFID Tag Tap
-                                    </ThemedText>
-                                </TouchableOpacity>
-                            </View>
                         </View>
 
                         {/* 3. Footer Protocol Info */}
@@ -382,14 +298,13 @@ const styles = StyleSheet.create({
     },
     brandHeader: {
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 28,
     },
     logoPill: {
         paddingHorizontal: 22,
         paddingVertical: 14,
         borderRadius: RADIUS.card,
         borderWidth: 1.2,
-        marginBottom: 16,
         shadowColor: '#38BDF8',
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.15,
@@ -398,52 +313,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    brandTitle: {
-        fontSize: 22,
-        fontFamily: FONT_FAMILIES.extraBold,
-        letterSpacing: -0.4,
-        marginBottom: 4,
-    },
-    brandSubtitle: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.regular,
-        textAlign: 'center',
-        maxWidth: 260,
-    },
     loginCard: {
         borderRadius: RADIUS.card,
-        padding: 20,
+        padding: 22,
         borderWidth: 1.2,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.18,
         shadowRadius: 16,
         elevation: 6,
-    },
-    cardHeaderRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 18,
-    },
-    authBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        backgroundColor: 'rgba(16, 185, 129, 0.14)',
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: RADIUS.pill,
-    },
-    authBadgeText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.bold,
-        color: '#10B981',
-        letterSpacing: 0.8,
-    },
-    demoTag: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.medium,
     },
     inputGroup: {
         marginBottom: 16,
@@ -518,15 +396,14 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.regular,
     },
     signInButton: {
-        height: 48,
-        borderRadius: RADIUS.pill,
+        height: 50,
+        borderRadius: RADIUS.button,
         overflow: 'hidden',
         shadowColor: '#FF5B45',
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.35,
         shadowRadius: 10,
         elevation: 6,
-        marginBottom: 18,
     },
     signInGradient: {
         flex: 1,
@@ -540,40 +417,6 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontFamily: FONT_FAMILIES.bold,
         letterSpacing: 1.2,
-    },
-    dividerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 10,
-        gap: 8,
-    },
-    dividerLine: {
-        flex: 1,
-        height: 1,
-    },
-    dividerText: {
-        fontSize: 9,
-        fontFamily: FONT_FAMILIES.bold,
-        letterSpacing: 1,
-    },
-    quickAccessRow: {
-        flexDirection: 'row',
-        gap: 10,
-        marginTop: 6,
-    },
-    quickPill: {
-        flex: 1,
-        height: 42,
-        borderRadius: RADIUS.pill,
-        borderWidth: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 6,
-    },
-    quickPillText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.medium,
     },
     footer: {
         alignItems: 'center',
