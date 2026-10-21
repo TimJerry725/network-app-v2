@@ -707,40 +707,24 @@ export default function GeminiChatScreen({ navigation }: any) {
                         },
                     ]}
                 >
-                    {/* Top Row above Input Box: Scan Option in Right Corner */}
-                    <View style={styles.composerHeaderRow}>
-                        <TouchableOpacity
-                            style={[
-                                styles.scanButtonPill,
-                                {
-                                    backgroundColor: isDark ? '#1B1D28' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 91, 69, 0.38)' : 'rgba(255, 91, 69, 0.25)',
-                                },
-                            ]}
-                            activeOpacity={0.8}
-                            onPress={() => {
-                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                                navigation.navigate('Scan');
-                            }}
+                    {/* Floating Sticky Scan Action Icon Button (outside input section in right corner) */}
+                    <TouchableOpacity
+                        style={styles.floatingScanFab}
+                        activeOpacity={0.85}
+                        onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            navigation.navigate('Scan');
+                        }}
+                    >
+                        <LinearGradient
+                            colors={['#FF5B45', '#FF7A66']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.floatingScanGradient}
                         >
-                            <LinearGradient
-                                colors={['#FF5B45', '#FF7A66']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={styles.scanIconBadge}
-                            >
-                                <ScanLine size={13} color="#FFFFFF" strokeWidth={2.4} />
-                            </LinearGradient>
-                            <ThemedText
-                                style={[
-                                    styles.scanButtonText,
-                                    { color: isDark ? '#FFFFFF' : '#0A0D14' },
-                                ]}
-                            >
-                                Scan QR
-                            </ThemedText>
-                        </TouchableOpacity>
-                    </View>
+                            <ScanLine size={24} color="#FFFFFF" strokeWidth={2.4} />
+                        </LinearGradient>
+                    </TouchableOpacity>
 
                     {/* Prompt Input Capsule */}
                     <View
@@ -872,7 +856,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         paddingHorizontal: SPACING.md,
         paddingTop: 16,
-        paddingBottom: 24,
+        paddingBottom: 76,
     },
     emptyScrollContent: {
         flexGrow: 1,
@@ -1015,38 +999,28 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.medium,
         color: '#38BDF8',
     },
-    composerHeaderRow: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        marginBottom: 8,
+    floatingScanFab: {
+        position: 'absolute',
+        top: -60,
+        right: 18,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        shadowColor: '#FF5B45',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.40,
+        shadowRadius: 10,
+        elevation: 9,
+        zIndex: 9999,
     },
-    scanButtonPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingLeft: 4,
-        paddingRight: 10,
-        paddingVertical: 4,
-        borderRadius: RADIUS.pill,
-        borderWidth: 1.2,
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.12,
-        shadowRadius: 5,
-        elevation: 3,
-    },
-    scanIconBadge: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+    floatingScanGradient: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    scanButtonText: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.bold,
-        letterSpacing: 0.2,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.28)',
     },
     composerWrapper: {
         paddingHorizontal: SPACING.md,
