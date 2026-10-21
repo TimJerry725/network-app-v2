@@ -19,7 +19,6 @@ import {
     EyeOff,
     Lock,
     Mail,
-    ShieldCheck,
 } from 'lucide-react-native';
 
 import { AppLogo } from '../../components/AppLogo';
@@ -238,19 +237,6 @@ export default function LoginScreen({ navigation }: any) {
                                 </LinearGradient>
                             </TouchableOpacity>
                         </View>
-
-                        {/* 3. Footer Protocol Info */}
-                        <View style={styles.footer}>
-                            <View style={styles.footerProtocolRow}>
-                                <ShieldCheck size={12} color="#10B981" />
-                                <ThemedText style={[styles.footerProtocolText, { color: colors.textMuted }]}>
-                                    256-Bit Encrypted EV Charging Network
-                                </ThemedText>
-                            </View>
-                            <ThemedText style={[styles.footerTerms, { color: colors.textSoft }]}>
-                                Iris Protocol v2.5 • Privacy • Terms
-                            </ThemedText>
-                        </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
             </SafeAreaView>
@@ -392,23 +378,5 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontFamily: FONT_FAMILIES.bold,
         letterSpacing: 1.2,
-    },
-    footer: {
-        alignItems: 'center',
-        marginTop: 24,
-    },
-    footerProtocolRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: 6,
-    },
-    footerProtocolText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.medium,
-    },
-    footerTerms: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.regular,
     },
 });
