@@ -12,7 +12,7 @@ type FavoritesContextType = {
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
-const DEFAULT_FAVORITES = ['1', '3', '4'];
+const DEFAULT_FAVORITES = ['cbe-casagrand-01', 'cbe-sp-01', '1', '2', '3', '4'];
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     const [favoriteIds, setFavoriteIds] = useState<string[]>(DEFAULT_FAVORITES);
