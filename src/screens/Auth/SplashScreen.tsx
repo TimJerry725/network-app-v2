@@ -127,26 +127,11 @@ export default function SplashScreen({ navigation }: any) {
                         },
                     ]}
                 >
-                    <View
-                        style={[
-                            styles.logoGlowRing,
-                            {
-                                borderColor: isDark
-                                    ? 'rgba(56, 189, 248, 0.25)'
-                                    : 'rgba(56, 189, 248, 0.18)',
-                                backgroundColor: isDark
-                                    ? 'rgba(20, 23, 35, 0.65)'
-                                    : 'rgba(255, 255, 255, 0.85)',
-                            },
-                        ]}
-                    >
-                        {/* Official Vector Logo from assets/logo.svg */}
-                        <AppLogo
-                            width={220}
-                            height={46}
-                            useBrandThemeGradient={false}
-                        />
-                    </View>
+                    {/* Official Vector Logo in App Theme */}
+                    <AppLogo
+                        width={240}
+                        height={50}
+                    />
                 </Animated.View>
 
                 {/* Subtitle & Tagline */}
@@ -243,19 +228,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 24,
-    },
-    logoGlowRing: {
-        paddingHorizontal: 28,
-        paddingVertical: 20,
-        borderRadius: RADIUS.card,
-        borderWidth: 1.2,
-        shadowColor: '#38BDF8',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.20,
-        shadowRadius: 18,
-        elevation: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     taglineBlock: {
         alignItems: 'center',

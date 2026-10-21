@@ -6,7 +6,7 @@ import { useAppTheme } from '../hooks/useAppTheme';
 export interface AppLogoProps {
     width?: number;
     height?: number;
-    gradientColors?: [string, string, string];
+    gradientColors?: [string, string, string] | readonly string[];
     solidColor?: string;
     style?: ViewStyle;
     useBrandThemeGradient?: boolean;
@@ -21,26 +21,39 @@ export function AppLogo({
     gradientColors,
     solidColor,
     style,
-    useBrandThemeGradient = false,
+    useBrandThemeGradient = true,
 }: AppLogoProps) {
     const { colors, isDark } = useAppTheme();
 
-    // Default authentic SVG gradient colors or theme colors
-    let resolvedGradient: [string, string, string] = gradientColors ?? [
-        '#1E9731',
-        '#58A447',
-        '#4B84E0',
-    ];
+    const isCred =
+        !(colors as any).lavender &&
+        (colors.primary === '#FFFFFF' || colors.primary === '#000000' || colors.primary === '#F6F6F6');
 
-    if (useBrandThemeGradient) {
-        resolvedGradient = [
-            colors.primary ?? '#38BDF8',
-            colors.lavender ?? colors.accent ?? '#818CF8',
-            colors.secondary ?? '#FF5B45',
-        ];
+    // Resolve gradient based on explicit prop or active application theme
+    let resolvedGradient: [string, string, string];
+    if (gradientColors && gradientColors.length >= 3) {
+        resolvedGradient = [gradientColors[0], gradientColors[1], gradientColors[2]];
+    } else if (isCred) {
+        // Luxury stark monochrome for CRED branch
+        resolvedGradient = isDark
+            ? ['#FFFFFF', '#E5E5EA', '#C7C7CC']
+            : ['#000000', '#2C2C2E', '#48484A'];
+    } else {
+        // Electric vibrant theme for Iris AI & Chat branches
+        resolvedGradient = isDark
+            ? [
+                  colors.primary ?? '#38BDF8',
+                  (colors as any).lavender ?? '#818CF8',
+                  colors.accent ?? '#FF5B45',
+              ]
+            : [
+                  colors.primary ?? '#0284C7',
+                  (colors as any).lavender ?? '#6366F1',
+                  colors.accent ?? '#FF5B45',
+              ];
     }
 
-    const gradientId = `app_logo_gradient_${Math.round(width)}_${Math.round(height)}`;
+    const gradientId = `app_logo_grad_${Math.round(width)}_${Math.round(height)}_${isDark ? 'dark' : 'light'}`;
 
     return (
         <View style={style}>
@@ -48,10 +61,10 @@ export function AppLogo({
                 <Defs>
                     <LinearGradient
                         id={gradientId}
-                        x1="-3.35765"
-                        y1="31.2616"
-                        x2="61.3862"
-                        y2="118.391"
+                        x1="0"
+                        y1="18"
+                        x2="178"
+                        y2="18"
                         gradientUnits="userSpaceOnUse"
                     >
                         <Stop stopColor={resolvedGradient[0]} offset="0" />
