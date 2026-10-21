@@ -25,6 +25,7 @@ import {
     Plus,
     RotateCcw,
     Route,
+    ScanLine,
     Send,
     Sparkles,
     Volume2,
@@ -624,6 +625,41 @@ export default function GeminiChatScreen({ navigation }: any) {
                         },
                     ]}
                 >
+                    {/* Top Row above Input Box: Scan Option in Right Corner */}
+                    <View style={styles.composerHeaderRow}>
+                        <TouchableOpacity
+                            style={[
+                                styles.scanButtonPill,
+                                {
+                                    backgroundColor: isDark ? '#1B1D28' : '#FFFFFF',
+                                    borderColor: isDark ? 'rgba(255, 91, 69, 0.38)' : 'rgba(255, 91, 69, 0.25)',
+                                },
+                            ]}
+                            activeOpacity={0.8}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                navigation.navigate('Scan');
+                            }}
+                        >
+                            <LinearGradient
+                                colors={['#FF5B45', '#FF7A66']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.scanIconBadge}
+                            >
+                                <ScanLine size={13} color="#FFFFFF" strokeWidth={2.4} />
+                            </LinearGradient>
+                            <ThemedText
+                                style={[
+                                    styles.scanButtonText,
+                                    { color: isDark ? '#FFFFFF' : '#0A0D14' },
+                                ]}
+                            >
+                                Scan QR
+                            </ThemedText>
+                        </TouchableOpacity>
+                    </View>
+
                     {/* Prompt Input Capsule */}
                     <View
                         style={[
@@ -896,6 +932,39 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontFamily: FONT_FAMILIES.medium,
         color: '#38BDF8',
+    },
+    composerHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    scanButtonPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingLeft: 4,
+        paddingRight: 10,
+        paddingVertical: 4,
+        borderRadius: RADIUS.pill,
+        borderWidth: 1.2,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    scanIconBadge: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    scanButtonText: {
+        fontSize: 12,
+        fontFamily: FONT_FAMILIES.bold,
+        letterSpacing: 0.2,
     },
     composerWrapper: {
         paddingHorizontal: SPACING.md,
