@@ -181,10 +181,73 @@ export default function GeminiChatScreen({ navigation }: any) {
                 lower.includes('chennai') ||
                 lower.includes('mysore')
             ) {
+                const recommendedCharger = {
+                    id: 'cbe-sp-01',
+                    name: 'Iris Thoppur Superhub',
+                    location: 'Thoppur Valley Toll Plaza, NH 44',
+                    distanceAlongRouteKm: 184,
+                    powerKw: 150,
+                    connectorType: 'CCS2 Dual Gun',
+                    availableGuns: 4,
+                    totalGuns: 4,
+                    pricePerKWh: 18.00,
+                    isRecommended: true,
+                    arrivalSocPercent: 18,
+                    departureSocPercent: 82,
+                    recommendedChargeMin: 22,
+                    amenities: ['Café Coffee Day', 'Food Court', 'Washrooms', 'AC Lounge'],
+                };
+
+                const routeChargers = [
+                    {
+                        id: 'iris-salem-01',
+                        name: 'Iris Salem Bypass Hub',
+                        location: 'Salem Outer Ring Road, NH 44',
+                        distanceAlongRouteKm: 122,
+                        powerKw: 60,
+                        connectorType: 'CCS2',
+                        availableGuns: 2,
+                        totalGuns: 2,
+                        pricePerKWh: 16.00,
+                        isRecommended: false,
+                        arrivalSocPercent: 44,
+                        amenities: ['Restaurant', 'Washroom'],
+                    },
+                    recommendedCharger,
+                    {
+                        id: 'iris-krishnagiri-01',
+                        name: 'Iris Krishnagiri Express Point',
+                        location: 'Krishnagiri Highway Plaza, NH 44',
+                        distanceAlongRouteKm: 268,
+                        powerKw: 120,
+                        connectorType: 'CCS2',
+                        availableGuns: 3,
+                        totalGuns: 4,
+                        pricePerKWh: 17.00,
+                        isRecommended: false,
+                        arrivalSocPercent: 54,
+                        amenities: ['Food Court', 'ATM'],
+                    },
+                    {
+                        id: 'iris-hosur-01',
+                        name: 'Iris Hosur Gateway Hub',
+                        location: 'Hosur Border Plaza, Attibele, NH 44',
+                        distanceAlongRouteKm: 328,
+                        powerKw: 60,
+                        connectorType: 'CCS2',
+                        availableGuns: 2,
+                        totalGuns: 2,
+                        pricePerKWh: 16.50,
+                        isRecommended: false,
+                        arrivalSocPercent: 36,
+                        amenities: ['Retail Plaza', 'Restroom'],
+                    },
+                ];
+
                 responseMsg = {
                     id: `gemini-${Date.now()}`,
                     sender: 'gemini',
-                    text: `Here is your optimized route from **Coimbatore to Bangalore (365 km)**. You only need **1 fast top-up** (22 mins) at Thoppur to reach with 48% reserve battery.`,
+                    text: `Here is your optimized route from **Coimbatore to Bangalore (365 km)** with **Iris Thoppur Superhub (150 kW)** as your recommended fast stop (+22 mins). I've also mapped **4 fast chargers stationed along NH 44** for backup reassurance.`,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     widgetType: 'trip',
                     widgetData: {
@@ -195,12 +258,14 @@ export default function GeminiChatScreen({ navigation }: any) {
                         chargingStopsCount: 1,
                         chargingTimeMin: 22,
                         recommendedStop: 'Iris Thoppur Superhub (150 kW)',
+                        recommendedCharger,
+                        routeChargers,
                         energyKWh: 48.5,
                     },
                     followUpChips: [
-                        'Check elevation impact',
-                        'Add food court stop',
-                        'Calculate total trip cost',
+                        'Reserve Gun 2 at Thoppur',
+                        'Show chargers on Salem bypass',
+                        'Check elevation drain profile',
                     ],
                 };
             }
@@ -540,6 +605,12 @@ export default function GeminiChatScreen({ navigation }: any) {
                                             {...msg.widgetData}
                                             onOpenTripPlanner={() => {
                                                 navigation.navigate('Explore');
+                                            }}
+                                            onSelectCharger={(charger) => {
+                                                navigation.navigate('StationDetails', { stationId: charger.id });
+                                            }}
+                                            onStartCharge={(charger) => {
+                                                navigation.navigate('Scan');
                                             }}
                                         />
                                     )}
