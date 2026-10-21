@@ -356,9 +356,9 @@ export default function GeminiChatScreen({ navigation }: any) {
                         <Sparkles size={16} color="#FFFFFF" />
                     </LinearGradient>
                     <View>
-                        <ThemedText style={styles.brandTitle}>Iris Gemini</ThemedText>
+                        <ThemedText style={styles.brandTitle}>Iris AI</ThemedText>
                         <ThemedText style={[styles.brandSubtitle, { color: colors.textMuted }]}>
-                            2.5 Flash • EV Copilot
+                            EV Copilot
                         </ThemedText>
                     </View>
                 </View>
@@ -415,7 +415,7 @@ export default function GeminiChatScreen({ navigation }: any) {
                                 >
                                     <Sparkles size={12} color="#FFFFFF" />
                                     <ThemedText style={styles.greetingPillText}>
-                                        Gemini EV Intelligence
+                                        Iris AI • EV Intelligence
                                     </ThemedText>
                                 </LinearGradient>
 
@@ -611,7 +611,7 @@ export default function GeminiChatScreen({ navigation }: any) {
                     )}
                 </ScrollView>
 
-                {/* Gemini Ambient Bottom Bar & Prompt Composer */}
+                {/* Iris AI Ambient Bottom Bar & Prompt Composer */}
                 <View
                     style={[
                         styles.composerWrapper,
@@ -619,7 +619,7 @@ export default function GeminiChatScreen({ navigation }: any) {
                             backgroundColor: isDark ? 'rgba(10, 11, 16, 0.95)' : 'rgba(255, 255, 255, 0.95)',
                             paddingBottom: isKeyboardVisible
                                 ? 10
-                                : Math.max(18, insets.bottom + 8) + 56 + 10,
+                                : Math.max(insets.bottom, 12),
                             borderTopColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)',
                         },
                     ]}

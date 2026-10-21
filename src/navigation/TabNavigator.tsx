@@ -319,7 +319,8 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const shouldHideTabBar =
         Boolean((currentTabRoute.params as { hideTabBar?: boolean } | undefined)?.hideTabBar);
 
-    if (shouldHideTabBar) {
+    // In AI mode on the home/AI screen, hide the bottom navigation bar completely
+    if (shouldHideTabBar || (isAi && currentTabRoute?.name === 'Map')) {
         return null;
     }
 
@@ -380,7 +381,7 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                         }
                     };
 
-                    const tabLabel = route.name === 'Map' ? (isAi ? 'Gemini AI' : 'Home') : config.label;
+                    const tabLabel = route.name === 'Map' ? (isAi ? 'AI' : 'Home') : config.label;
 
                     return (
                         <TabBarItem

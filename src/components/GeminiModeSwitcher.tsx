@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { Sparkles, LayoutGrid } from 'lucide-react-native';
+import { Sparkles, Map } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
 import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -88,11 +88,11 @@ export function GeminiModeSwitcher({ compact = false, style }: GeminiModeSwitche
                         },
                     ]}
                 >
-                    Gemini AI
+                    AI
                 </ThemedText>
             </TouchableOpacity>
 
-            {/* Bento Grid Option */}
+            {/* Map Mode Option */}
             <TouchableOpacity
                 activeOpacity={0.85}
                 style={[
@@ -105,7 +105,7 @@ export function GeminiModeSwitcher({ compact = false, style }: GeminiModeSwitche
                 ]}
                 onPress={() => handleSwitch('bento')}
             >
-                <LayoutGrid
+                <Map
                     size={compact ? 13 : 15}
                     color={!isAi ? '#FF5B45' : colors.textMuted}
                 />
@@ -119,7 +119,7 @@ export function GeminiModeSwitcher({ compact = false, style }: GeminiModeSwitche
                         },
                     ]}
                 >
-                    Bento Grid
+                    Map
                 </ThemedText>
             </TouchableOpacity>
         </View>

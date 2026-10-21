@@ -6,8 +6,8 @@ import StationMapScreen from './StationMapScreen';
 /**
  * Unified Home Screen Container
  * Dynamically switches between:
- * 1. Gemini AI Mode (minimal AI-chatbot style like Google Gemini app)
- * 2. Bento Grid Mode (interactive map & bento cards style)
+ * 1. Iris AI Mode (minimal AI-chatbot style EV copilot)
+ * 2. Map Mode (interactive map & station cards)
  */
 export default function HomeScreen(props: any) {
     const { mode } = useAppMode();
