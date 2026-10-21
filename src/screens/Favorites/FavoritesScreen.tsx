@@ -22,6 +22,8 @@ function getBentoFavTheme(index: number, isDark: boolean) {
             pillText: '#0A0D14',
             actionBg: '#0A0D14',
             actionColor: '#38BDF8',
+            heartBgFav: '#FFFFFF',
+            heartColorFav: '#EF4444',
             tag: 'TOP PICK',
         };
     }
@@ -34,6 +36,8 @@ function getBentoFavTheme(index: number, isDark: boolean) {
             pillText: '#FFFFFF',
             actionBg: '#FFFFFF',
             actionColor: '#FF5B45',
+            heartBgFav: '#FFFFFF',
+            heartColorFav: '#EF4444',
             tag: 'RAPID CHARGER',
         };
     }
@@ -46,6 +50,8 @@ function getBentoFavTheme(index: number, isDark: boolean) {
             pillText: '#FFFFFF',
             actionBg: '#FFFFFF',
             actionColor: '#10B981',
+            heartBgFav: '#FFFFFF',
+            heartColorFav: '#EF4444',
             tag: 'AVAILABLE NOW',
         };
     }
@@ -57,6 +63,8 @@ function getBentoFavTheme(index: number, isDark: boolean) {
         pillText: '#38BDF8',
         actionBg: isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.10)',
         actionColor: '#38BDF8',
+        heartBgFav: isDark ? 'rgba(255, 255, 255, 0.14)' : '#FEE2E2',
+        heartColorFav: '#EF4444',
         tag: 'SAVED CHARGER',
     };
 }
@@ -69,12 +77,8 @@ export default function FavoritesScreen({ navigation }: any) {
 
     const stationsList = useMemo(() => {
         const pool = allStations && allStations.length > 0 ? allStations : MOCK_STATIONS;
-        return [...pool].sort((a, b) => {
-            const favA = isFavorite(a.id) ? 1 : 0;
-            const favB = isFavorite(b.id) ? 1 : 0;
-            if (favA !== favB) return favB - favA;
-            return (a.distanceKm ?? 999) - (b.distanceKm ?? 999);
-        });
+        const favs = pool.filter((station) => isFavorite(station.id));
+        return favs.sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
     }, [allStations, isFavorite]);
 
     return (
@@ -113,83 +117,109 @@ export default function FavoritesScreen({ navigation }: any) {
                     </View>
                 </View>
 
-                {stationsList.map((station, index) => {
-                    const connector = getRecommendedConnector(
-                        station,
-                        selectedVehicle?.connectorType
-                    );
-                    const isFav = isFavorite(station.id);
-                    const theme = getBentoFavTheme(index, isDark);
-
-                    return (
-                        <TouchableOpacity
-                            key={station.id}
-                            activeOpacity={0.88}
-                            onPress={() => {
-                                if (Platform.OS !== 'web') {
-                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                }
-                                navigation.navigate('StationDetails', { stationId: station.id });
-                            }}
+                {stationsList.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                        <View
                             style={[
-                                styles.bentoFavCard,
+                                styles.emptyIconCircle,
                                 {
-                                    backgroundColor: theme.bg,
-                                    borderWidth: 1,
+                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
                                     borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
                         >
-                            {/* Top Row: Tag Capsule, Favorite Heart & Diagonal Arrow Action */}
-                            <View style={styles.cardHeader}>
-                                <View style={[styles.bentoPill, { backgroundColor: theme.pillBg }]}>
-                                    <ThemedText style={[styles.bentoPillText, { color: theme.pillText }]}>
-                                        • {theme.tag}
-                                    </ThemedText>
-                                </View>
+                            <Heart size={36} color={colors.textMuted} />
+                        </View>
+                        <ThemedText style={[styles.emptyTitle, { color: colors.text }]}>
+                            No Favorites Yet
+                        </ThemedText>
+                        <ThemedText style={[styles.emptySubtitle, { color: colors.textMuted }]}>
+                            Tap the heart icon on any charging station to save it here for fast access.
+                        </ThemedText>
+                    </View>
+                ) : (
+                    stationsList.map((station, index) => {
+                        const connector = getRecommendedConnector(
+                            station,
+                            selectedVehicle?.connectorType
+                        );
+                        const isFav = isFavorite(station.id);
+                        const theme = getBentoFavTheme(index, isDark);
 
-                                <View style={styles.cardTopActions}>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.favoriteHeartBtn,
-                                            {
-                                                backgroundColor: isFav
-                                                    ? 'rgba(239, 68, 68, 0.2)'
-                                                    : theme.pillBg,
-                                            },
-                                        ]}
-                                        onPress={(e) => {
-                                            e.stopPropagation();
-                                            if (Platform.OS !== 'web') {
-                                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                                            }
-                                            toggleFavorite(station.id);
-                                        }}
-                                        activeOpacity={0.75}
-                                    >
-                                        <Heart
-                                            size={16}
-                                            color={isFav ? '#EF4444' : theme.textColor}
-                                            fill={isFav ? '#EF4444' : 'none'}
-                                        />
-                                    </TouchableOpacity>
+                        return (
+                            <TouchableOpacity
+                                key={station.id}
+                                activeOpacity={0.88}
+                                onPress={() => {
+                                    if (Platform.OS !== 'web') {
+                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    }
+                                    navigation.navigate('StationDetails', { stationId: station.id });
+                                }}
+                                style={[
+                                    styles.bentoFavCard,
+                                    {
+                                        backgroundColor: theme.bg,
+                                        borderWidth: 1,
+                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                    },
+                                ]}
+                            >
+                                {/* Top Row: Tag Capsule, Favorite Heart & Diagonal Arrow Action */}
+                                <View style={styles.cardHeader}>
+                                    <View style={[styles.bentoPill, { backgroundColor: theme.pillBg }]}>
+                                        <ThemedText style={[styles.bentoPillText, { color: theme.pillText }]}>
+                                            • {theme.tag}
+                                        </ThemedText>
+                                    </View>
 
-                                    <View
-                                        style={[
-                                            styles.cardActionCircle,
-                                            {
-                                                backgroundColor: theme.actionBg,
-                                            },
-                                        ]}
-                                    >
-                                        <Navigation
-                                            size={13}
-                                            color={theme.actionColor}
-                                            fill={theme.actionColor}
-                                        />
+                                    <View style={styles.cardTopActions}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.favoriteHeartBtn,
+                                                {
+                                                    backgroundColor: isFav
+                                                        ? theme.heartBgFav
+                                                        : theme.pillBg,
+                                                    shadowColor: '#000000',
+                                                    shadowOffset: { width: 0, height: 2 },
+                                                    shadowOpacity: isFav ? 0.15 : 0,
+                                                    shadowRadius: 3,
+                                                    elevation: isFav ? 2 : 0,
+                                                },
+                                            ]}
+                                            onPress={(e) => {
+                                                e.stopPropagation();
+                                                if (Platform.OS !== 'web') {
+                                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                                }
+                                                toggleFavorite(station.id);
+                                            }}
+                                            activeOpacity={0.75}
+                                        >
+                                            <Heart
+                                                size={16}
+                                                color={isFav ? theme.heartColorFav : theme.textColor}
+                                                fill={isFav ? theme.heartColorFav : 'none'}
+                                            />
+                                        </TouchableOpacity>
+
+                                        <View
+                                            style={[
+                                                styles.cardActionCircle,
+                                                {
+                                                    backgroundColor: theme.actionBg,
+                                                },
+                                            ]}
+                                        >
+                                            <Navigation
+                                                size={13}
+                                                color={theme.actionColor}
+                                                fill={theme.actionColor}
+                                            />
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
 
                             {/* Station Title & Location */}
                             <View style={styles.stationInfo}>
@@ -222,7 +252,7 @@ export default function FavoritesScreen({ navigation }: any) {
                             </View>
                         </TouchableOpacity>
                     );
-                })}
+                }))}
             </ScrollView>
         </SafeAreaView>
     );
@@ -315,5 +345,32 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 70,
+        paddingHorizontal: 28,
+    },
+    emptyIconCircle: {
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+        borderWidth: 1,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontFamily: FONT_FAMILIES.bold,
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    emptySubtitle: {
+        fontSize: 13,
+        fontFamily: FONT_FAMILIES.regular,
+        textAlign: 'center',
+        lineHeight: 18,
     },
 });
