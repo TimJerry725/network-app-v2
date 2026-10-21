@@ -17,6 +17,7 @@ import { FavoritesProvider } from './src/context/FavoritesContext';
 import { PostChargeGraceProvider } from './src/context/PostChargeGraceContext';
 import { ChargingProvider } from './src/context/ChargingContext';
 import { ThemeProvider } from './src/hooks/useAppTheme';
+import { AppModeProvider } from './src/context/AppModeContext';
 
 export default function App() {
     const [fontsLoaded] = useFonts({
@@ -40,15 +41,17 @@ export default function App() {
     return (
         <SafeAreaProvider>
             <ThemeProvider>
-                <VehicleProvider>
-                    <FavoritesProvider>
-                        <ChargingProvider>
-                            <PostChargeGraceProvider>
-                                <RootNavigator />
-                            </PostChargeGraceProvider>
-                        </ChargingProvider>
-                    </FavoritesProvider>
-                </VehicleProvider>
+                <AppModeProvider>
+                    <VehicleProvider>
+                        <FavoritesProvider>
+                            <ChargingProvider>
+                                <PostChargeGraceProvider>
+                                    <RootNavigator />
+                                </PostChargeGraceProvider>
+                            </ChargingProvider>
+                        </FavoritesProvider>
+                    </VehicleProvider>
+                </AppModeProvider>
             </ThemeProvider>
         </SafeAreaProvider>
     );

@@ -54,6 +54,8 @@ import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { Type2Icon } from '../../components/Type2Icon';
 import { ChademoIcon } from '../../components/ChademoIcon';
 import { Neo3DMorphIcon } from '../../components/Neo3DMorphIcon';
+import { GeminiModeSwitcher } from '../../components/GeminiModeSwitcher';
+import { useAppMode } from '../../context/AppModeContext';
 export type MapFilterState = {
     chargerTypes: string[];
     connectorTypes: string[];
@@ -580,6 +582,7 @@ export default function StationMapScreen({ navigation }: any) {
     };
     const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
+    const { setMode } = useAppMode();
     const { selectedVehicle, user, topUpWallet } = useVehicles();
     const { stations: allStations } = useIndiaChargingStations();
     const mapRef = useRef<MapView>(null);
@@ -1194,6 +1197,18 @@ export default function StationMapScreen({ navigation }: any) {
                         />
                         <View style={styles.searchActions}>
                             <TouchableOpacity
+                                style={{ marginRight: 6 }}
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                    setMode('ai');
+                                }}
+                            >
+                                <View style={[styles.profileCircle, { backgroundColor: isDark ? 'rgba(56, 189, 248, 0.18)' : '#E0F2FE' }]}>
+                                    <Sparkles size={15} color="#38BDF8" />
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity
                                 style={styles.profileWrapper}
                                 activeOpacity={0.8}
                                 onPress={() => navigation.navigate('Profile' as never)}
@@ -1255,8 +1270,9 @@ export default function StationMapScreen({ navigation }: any) {
                         })}
                     </ScrollView>
 
-                    {/* Wallet Balance Pill below Search Bar & Filters */}
+                    {/* Mode Switcher & Wallet Balance Pill below Search Bar & Filters */}
                     <View style={styles.walletFilterRow} pointerEvents="box-none">
+                        <GeminiModeSwitcher compact={true} />
                         <TouchableOpacity
                             activeOpacity={0.8}
                             style={[
@@ -2296,7 +2312,8 @@ const styles = StyleSheet.create({
         marginTop: 8,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
+        paddingHorizontal: 2,
     },
     walletHeaderPill: {
         flexDirection: 'row',

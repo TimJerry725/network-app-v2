@@ -10,14 +10,15 @@ import {
     UIManager,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { House, Compass, ScanLine, Heart, History } from 'lucide-react-native';
+import { House, Compass, ScanLine, Heart, History, Sparkles } from 'lucide-react-native';
 import TripPlannerScreen from '../screens/Explore';
-import StationMapScreen from '../screens/Home/StationMapScreen';
+import HomeScreen from '../screens/Home/HomeScreen';
 import VehicleListScreen from '../screens/Profile/VehicleListScreen';
 import ScanScreen from '../screens/Charging/ScanScreen';
 import FavoritesScreen from '../screens/Favorites/FavoritesScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { useAppMode } from '../context/AppModeContext';
 import { FONT_FAMILIES } from '../constants/Tokens';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -81,7 +82,7 @@ export const TAB_THEME: Record<string, {
     },
 };
 
-function getTabIcon(name: string, isFocused: boolean, isDark: boolean) {
+function getTabIcon(name: string, isFocused: boolean, isDark: boolean, isAiMode?: boolean) {
     const strokeWidth = isFocused ? 2.2 : 1.9;
     const size = 18;
 
@@ -94,6 +95,16 @@ function getTabIcon(name: string, isFocused: boolean, isDark: boolean) {
 
     switch (name) {
         case 'Map':
+            if (isAiMode) {
+                return (
+                    <Sparkles
+                        size={size}
+                        color={iconColor}
+                        fill={isFocused ? iconColor : 'none'}
+                        strokeWidth={strokeWidth}
+                    />
+                );
+            }
             return (
                 <House
                     size={size}
@@ -126,9 +137,10 @@ interface TabBarItemProps {
     isFocused: boolean;
     onPress: () => void;
     isDark: boolean;
+    isAiMode?: boolean;
 }
 
-function TabBarItem({ name, label, isFocused, onPress, isDark }: TabBarItemProps) {
+function TabBarItem({ name, label, isFocused, onPress, isDark, isAiMode }: TabBarItemProps) {
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const labelOpacity = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
 
@@ -200,7 +212,7 @@ function TabBarItem({ name, label, isFocused, onPress, isDark }: TabBarItemProps
                     { transform: [{ scale: scaleAnim }] },
                 ]}
             >
-                {getTabIcon(name, isFocused, isDark)}
+                {getTabIcon(name, isFocused, isDark, isAiMode)}
                 {isFocused && (
                     <Animated.Text
                         style={[
@@ -292,6 +304,8 @@ function SeparatedScanButton({
 function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const insets = useSafeAreaInsets();
     const { isDark } = useAppTheme();
+    const { mode } = useAppMode();
+    const isAi = mode === 'ai';
 
     const prevIndexRef = useRef(state.index);
     useEffect(() => {
@@ -366,14 +380,17 @@ function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                         }
                     };
 
+                    const tabLabel = route.name === 'Map' ? (isAi ? 'Gemini AI' : 'Home') : config.label;
+
                     return (
                         <TabBarItem
                             key={route.key}
                             name={route.name}
-                            label={config.label}
+                            label={tabLabel}
                             isFocused={isFocused}
                             onPress={onPress}
                             isDark={isDark}
+                            isAiMode={isAi}
                         />
                     );
                 })}
@@ -409,7 +426,7 @@ export default function TabNavigator() {
                 },
             }}
         >
-            <Tab.Screen name="Map" component={StationMapScreen} />
+            <Tab.Screen name="Map" component={HomeScreen} />
             <Tab.Screen name="Explore" component={TripPlannerScreen} />
             <Tab.Screen name="Favorite" component={FavoritesScreen} />
             <Tab.Screen name="Vehicles" component={VehicleListScreen} />
