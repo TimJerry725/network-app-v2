@@ -474,18 +474,6 @@ export default function GeminiChatScreen({ navigation }: any) {
                     {messages.length === 0 ? (
                         <View style={styles.starterContainer}>
                             <View style={styles.greetingHeader}>
-                                <LinearGradient
-                                    colors={['#38BDF8', '#818CF8', '#FF5B45']}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                    style={styles.greetingGradientPill}
-                                >
-                                    <Sparkles size={12} color="#FFFFFF" />
-                                    <ThemedText style={styles.greetingPillText}>
-                                        Iris AI • EV Intelligence
-                                    </ThemedText>
-                                </LinearGradient>
-
                                 <ThemedText
                                     style={[
                                         styles.greetingTitle,
@@ -862,30 +850,18 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     starterContainer: {
-        paddingTop: 8,
+        paddingTop: 16,
         paddingBottom: 20,
     },
     greetingHeader: {
         alignItems: 'center',
-        marginBottom: 20,
-    },
-    greetingGradientPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        borderRadius: RADIUS.pill,
-        marginBottom: 10,
-    },
-    greetingPillText: {
-        color: '#FFFFFF',
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.bold,
-        letterSpacing: 0.4,
+        paddingTop: 8,
+        marginBottom: 24,
     },
     greetingTitle: {
-        fontSize: 30,
+        fontSize: 32,
+        lineHeight: 42,
+        paddingTop: 6,
         fontFamily: FONT_FAMILIES.bold,
         marginBottom: 6,
         textAlign: 'center',
