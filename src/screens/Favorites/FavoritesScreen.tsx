@@ -24,7 +24,6 @@ function getBentoFavTheme(index: number, isDark: boolean) {
             actionColor: '#38BDF8',
             heartBgFav: '#FFFFFF',
             heartColorFav: '#EF4444',
-            tag: 'TOP PICK',
         };
     }
     if (cycle === 1) {
@@ -38,7 +37,6 @@ function getBentoFavTheme(index: number, isDark: boolean) {
             actionColor: '#FF5B45',
             heartBgFav: '#FFFFFF',
             heartColorFav: '#EF4444',
-            tag: 'RAPID CHARGER',
         };
     }
     if (cycle === 2) {
@@ -52,7 +50,6 @@ function getBentoFavTheme(index: number, isDark: boolean) {
             actionColor: '#10B981',
             heartBgFav: '#FFFFFF',
             heartColorFav: '#EF4444',
-            tag: 'AVAILABLE NOW',
         };
     }
     return {
@@ -60,19 +57,17 @@ function getBentoFavTheme(index: number, isDark: boolean) {
         textColor: isDark ? '#FFFFFF' : '#101114',
         subColor: isDark ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.6)',
         pillBg: isDark ? 'rgba(56, 189, 248, 0.14)' : 'rgba(56, 189, 248, 0.10)',
-        pillText: '#38BDF8',
         actionBg: isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.10)',
         actionColor: '#38BDF8',
-        heartBgFav: isDark ? 'rgba(255, 255, 255, 0.14)' : '#FEE2E2',
+        heartBgFav: isDark ? '#FFFFFF' : '#FEE2E2',
         heartColorFav: '#EF4444',
-        tag: 'SAVED CHARGER',
     };
 }
 
 export default function FavoritesScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const { selectedVehicle } = useVehicles();
-    const { favoriteIds, isFavorite, toggleFavorite } = useFavorites();
+    const { isFavorite, toggleFavorite } = useFavorites();
     const { stations: allStations } = useIndiaChargingStations();
 
     const stationsList = useMemo(() => {
@@ -91,28 +86,7 @@ export default function FavoritesScreen({ navigation }: any) {
                     <View>
                         <ThemedText type="title">Favorites</ThemedText>
                         <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>
-                            Your saved chargers and network stops
-                        </ThemedText>
-                    </View>
-                    <View
-                        style={[
-                            styles.headerBadge,
-                            {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                            },
-                        ]}
-                    >
-                        <Heart size={14} color="#EF4444" fill="#EF4444" />
-                        <ThemedText
-                            style={{
-                                color: colors.text,
-                                ...FONTS.caption,
-                                fontFamily: FONT_FAMILIES.bold,
-                                letterSpacing: 0.5,
-                            }}
-                        >
-                            {favoriteIds.length} SAVED
+                            Your favorite chargers and network stops
                         </ThemedText>
                     </View>
                 </View>
@@ -165,11 +139,20 @@ export default function FavoritesScreen({ navigation }: any) {
                                     },
                                 ]}
                             >
-                                {/* Top Row: Tag Capsule, Favorite Heart & Diagonal Arrow Action */}
+                                {/* Top Row: Station Name on Left, Actions on Right */}
                                 <View style={styles.cardHeader}>
-                                    <View style={[styles.bentoPill, { backgroundColor: theme.pillBg }]}>
-                                        <ThemedText style={[styles.bentoPillText, { color: theme.pillText }]}>
-                                            • {theme.tag}
+                                    <View style={styles.stationTitleWrap}>
+                                        <ThemedText
+                                            style={[styles.stationName, { color: theme.textColor }]}
+                                            numberOfLines={1}
+                                        >
+                                            {station.name}
+                                        </ThemedText>
+                                        <ThemedText
+                                            style={{ color: theme.subColor, ...FONTS.caption }}
+                                            numberOfLines={1}
+                                        >
+                                            {station.distanceKm} km away{station.etaMinutes ? ` • ${station.etaMinutes} min ETA` : ''}
                                         </ThemedText>
                                     </View>
 
@@ -221,22 +204,6 @@ export default function FavoritesScreen({ navigation }: any) {
                                     </View>
                                 </View>
 
-                            {/* Station Title & Location */}
-                            <View style={styles.stationInfo}>
-                                <ThemedText
-                                    style={[styles.stationName, { color: theme.textColor }]}
-                                    numberOfLines={1}
-                                >
-                                    {station.name}
-                                </ThemedText>
-                                <ThemedText
-                                    style={{ color: theme.subColor, ...FONTS.caption }}
-                                    numberOfLines={1}
-                                >
-                                    {station.distanceKm} km away{station.etaMinutes ? ` • ${station.etaMinutes} min ETA` : ''}
-                                </ThemedText>
-                            </View>
-
                             {/* Bottom Meta Row with Pills */}
                             <View style={styles.bottomMetaRow}>
                                 <View style={[styles.bentoPill, { backgroundColor: theme.pillBg }]}>
@@ -273,17 +240,6 @@ const styles = StyleSheet.create({
         gap: 12,
         marginBottom: SPACING.lg - 4,
     },
-    headerBadge: {
-        minWidth: 52,
-        height: 38,
-        borderRadius: RADIUS.button,
-        paddingHorizontal: 14,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'row',
-        gap: 6,
-        borderWidth: 1,
-    },
     bentoFavCard: {
         borderRadius: RADIUS.card,
         padding: 18,
@@ -299,6 +255,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 12,
+    },
+    stationTitleWrap: {
+        flex: 1,
+        marginRight: 12,
     },
     cardTopActions: {
         flexDirection: 'row',
@@ -332,9 +292,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    stationInfo: {
-        marginBottom: 14,
     },
     stationName: {
         ...FONTS.h3,
