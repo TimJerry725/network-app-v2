@@ -22,12 +22,17 @@ import {
 } from 'lucide-react-native';
 
 import { AppLogo } from '../../components/AppLogo';
+import { CredButton } from '../../components/CredButton';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 
 export default function LoginScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
+
+    const isCred =
+        !(colors as any).lavender &&
+        (colors.primary === '#FFFFFF' || colors.primary === '#000000' || colors.primary === '#F6F6F6');
 
     const [email, setEmail] = useState('tim.vance@example.com');
     const [password, setPassword] = useState('••••••••••••');
@@ -55,7 +60,11 @@ export default function LoginScreen({ navigation }: any) {
             {/* Top Ambient Glow */}
             <LinearGradient
                 colors={
-                    isDark
+                    isCred
+                        ? isDark
+                            ? ['rgba(255, 255, 255, 0.06)', 'transparent']
+                            : ['rgba(0, 0, 0, 0.03)', 'transparent']
+                        : isDark
                         ? [
                               'rgba(56, 189, 248, 0.18)',
                               'rgba(129, 140, 248, 0.08)',
@@ -128,8 +137,13 @@ export default function LoginScreen({ navigation }: any) {
                                         returnKeyType="next"
                                     />
                                     {email.length > 3 && (
-                                        <View style={styles.verifiedDot}>
-                                            <Check size={11} color="#10B981" />
+                                        <View
+                                            style={[
+                                                styles.verifiedDot,
+                                                isCred && { backgroundColor: 'rgba(255, 255, 255, 0.14)' },
+                                            ]}
+                                        >
+                                            <Check size={11} color={isCred ? colors.text : '#10B981'} />
                                         </View>
                                     )}
                                 </View>
@@ -147,7 +161,7 @@ export default function LoginScreen({ navigation }: any) {
                                             if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                         }}
                                     >
-                                        <ThemedText style={styles.forgotLink}>
+                                        <ThemedText style={[styles.forgotLink, isCred && { color: colors.textMuted }]}>
                                             Forgot?
                                         </ThemedText>
                                     </TouchableOpacity>
@@ -201,41 +215,56 @@ export default function LoginScreen({ navigation }: any) {
                                     style={[
                                         styles.checkbox,
                                         rememberMe && styles.checkboxActive,
-                                        rememberMe && { backgroundColor: colors.primary },
+                                        rememberMe && { backgroundColor: isCred ? (isDark ? '#FFFFFF' : '#000000') : colors.primary },
                                     ]}
                                 >
-                                    {rememberMe && <Check size={11} color="#FFFFFF" />}
+                                    {rememberMe && <Check size={11} color={isCred ? (isDark ? '#000000' : '#FFFFFF') : '#FFFFFF'} />}
                                 </View>
                                 <ThemedText style={[styles.rememberText, { color: colors.textMuted }]}>
                                     Remember this vehicle device
                                 </ThemedText>
                             </TouchableOpacity>
 
-                            {/* Primary Sign In Button */}
-                            <TouchableOpacity
-                                style={styles.signInButton}
-                                activeOpacity={0.85}
-                                onPress={handleContinue}
-                                disabled={isLoading}
-                            >
-                                <LinearGradient
-                                    colors={['#FF5B45', '#FF7A66']}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                    style={styles.signInGradient}
+                            {/* Primary Sign In Button: Adaptive per UI Theme */}
+                            {isCred ? (
+                                <CredButton
+                                    title={isLoading ? 'AUTHENTICATING...' : 'AUTHENTICATE & ENTER'}
+                                    onPress={handleContinue}
+                                    disabled={isLoading}
+                                    variant="neon"
+                                    showTrailingIcon={true}
+                                    trailingIcon={
+                                        isLoading ? (
+                                            <ActivityIndicator size="small" color="#000000" />
+                                        ) : undefined
+                                    }
+                                />
+                            ) : (
+                                <TouchableOpacity
+                                    style={styles.signInButton}
+                                    activeOpacity={0.85}
+                                    onPress={handleContinue}
+                                    disabled={isLoading}
                                 >
-                                    {isLoading ? (
-                                        <ActivityIndicator size="small" color="#FFFFFF" />
-                                    ) : (
-                                        <>
-                                            <ThemedText style={styles.signInText}>
-                                                AUTHENTICATE & ENTER
-                                            </ThemedText>
-                                            <ArrowRight size={15} color="#FFFFFF" />
-                                        </>
-                                    )}
-                                </LinearGradient>
-                            </TouchableOpacity>
+                                    <LinearGradient
+                                        colors={['#FF5B45', '#FF7A66']}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={styles.signInGradient}
+                                    >
+                                        {isLoading ? (
+                                            <ActivityIndicator size="small" color="#FFFFFF" />
+                                        ) : (
+                                            <>
+                                                <ThemedText style={styles.signInText}>
+                                                    AUTHENTICATE & ENTER
+                                                </ThemedText>
+                                                <ArrowRight size={15} color="#FFFFFF" />
+                                            </>
+                                        )}
+                                    </LinearGradient>
+                                </TouchableOpacity>
+                            )}
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
