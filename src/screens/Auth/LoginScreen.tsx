@@ -84,21 +84,7 @@ export default function LoginScreen({ navigation }: any) {
                     >
                         {/* 1. Header with Official Vector App Logo */}
                         <View style={styles.brandHeader}>
-                            <View
-                                style={[
-                                    styles.logoPill,
-                                    {
-                                        backgroundColor: isDark
-                                            ? 'rgba(22, 24, 35, 0.85)'
-                                            : 'rgba(255, 255, 255, 0.95)',
-                                        borderColor: isDark
-                                            ? 'rgba(56, 189, 248, 0.25)'
-                                            : 'rgba(56, 189, 248, 0.18)',
-                                    },
-                                ]}
-                            >
-                                <AppLogo width={200} height={42} />
-                            </View>
+                            <AppLogo width={220} height={46} />
                         </View>
 
                         {/* 2. Modern Glassmorphic Login Card */}
@@ -298,20 +284,9 @@ const styles = StyleSheet.create({
     },
     brandHeader: {
         alignItems: 'center',
-        marginBottom: 28,
-    },
-    logoPill: {
-        paddingHorizontal: 22,
-        paddingVertical: 14,
-        borderRadius: RADIUS.card,
-        borderWidth: 1.2,
-        shadowColor: '#38BDF8',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 14,
-        elevation: 6,
-        alignItems: 'center',
         justifyContent: 'center',
+        marginBottom: 32,
+        paddingTop: 8,
     },
     loginCard: {
         borderRadius: RADIUS.card,
