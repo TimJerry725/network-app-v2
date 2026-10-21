@@ -34,7 +34,7 @@ type TabConfig = {
 const TAB_CONFIG: TabConfig[] = [
     { name: 'Map', label: 'Home' },
     { name: 'Explore', label: 'Trips' },
-    { name: 'Favorite', label: 'Saved' },
+    { name: 'Favorite', label: 'Favorites' },
     { name: 'Vehicles', label: 'Sessions' },
     { name: 'Scan', label: 'Scan' },
 ];

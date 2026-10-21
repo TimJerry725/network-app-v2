@@ -108,7 +108,7 @@ export default function FavoritesScreen({ navigation }: any) {
                             No Favorites Yet
                         </ThemedText>
                         <ThemedText style={[styles.emptySubtitle, { color: colors.textMuted }]}>
-                            Tap the heart icon on any charging station to save it here for fast access.
+                            Tap the heart icon on any charging station to add it to your favorites.
                         </ThemedText>
                     </View>
                 ) : (
