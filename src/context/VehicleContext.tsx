@@ -50,7 +50,7 @@ type VehicleContextType = {
 
 const INITIAL_USER: UserProfile = {
     id: 'usr_cpo_982',
-    fullName: 'Timothee Vance',
+    fullName: 'Tim Vance',
     phone: '+91 98452 71092',
     email: 'tim.vance@example.com',
     rfidTag: 'IRIS-RFID-7729',

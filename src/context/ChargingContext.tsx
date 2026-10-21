@@ -375,7 +375,7 @@ export function ChargingProvider({ children }: { children: React.ReactNode }) {
             connectorType: params.connectorType,
             maxConnectorPowerKw: params.powerRatingKw,
             userId: 'usr_cpo_982',
-            userName: 'Timothee Vance',
+            userName: 'Tim Vance',
             vehicleId: params.vehicleId,
             vehicleModel: params.vehicleModel,
             vehicleRegNo: params.vehicleRegNo,

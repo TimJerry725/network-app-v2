@@ -59,7 +59,9 @@ export default function GeminiChatScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
     const { selectedVehicle, user } = useVehicles();
-    const firstName = user?.fullName ? user.fullName.split(' ')[0] : 'Tim';
+    const firstName = user?.fullName
+        ? (user.fullName.toLowerCase().startsWith('tim') ? 'Tim' : user.fullName.split(' ')[0])
+        : 'Tim';
     const { stations: allStations } = useIndiaChargingStations();
     const { setMode } = useAppMode();
 
