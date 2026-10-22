@@ -1127,7 +1127,7 @@ export default function StationMapScreen({ navigation }: any) {
                 onRegionChangeComplete={setMapRegion}
                 customMapStyle={Platform.OS === 'android' && isDark ? DARK_MAP_STYLE : undefined}
                 userInterfaceStyle={isDark ? 'dark' : 'light'}
-                showsUserLocation={true}
+                showsUserLocation={Boolean(userLocation)}
                 showsMyLocationButton={false}
             >
                 {visibleStations.map((station: Station) => {

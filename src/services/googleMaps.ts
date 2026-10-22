@@ -7,7 +7,9 @@ const GOOGLE_MAPS_ROUTES_URL =
 const GOOGLE_WEATHER_HOURLY_URL =
     'https://weather.googleapis.com/v1/forecast/hours:lookup';
 
-const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY?.trim();
+const GOOGLE_MAPS_API_KEY =
+    process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() ||
+    'AIzaSyBwqLIWDCYD1eeQIbS9olF8ad87eU9cGoI';
 
 type GoogleGeocodeResponse = {
     results?: Array<{
