@@ -1167,7 +1167,7 @@ export default function StationMapScreen({ navigation }: any) {
                         zIndex={999}
                         tracksViewChanges={true}
                     >
-                        <View style={{ width: 56, height: 56 }}><CarPinIcon size={56} /></View>
+                        <View style={{ width: 56, height: 56 }}><CarPinIcon size={56} color={colors.primary} /></View>
                     </Marker>
                 )}
             </MapView>
