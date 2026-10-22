@@ -3,7 +3,7 @@ import { Animated, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ThemedText } from './ThemedText';
 import { FONT_FAMILIES } from '../constants/Tokens';
-import { RetroMascot } from './RetroMascot';
+import { RetroMascot, MascotExpression } from './RetroMascot';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -12,7 +12,7 @@ export interface RetroCircularGaugeProps {
     size?: number;
     strokeWidth?: number;
     showMascot?: boolean;
-    mascotExpression?: 'happy' | 'wink' | 'chill';
+    mascotExpression?: MascotExpression;
     chargingSpeedKw?: number;
     style?: StyleProp<ViewStyle>;
 }

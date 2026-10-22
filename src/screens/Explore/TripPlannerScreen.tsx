@@ -978,8 +978,8 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 >
                                     {routeOptions.map((opt) => {
                                         const isSelected = opt.id === selectedRouteId;
-                                        let cardBg = isDark ? '#16171E' : '#FFFFFF';
-                                        let cardBorder = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+                                        let cardBg = isDark ? colors.surface : '#FFFFFF';
+                                        let cardBorder = isDark ? colors.cardBorder : 'rgba(0, 0, 0, 0.06)';
                                         let textColor = colors.text;
                                         let subTextColor = colors.textMuted;
                                         let tagBg = isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE';
@@ -989,15 +989,15 @@ export default function TripPlannerScreen({ navigation }: any) {
 
                                         if (isSelected) {
                                             if (opt.tag === 'Fastest') {
-                                                // Primary: Ice Blue
-                                                cardBg = '#38BDF8';
-                                                cardBorder = '#38BDF8';
-                                                textColor = '#0A0D14';
-                                                subTextColor = 'rgba(10, 13, 20, 0.75)';
-                                                tagBg = 'rgba(10, 13, 20, 0.12)';
-                                                tagColor = '#0A0D14';
-                                                actionBg = '#0A0D14';
-                                                actionColor = '#38BDF8';
+                                                // Primary: Electric Blue
+                                                cardBg = '#3B82F6';
+                                                cardBorder = '#22D3EE';
+                                                textColor = '#FFFFFF';
+                                                subTextColor = 'rgba(255, 255, 255, 0.85)';
+                                                tagBg = 'rgba(255, 255, 255, 0.2)';
+                                                tagColor = '#FFFFFF';
+                                                actionBg = '#FFFFFF';
+                                                actionColor = '#3B82F6';
                                             } else if (opt.tag === 'Scenic') {
                                                 // Secondary: Sunset Coral
                                                 cardBg = '#FF5B45';

@@ -642,8 +642,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     style={[
                         styles.tariffScheduleLinkRow,
                         {
-                            backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
                         },
                     ]}
                     onPress={() => {
@@ -655,8 +655,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     <ThemedText style={[styles.tariffScheduleLinkText, { color: colors.text }]}>
                         View full tariff and penalty schedule
                     </ThemedText>
-                    <View style={[styles.chevronCircle, { backgroundColor: isDark ? '#FFFFFF' : '#000000' }]}>
-                        <ChevronRight size={13} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={3} />
+                    <View style={[styles.chevronCircle, { backgroundColor: colors.primary }]}>
+                        <ChevronRight size={13} color="#FFFFFF" strokeWidth={3} />
                     </View>
                 </TouchableOpacity>
 
@@ -722,8 +722,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                     style={[
                         styles.walletStrip,
                         {
-                            backgroundColor: isDark ? '#16171E' : '#F6F6F8',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                            backgroundColor: isDark ? colors.surface : '#F6F6F8',
+                            borderColor: colors.cardBorder,
                         },
                     ]}
                 >
@@ -771,8 +771,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.modalSheet,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                     >
@@ -797,8 +797,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                             style={[
                                 styles.modalTariffBox,
                                 {
-                                    backgroundColor: isDark ? '#1C1D26' : '#F6F6F8',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                    backgroundColor: isDark ? '#081324' : '#F6F6F8',
+                                    borderColor: colors.cardBorder,
                                 },
                             ]}
                         >
@@ -856,8 +856,8 @@ export default function StationDetailScreen({ route, navigation }: any) {
                         style={[
                             styles.modalSheet,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                     >
@@ -888,12 +888,12 @@ export default function StationDetailScreen({ route, navigation }: any) {
                                             styles.cutoffOption,
                                             isOptionActive
                                                 ? {
-                                                      backgroundColor: isDark ? '#22232D' : '#FFFFFF',
-                                                      borderColor: colors.coral,
+                                                      backgroundColor: isDark ? 'rgba(59, 130, 246, 0.18)' : '#FFFFFF',
+                                                      borderColor: colors.primary,
                                                   }
                                                 : {
-                                                      backgroundColor: isDark ? '#16171E' : '#F6F6F8',
-                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                                      backgroundColor: isDark ? '#081324' : '#F6F6F8',
+                                                      borderColor: colors.cardBorder,
                                                   },
                                         ]}
                                         onPress={() => {

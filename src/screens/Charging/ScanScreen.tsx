@@ -386,7 +386,7 @@ export default function ScanScreen({ navigation, route }: any) {
                     {/* Hint text below reticle with Volt companion mascot */}
                     <View style={styles.reticleHint} pointerEvents="none">
                         <View style={{ alignItems: 'center', marginBottom: 4 }}>
-                            <RetroMascot size={38} expression="happy" animated />
+                            <RetroMascot size={42} expression="searching" animated />
                         </View>
                         <ThemedText style={styles.reticleHintText}>
                             Point camera at QR code on charger dispenser
@@ -532,15 +532,15 @@ export default function ScanScreen({ navigation, route }: any) {
                                             ? [
                                                   styles.connectorCardSelected,
                                                   {
-                                                      backgroundColor: isDark ? '#1C1D26' : '#FFFFFF',
-                                                      borderColor: colors.coral,
+                                                      backgroundColor: isDark ? 'rgba(59, 130, 246, 0.18)' : '#FFFFFF',
+                                                      borderColor: colors.primary,
                                                   },
                                               ]
                                             : [
                                                   styles.connectorCardUnselected,
                                                   {
-                                                      backgroundColor: isDark ? '#16171E' : '#F7F7F9',
-                                                      borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                                      backgroundColor: isDark ? colors.surface : '#F7F7F9',
+                                                      borderColor: colors.cardBorder,
                                                   },
                                               ],
                                     ]}
@@ -1092,10 +1092,10 @@ const styles = StyleSheet.create({
         height: 46,
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#16171E',
+        backgroundColor: '#0B1E3B',
         borderRadius: RADIUS.pill,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'rgba(34, 211, 238, 0.35)',
         paddingHorizontal: 12,
         gap: 8,
         shadowColor: '#000000',

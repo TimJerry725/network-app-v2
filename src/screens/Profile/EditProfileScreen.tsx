@@ -340,8 +340,8 @@ export default function EditProfileScreen() {
                     style={[
                         styles.backButton,
                         {
-                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
                         },
                     ]}
                     activeOpacity={0.8}
@@ -358,8 +358,8 @@ export default function EditProfileScreen() {
                     style={[
                         styles.tabSwitcherBg,
                         {
-                            backgroundColor: isDark ? '#16171E' : '#F1F2F6',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                            backgroundColor: isDark ? '#081324' : '#F1F2F6',
+                            borderColor: colors.cardBorder,
                         },
                     ]}
                 >
@@ -573,12 +573,12 @@ export default function EditProfileScreen() {
                                                 styles.choicePill,
                                                 isSelected
                                                     ? {
-                                                          backgroundColor: '#10B981',
-                                                          borderColor: '#10B981',
+                                                          backgroundColor: '#3B82F6',
+                                                          borderColor: '#3B82F6',
                                                       }
                                                     : {
-                                                          backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                                          borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                                          backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                                          borderColor: colors.cardBorder,
                                                       },
                                             ]}
                                             onPress={() => {
@@ -691,10 +691,10 @@ export default function EditProfileScreen() {
                                     style={[
                                         styles.checkboxBox,
                                         isTempReg
-                                            ? { backgroundColor: '#FF5B45', borderColor: '#FF5B45' }
+                                            ? { backgroundColor: '#3B82F6', borderColor: '#3B82F6' }
                                             : {
-                                                  backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.20)',
+                                                  backgroundColor: isDark ? '#081324' : '#FFFFFF',
+                                                  borderColor: colors.cardBorder,
                                               },
                                     ]}
                                 >
@@ -716,9 +716,9 @@ export default function EditProfileScreen() {
                                     style={[
                                         styles.textInput,
                                         {
-                                            backgroundColor: isDark ? '#16171E' : '#F6F6F8',
+                                            backgroundColor: isDark ? '#081324' : '#F6F6F8',
                                             color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                            borderColor: colors.cardBorder,
                                         },
                                     ]}
                                     value={batteryCapacity}
@@ -736,9 +736,9 @@ export default function EditProfileScreen() {
                                     style={[
                                         styles.textInput,
                                         {
-                                            backgroundColor: isDark ? '#16171E' : '#F6F6F8',
+                                            backgroundColor: isDark ? '#081324' : '#F6F6F8',
                                             color: colors.text,
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                            borderColor: colors.cardBorder,
                                         },
                                     ]}
                                     value={maxDcRateKw}
@@ -759,9 +759,9 @@ export default function EditProfileScreen() {
                                 style={[
                                     styles.textInput,
                                     {
-                                        backgroundColor: isDark ? '#16171E' : '#F6F6F8',
+                                        backgroundColor: isDark ? '#081324' : '#F6F6F8',
                                         color: colors.text,
-                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                        borderColor: colors.cardBorder,
                                     },
                                 ]}
                                 value={estRangeKm}
@@ -787,12 +787,12 @@ export default function EditProfileScreen() {
                                                 styles.choicePill,
                                                 isSelected
                                                     ? {
-                                                          backgroundColor: '#FF5B45',
-                                                          borderColor: '#FF5B45',
+                                                          backgroundColor: '#3B82F6',
+                                                          borderColor: '#3B82F6',
                                                       }
                                                     : {
-                                                          backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                                          borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                                          backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                                          borderColor: colors.cardBorder,
                                                       },
                                             ]}
                                             onPress={() => {

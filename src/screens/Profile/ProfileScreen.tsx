@@ -129,8 +129,8 @@ export default function ProfileScreen() {
                 {/* User & EV Unified Card */}
                 <CredCard variant="default" style={styles.profileCard}>
                     <View style={styles.userTopRow}>
-                        <View style={[styles.avatar, { backgroundColor: 'rgba(255, 91, 69, 0.16)' }]}>
-                            <User size={26} color="#FF5B45" />
+                        <View style={[styles.avatar, { backgroundColor: 'rgba(59, 130, 246, 0.16)' }]}>
+                            <User size={26} color="#3B82F6" />
                         </View>
                         <View style={styles.userInfo}>
                             <View style={styles.userHeaderRow}>
@@ -139,8 +139,8 @@ export default function ProfileScreen() {
                                     style={[
                                         styles.editPillBtn,
                                         {
-                                            backgroundColor: isDark ? 'rgba(255, 91, 69, 0.14)' : '#FFEAE6',
-                                            borderColor: 'rgba(255, 91, 69, 0.25)',
+                                            backgroundColor: 'rgba(59, 130, 246, 0.14)',
+                                            borderColor: 'rgba(59, 130, 246, 0.3)',
                                         },
                                     ]}
                                     activeOpacity={0.8}
@@ -149,8 +149,8 @@ export default function ProfileScreen() {
                                         navigation.navigate('EditProfile', { tab: 'profile' });
                                     }}
                                 >
-                                    <Pencil size={11} color="#FF5B45" style={{ marginRight: 4 }} />
-                                    <ThemedText style={[styles.editPillText, { color: '#FF5B45' }]}>EDIT</ThemedText>
+                                    <Pencil size={11} color="#3B82F6" style={{ marginRight: 4 }} />
+                                    <ThemedText style={[styles.editPillText, { color: '#3B82F6' }]}>EDIT</ThemedText>
                                 </TouchableOpacity>
                             </View>
                             <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>
@@ -197,12 +197,12 @@ export default function ProfileScreen() {
 
                     {activeVehicle && (
                         <>
-                            {/* 3 Telemetry Pods (Primary Ice Blue, Tertiary Mint, Secondary Coral) */}
+                            {/* 3 Telemetry Pods (Neon Cyan, Mint Green, Solar Gold) */}
                             <View style={styles.vehicleMetricsRow}>
-                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(56, 189, 248, 0.12)' : '#E0F2FE' }]}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(34, 211, 238, 0.12)' : '#E0F2FE' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Zap size={12} color="#38BDF8" />
-                                        <ThemedText style={[FONTS.caption, { color: '#38BDF8', fontSize: 10, fontWeight: '700' }]}>CAPACITY</ThemedText>
+                                        <Zap size={12} color="#22D3EE" />
+                                        <ThemedText style={[FONTS.caption, { color: '#22D3EE', fontSize: 10, fontWeight: '700' }]}>CAPACITY</ThemedText>
                                     </View>
                                     <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 4, fontSize: 16 }]}>
                                         {activeVehicle.batteryCapacity} kWh
@@ -212,10 +212,10 @@ export default function ProfileScreen() {
                                     </ThemedText>
                                 </View>
 
-                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.12)' : '#ECFDF5' }]}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(34, 211, 167, 0.12)' : '#ECFDF5' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <BatteryCharging size={12} color="#10B981" />
-                                        <ThemedText style={[FONTS.caption, { color: '#10B981', fontSize: 10, fontWeight: '700' }]}>EST. RANGE</ThemedText>
+                                        <BatteryCharging size={12} color="#22D3A7" />
+                                        <ThemedText style={[FONTS.caption, { color: '#22D3A7', fontSize: 10, fontWeight: '700' }]}>EST. RANGE</ThemedText>
                                     </View>
                                     <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 4, fontSize: 16 }]}>
                                         ~{activeVehicle.estRangeKm} km
@@ -225,10 +225,10 @@ export default function ProfileScreen() {
                                     </ThemedText>
                                 </View>
 
-                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(255, 91, 69, 0.12)' : '#FFE5E0' }]}>
+                                <View style={[styles.metricPod, { backgroundColor: isDark ? 'rgba(251, 191, 36, 0.12)' : '#FFFBEB' }]}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Zap size={12} color="#FF5B45" />
-                                        <ThemedText style={[FONTS.caption, { color: '#FF5B45', fontSize: 10, fontWeight: '700' }]}>MAX DC</ThemedText>
+                                        <Zap size={12} color="#FBBF24" />
+                                        <ThemedText style={[FONTS.caption, { color: '#FBBF24', fontSize: 10, fontWeight: '700' }]}>MAX DC</ThemedText>
                                     </View>
                                     <ThemedText style={[FONTS.h3, { color: colors.text, marginTop: 4, fontSize: 16 }]}>
                                         {activeVehicle.maxDcRateKw} kW

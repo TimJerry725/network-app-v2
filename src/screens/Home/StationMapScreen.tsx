@@ -1245,8 +1245,8 @@ export default function StationMapScreen({ navigation }: any) {
                                                   borderColor: chipTheme.color,
                                               }
                                             : {
-                                                  backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                                  borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                                  backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                                  borderColor: colors.cardBorder,
                                               },
                                     ]}
                                     onPress={() => {
@@ -1328,8 +1328,8 @@ export default function StationMapScreen({ navigation }: any) {
                     style={[
                         styles.floatingActionButton,
                         {
-                            backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
                         },
                     ]}
                     activeOpacity={0.82}
@@ -1344,8 +1344,8 @@ export default function StationMapScreen({ navigation }: any) {
                     style={[
                         styles.floatingActionButton,
                         {
-                            backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
                         },
                     ]}
                     activeOpacity={0.82}
@@ -1507,16 +1507,16 @@ export default function StationMapScreen({ navigation }: any) {
                             ).length;
 
                             const cardBg = isSelected
-                                ? colors.primary
-                                : (isDark ? '#14151D' : '#F9FAFB');
+                                ? (isDark ? '#142C50' : '#E0F2FE')
+                                : (isDark ? '#0B1E3B' : '#F9FAFB');
                             const cardBorder = isSelected
-                                ? colors.primary
-                                : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)');
-                            const nameColor = isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.text;
-                            const addressColor = isSelected ? (isDark ? 'rgba(10, 13, 20, 0.85)' : 'rgba(255, 255, 255, 0.85)') : colors.textMuted;
-                            const metaColor = isSelected ? (isDark ? 'rgba(10, 13, 20, 0.92)' : 'rgba(255, 255, 255, 0.92)') : colors.textMuted;
-                            const btnBg = isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.primary;
-                            const btnTextColor = isSelected ? colors.primary : (isDark ? '#0A0D14' : '#FFFFFF');
+                                ? '#22D3EE'
+                                : colors.cardBorder;
+                            const nameColor = isSelected ? (isDark ? '#FFFFFF' : '#0B1E3B') : colors.text;
+                            const addressColor = isSelected ? (isDark ? '#B7C8E2' : '#334155') : colors.textMuted;
+                            const metaColor = isSelected ? (isDark ? '#22D3EE' : '#0284C7') : colors.textMuted;
+                            const btnBg = colors.primary;
+                            const btnTextColor = '#FFFFFF';
                             const badgeBg = isSelected
                                 ? 'rgba(0, 0, 0, 0.14)'
                                 : (isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFE5E0');
@@ -1769,9 +1769,8 @@ export default function StationMapScreen({ navigation }: any) {
                                         style={[
                                             styles.segmentedControl,
                                             {
-                                                backgroundColor: isDark ? '#1C1C24' : '#F2F2F6',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                                backgroundColor: isDark ? '#081324' : '#F2F2F6',
+                                                borderColor: colors.cardBorder,
                                             },
                                         ]}
                                     >
@@ -1785,7 +1784,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                         isSelected && [
                                                             styles.segmentOptionSelected,
                                                             {
-                                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                                backgroundColor: '#3B82F6',
                                                             },
                                                         ],
                                                     ]}
@@ -1805,7 +1804,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                             styles.segmentText,
                                                             {
                                                                 color: isSelected
-                                                                    ? (isDark ? '#000000' : '#FFFFFF')
+                                                                    ? '#FFFFFF'
                                                                     : colors.textMuted,
                                                             },
                                                             isSelected && styles.segmentTextSelected,
@@ -1824,9 +1823,8 @@ export default function StationMapScreen({ navigation }: any) {
                                     style={[
                                         styles.filterNavCard,
                                         {
-                                            backgroundColor: isDark ? '#181820' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                            backgroundColor: isDark ? colors.surface : '#F6F6F8',
+                                            borderColor: colors.cardBorder,
                                         },
                                     ]}
                                     activeOpacity={0.82}
@@ -1853,9 +1851,8 @@ export default function StationMapScreen({ navigation }: any) {
                                     style={[
                                         styles.filterNavCard,
                                         {
-                                            backgroundColor: isDark ? '#181820' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                            backgroundColor: isDark ? colors.surface : '#F6F6F8',
+                                            borderColor: colors.cardBorder,
                                             marginTop: 10,
                                         },
                                     ]}
@@ -1874,32 +1871,32 @@ export default function StationMapScreen({ navigation }: any) {
                                         </ThemedText>
                                     </View>
 
-                                    {/* Overlapping Brand Logo Avatars */}
+                                    {/* Brand Logo Avatars */}
                                     <View style={styles.brandLogosCluster}>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF', borderColor: isDark ? '#181820' : '#F6F6F8' }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF', borderColor: colors.cardBorder }]}>
                                             <Zap size={9} color="#000" fill="#000" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', borderColor: colors.cardBorder, marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>EZ</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#009A44', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#009A44', borderColor: colors.cardBorder, marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>bp</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#F59E0B', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#F59E0B', borderColor: colors.cardBorder, marginLeft: -8 }]}>
                                             <Zap size={10} color="#FFF" fill="#FFF" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#2563EB', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#2563EB', borderColor: colors.cardBorder, marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>Z</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#10B981', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#10B981', borderColor: colors.cardBorder, marginLeft: -8 }]}>
                                             <Zap size={9} color="#FFF" fill="#FFF" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', borderColor: colors.cardBorder, marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>A</ThemedText>
                                         </View>
                                     </View>
 
-                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
+                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#081324' : '#ECECF0' }]}>
                                         <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
                                     </View>
                                 </TouchableOpacity>
@@ -1945,9 +1942,8 @@ export default function StationMapScreen({ navigation }: any) {
                                             style={[
                                                 styles.sheetBackCircleBtn,
                                                 {
-                                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                    backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                                    borderColor: colors.cardBorder,
                                                 },
                                             ]}
                                             activeOpacity={0.8}
@@ -2008,8 +2004,8 @@ export default function StationMapScreen({ navigation }: any) {
                                                               borderWidth: 1.5,
                                                           }
                                                         : {
-                                                              backgroundColor: isDark ? '#16171E' : '#F6F6F8',
-                                                              borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                                                              backgroundColor: isDark ? '#081324' : '#F6F6F8',
+                                                              borderColor: colors.cardBorder,
                                                               borderWidth: 1,
                                                           },
                                                 ]}
@@ -2088,9 +2084,8 @@ export default function StationMapScreen({ navigation }: any) {
                                         style={[
                                             styles.quickBarBtn,
                                             {
-                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                                borderColor: colors.cardBorder,
                                             },
                                         ]}
                                         onPress={() => {
@@ -2110,9 +2105,8 @@ export default function StationMapScreen({ navigation }: any) {
                                         style={[
                                             styles.quickBarBtn,
                                             {
-                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                                borderColor: colors.cardBorder,
                                             },
                                         ]}
                                         onPress={() => {
@@ -2140,9 +2134,8 @@ export default function StationMapScreen({ navigation }: any) {
                                             style={[
                                                 styles.sheetBackCircleBtn,
                                                 {
-                                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                    backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                                    borderColor: colors.cardBorder,
                                                 },
                                             ]}
                                             activeOpacity={0.8}
@@ -2209,9 +2202,8 @@ export default function StationMapScreen({ navigation }: any) {
                                                 style={[
                                                     styles.brandItemCard,
                                                     {
-                                                        backgroundColor: isDark ? '#181820' : '#FFFFFF',
-                                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                        borderBottomColor: isDark ? '#050508' : '#D4D4DC',
+                                                        backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                                        borderColor: colors.cardBorder,
                                                     },
                                                 ]}
                                                 activeOpacity={0.8}

@@ -3,7 +3,8 @@ import { StyleSheet, TouchableOpacity, View, ScrollView, Platform } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { CheckCircle2, Leaf, RotateCcw, Receipt, FileText, ShieldCheck } from 'lucide-react-native';
-import { CredButton } from '../../components/CredButton';
+import { RetroButton } from '../../components/RetroButton';
+import { RetroMascot } from '../../components/RetroMascot';
 import { CredCard } from '../../components/CredCard';
 import { ThemedText } from '../../components/ThemedText';
 import { getStationById, MOCK_STATIONS, Station } from '../../constants/Stations';
@@ -35,19 +36,10 @@ export default function PaymentScreen({ route, navigation }: any) {
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Hero Confirmation */}
+                {/* Hero Confirmation with Mascot */}
                 <View style={styles.hero}>
-                    <View
-                        style={[
-                            styles.successIcon,
-                            {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                borderWidth: 1,
-                            },
-                        ]}
-                    >
-                        <CheckCircle2 size={38} color={colors.primary} />
+                    <View style={{ marginBottom: 12 }}>
+                        <RetroMascot size={90} expression="happy" animated />
                     </View>
                     <ThemedText type="title" style={styles.title}>
                         Session Complete!
@@ -150,9 +142,10 @@ export default function PaymentScreen({ route, navigation }: any) {
                 </View>
 
                 {/* Primary Return Action */}
-                <CredButton
-                    title="RETURN TO MAP"
-                    variant="neon"
+                <RetroButton
+                    title="RETURN TO RADAR MAP"
+                    size="lg"
+                    pill
                     containerStyle={{ marginTop: SPACING.lg }}
                     onPress={() => navigation.navigate('Main', { screen: 'Map' })}
                 />
@@ -163,9 +156,8 @@ export default function PaymentScreen({ route, navigation }: any) {
                         style={[
                             styles.actionButton,
                             {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                             },
                         ]}
                         activeOpacity={0.82}

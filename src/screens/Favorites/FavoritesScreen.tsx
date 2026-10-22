@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { ArrowUpRight, Heart, MapPin, Zap } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
+import { RetroMascot } from '../../components/RetroMascot';
+import { RetroButton } from '../../components/RetroButton';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
 import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
@@ -12,54 +14,15 @@ import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
 
 function getBentoFavTheme(index: number, isDark: boolean) {
-    const cycle = index % 4;
-    if (cycle === 0) {
-        return {
-            bg: '#38BDF8', // Primary: Ice Blue
-            textColor: '#0A0D14',
-            subColor: 'rgba(10, 13, 20, 0.75)',
-            pillBg: 'rgba(0, 0, 0, 0.12)',
-            pillText: '#0A0D14',
-            actionBg: '#0A0D14',
-            actionColor: '#38BDF8',
-            heartBgFav: '#FFFFFF',
-            heartColorFav: '#EF4444',
-        };
-    }
-    if (cycle === 1) {
-        return {
-            bg: '#FF5B45', // Secondary: Sunset Coral
-            textColor: '#FFFFFF',
-            subColor: 'rgba(255, 255, 255, 0.85)',
-            pillBg: 'rgba(255, 255, 255, 0.22)',
-            pillText: '#FFFFFF',
-            actionBg: '#FFFFFF',
-            actionColor: '#FF5B45',
-            heartBgFav: '#FFFFFF',
-            heartColorFav: '#EF4444',
-        };
-    }
-    if (cycle === 2) {
-        return {
-            bg: '#10B981', // Tertiary: Neo Mint
-            textColor: '#FFFFFF',
-            subColor: 'rgba(255, 255, 255, 0.85)',
-            pillBg: 'rgba(255, 255, 255, 0.22)',
-            pillText: '#FFFFFF',
-            actionBg: '#FFFFFF',
-            actionColor: '#10B981',
-            heartBgFav: '#FFFFFF',
-            heartColorFav: '#EF4444',
-        };
-    }
     return {
-        bg: isDark ? '#16171E' : '#FFFFFF',
-        textColor: isDark ? '#FFFFFF' : '#101114',
-        subColor: isDark ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.6)',
-        pillBg: isDark ? 'rgba(56, 189, 248, 0.14)' : 'rgba(56, 189, 248, 0.10)',
-        actionBg: isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.10)',
-        actionColor: '#38BDF8',
-        heartBgFav: isDark ? '#FFFFFF' : '#FEE2E2',
+        bg: isDark ? '#142C50' : '#FFFFFF',
+        textColor: isDark ? '#F8FAFC' : '#0B1E3B',
+        subColor: isDark ? '#B7C8E2' : '#64748B',
+        pillBg: isDark ? 'rgba(34, 211, 238, 0.15)' : 'rgba(59, 130, 246, 0.10)',
+        pillText: isDark ? '#22D3EE' : '#2563EB',
+        actionBg: '#3B82F6',
+        actionColor: '#FFFFFF',
+        heartBgFav: isDark ? '#0B1E3B' : '#FEE2E2',
         heartColorFav: '#EF4444',
     };
 }
@@ -93,23 +56,21 @@ export default function FavoritesScreen({ navigation }: any) {
 
                 {stationsList.length === 0 ? (
                     <View style={styles.emptyContainer}>
-                        <View
-                            style={[
-                                styles.emptyIconCircle,
-                                {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-                                },
-                            ]}
-                        >
-                            <Heart size={36} color={colors.textMuted} />
+                        <View style={{ marginBottom: 16 }}>
+                            <RetroMascot size={110} expression="wink" animated />
                         </View>
                         <ThemedText style={[styles.emptyTitle, { color: colors.text }]}>
-                            No Favorites Yet
+                            No Starred Chargers Yet
                         </ThemedText>
                         <ThemedText style={[styles.emptySubtitle, { color: colors.textMuted }]}>
-                            Tap the heart icon on any charging station to add it to your favorites.
+                            Tap the heart icon on any charging station in the grid to bookmark it for rapid access.
                         </ThemedText>
+                        <RetroButton
+                            title="EXPLORE RADAR MAP"
+                            onPress={() => navigation.navigate('Map')}
+                            size="md"
+                            containerStyle={{ marginTop: 20 }}
+                        />
                     </View>
                 ) : (
                     stationsList.map((station, index) => {

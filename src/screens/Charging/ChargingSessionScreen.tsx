@@ -241,9 +241,8 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                     style={[
                         styles.backChevronBtn,
                         {
-                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                            borderColor: colors.cardBorder,
                         },
                     ]}
                     activeOpacity={0.8}
@@ -273,7 +272,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 <RetroCircularGauge
                     percentage={soc}
                     chargingSpeedKw={currentPower}
-                    mascotExpression="chill"
+                    mascotExpression="charging"
                     style={{ marginBottom: 12 }}
                 />
 
@@ -320,8 +319,8 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             style={[
                                 styles.miniToggleWrap,
                                 {
-                                    backgroundColor: isDark ? '#1C1D26' : '#EEF2F6',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : '#E2E8F0',
+                                    backgroundColor: isDark ? '#081324' : '#EEF2F6',
+                                    borderColor: colors.cardBorder,
                                 },
                             ]}
                         >
@@ -345,7 +344,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                         {
                                             color:
                                                 curveType === 'speed'
-                                                    ? (isDark ? '#0A0D14' : '#FFFFFF')
+                                                    ? '#FFFFFF'
                                                     : (isDark ? '#94A3B8' : '#475569'),
                                         },
                                     ]}
@@ -374,7 +373,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                         {
                                             color:
                                                 curveType === 'time'
-                                                    ? (isDark ? '#0A0D14' : '#FFFFFF')
+                                                    ? '#FFFFFF'
                                                     : (isDark ? '#94A3B8' : '#475569'),
                                         },
                                     ]}
@@ -536,7 +535,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         style={[
                             styles.timeCountdownBanner,
                             {
-                                backgroundColor: isDark ? '#18181F' : '#F8FAFC',
+                                backgroundColor: isDark ? '#081324' : '#F8FAFC',
                                 borderColor: colors.cardBorder,
                             },
                         ]}
@@ -663,7 +662,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             style={[
                                 styles.editPencilBtn,
                                 {
-                                    backgroundColor: isDark ? '#1C1C22' : '#F8FAFC',
+                                    backgroundColor: isDark ? '#081324' : '#F8FAFC',
                                     borderColor: colors.cardBorder,
                                 },
                             ]}
@@ -683,7 +682,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             styles.autochargeRow,
                             isAutochargeEnabled
                                 ? [styles.autochargeRowActive, { backgroundColor: isDark ? 'rgba(0, 229, 117, 0.12)' : '#F0FDF4' }]
-                                : [styles.autochargeRowInactive, { backgroundColor: isDark ? '#16161B' : '#F8FAFC' }],
+                                : [styles.autochargeRowInactive, { backgroundColor: isDark ? '#081324' : '#F8FAFC' }],
                         ]}
                         activeOpacity={0.8}
                         onPress={() => {
@@ -717,19 +716,19 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         Amenities at this station
                     </ThemedText>
                     <View style={styles.amenitiesRow}>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
+                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#081324' : '#F8FAFC', borderColor: colors.cardBorder }]}>
                             <Coffee size={13} color={colors.primary} style={{ marginRight: 5 }} />
                             <ThemedText style={[styles.amenityText, { color: colors.text }]}>
                                 Coffee Lounge
                             </ThemedText>
                         </View>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
+                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#081324' : '#F8FAFC', borderColor: colors.cardBorder }]}>
                             <Wifi size={13} color={colors.primary} style={{ marginRight: 5 }} />
                             <ThemedText style={[styles.amenityText, { color: colors.text }]}>
                                 Free Wi-Fi
                             </ThemedText>
                         </View>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
+                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#081324' : '#F8FAFC', borderColor: colors.cardBorder }]}>
                             <Users size={13} color={colors.primary} style={{ marginRight: 5 }} />
                             <ThemedText style={[styles.amenityText, { color: colors.text }]}>
                                 Restrooms
@@ -844,7 +843,8 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                         style={[
                             styles.modalSheet,
                             {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
+                                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                                borderColor: colors.cardBorder,
                                 paddingBottom: insets.bottom + 16,
                             },
                         ]}
@@ -877,7 +877,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                                             {
                                                 backgroundColor: isCurrent
                                                     ? (isDark ? 'rgba(0, 229, 117, 0.12)' : '#F0FDF4')
-                                                    : (isDark ? '#1C1C22' : '#F8FAFC'),
+                                                    : (isDark ? '#081324' : '#F8FAFC'),
                                                 borderColor: isCurrent ? colors.primary : colors.cardBorder,
                                             },
                                         ]}
