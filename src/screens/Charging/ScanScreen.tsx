@@ -94,7 +94,7 @@ export default function ScanScreen({ navigation, route }: any) {
     const [isManualModalVisible, setIsManualModalVisible] = useState(false);
     const [manualCode, setManualCode] = useState(route.params?.connectorId ?? '');
     const [isCpidFocused, setIsCpidFocused] = useState(false);
-    const cpidInputRef = useRef<TextInput>(null);
+    const cpidInputRef = useRef<any>(null);
     const [isChargeSettingsVisible, setIsChargeSettingsVisible] = useState(false);
     const [cutoffPercent, setCutoffPercent] = useState('80%');
 

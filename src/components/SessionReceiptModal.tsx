@@ -4,12 +4,12 @@ import {
     Modal,
     Platform,
     Share,
-    StatusBar,
     StyleSheet,
     TouchableOpacity,
     View,
     ScrollView,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     X,
@@ -91,7 +91,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
             onRequestClose={onClose}
         >
             <View style={styles.modalBackdrop}>
-                <StatusBar barStyle="light-content" backgroundColor="#FF5B45" />
+                <StatusBar style="light" />
                 <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
                     {/* Top Bar: Title & Circular Close Button */}
                     <View style={styles.topHeader}>
