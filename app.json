@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Iris EV Charging",
-    "slug": "iris-ev-charging",
+    "slug": "network-app-v2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,6 +20,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "owner": "timjerry725",
+    "extra": {
+      "eas": {
+        "projectId": "ee48df0b-4632-4722-9427-32af8ff94bc4"
+      }
     }
   }
 }
