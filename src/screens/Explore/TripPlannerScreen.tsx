@@ -22,6 +22,7 @@ import {
     ArrowUpRight,
     BatteryCharging,
     Bookmark,
+    Filter,
     BookmarkCheck,
     Check,
     ChevronDown,
@@ -52,6 +53,7 @@ import {
 import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useVehicles, Vehicle } from '../../context/VehicleContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
+import { DEFAULT_MAP_FILTERS, MapFilterSheet, MapFilterState, countMapFilters, stationMatchesMapFilters } from '../../components/MapFilterSheet';
 import { tripPlannerService } from '../../services/api/tripPlannerService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -59,7 +61,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 export interface TripRouteOption {
     id: string;
     name: string;
-    tag: 'Fastest' | 'Scenic' | 'Eco';
+    tag: 'Fastest' | 'Route 2' | 'Route 3';
     distanceKm: number;
     driveMinutes: number;
     stopsCount: number;
@@ -69,6 +71,14 @@ export interface TripRouteOption {
     coordinates: Array<{ latitude: number; longitude: number }>;
     plan: TripPlan;
 }
+
+// Example trips shown until the account has real saved trips
+const SAMPLE_SAVED_TRIPS = [
+    { id: 'sample-1', origin: { id: 'coimbatore', name: 'Coimbatore' }, destination: { id: 'bengaluru', name: 'Bengaluru' }, distanceKm: 365, durationMins: 375, routeTag: 'Fastest' },
+    { id: 'sample-2', origin: { id: 'coimbatore', name: 'Coimbatore' }, destination: { id: 'ooty', name: 'Ooty' }, distanceKm: 87, durationMins: 150, routeTag: 'Fastest' },
+    { id: 'sample-3', origin: { id: 'bengaluru', name: 'Bengaluru' }, destination: { id: 'chennai', name: 'Chennai' }, distanceKm: 346, durationMins: 340, routeTag: 'Route 2' },
+    { id: 'sample-4', origin: { id: 'mumbai', name: 'Mumbai' }, destination: { id: 'pune', name: 'Pune' }, distanceKm: 149, durationMins: 175, routeTag: 'Fastest' },
+];
 
 function getRouteCorridorNames(originId: string, destinationId: string): [string, string, string] {
     const key = `${originId}-${destinationId}`;
@@ -82,7 +92,7 @@ function getRouteCorridorNames(originId: string, destinationId: string): [string
         ],
         'coimbatore-ooty': [
             'Via NH 181 (Mettupalayam Ghat)',
-            'Via Kotagiri Scenic Pass',
+            'Via Kotagiri Pass',
             'Via Coonoor Heritage Corridor',
         ],
         'coimbatore-chennai': [
@@ -117,8 +127,8 @@ function getRouteCorridorNames(originId: string, destinationId: string): [string
 
     return [
         'Via Primary Highway',
-        'Via Scenic State Corridor',
-        'Via Ring Bypass (Eco)',
+        'Via State Highway Corridor',
+        'Via Ring Bypass',
     ];
 }
 
@@ -229,6 +239,10 @@ export default function TripPlannerScreen({ navigation }: any) {
     const [isSheetExpanded, setIsSheetExpanded] = useState(true);
     const [customAddedStationIds, setCustomAddedStationIds] = useState<string[]>([]);
     const [isTripSaved, setIsTripSaved] = useState(false);
+    const [savedTrips, setSavedTrips] = useState<any[]>(SAMPLE_SAVED_TRIPS);
+    const [showSavedTrips, setShowSavedTrips] = useState(false);
+    const [tripFilters, setTripFilters] = useState<MapFilterState>(DEFAULT_MAP_FILTERS);
+    const [showFilterSheet, setShowFilterSheet] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedRouteId, setSelectedRouteId] = useState<string>('route-fastest');
     const [showRouteOptions, setShowRouteOptions] = useState(false);
@@ -417,26 +431,26 @@ export default function TripPlannerScreen({ navigation }: any) {
             {
                 id: 'route-scenic',
                 name: corridorNames[1],
-                tag: 'Scenic' as const,
+                tag: 'Route 2' as const,
                 distanceKm: Math.round(fastestPlan.totalDistanceKm * 1.06),
                 driveMinutes: Math.round(fastestPlan.driveMinutes * 1.11),
                 stopsCount: Math.max(1, scenicPlan.stops.length),
                 energyKWh: Math.round(fastestPlan.energyNeededKWh * 1.05 * 10) / 10,
                 arrivalSocPercent: Math.max(10, fastestPlan.arrivalBatteryPercent - 4),
-                viaDescription: 'Scenic route through cafes & rest plazas',
+                viaDescription: 'Alternate route with rest plazas along the way',
                 coordinates: coordsScenic,
                 plan: scenicPlan,
             },
             {
                 id: 'route-eco',
                 name: corridorNames[2],
-                tag: 'Eco' as const,
+                tag: 'Route 3' as const,
                 distanceKm: Math.round(fastestPlan.totalDistanceKm * 1.02),
                 driveMinutes: Math.round(fastestPlan.driveMinutes * 1.04),
                 stopsCount: Math.max(1, ecoPlan.stops.length),
                 energyKWh: Math.round(fastestPlan.energyNeededKWh * 0.94 * 10) / 10,
                 arrivalSocPercent: Math.min(95, fastestPlan.arrivalBatteryPercent + 3),
-                viaDescription: 'Eco corridor optimized for low battery consumption',
+                viaDescription: 'Alternate route with lower battery consumption',
                 coordinates: coordsEco,
                 plan: ecoPlan,
             },
@@ -460,6 +474,26 @@ export default function TripPlannerScreen({ navigation }: any) {
             routeCoordinates: activeRouteOption.coordinates,
         }),
         [activeRouteOption]
+    );
+
+    const activeFilterCount = countMapFilters(tripFilters);
+    const filteredRecommended = useMemo(
+        () => tripPlan.recommendedStations.filter((r) => stationMatchesMapFilters(r.station, tripFilters)),
+        [tripPlan.recommendedStations, tripFilters]
+    );
+
+    const openFilterSheet = () => {
+        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setShowFilterSheet(true);
+    };
+
+    const filterSheet = (
+        <MapFilterSheet
+            visible={showFilterSheet}
+            criteria={tripFilters}
+            onClose={() => setShowFilterSheet(false)}
+            onApply={(next) => setTripFilters(next)}
+        />
     );
 
     // Combined active stops (auto recommendations + user added extra stations)
@@ -585,6 +619,39 @@ export default function TripPlannerScreen({ navigation }: any) {
     };
 
     // Handle "Save Trip" button press in bottom sheet header
+    useEffect(() => {
+        tripPlannerService
+            .getSavedTrips()
+            .then((trips) => {
+                if (trips.length > 0) setSavedTrips(trips);
+            })
+            .catch(() => {});
+    }, []);
+
+    const rememberSavedTrip = () => {
+        setSavedTrips((prev) => [
+            {
+                id: `local-${Date.now()}`,
+                origin: { id: originLocation.id, name: originLocation.label },
+                destination: { id: destinationLocation.id, name: destinationLocation.label },
+                distanceKm: tripPlan.totalDistanceKm,
+                durationMins: tripPlan.driveMinutes,
+                plannedAt: new Date().toISOString(),
+                routeTag: activeRouteOption.tag,
+            },
+            ...prev,
+        ]);
+    };
+
+    const handleOpenSavedTrip = (trip: any) => {
+        const known = (id?: string) => !!id && TRIP_LOCATIONS.some((l) => l.id === id);
+        if (known(trip.origin?.id) && known(trip.destination?.id)) {
+            setOriginId(trip.origin.id);
+            setDestinationId(trip.destination.id);
+        }
+        setShowSavedTrips(false);
+    };
+
     const handleSaveTrip = async () => {
         if (isSaving) return;
         if (isTripSaved) {
@@ -619,6 +686,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                 routeOption: activeRouteOption.name,
                 routeTag: activeRouteOption.tag,
             });
+            rememberSavedTrip();
             setIsTripSaved(true);
             if (Platform.OS !== 'web') {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -629,6 +697,7 @@ export default function TripPlannerScreen({ navigation }: any) {
             );
         } catch (err) {
             console.log('tripPlannerService.saveTrip error:', err);
+            rememberSavedTrip();
             setIsTripSaved(true);
             if (Platform.OS !== 'web') {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -889,7 +958,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                                 >
                                     <Zap size={13} color={colors.primary} fill={colors.primary} />
                                     <ThemedText style={[styles.peekChargersText, { color: colors.primary }]}>
-                                        {tripPlan.recommendedStations.length} Chargers • Drag up
+                                        {filteredRecommended.length} Chargers • Drag up ▲
                                     </ThemedText>
                                     <ChevronUp size={13} color={colors.primary} strokeWidth={2.5} />
                                 </TouchableOpacity>
@@ -987,7 +1056,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                 tagColor = '#0A0D14';
                                                 actionBg = '#0A0D14';
                                                 actionColor = '#38BDF8';
-                                            } else if (opt.tag === 'Scenic') {
+                                            } else if (opt.tag === 'Route 2') {
                                                 // Secondary: Sunset Coral
                                                 cardBg = '#FF5B45';
                                                 cardBorder = '#FF5B45';
@@ -1215,8 +1284,15 @@ export default function TripPlannerScreen({ navigation }: any) {
                                         </View>
 
                                         <View style={styles.routeOptionsHeaderRight}>
+                                            <TouchableOpacity
+                                                onPress={openFilterSheet}
+                                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                                accessibilityLabel="Filter chargers"
+                                            >
+                                                <Filter size={16} color={activeFilterCount > 0 ? colors.primary : colors.textMuted} />
+                                            </TouchableOpacity>
                                             <ThemedText style={[styles.routeOptionsHintText, { color: colors.textMuted }]}>
-                                                {tripPlan.recommendedStations.length} available
+                                                {filteredRecommended.length} available
                                             </ThemedText>
                                             {showRecommendedChargers ? (
                                                 <ChevronUp size={16} color={colors.text} />
@@ -1233,7 +1309,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                                                 Tap '+ Add' to plan additional stops along this corridor
                                             </ThemedText>
                                             <View style={styles.chargersList}>
-                                                {tripPlan.recommendedStations.map((rec) => {
+                                                {filteredRecommended.map((rec) => {
                                                     const isAutoStop = tripPlan.stops.some((s) => s.station.id === rec.station.id);
                                                     const isCustomAdded = customAddedStationIds.includes(rec.station.id);
                                                     const isInPlan = isAutoStop || isCustomAdded;
@@ -1425,6 +1501,7 @@ export default function TripPlannerScreen({ navigation }: any) {
                             <View style={{ height: 24 }} />
                         </ScrollView>
                 </Animated.View>
+                {filterSheet}
             </View>
         );
     }
@@ -1442,10 +1519,41 @@ export default function TripPlannerScreen({ navigation }: any) {
                         Smart EV corridor routing & charging
                     </ThemedText>
                 </View>
-                <View style={[styles.walletBadge, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
-                    <ThemedText style={[styles.walletBadgeText, { color: colors.primary }]}>
-                        ₹{user.walletBalance.toFixed(0)}
-                    </ThemedText>
+                <View style={styles.headerActions}>
+                    <TouchableOpacity
+                        style={[styles.savedTripsBtn, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}
+                        activeOpacity={0.8}
+                        onPress={openFilterSheet}
+                        accessibilityLabel="Filter chargers"
+                    >
+                        <Filter size={16} color={colors.primary} />
+                        {activeFilterCount > 0 && (
+                            <View style={[styles.savedTripsCount, { backgroundColor: colors.primary }]}>
+                                <ThemedText style={styles.savedTripsCountText}>{activeFilterCount}</ThemedText>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.savedTripsBtn, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}
+                        activeOpacity={0.8}
+                        onPress={() => {
+                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            setShowSavedTrips(true);
+                        }}
+                        accessibilityLabel="Saved trips"
+                    >
+                        <Bookmark size={16} color={colors.primary} />
+                        {savedTrips.length > 0 && (
+                            <View style={[styles.savedTripsCount, { backgroundColor: colors.primary }]}>
+                                <ThemedText style={styles.savedTripsCountText}>{savedTrips.length}</ThemedText>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                    <View style={[styles.walletBadge, { backgroundColor: isDark ? colors.surfaceMuted : colors.backgroundAlt }]}>
+                        <ThemedText style={[styles.walletBadgeText, { color: colors.primary }]}>
+                            ₹{user.walletBalance.toFixed(0)}
+                        </ThemedText>
+                    </View>
                 </View>
             </View>
 
@@ -1808,6 +1916,58 @@ export default function TripPlannerScreen({ navigation }: any) {
                     </View>
                 </View>
             </Modal>
+
+            {filterSheet}
+
+            {/* SAVED TRIPS BOTTOM SHEET */}
+            <Modal
+                visible={showSavedTrips}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowSavedTrips(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setShowSavedTrips(false)} />
+                    <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+                        <View style={styles.modalHeaderRow}>
+                            <ThemedText style={[styles.modalTitle, { color: colors.text }]}>Saved Trips</ThemedText>
+                            <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setShowSavedTrips(false)}>
+                                <X size={20} color={colors.text} />
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView showsVerticalScrollIndicator={false} style={styles.modalCitiesList}>
+                            {savedTrips.length === 0 ? (
+                                <ThemedText style={[styles.citySubtitle, { color: colors.textMuted, textAlign: 'center', paddingVertical: 28 }]}>
+                                    No saved trips yet. Plan a trip and tap Save.
+                                </ThemedText>
+                            ) : (
+                                savedTrips.map((trip, i) => (
+                                    <TouchableOpacity
+                                        key={trip.id ?? i}
+                                        style={styles.cityItemRow}
+                                        activeOpacity={0.7}
+                                        onPress={() => handleOpenSavedTrip(trip)}
+                                    >
+                                        <Bookmark size={18} color={colors.primary} />
+                                        <View style={{ flex: 1, marginLeft: 12 }}>
+                                            <ThemedText style={[styles.cityName, { color: colors.text }]}>
+                                                {trip.origin?.name ?? 'Start'} → {trip.destination?.name ?? 'Destination'}
+                                            </ThemedText>
+                                            <ThemedText style={[styles.citySubtitle, { color: colors.textMuted }]}>
+                                                {[
+                                                    trip.distanceKm != null ? `${trip.distanceKm} km` : null,
+                                                    trip.durationMins != null ? fmtTime(trip.durationMins) : null,
+                                                    trip.routeTag,
+                                                ].filter(Boolean).join(' • ')}
+                                            </ThemedText>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))
+                            )}
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -1834,6 +1994,34 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
         marginTop: 2,
+    },
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    savedTripsBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    savedTripsCount: {
+        position: 'absolute',
+        top: -3,
+        right: -3,
+        minWidth: 15,
+        height: 15,
+        borderRadius: 8,
+        paddingHorizontal: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    savedTripsCountText: {
+        fontSize: 9,
+        fontWeight: '700',
+        color: '#FFFFFF',
     },
     walletBadge: {
         paddingHorizontal: 12,
