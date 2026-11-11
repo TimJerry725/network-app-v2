@@ -103,7 +103,7 @@ export function MaterialButton({
               }
             : null,
         disabled ? styles.buttonDisabled : null,
-        style,
+        style as StyleProp<ViewStyle>,
     ];
 
     const labelColor =

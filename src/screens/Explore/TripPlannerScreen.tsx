@@ -194,7 +194,7 @@ export default function TripPlannerScreen({ navigation }: any) {
     }, [sheetSnapMin, sheetSnapMid, sheetSnapMax]);
     const { selectedVehicle, vehicles, user } = useVehicles();
     const mapRef = useRef<MapView>(null);
-    const scrollRef = useRef<ScrollView>(null);
+    const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
     // ── Fallback Vehicle if none in context ──
     const activeVehicle: Vehicle = selectedVehicle ?? vehicles[0] ?? {
