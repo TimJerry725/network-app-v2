@@ -91,7 +91,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
             onRequestClose={onClose}
         >
             <View style={styles.modalBackdrop}>
-                <StatusBar barStyle="light-content" backgroundColor="#FF5B45" />
+                <StatusBar barStyle="light-content" />
                 <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
                     {/* Top Bar: Title & Circular Close Button */}
                     <View style={styles.topHeader}>

@@ -115,7 +115,7 @@ export function RetroButton({
                             : 'rgba(255, 255, 255, 0.16)',
                         borderWidth: variant === 'ghost' ? 0 : 1,
                     },
-                    style,
+                    style as StyleProp<ViewStyle>,
                 ]}
             >
                 {/* Specular Highlight (Subtle Retro Sheen) */}

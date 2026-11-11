@@ -71,7 +71,7 @@ export default function GeminiChatScreen({ navigation }: any) {
     const [isThinking, setIsThinking] = useState(false);
     const [isListeningVoice, setIsListeningVoice] = useState(false);
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-    const scrollViewRef = useRef<ScrollView>(null);
+    const scrollViewRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
     // Initial Starter State
     const [messages, setMessages] = useState<ChatMessage[]>([]);
