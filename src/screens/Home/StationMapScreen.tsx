@@ -82,11 +82,11 @@ const DARK_MAP_STYLE = [
 ];
 
 const filterOptions = [
-    { id: 'Fastest', label: 'Fastest', icon: 'bolt-lightning' },
+    { id: 'CCS2', label: 'CCS2', icon: 'plug' },
+    { id: 'Type 2', label: 'Type 2', icon: 'plug' },
     { id: 'Cheapest', label: 'Cheapest', icon: 'tags' },
     { id: 'Available', label: 'Available', icon: 'circle-check' },
     { id: '24/7', label: 'Open 24/7', icon: 'clock' },
-    { id: 'Amenities', label: 'Amenities', icon: 'mug-hot' },
 ];
 
 export const FILTER_CHIP_COLORS: Record<string, { color: string }> = {
@@ -534,12 +534,10 @@ export default function StationMapScreen({ navigation }: any) {
                 if (!stationMatchesMapFilters({ ...station, connectors: [] , name: '', tagline: '' }, { ...DEFAULT_MAP_FILTERS, amenities: filterCriteria.amenities })) match = false;
 
                 // 6. Quick filter chips — actually filter (not just sort)
-                if (activeFilter === 'Fastest') {
-                    // Show only stations that have fast chargers (50kW+)
-                    const hasFastCharger = station.connectors.some(
-                        c => c.power >= 50 || c.type === 'CCS2' || c.type === 'CHAdeMO'
-                    );
-                    if (!hasFastCharger) match = false;
+                if (activeFilter === 'CCS2') {
+                    if (!station.connectors.some(c => c.type === 'CCS2')) match = false;
+                } else if (activeFilter === 'Type 2') {
+                    if (!station.connectors.some(c => c.type === 'Type 2')) match = false;
                 } else if (activeFilter === 'Cheapest') {
                     // Show only stations with economical rates (<= 16/kWh)
                     const hasCheapRate = station.connectors.some(
@@ -553,9 +551,6 @@ export default function StationMapScreen({ navigation }: any) {
                 } else if (activeFilter === '24/7') {
                     // Show only stations open 24/7
                     if (station.openTime !== '24/7') match = false;
-                } else if (activeFilter === 'Amenities') {
-                    // Show only stations that have amenities
-                    if (!station.amenities || station.amenities.length === 0) match = false;
                 }
 
                 return match;
@@ -583,13 +578,7 @@ export default function StationMapScreen({ navigation }: any) {
         const sortedStations = [...enrichedStations];
 
         // Sort by the active quick filter for best-first ordering
-        if (activeFilter === 'Fastest') {
-            sortedStations.sort((a, b) => {
-                const bestA = getRecommendedConnector(a, selectedVehicle?.connectorType).power;
-                const bestB = getRecommendedConnector(b, selectedVehicle?.connectorType).power;
-                return bestB - bestA || a.distanceKm - b.distanceKm;
-            });
-        } else if (activeFilter === 'Cheapest') {
+        if (activeFilter === 'Cheapest') {
             sortedStations.sort((a, b) => {
                 const bestA = Math.min(...a.connectors.map(c => c.pricePerKWh));
                 const bestB = Math.min(...b.connectors.map(c => c.pricePerKWh));
@@ -610,10 +599,6 @@ export default function StationMapScreen({ navigation }: any) {
                 const fullTimeA = a.openTime === '24/7' ? 1 : 0;
                 const fullTimeB = b.openTime === '24/7' ? 1 : 0;
                 return fullTimeB - fullTimeA || a.distanceKm - b.distanceKm;
-            });
-        } else if (activeFilter === 'Amenities') {
-            sortedStations.sort((a, b) => {
-                return b.amenities.length - a.amenities.length || b.rating - a.rating || a.distanceKm - b.distanceKm;
             });
         } else {
             sortedStations.sort((a, b) => a.distanceKm - b.distanceKm);

@@ -106,6 +106,8 @@ export function getLucideIcon(
             return <Sparkles size={size} color={color} fill={fillColor} strokeWidth={strokeWidth} />;
         case 'plug':
         case 'connector':
+        case 'ccs2':
+        case 'type 2':
             return <Plug size={size} color={color} strokeWidth={strokeWidth} />;
         case 'trip':
         case 'trip-planner':
