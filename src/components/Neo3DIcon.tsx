@@ -174,7 +174,7 @@ export function Neo3DIcon({
             ? (isSelected ? '#000000' : '#FFFFFF')
             : '#FFFFFF';
         const borderColor = isDark
-            ? (isSelected ? '#00F2FE' : 'rgba(255, 255, 255, 0.18)')
+            ? (isSelected ? '#7B5CFF' : 'rgba(255, 255, 255, 0.18)')
             : '#000000';
 
         return (
@@ -204,7 +204,7 @@ export function Neo3DIcon({
                             {
                                 backgroundColor: heroBgCore,
                                 borderColor: borderColor,
-                                borderBottomColor: isDark ? '#050508' : '#000000',
+                                borderBottomColor: isDark ? '#060608' : '#000000',
                             },
                         ]}
                     >
@@ -223,7 +223,7 @@ export function Neo3DIcon({
                             <View
                                 style={[
                                     styles.heroActivePip,
-                                    { backgroundColor: isDark ? '#00F2FE' : '#FFFFFF' },
+                                    { backgroundColor: isDark ? '#7B5CFF' : '#FFFFFF' },
                                 ]}
                             />
                         )}
@@ -287,7 +287,7 @@ export function Neo3DIcon({
                                 { transform: [{ scale: selectBounce }] },
                             ]}
                         >
-                            {selected3DIcon ?? getLucideIcon(name, size, isDark ? '#FFFFFF' : '#0D0E13', true)}
+                            {selected3DIcon ?? getLucideIcon(name, size, isDark ? '#FFFFFF' : '#0B0B0F', true)}
                         </Animated.View>
                     </View>
                 ) : (

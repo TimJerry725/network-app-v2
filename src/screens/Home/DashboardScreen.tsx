@@ -68,12 +68,12 @@ function AnimatedToggleSwitch({
                 styles.toggleSwitchPod,
                 {
                     backgroundColor: active
-                        ? '#10B981'
+                        ? '#22D38A'
                         : isDark
                         ? '#1C1C24'
                         : '#E4E4EB',
                     borderColor: active
-                        ? '#10B981'
+                        ? '#22D38A'
                         : isDark
                         ? 'rgba(255, 255, 255, 0.12)'
                         : 'rgba(0, 0, 0, 0.1)',
@@ -231,7 +231,7 @@ export default function DashboardScreen({ navigation }: any) {
                         style={[
                             styles.statusBeacon,
                             {
-                                backgroundColor: isDark ? '#141418' : '#ECECE8',
+                                backgroundColor: isDark ? '#121218' : '#ECECE8',
                                 borderColor: colors.cardBorder,
                             },
                         ]}
@@ -323,10 +323,10 @@ export default function DashboardScreen({ navigation }: any) {
                                     width: `${selectedVehicle?.currentBattery ?? 62}%`,
                                     backgroundColor:
                                         (selectedVehicle?.currentBattery ?? 62) > 40
-                                            ? '#10B981'
+                                            ? '#22D38A'
                                             : (selectedVehicle?.currentBattery ?? 62) > 20
-                                            ? '#F59E0B'
-                                            : '#FF5B45',
+                                            ? '#FFC83D'
+                                            : '#7B5CFF',
                                 },
                             ]}
                         >
@@ -356,16 +356,16 @@ export default function DashboardScreen({ navigation }: any) {
                         style={[
                             styles.tactileStatPod,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.16)' : '#ECFDF5' }]}>
-                                <Cpu size={14} color="#10B981" />
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(34, 211, 138, 0.16)' : '#ECFDF5' }]}>
+                                <Cpu size={14} color="#22D38A" />
                             </View>
-                            <ThemedText style={[styles.podBadgeLabel, { color: '#10B981' }]}>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#22D38A' }]}>
                                 HEALTH
                             </ThemedText>
                         </View>
@@ -379,16 +379,16 @@ export default function DashboardScreen({ navigation }: any) {
                         style={[
                             styles.tactileStatPod,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(2, 132, 199, 0.16)' : '#E0F2FE' }]}>
-                                <Gauge size={14} color="#0284C7" />
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(2, 132, 199, 0.16)' : '#ECE7FF' }]}>
+                                <Gauge size={14} color="#5B3DF0" />
                             </View>
-                            <ThemedText style={[styles.podBadgeLabel, { color: '#0284C7' }]}>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#5B3DF0' }]}>
                                 EFFICIENCY
                             </ThemedText>
                         </View>
@@ -402,16 +402,16 @@ export default function DashboardScreen({ navigation }: any) {
                         style={[
                             styles.tactileStatPod,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(245, 158, 11, 0.16)' : '#FEF3C7' }]}>
-                                <Zap size={14} color="#F59E0B" fill="#F59E0B" />
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(255, 200, 61, 0.16)' : '#FEF3C7' }]}>
+                                <Zap size={14} color="#FFC83D" fill="#FFC83D" />
                             </View>
-                            <ThemedText style={[styles.podBadgeLabel, { color: '#F59E0B' }]}>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#FFC83D' }]}>
                                 TARIFF
                             </ThemedText>
                         </View>
@@ -597,7 +597,7 @@ export default function DashboardScreen({ navigation }: any) {
                         style={[
                             styles.automationCard,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                                 borderColor: item.active
                                     ? colors.coral
                                     : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
@@ -930,7 +930,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: RADIUS.pill,
-        backgroundColor: '#FF5B45',
+        backgroundColor: '#7B5CFF',
     },
     stationChargeBtnText: {
         fontSize: 11,

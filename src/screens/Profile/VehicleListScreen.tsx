@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     Clock,
     ChevronDown,
-    ArrowUpRight,
     Zap,
     Leaf,
     Receipt,
@@ -110,7 +109,7 @@ export default function VehicleListScreen() {
                 style={[
                     styles.sessionCard,
                     {
-                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                        backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                         borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         borderWidth: 1,
                     },
@@ -130,9 +129,6 @@ export default function VehicleListScreen() {
                         <ThemedText style={[styles.amountText, { color: colors.coral }]}>
                             ₹{item.totalAmountPaid.toFixed(2)}
                         </ThemedText>
-                        <View style={styles.cardActionCircle}>
-                            <ArrowUpRight size={14} color={colors.text} strokeWidth={2.5} />
-                        </View>
                     </View>
                 </View>
 
@@ -145,7 +141,7 @@ export default function VehicleListScreen() {
                         style={[
                             styles.connectorPill,
                             {
-                                backgroundColor: isDark ? 'rgba(255, 91, 69, 0.12)' : '#FFE5E0',
+                                backgroundColor: isDark ? 'rgba(123, 92, 255, 0.12)' : '#ECE7FF',
                             },
                         ]}
                     >
@@ -276,11 +272,11 @@ const styles = StyleSheet.create({
         paddingBottom: 0,
     },
     heroCoralCard: {
-        backgroundColor: '#FF5B45',
+        backgroundColor: '#7B5CFF',
         borderRadius: RADIUS.tile,
         padding: 16,
         marginBottom: 16,
-        shadowColor: '#FF5B45',
+        shadowColor: '#7B5CFF',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.18,
         shadowRadius: 10,

@@ -96,7 +96,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
     {
         id: 'statiq',
         name: 'Statiq',
-        bgColor: '#F59E0B',
+        bgColor: '#FFC83D',
         renderIcon: () => <Zap size={14} color="#FFFFFF" fill="#FFFFFF" />,
     },
     {
@@ -108,7 +108,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
     {
         id: 'chargezone',
         name: 'ChargeZone',
-        bgColor: '#10B981',
+        bgColor: '#22D38A',
         renderIcon: () => <Zap size={13} color="#FFFFFF" fill="#FFFFFF" />,
     },
     {
@@ -283,7 +283,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
     const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
     const [tempFilterCriteria, setTempFilterCriteria] = useState<MapFilterState>(criteria);
-    const [filterSheetView, setFilterSheetView] = useState<'main' | 'plugs' | 'brands' | 'amenities'>('main');
+    const [filterSheetView, setFilterSheetView] = useState<'main' | 'brands' | 'amenities'>('main');
 
     useEffect(() => {
         if (visible) {
@@ -291,6 +291,10 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
             setFilterSheetView('main');
         }
     }, [visible]);
+
+    const visibleConnectors = CONNECTOR_ITEMS.filter(
+        (c) => tempFilterCriteria.chargerTypeFilter === 'Any' || c.currentType === tempFilterCriteria.chargerTypeFilter
+    );
 
     const isConnectorSelected = (item: ConnectorFilterItem) =>
         tempFilterCriteria.connectorTypes.includes(item.id) ||
@@ -333,67 +337,54 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
     return (
             <Modal
                 visible={visible}
-                transparent={true}
+                transparent={false}
                 animationType="slide"
+                presentationStyle="fullScreen"
                 onRequestClose={() => {
                     onClose();
                     setFilterSheetView('main');
                 }}
             >
-                <View style={styles.sheetOverlay}>
-                    <TouchableOpacity
-                        style={StyleSheet.absoluteFill}
-                        activeOpacity={1}
-                        onPress={() => {
-                            onClose();
-                            setFilterSheetView('main');
-                        }}
-                    />
-                    <View
-                        style={[
-                            styles.filterSheetContainer,
-                            {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                maxHeight: filterSheetView === 'brands' ? '90%' : filterSheetView === 'plugs' || filterSheetView === 'amenities' ? '82%' : undefined,
-                                paddingBottom: Math.max(insets.bottom, 24),
-                            },
-                        ]}
-                    >
-                        {/* Drag Handle */}
-                        <View style={[styles.dragHandleBar, { backgroundColor: isDark ? '#383838' : '#D1D5DB' }]} />
-
+                <View
+                    style={[
+                        styles.filterPage,
+                        {
+                            backgroundColor: colors.background,
+                            paddingTop: insets.top + 8,
+                        },
+                    ]}
+                >
                         {filterSheetView === 'main' && (
                             <>
-                                {/* Sheet Header: Filter title & Save button */}
+                                {/* Page header: close, title, reset */}
                                 <View style={styles.filterSheetHeader}>
-                                    <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>
-                                        Filter
-                                    </ThemedText>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.filterSaveBtn,
-                                            {
-                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
-                                            },
-                                        ]}
-                                        activeOpacity={0.82}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') {
-                                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                                            }
-                                            onApply({ ...tempFilterCriteria });
-                                            onClose();
-                                        }}
-                                    >
-                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
-                                            SAVE
+                                    <View style={styles.sheetHeaderLeft}>
+                                        <TouchableOpacity
+                                            accessibilityRole="button"
+                                            accessibilityLabel="Close filters"
+                                            style={[
+                                                styles.sheetBackCircleBtn,
+                                                {
+                                                    backgroundColor: colors.surface,
+                                                    borderColor: colors.border,
+                                                },
+                                            ]}
+                                            activeOpacity={0.8}
+                                            onPress={() => {
+                                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                                onClose();
+                                                setFilterSheetView('main');
+                                            }}
+                                        >
+                                            <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
+                                        </TouchableOpacity>
+                                        <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>
+                                            Filter
                                         </ThemedText>
-                                    </TouchableOpacity>
+                                    </View>
                                 </View>
 
+                                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                                 {/* Thin divider */}
                                 <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
@@ -408,11 +399,11 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                             {
                                                 backgroundColor: isDark ? '#1C1C24' : '#F2F2F6',
                                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                                borderBottomColor: isDark ? '#060608' : '#D0D0D8',
                                             },
                                         ]}
                                     >
-                                        {(['AC', 'DC'] as const).map((type) => {
+                                        {(['Any', 'AC', 'DC'] as const).map((type) => {
                                             const isSelected = tempFilterCriteria.chargerTypeFilter === type;
                                             return (
                                                 <TouchableOpacity
@@ -431,10 +422,17 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                         if (Platform.OS !== 'web') {
                                                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                                         }
-                                                        setTempFilterCriteria((prev) => ({
-                                                            ...prev,
-                                                            chargerTypeFilter: prev.chargerTypeFilter === type ? 'Any' : type,
-                                                        }));
+                                                        setTempFilterCriteria((prev) => {
+                                                            const next = prev.chargerTypeFilter === type ? 'Any' : type;
+                                                            const allowed = CONNECTOR_ITEMS.filter((c) => next === 'Any' || c.currentType === next);
+                                                            return {
+                                                                ...prev,
+                                                                chargerTypeFilter: next,
+                                                                connectorTypes: prev.connectorTypes.filter((id) =>
+                                                                    allowed.some((c) => c.id === id || c.altId === id)
+                                                                ),
+                                                            };
+                                                        });
                                                     }}
                                                 >
                                                     <ThemedText
@@ -448,7 +446,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                             isSelected && styles.segmentTextSelected,
                                                         ]}
                                                     >
-                                                        {type}
+                                                        {type === 'Any' ? 'All' : type}
                                                     </ThemedText>
                                                 </TouchableOpacity>
                                             );
@@ -456,211 +454,18 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                     </View>
                                 </View>
 
-                                {/* 2. Plugs Row (Tappable Tactile Card) */}
-                                <TouchableOpacity
-                                    style={[
-                                        styles.filterNavCard,
-                                        {
-                                            backgroundColor: isDark ? '#181820' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
-                                        },
-                                    ]}
-                                    activeOpacity={0.82}
-                                    onPress={() => {
-                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                        setFilterSheetView('plugs');
-                                    }}
-                                >
-                                    <View style={{ flex: 1 }}>
-                                        <ThemedText style={[styles.filterNavTitle, { color: colors.text }]}>Plugs</ThemedText>
-                                        <ThemedText style={[styles.filterNavSubtitle, { color: colors.textMuted }]}>
-                                            {tempFilterCriteria.connectorTypes.length > 0
-                                                 ? tempFilterCriteria.connectorTypes.join(', ')
-                                                 : 'All plugs (CCS2, Type 2, CHAdeMO, GB/T)'}
-                                        </ThemedText>
-                                    </View>
-                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
-                                        <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
-                                    </View>
-                                </TouchableOpacity>
-
-                                {/* 3. Chargers Row (Tappable Tactile Card with Avatars) */}
-                                <TouchableOpacity
-                                    style={[
-                                        styles.filterNavCard,
-                                        {
-                                            backgroundColor: isDark ? '#181820' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
-                                            marginTop: 10,
-                                        },
-                                    ]}
-                                    activeOpacity={0.82}
-                                    onPress={() => {
-                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                        setFilterSheetView('brands');
-                                    }}
-                                >
-                                    <View style={{ flex: 1 }}>
-                                        <ThemedText style={[styles.filterNavTitle, { color: colors.text }]}>Chargers</ThemedText>
-                                        <ThemedText style={[styles.filterNavSubtitle, { color: colors.textMuted }]}>
-                                            {tempFilterCriteria.selectedBrands.length > 0
-                                                ? `${tempFilterCriteria.selectedBrands.length} selected`
-                                                : `Showing ${INDIAN_CHARGER_BRANDS.length} brands`}
-                                        </ThemedText>
-                                    </View>
-
-                                    {/* Overlapping Brand Logo Avatars */}
-                                    <View style={styles.brandLogosCluster}>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF', borderColor: isDark ? '#181820' : '#F6F6F8' }]}>
-                                            <Zap size={9} color="#000" fill="#000" />
-                                        </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
-                                            <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>EZ</ThemedText>
-                                        </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#009A44', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
-                                            <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>bp</ThemedText>
-                                        </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#F59E0B', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
-                                            <Zap size={10} color="#FFF" fill="#FFF" />
-                                        </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#2563EB', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
-                                            <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>Z</ThemedText>
-                                        </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#10B981', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
-                                            <Zap size={9} color="#FFF" fill="#FFF" />
-                                        </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: -8 }]}>
-                                            <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>A</ThemedText>
-                                        </View>
-                                    </View>
-
-                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
-                                        <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
-                                    </View>
-                                </TouchableOpacity>
-
-                                {/* Amenities Row (Tappable Tactile Card) */}
-                                <TouchableOpacity
-                                    style={[
-                                        styles.filterNavCard,
-                                        {
-                                            backgroundColor: isDark ? '#181820' : '#F6F6F8',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#050508' : '#D0D0D8',
-                                            marginTop: 10,
-                                        },
-                                    ]}
-                                    activeOpacity={0.82}
-                                    onPress={() => {
-                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                        setFilterSheetView('amenities');
-                                    }}
-                                >
-                                    <View style={{ flex: 1 }}>
-                                        <ThemedText style={[styles.filterNavTitle, { color: colors.text }]}>Amenities</ThemedText>
-                                        <ThemedText style={[styles.filterNavSubtitle, { color: colors.textMuted }]}>
-                                            {tempFilterCriteria.amenities.length > 0
-                                                ? tempFilterCriteria.amenities.join(', ')
-                                                : 'Cafe, WiFi, Restroom, Lounge and more'}
-                                        </ThemedText>
-                                    </View>
-                                    <View style={styles.brandLogosCluster}>
-                                        {AMENITY_ITEMS.slice(0, 4).map((a, i) => (
-                                            <View
-                                                key={a.id}
-                                                style={[styles.brandAvatar, { backgroundColor: isDark ? '#262630' : '#ECECF0', borderColor: isDark ? '#181820' : '#F6F6F8', marginLeft: i === 0 ? 0 : -8 }]}
-                                            >
-                                                {a.renderIcon(isDark ? '#FFFFFF' : '#000000', 11)}
-                                            </View>
-                                        ))}
-                                    </View>
-                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
-                                        <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
-                                    </View>
-                                </TouchableOpacity>
-
-                                {/* Reset All Filters Button */}
-                                <TouchableOpacity
-                                    style={[
-                                        styles.filterResetBtn,
-                                        {
-                                            backgroundColor: isDark ? 'rgba(239, 68, 68, 0.12)' : '#FEE2E2',
-                                            borderColor: '#EF4444',
-                                            borderBottomColor: '#B91C1C',
-                                        },
-                                    ]}
-                                    activeOpacity={0.82}
-                                    onPress={() => {
-                                        if (Platform.OS !== 'web') {
-                                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                                        }
-                                        setTempFilterCriteria({ ...DEFAULT_MAP_FILTERS });
-                                    }}
-                                >
-                                    <ThemedText style={styles.filterResetText}>
-                                        RESET ALL FILTERS
+                                {/* 2. Plugs, shown inline and narrowed by the charger type above */}
+                                <View style={styles.plugsInlineHeader}>
+                                    <ThemedText style={[styles.filterRowLabel, { color: colors.text }]}>Plugs</ThemedText>
+                                    <ThemedText style={[styles.filterNavSubtitle, { color: colors.textMuted }]}>
+                                        {tempFilterCriteria.chargerTypeFilter === 'Any'
+                                            ? 'All AC and DC plugs'
+                                            : `${tempFilterCriteria.chargerTypeFilter} plugs only`}
+                                        {tempFilterCriteria.connectorTypes.length > 0 ? ` · ${tempFilterCriteria.connectorTypes.length} selected` : ''}
                                     </ThemedText>
-                                </TouchableOpacity>
-                            </>
-                        )}
-
-                        {/* ── Sub-View: Plugs Selection with Connector Icons ── */}
-                        {filterSheetView === 'plugs' && (
-                            <>
-                                <View style={styles.filterSheetHeader}>
-                                    <View style={styles.sheetHeaderLeft}>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.sheetBackCircleBtn,
-                                                {
-                                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                                                },
-                                            ]}
-                                            activeOpacity={0.8}
-                                            onPress={() => {
-                                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                                setFilterSheetView('main');
-                                            }}
-                                        >
-                                            <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
-                                        </TouchableOpacity>
-                                        <ThemedText style={[styles.filterSheetTitle, { color: colors.text }]}>
-                                            Select Plugs
-                                        </ThemedText>
-                                    </View>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.filterSaveBtn,
-                                            {
-                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
-                                            },
-                                        ]}
-                                        activeOpacity={0.82}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                                            setFilterSheetView('main');
-                                        }}
-                                    >
-                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
-                                            DONE
-                                        </ThemedText>
-                                    </TouchableOpacity>
                                 </View>
-
-                                <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]} />
-
-                                <ThemedText style={[styles.subModalSubtitle, { color: colors.textMuted }]}>
-                                    Choose connector types compatible with your vehicle
-                                </ThemedText>
-
                                 <View style={styles.plugFilterCardsGrid}>
-                                    {CONNECTOR_ITEMS.map((item) => {
+                                    {visibleConnectors.map((item) => {
                                         const selected = isConnectorSelected(item);
                                         const iconColor = selected
                                             ? (isDark ? '#FFFFFF' : '#000000')
@@ -671,6 +476,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                 activeOpacity={0.85}
                                                 style={[
                                                     styles.plugFilterCard,
+                                                    styles.plugInlineCard,
                                                     selected
                                                         ? {
                                                               backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
@@ -680,11 +486,11 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                               borderBottomColor: isDark ? '#9E9EA8' : '#000000',
                                                           }
                                                         : {
-                                                              backgroundColor: isDark ? '#121216' : '#F6F6F8',
+                                                              backgroundColor: isDark ? '#121216' : '#F6F3EE',
                                                               borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                                                               borderWidth: 1.5,
                                                               borderBottomWidth: 3,
-                                                              borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                                              borderBottomColor: isDark ? '#060608' : '#D0D0D8',
                                                           },
                                                 ]}
                                                 onPress={() => {
@@ -756,55 +562,147 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                     })}
                                 </View>
 
-                                <View style={styles.plugsQuickBar}>
+                                {/* 3. Chargers Row (Tappable Tactile Card with Avatars) */}
+                                <TouchableOpacity
+                                    style={[
+                                        styles.filterNavCard,
+                                        {
+                                            backgroundColor: isDark ? '#181820' : '#F6F3EE',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                            borderBottomColor: isDark ? '#060608' : '#D0D0D8',
+                                            marginTop: 10,
+                                        },
+                                    ]}
+                                    activeOpacity={0.82}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setFilterSheetView('brands');
+                                    }}
+                                >
+                                    <View style={{ flex: 1 }}>
+                                        <ThemedText style={[styles.filterNavTitle, { color: colors.text }]}>Chargers</ThemedText>
+                                        <ThemedText style={[styles.filterNavSubtitle, { color: colors.textMuted }]}>
+                                            {tempFilterCriteria.selectedBrands.length > 0
+                                                ? `${tempFilterCriteria.selectedBrands.length} selected`
+                                                : `Showing ${INDIAN_CHARGER_BRANDS.length} brands`}
+                                        </ThemedText>
+                                    </View>
+
+                                    {/* Overlapping Brand Logo Avatars */}
+                                    <View style={styles.brandLogosCluster}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF', borderColor: isDark ? '#181820' : '#F6F3EE' }]}>
+                                            <Zap size={9} color="#000" fill="#000" />
+                                        </View>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                            <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>EZ</ThemedText>
+                                        </View>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#009A44', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                            <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>bp</ThemedText>
+                                        </View>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFC83D', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                            <Zap size={10} color="#FFF" fill="#FFF" />
+                                        </View>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#2563EB', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                            <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>Z</ThemedText>
+                                        </View>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#22D38A', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                            <Zap size={9} color="#FFF" fill="#FFF" />
+                                        </View>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                            <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>A</ThemedText>
+                                        </View>
+                                    </View>
+
+                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
+                                        <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
+                                    </View>
+                                </TouchableOpacity>
+
+                                {/* Amenities Row (Tappable Tactile Card) */}
+                                <TouchableOpacity
+                                    style={[
+                                        styles.filterNavCard,
+                                        {
+                                            backgroundColor: isDark ? '#181820' : '#F6F3EE',
+                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                                            borderBottomColor: isDark ? '#060608' : '#D0D0D8',
+                                            marginTop: 10,
+                                        },
+                                    ]}
+                                    activeOpacity={0.82}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        setFilterSheetView('amenities');
+                                    }}
+                                >
+                                    <View style={{ flex: 1 }}>
+                                        <ThemedText style={[styles.filterNavTitle, { color: colors.text }]}>Amenities</ThemedText>
+                                        <ThemedText style={[styles.filterNavSubtitle, { color: colors.textMuted }]}>
+                                            {tempFilterCriteria.amenities.length > 0
+                                                ? tempFilterCriteria.amenities.join(', ')
+                                                : 'Cafe, WiFi, Restroom, Lounge and more'}
+                                        </ThemedText>
+                                    </View>
+                                    <View style={styles.brandLogosCluster}>
+                                        {AMENITY_ITEMS.slice(0, 4).map((a, i) => (
+                                            <View
+                                                key={a.id}
+                                                style={[styles.brandAvatar, { backgroundColor: isDark ? '#262630' : '#ECECF0', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: i === 0 ? 0 : -8 }]}
+                                            >
+                                                {a.renderIcon(isDark ? '#FFFFFF' : '#000000', 11)}
+                                            </View>
+                                        ))}
+                                    </View>
+                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
+                                        <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
+                                    </View>
+                                </TouchableOpacity>
+
+                                </ScrollView>
+
+                                {/* Save pinned to the bottom */}
+                                <View
+                                    style={[
+                                        styles.filterBottomBar,
+                                        {
+                                            paddingBottom: Math.max(insets.bottom, 16),
+                                            backgroundColor: colors.background,
+                                            borderTopColor: colors.border,
+                                        },
+                                    ]}
+                                >
                                     <TouchableOpacity
-                                        activeOpacity={0.8}
-                                        style={[
-                                            styles.quickBarBtn,
-                                            {
-                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                                            },
-                                        ]}
+                                        accessibilityRole="button"
+                                        accessibilityLabel="Reset all filters"
+                                        style={[styles.filterResetFull, { borderColor: colors.border, backgroundColor: colors.surface }]}
+                                        activeOpacity={0.85}
                                         onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                            setTempFilterCriteria((prev) => ({
-                                                ...prev,
-                                                connectorTypes: CONNECTOR_ITEMS.map((c) => c.id),
-                                            }));
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                                            setTempFilterCriteria({ ...DEFAULT_MAP_FILTERS });
                                         }}
                                     >
-                                        <ThemedText style={[styles.plugsQuickActionText, { color: colors.text }]}>
-                                            SELECT ALL
-                                        </ThemedText>
+                                        <ThemedText style={[styles.filterResetFullText, { color: colors.text }]}>Reset</ThemedText>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        activeOpacity={0.8}
-                                        style={[
-                                            styles.quickBarBtn,
-                                            {
-                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                                            },
-                                        ]}
+                                        accessibilityRole="button"
+                                        accessibilityLabel="Save filters"
+                                        style={styles.filterSaveFull}
+                                        activeOpacity={0.85}
                                         onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                            setTempFilterCriteria((prev) => ({
-                                                ...prev,
-                                                connectorTypes: [],
-                                            }));
+                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                                            onApply({ ...tempFilterCriteria });
+                                            onClose();
                                         }}
                                     >
-                                        <ThemedText style={[styles.plugsQuickActionText, { color: colors.textMuted }]}>
-                                            CLEAR ALL
+                                        <ThemedText style={styles.filterSaveFullText}>
+                                            {countMapFilters(tempFilterCriteria) > 0 ? `Save · ${countMapFilters(tempFilterCriteria)} filters` : 'Save'}
                                         </ThemedText>
                                     </TouchableOpacity>
                                 </View>
                             </>
                         )}
 
+                        {/* ── Sub-View: Plugs Selection with Connector Icons ── */}
                         {filterSheetView === 'amenities' && (
                             <>
                                 <View style={styles.filterSheetHeader}>
@@ -815,7 +713,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                 {
                                                     backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
                                                     borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                    borderBottomColor: isDark ? '#060608' : '#C8C8D0',
                                                 },
                                             ]}
                                             activeOpacity={0.8}
@@ -857,7 +755,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                     Show chargers with these facilities
                                 </ThemedText>
 
-                                <ScrollView showsVerticalScrollIndicator={false}>
+                                <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
 <View style={styles.plugFilterCardsGrid}>
                                     {AMENITY_ITEMS.map((item) => {
                                         const selected = isAmenitySelected(item);
@@ -879,11 +777,11 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                               borderBottomColor: isDark ? '#9E9EA8' : '#000000',
                                                           }
                                                         : {
-                                                              backgroundColor: isDark ? '#121216' : '#F6F6F8',
+                                                              backgroundColor: isDark ? '#121216' : '#F6F3EE',
                                                               borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                                                               borderWidth: 1.5,
                                                               borderBottomWidth: 3,
-                                                              borderBottomColor: isDark ? '#050508' : '#D0D0D8',
+                                                              borderBottomColor: isDark ? '#060608' : '#D0D0D8',
                                                           },
                                                 ]}
                                                 onPress={() => {
@@ -939,7 +837,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                             {
                                                 backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
                                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                borderBottomColor: isDark ? '#060608' : '#C8C8D0',
                                             },
                                         ]}
                                         onPress={() => {
@@ -961,7 +859,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                             {
                                                 backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
                                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                borderBottomColor: isDark ? '#060608' : '#C8C8D0',
                                             },
                                         ]}
                                         onPress={() => {
@@ -991,7 +889,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                 {
                                                     backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
                                                     borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                                    borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                                                    borderBottomColor: isDark ? '#060608' : '#C8C8D0',
                                                 },
                                             ]}
                                             activeOpacity={0.8}
@@ -1030,6 +928,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                 <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
                                 <ScrollView
+                                    style={{ flex: 1 }}
                                     showsVerticalScrollIndicator={false}
                                     contentContainerStyle={styles.brandScrollContent}
                                 >
@@ -1060,7 +959,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                     {
                                                         backgroundColor: isDark ? '#181820' : '#FFFFFF',
                                                         borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                        borderBottomColor: isDark ? '#050508' : '#D4D4DC',
+                                                        borderBottomColor: isDark ? '#060608' : '#D4D4DC',
                                                     },
                                                 ]}
                                                 activeOpacity={0.8}
@@ -1096,7 +995,6 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                 </ScrollView>
                             </>
                         )}
-                    </View>
                 </View>
             </Modal>
     );
@@ -1230,6 +1128,41 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.extraBold,
         letterSpacing: 0.8,
     },
+    filterPage: {
+        flex: 1,
+        paddingHorizontal: 20,
+    },
+    filterBottomBar: {
+        paddingTop: 12,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        flexDirection: 'row',
+        gap: 10,
+    },
+    filterResetFull: {
+        flex: 1,
+        height: 56,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    filterResetFullText: {
+        fontSize: 16,
+        fontFamily: FONT_FAMILIES.extraBold,
+    },
+    filterSaveFull: {
+        flex: 2,
+        height: 56,
+        borderRadius: 20,
+        backgroundColor: '#A996FF',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    filterSaveFullText: {
+        fontSize: 16,
+        fontFamily: FONT_FAMILIES.extraBold,
+        color: '#0B0B0F',
+    },
     filterSheetContainer: {
         borderTopLeftRadius: RADIUS.bottomSheet,
         borderTopRightRadius: RADIUS.bottomSheet,
@@ -1292,6 +1225,14 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: FONT_FAMILIES.bold,
         textAlign: 'center',
+    },
+    plugsInlineHeader: {
+        marginTop: 14,
+        marginBottom: 10,
+        gap: 2,
+    },
+    plugInlineCard: {
+        paddingVertical: 12,
     },
     plugFilterCardsGrid: {
         flexDirection: 'row',

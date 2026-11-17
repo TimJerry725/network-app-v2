@@ -1,297 +1,121 @@
-import React from 'react';
-import { StyleSheet, TouchableOpacity, View, ScrollView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
-import { CheckCircle2, Leaf, RotateCcw, Receipt, FileText, ShieldCheck } from 'lucide-react-native';
-import { CredButton } from '../../components/CredButton';
-import { CredCard } from '../../components/CredCard';
+import React, { useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CheckCircle2, Flag, RotateCcw, Receipt, Home } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
 import { getStationById, MOCK_STATIONS, Station } from '../../constants/Stations';
-import { FONTS, RADIUS, SPACING } from '../../constants/Tokens';
+import { FONT_FAMILIES } from '../../constants/Tokens';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { CompletedSessionReceipt } from '../../context/ChargingContext';
+import { useWallet } from '../../context/WalletContext';
+import { useVehicles } from '../../context/VehicleContext';
+import { PulseButton } from '../../components/pulse/PulseKit';
+import { KeyValue, ON_HIGHLIGHT, Panel, Section, StatGrid, flat } from '../../components/flat/FlatKit';
+import { formatRupees } from '../../utils/pulse';
 
 export default function PaymentScreen({ route, navigation }: any) {
-    const { colors, isDark } = useAppTheme();
+    const { colors } = useAppTheme();
+    const insets = useSafeAreaInsets();
+    const { raiseDispute } = useWallet();
+    const { user } = useVehicles();
+    const [ticket, setTicket] = useState<string | null>(null);
+
     const receipt = route.params?.receipt as CompletedSessionReceipt | undefined;
-
-    const totalEnergy = receipt?.energyDeliveredKwh ?? route.params?.totalEnergy ?? 24.6;
+    const totalEnergy = Number(receipt?.energyDeliveredKwh ?? route.params?.totalEnergy ?? 24.6);
     const totalTime = receipt?.durationFormatted ?? `${route.params?.totalTime ?? 28}m`;
-    const cost = receipt?.totalAmountPaid ?? route.params?.cost ?? 354.20;
-    const endingSoc = receipt?.endSoc ?? route.params?.endingSoc ?? 82;
+    const cost = Number(receipt?.totalAmountPaid ?? route.params?.cost ?? 354.2);
+    const endSoc = receipt?.endSoc ?? route.params?.endingSoc ?? 82;
     const startSoc = receipt?.startSoc ?? 45;
-    const routeStation = route.params?.stationSnapshot as Station | undefined;
-    const station =
-        routeStation ??
-        getStationById(route.params?.stationId) ??
-        MOCK_STATIONS[0];
-
+    const station: Station = (route.params?.stationSnapshot as Station | undefined) ?? getStationById(route.params?.stationId) ?? MOCK_STATIONS[0];
     const invoiceNo = receipt?.invoiceNo ?? 'INV-IRIS-2026-9182';
-    const transactionId = receipt?.transactionId ?? 'TRX-948102';
+    const txnId = receipt?.transactionId ?? 'TRX-948102';
+    const volts = Math.max(5, Math.round(totalEnergy));
+
+    const report = () => {
+        if (ticket) return;
+        Alert.alert('Something wrong with this bill?', `${formatRupees(cost, 2)} · ${station.name}`, [
+            { text: 'I was charged twice', onPress: () => setTicket(raiseDispute(txnId, station.name, cost, 'Charged twice')) },
+            { text: 'Charge stopped early', onPress: () => setTicket(raiseDispute(txnId, station.name, cost, 'Stopped early')) },
+            { text: 'Amount looks wrong', onPress: () => setTicket(raiseDispute(txnId, station.name, cost, 'Wrong amount')) },
+            { text: 'Cancel', style: 'cancel' },
+        ]);
+    };
 
     return (
-        <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-            <ScrollView
-                contentContainerStyle={styles.content}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Hero Confirmation */}
-                <View style={styles.hero}>
-                    <View
-                        style={[
-                            styles.successIcon,
-                            {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                borderWidth: 1,
-                            },
-                        ]}
-                    >
-                        <CheckCircle2 size={38} color={colors.primary} />
-                    </View>
-                    <ThemedText type="title" style={styles.title}>
-                        Session Complete!
-                    </ThemedText>
-                    <ThemedText style={[styles.subtitle, { color: colors.textMuted }]}>
-                        Payment settled via Iris Wallet at {station.name}.
-                    </ThemedText>
+        <View style={[flat.screen, { backgroundColor: colors.background }]}>
+            <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 16, paddingBottom: insets.bottom + 30 }} showsVerticalScrollIndicator={false}>
+                <View style={styles.head}>
+                    <CheckCircle2 size={28} color={colors.mint} />
+                    <ThemedText style={[styles.title, { color: colors.text }]}>Charge complete</ThemedText>
+                    <ThemedText style={[flat.body, { color: colors.textMuted }]}>{station.name}</ThemedText>
                 </View>
 
-                {/* CPO Invoice / Tax Breakdown Card */}
-                <CredCard variant="default" style={styles.summaryCard}>
-                    <View style={styles.invoiceHeaderRow}>
-                        <View>
-                            <ThemedText type="label" style={{ color: colors.textMuted }}>
-                                TAX INVOICE
-                            </ThemedText>
-                            <ThemedText style={[FONTS.bodyStrong, { color: colors.text }]}>
-                                {invoiceNo}
-                            </ThemedText>
-                        </View>
-                        <View
-                            style={[
-                                styles.badgePill,
-                                {
-                                    backgroundColor: isDark ? '#141418' : '#F4F4F6',
-                                    borderColor: colors.cardBorder,
-                                    borderWidth: 1,
-                                },
+                {/* The one highlight: what you paid */}
+                <Panel tone="highlight" style={{ marginTop: 18 }}>
+                    <ThemedText style={[flat.caption, { color: ON_HIGHLIGHT.sub }]}>Paid from Iris Wallet · incl. GST</ThemedText>
+                    <ThemedText style={styles.amount}>{formatRupees(cost, 2)}</ThemedText>
+                    <StatGrid
+                        onHighlight
+                        columns={3}
+                        items={[
+                            { label: 'Wallet left', value: formatRupees(user.walletBalance) },
+                            { label: 'Hold', value: 'Returned' },
+                            { label: 'Volts', value: `+${volts}` },
+                        ]}
+                    />
+                </Panel>
+
+                <Section title="Tax invoice">
+                    <Panel>
+                        <KeyValue label="Invoice" value={invoiceNo} />
+                        <KeyValue label="Transaction" value={txnId} />
+                        <KeyValue label="Energy" value={`${totalEnergy.toFixed(2)} kWh`} />
+                        <KeyValue label="Duration" value={totalTime} />
+                        <KeyValue label="Battery" value={`${startSoc}% → ${endSoc}%`} />
+                        {receipt ? (
+                            <>
+                                <KeyValue label="Energy charges" value={formatRupees(receipt.energyCost, 2)} />
+                                <KeyValue label="CGST 9%" value={formatRupees(receipt.cgstAmount, 2)} />
+                                <KeyValue label="SGST 9%" value={formatRupees(receipt.sgstAmount, 2)} />
+                            </>
+                        ) : null}
+                        <KeyValue label="Total paid" value={formatRupees(cost, 2)} strong />
+                    </Panel>
+                </Section>
+
+                <Section title="Impact">
+                    <Panel>
+                        <StatGrid
+                            columns={2}
+                            items={[
+                                { label: 'Green energy', value: '100%' },
+                                { label: 'CO₂ saved', value: `${(totalEnergy * 0.16).toFixed(1)} kg` },
                             ]}
-                        >
-                            <ShieldCheck size={14} color={colors.primary} />
-                            <ThemedText style={{ color: colors.text, ...FONTS.caption, fontWeight: '700' }}>
-                                GST COMPLIANT
-                            </ThemedText>
-                        </View>
-                    </View>
+                        />
+                    </Panel>
+                </Section>
 
-                    <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
+                <Pressable accessibilityRole="button" onPress={report} style={styles.report}>
+                    <Flag size={15} color={ticket ? colors.sun : colors.textMuted} />
+                    <ThemedText style={[styles.reportText, { color: ticket ? colors.sun : colors.textMuted }]}>
+                        {ticket ? `Dispute ${ticket} raised · reply within 24h` : 'Something wrong? Report a problem'}
+                    </ThemedText>
+                </Pressable>
 
-                    <View style={styles.summaryRow}>
-                        <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>Transaction ID</ThemedText>
-                        <ThemedText style={styles.summaryValue}>{transactionId}</ThemedText>
-                    </View>
-
-                    <View style={styles.summaryRow}>
-                        <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>Energy Delivered</ThemedText>
-                        <ThemedText style={styles.summaryValue}>{Number(totalEnergy).toFixed(2)} kWh</ThemedText>
-                    </View>
-
-                    <View style={styles.summaryRow}>
-                        <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>Duration</ThemedText>
-                        <ThemedText style={styles.summaryValue}>{totalTime}</ThemedText>
-                    </View>
-
-                    <View style={styles.summaryRow}>
-                        <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>Battery Level</ThemedText>
-                        <ThemedText style={styles.summaryValue}>{startSoc}% → {endingSoc}%</ThemedText>
-                    </View>
-
-                    <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
-
-                    {receipt && (
-                        <>
-                            <View style={styles.summaryRow}>
-                                <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>Energy Charges</ThemedText>
-                                <ThemedText style={styles.summaryValue}>₹{receipt.energyCost.toFixed(2)}</ThemedText>
-                            </View>
-                            <View style={styles.summaryRow}>
-                                <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>CGST (9%)</ThemedText>
-                                <ThemedText style={styles.summaryValue}>₹{receipt.cgstAmount.toFixed(2)}</ThemedText>
-                            </View>
-                            <View style={styles.summaryRow}>
-                                <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>SGST (9%)</ThemedText>
-                                <ThemedText style={styles.summaryValue}>₹{receipt.sgstAmount.toFixed(2)}</ThemedText>
-                            </View>
-                            <View style={[styles.divider, { backgroundColor: colors.surfaceMuted }]} />
-                        </>
-                    )}
-
-                    <View style={styles.summaryRow}>
-                        <ThemedText style={[FONTS.h3, { color: colors.text }]}>Total Paid</ThemedText>
-                        <ThemedText style={[FONTS.h2, { color: colors.primary }]}>
-                            ₹{Number(cost).toFixed(2)}
-                        </ThemedText>
-                    </View>
-                </CredCard>
-
-                {/* Eco & Green Telemetry Cards */}
-                <View style={styles.rewardRow}>
-                    <CredCard variant="default" style={styles.rewardCard}>
-                        <Leaf size={20} color={colors.primary} />
-                        <ThemedText style={styles.rewardValue}>100%</ThemedText>
-                        <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>Green Energy</ThemedText>
-                    </CredCard>
-                    <CredCard variant="default" style={styles.rewardCard}>
-                        <Receipt size={20} color={colors.primary} />
-                        <ThemedText style={styles.rewardValue}>{(Number(totalEnergy) * 0.16).toFixed(1)} kg</ThemedText>
-                        <ThemedText style={{ color: colors.textMuted, ...FONTS.caption }}>CO₂ Offset</ThemedText>
-                    </CredCard>
-                </View>
-
-                {/* Primary Return Action */}
-                <CredButton
-                    title="RETURN TO MAP"
-                    variant="neon"
-                    containerStyle={{ marginTop: SPACING.lg }}
-                    onPress={() => navigation.navigate('Main', { screen: 'Map' })}
-                />
-
-                {/* Action Row */}
-                <View style={styles.secondaryActions}>
-                    <TouchableOpacity
-                        style={[
-                            styles.actionButton,
-                            {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                            },
-                        ]}
-                        activeOpacity={0.82}
-                        onPress={() => {
-                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            navigation.navigate('Main', { screen: 'Scan' });
-                        }}
-                    >
-                        <RotateCcw size={16} color={colors.primary} />
-                        <ThemedText style={{ color: colors.text, ...FONTS.bodyStrong }}>
-                            New Session
-                        </ThemedText>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[
-                            styles.actionButton,
-                            {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
-                                borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                            },
-                        ]}
-                        activeOpacity={0.82}
-                        onPress={() => {
-                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            navigation.navigate('Main', { screen: 'Vehicles' });
-                        }}
-                    >
-                        <FileText size={16} color={colors.primary} />
-                        <ThemedText style={{ color: colors.text, ...FONTS.bodyStrong }}>
-                            View Garage
-                        </ThemedText>
-                    </TouchableOpacity>
+                <PulseButton title="Done" icon={<Home size={17} color="#0B0B0F" />} onPress={() => navigation.navigate('Main', { screen: 'Map' })} style={{ marginTop: 8 }} />
+                <View style={[flat.rowGap, { marginTop: 10 }]}>
+                    <PulseButton title="Charge again" variant="ghost" size="md" icon={<RotateCcw size={15} color={colors.text} />} onPress={() => navigation.navigate('Main', { screen: 'Scan' })} style={{ flex: 1 }} />
+                    <PulseButton title="All charges" variant="ghost" size="md" icon={<Receipt size={15} color={colors.text} />} onPress={() => navigation.navigate('Main', { screen: 'Vehicles' })} style={{ flex: 1 }} />
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-    },
-    content: {
-        padding: SPACING.md,
-        paddingBottom: SPACING.xl,
-    },
-    hero: {
-        alignItems: 'center',
-        marginVertical: SPACING.md,
-    },
-    successIcon: {
-        width: 76,
-        height: 76,
-        borderRadius: RADIUS.circle,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    title: {
-        marginTop: 14,
-        textAlign: 'center',
-    },
-    subtitle: {
-        marginTop: 6,
-        textAlign: 'center',
-        ...FONTS.body,
-        paddingHorizontal: SPACING.md,
-    },
-    summaryCard: {
-        padding: SPACING.md,
-        marginVertical: SPACING.sm,
-    },
-    invoiceHeaderRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    badgePill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: RADIUS.chip,
-        gap: 4,
-    },
-    divider: {
-        height: StyleSheet.hairlineWidth,
-        marginVertical: 12,
-    },
-    summaryRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginVertical: 4,
-    },
-    summaryValue: {
-        ...FONTS.bodyStrong,
-    },
-    rewardRow: {
-        flexDirection: 'row',
-        gap: SPACING.sm,
-        marginTop: SPACING.sm,
-    },
-    rewardCard: {
-        flex: 1,
-        padding: SPACING.md,
-        alignItems: 'center',
-    },
-    rewardValue: {
-        ...FONTS.h3,
-        marginTop: 4,
-    },
-    secondaryActions: {
-        flexDirection: 'row',
-        gap: SPACING.sm,
-        marginTop: SPACING.md,
-    },
-    actionButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 48,
-        borderRadius: RADIUS.pill,
-        gap: 8,
-        borderWidth: 1,
-    },
+    head: { alignItems: 'flex-start', gap: 6 },
+    title: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 28, letterSpacing: -0.9, lineHeight: 34 },
+    amount: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 44, lineHeight: 52, letterSpacing: -1.6, color: '#0B0B0F', marginTop: 2, marginBottom: 4 },
+    report: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, marginTop: 14 },
+    reportText: { fontFamily: FONT_FAMILIES.bold, fontSize: 13.5 },
 });

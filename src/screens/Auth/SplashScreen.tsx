@@ -1,285 +1,58 @@
 import React, { useEffect, useRef } from 'react';
-import {
-    Animated,
-    Dimensions,
-    Platform,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Animated, Image, Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Sparkles, Zap, ShieldCheck } from 'lucide-react-native';
-import { AppLogo } from '../../components/AppLogo';
 import { ThemedText } from '../../components/ThemedText';
-import { useAppTheme } from '../../hooks/useAppTheme';
-import { FONT_FAMILIES, RADIUS } from '../../constants/Tokens';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import { AppLogo } from '../../components/AppLogo';
+const CAR_IMAGE = require('../../../assets/images/profile-car.webp');
+import { FONT_FAMILIES } from '../../constants/Tokens';
 
 export default function SplashScreen({ navigation }: any) {
-    const { colors, isDark } = useAppTheme();
-
-    const logoScale = useRef(new Animated.Value(0.85)).current;
-    const logoOpacity = useRef(new Animated.Value(0)).current;
-    const glowOpacity = useRef(new Animated.Value(0)).current;
-    const contentOpacity = useRef(new Animated.Value(0)).current;
-    const progressAnim = useRef(new Animated.Value(0)).current;
+    const insets = useSafeAreaInsets();
+    const { width } = useWindowDimensions();
+    const progress = useRef(new Animated.Value(0)).current;
+    const fade = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        // 1. Entrance sequence
         Animated.parallel([
-            Animated.timing(logoOpacity, {
-                toValue: 1,
-                duration: 700,
-                useNativeDriver: true,
-            }),
-            Animated.spring(logoScale, {
-                toValue: 1,
-                tension: 40,
-                friction: 7,
-                useNativeDriver: true,
-            }),
-            Animated.timing(glowOpacity, {
-                toValue: 0.8,
-                duration: 900,
-                useNativeDriver: true,
-            }),
-            Animated.timing(contentOpacity, {
-                toValue: 1,
-                duration: 800,
-                delay: 350,
-                useNativeDriver: true,
-            }),
-            Animated.timing(progressAnim, {
-                toValue: 1,
-                duration: 1800,
-                useNativeDriver: false,
-            }),
+            Animated.timing(fade, { toValue: 1, duration: 700, delay: 300, useNativeDriver: true }),
+            Animated.timing(progress, { toValue: 1, duration: 1900, useNativeDriver: false }),
         ]).start();
-
-        // 2. Auto navigate to Login after 2.1 seconds
         const timer = setTimeout(() => {
-            if (Platform.OS !== 'web') {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }
+            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
             navigation.replace('Login');
         }, 2200);
-
         return () => clearTimeout(timer);
-    }, [navigation]);
+    }, [navigation, fade, progress]);
 
-    const handleSkip = () => {
-        if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        }
-        navigation.replace('Login');
-    };
-
-    const progressWidth = progressAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['0%', '100%'],
-    });
+    const skip = () => navigation.replace('Login');
 
     return (
-        <TouchableOpacity
-            activeOpacity={1}
-            onPress={handleSkip}
-            style={[styles.container, { backgroundColor: colors.background }]}
-        >
-            {/* Ambient Ambient Glow */}
-            <Animated.View
-                style={[
-                    styles.glowWrapper,
-                    { opacity: glowOpacity },
-                ]}
-                pointerEvents="none"
-            >
-                <LinearGradient
-                    colors={
-                        isDark
-                            ? [
-                                  'rgba(56, 189, 248, 0.22)',
-                                  'rgba(129, 140, 248, 0.12)',
-                                  'rgba(255, 91, 69, 0.08)',
-                                  'transparent',
-                              ]
-                            : [
-                                  'rgba(56, 189, 248, 0.16)',
-                                  'rgba(16, 185, 129, 0.10)',
-                                  'rgba(255, 91, 69, 0.06)',
-                                  'transparent',
-                              ]
-                    }
-                    style={styles.glowGradient}
-                />
-            </Animated.View>
-
-            {/* Central Brand Showcase */}
-            <View style={styles.centerSection}>
-                {/* Logo with Spring Animation */}
-                <Animated.View
-                    style={[
-                        styles.logoContainer,
-                        {
-                            opacity: logoOpacity,
-                            transform: [{ scale: logoScale }],
-                        },
-                    ]}
-                >
-                    {/* Official Vector Logo in App Theme */}
-                    <AppLogo
-                        width={240}
-                        height={50}
-                    />
-                </Animated.View>
-
-                {/* Subtitle & Tagline */}
-                <Animated.View
-                    style={[
-                        styles.taglineBlock,
-                        { opacity: contentOpacity },
-                    ]}
-                >
-                    <ThemedText style={[styles.brandHeadline, { color: colors.text }]}>
-                        IRIS NETWORK
-                    </ThemedText>
-                    <ThemedText style={[styles.brandSubtext, { color: colors.textMuted }]}>
-                        INTELLIGENT EV CHARGING PROTOCOL
-                    </ThemedText>
+        <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom + 24 }]}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Skip intro" onPress={skip} style={styles.skip}>
+                <ThemedText style={styles.skipText}>Skip</ThemedText>
+            </Pressable>
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+                <Animated.View style={{ opacity: fade, marginHorizontal: 16, backgroundColor: '#FFFFFF', borderRadius: 28, paddingVertical: 10, alignItems: 'center' }}>
+                    <Image source={CAR_IMAGE} style={{ width: width - 40, height: (width - 40) * 0.5 }} resizeMode="contain" />
                 </Animated.View>
             </View>
-
-            {/* Bottom Status & Progress Bar */}
-            <Animated.View
-                style={[
-                    styles.bottomSection,
-                    { opacity: contentOpacity },
-                ]}
-            >
-                {/* Progress Bar Track */}
-                <View
-                    style={[
-                        styles.progressTrack,
-                        {
-                            backgroundColor: isDark
-                                ? 'rgba(255, 255, 255, 0.08)'
-                                : 'rgba(0, 0, 0, 0.06)',
-                        },
-                    ]}
-                >
-                    <Animated.View
-                        style={[
-                            styles.progressBar,
-                            {
-                                width: progressWidth,
-                                backgroundColor: colors.primary,
-                            },
-                        ]}
-                    />
+            <Animated.View style={{ opacity: fade, alignItems: 'center', paddingHorizontal: 24 }}>
+                <AppLogo width={150} height={31} solidColor="#FFFFFF" />
+                <ThemedText style={styles.tag}>Find. Charge. Pay. Done.</ThemedText>
+                <View style={styles.track}>
+                    <Animated.View style={[styles.fill, { width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
                 </View>
-
-                {/* Status Message */}
-                <View style={styles.statusRow}>
-                    <View style={styles.pulseDot} />
-                    <ThemedText style={[styles.statusText, { color: colors.textMuted }]}>
-                        Connecting to Iris Charging Grid...
-                    </ThemedText>
-                </View>
-
-                {/* Version badge */}
-                <ThemedText style={[styles.versionText, { color: colors.textSoft }]}>
-                    v2.5 • Tap anywhere to continue
-                </ThemedText>
             </Animated.View>
-        </TouchableOpacity>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 50,
-        paddingHorizontal: 24,
-    },
-    glowWrapper: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: SCREEN_HEIGHT * 0.65,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    glowGradient: {
-        width: SCREEN_WIDTH * 1.4,
-        height: SCREEN_HEIGHT * 0.65,
-        borderRadius: SCREEN_WIDTH * 0.7,
-    },
-    centerSection: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-    },
-    logoContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 24,
-    },
-    taglineBlock: {
-        alignItems: 'center',
-    },
-    brandHeadline: {
-        fontSize: 22,
-        fontFamily: FONT_FAMILIES.extraBold,
-        letterSpacing: 3,
-        textAlign: 'center',
-        marginBottom: 6,
-    },
-    brandSubtext: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.medium,
-        letterSpacing: 2,
-        textAlign: 'center',
-    },
-    bottomSection: {
-        width: '100%',
-        maxWidth: 280,
-        alignItems: 'center',
-    },
-    progressTrack: {
-        width: '100%',
-        height: 4,
-        borderRadius: 2,
-        overflow: 'hidden',
-        marginBottom: 14,
-    },
-    progressBar: {
-        height: '100%',
-        borderRadius: 2,
-    },
-    statusRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 10,
-    },
-    pulseDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: '#10B981',
-    },
-    statusText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.medium,
-    },
-    versionText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.regular,
-        letterSpacing: 0.5,
-    },
+    root: { flex: 1, backgroundColor: '#0B0B0F' },
+    skip: { alignSelf: 'flex-end', paddingHorizontal: 20, paddingVertical: 12, minHeight: 44 },
+    skipText: { fontFamily: FONT_FAMILIES.bold, fontSize: 14, color: 'rgba(255,255,255,0.6)' },
+    tag: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 15, color: 'rgba(255,255,255,0.7)', marginTop: 12 },
+    track: { width: 140, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.12)', marginTop: 24, overflow: 'hidden' },
+    fill: { height: 4, borderRadius: 2, backgroundColor: '#A996FF' },
 });

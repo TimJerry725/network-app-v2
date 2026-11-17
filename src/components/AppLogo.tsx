@@ -42,14 +42,14 @@ export function AppLogo({
         // Electric vibrant theme for Iris AI & Chat branches
         resolvedGradient = isDark
             ? [
-                  colors.primary ?? '#38BDF8',
+                  colors.primary ?? '#7B5CFF',
                   (colors as any).lavender ?? '#818CF8',
-                  colors.accent ?? '#FF5B45',
+                  colors.accent ?? '#7B5CFF',
               ]
             : [
-                  colors.primary ?? '#0284C7',
+                  colors.primary ?? '#5B3DF0',
                   (colors as any).lavender ?? '#6366F1',
-                  colors.accent ?? '#FF5B45',
+                  colors.accent ?? '#7B5CFF',
               ];
     }
 

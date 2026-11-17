@@ -129,7 +129,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
                                 <View style={styles.metricsRow}>
                                     {/* Energy Column */}
                                     <View style={styles.metricCol}>
-                                        <Zap size={16} color="#FF5B45" fill="#FF5B45" />
+                                        <Zap size={16} color="#7B5CFF" fill="#7B5CFF" />
                                         <ThemedText style={[styles.metricVal, { color: textColor }]}>
                                             {receipt.energyDeliveredKwh} kWh
                                         </ThemedText>
@@ -140,7 +140,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
 
                                     {/* Duration Column */}
                                     <View style={styles.metricCol}>
-                                        <Clock size={16} color="#FF5B45" />
+                                        <Clock size={16} color="#7B5CFF" />
                                         <ThemedText style={[styles.metricVal, { color: textColor }]}>
                                             {receipt.durationFormatted}
                                         </ThemedText>
@@ -151,7 +151,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
 
                                     {/* Avg Speed Column */}
                                     <View style={styles.metricCol}>
-                                        <CircleGauge size={16} color="#FF5B45" />
+                                        <CircleGauge size={16} color="#7B5CFF" />
                                         <ThemedText style={[styles.metricVal, { color: textColor }]}>
                                             {avgSpeed}
                                         </ThemedText>
@@ -301,7 +301,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
 const styles = StyleSheet.create({
     modalBackdrop: {
         flex: 1,
-        backgroundColor: '#FF5B45', // Sunset Coral signature backdrop matching app
+        backgroundColor: '#7B5CFF', // Sunset Coral signature backdrop matching app
     },
     safeArea: {
         flex: 1,

@@ -3,6 +3,9 @@ import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/Auth/SplashScreen';
 import LoginScreen from '../screens/Auth/LoginScreen';
+import OtpScreen from '../screens/Auth/OtpScreen';
+import ProfileSetupScreen from '../screens/Auth/ProfileSetupScreen';
+import AddVehicleScreen from '../screens/Auth/AddVehicleScreen';
 import TabNavigator from './TabNavigator';
 import StationDetailScreen from '../screens/Station/StationDetailScreen';
 import ScanScreen from '../screens/Charging/ScanScreen';
@@ -11,6 +14,8 @@ import PaymentScreen from '../screens/Charging/PaymentScreen';
 import FilterScreen from '../screens/Home/FilterScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import EditProfileScreen from '../screens/Profile/EditProfileScreen';
+import WalletScreen from '../screens/Wallet/WalletScreen';
+import TripPlanScreen from '../screens/Explore/TripPlanScreen';
 import { useAppTheme } from '../hooks/useAppTheme';
 
 const Stack = createNativeStackNavigator();
@@ -42,6 +47,9 @@ export default function RootNavigator() {
             >
                 <Stack.Screen name="Splash" component={SplashScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Otp" component={OtpScreen} options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="AddVehicle" component={AddVehicleScreen} options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="Main" component={TabNavigator} />
                 <Stack.Screen name="StationDetails" component={StationDetailScreen} />
                 <Stack.Screen name="Scan" component={ScanScreen} />
@@ -50,6 +58,8 @@ export default function RootNavigator() {
                 <Stack.Screen name="Filter" component={FilterScreen} />
                 <Stack.Screen name="Profile" component={ProfileScreen} />
                 <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+                <Stack.Screen name="TripPlan" component={TripPlanScreen} options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="Wallet" component={WalletScreen} options={{ animation: 'slide_from_bottom' }} />
             </Stack.Navigator>
         </NavigationContainer>
     );

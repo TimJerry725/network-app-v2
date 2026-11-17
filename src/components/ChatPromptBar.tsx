@@ -68,28 +68,28 @@ export function ChatPromptBar({
             label: 'Plan Trip to Mysuru',
             icon: <Route size={13} color={colors.primary} />,
             color: colors.primary,
-            bg: isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE',
+            bg: isDark ? 'rgba(123, 92, 255, 0.16)' : '#ECE7FF',
         },
         {
             id: 'fast',
             label: '60kW+ Fast Chargers',
             icon: <Zap size={13} color={colors.secondary} fill={colors.secondary} />,
             color: colors.secondary,
-            bg: isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFF0ED',
+            bg: isDark ? 'rgba(123, 92, 255, 0.16)' : '#FFF0ED',
         },
         {
             id: 'avail',
             label: 'Available Right Now',
             icon: <CheckCircle2 size={13} color={colors.tertiary} />,
             color: colors.tertiary,
-            bg: isDark ? 'rgba(16, 185, 129, 0.16)' : '#ECFDF5',
+            bg: isDark ? 'rgba(34, 211, 138, 0.16)' : '#ECFDF5',
         },
         {
             id: 'battery',
             label: 'Check Range',
             icon: <BatteryCharging size={13} color={colors.primary} />,
             color: colors.primary,
-            bg: isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE',
+            bg: isDark ? 'rgba(123, 92, 255, 0.16)' : '#ECE7FF',
         },
     ];
 
@@ -142,7 +142,7 @@ export function ChatPromptBar({
                         <ThemedText
                             style={[
                                 styles.chipText,
-                                { color: chip.color ?? (isDark ? '#FFFFFF' : '#0D0E13') },
+                                { color: chip.color ?? (isDark ? '#FFFFFF' : '#0B0B0F') },
                             ]}
                         >
                             {chip.label}
@@ -162,7 +162,7 @@ export function ChatPromptBar({
                         (onActionPress ?? onPlusPress)?.();
                     }}
                 >
-                    <Plus size={18} color={isDark ? '#0A0D14' : '#FFFFFF'} strokeWidth={2.6} />
+                    <Plus size={18} color={isDark ? '#0B0B0F' : '#FFFFFF'} strokeWidth={2.6} />
                 </TouchableOpacity>
 
                 {/* Pill Capsule Input Field */}

@@ -129,7 +129,7 @@ export default function FilterScreen() {
                         {
                             backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
                             borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
+                            borderBottomColor: isDark ? '#060608' : '#C8C8D0',
                         },
                     ]}
                     activeOpacity={0.8}
@@ -352,7 +352,7 @@ export default function FilterScreen() {
                                     style={[
                                         styles.inputBox,
                                         {
-                                            backgroundColor: isDark ? '#141418' : '#F4F4F2',
+                                            backgroundColor: isDark ? '#121218' : '#F4F4F2',
                                             borderColor: colors.cardBorder,
                                         },
                                     ]}
@@ -392,7 +392,7 @@ export default function FilterScreen() {
                                     style={[
                                         styles.inputBox,
                                         {
-                                            backgroundColor: isDark ? '#141418' : '#F4F4F2',
+                                            backgroundColor: isDark ? '#121218' : '#F4F4F2',
                                             borderColor: colors.cardBorder,
                                         },
                                     ]}

@@ -31,8 +31,8 @@ export function CredCard({
     };
 
     const getBackgroundColor = () => {
-        if (variant === 'recessed') return isDark ? '#0A0A0C' : '#F6F6F8';
-        return isDark ? '#141418' : '#FFFFFF';
+        if (variant === 'recessed') return isDark ? '#0A0A0C' : '#F6F3EE';
+        return isDark ? '#121218' : '#FFFFFF';
     };
 
     return (

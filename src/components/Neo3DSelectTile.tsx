@@ -218,7 +218,7 @@ export function Neo3DSelectTile({
                         ] : [
                             styles.podInactive,
                             {
-                                backgroundColor: isDark ? '#141418' : '#F6F6F8',
+                                backgroundColor: isDark ? '#121218' : '#F6F3EE',
                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 borderWidth: 1,
                             },

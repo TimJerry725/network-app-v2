@@ -85,20 +85,20 @@ export function CredButton({
         if (disabled) return isDark ? '#1F2128' : '#E5E7EB';
         if (variant === 'secondary' || variant === 'coral') return colors.secondary;
         if (variant === 'tertiary' || variant === 'mint') return colors.tertiary;
-        if (variant === 'neon') return '#FFFFFF';
+        if (variant === 'neon') return colors.lime; // Pulse: lime = go
         if (variant === 'danger') return isDark ? '#EF4444' : '#DC2626';
-        if (variant === 'dark') return isDark ? '#141418' : '#141418';
+        if (variant === 'dark') return isDark ? '#121218' : '#121218';
         if (variant === 'outline') return isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
-        return colors.primary;
+        return colors.lime; // Pulse: primary actions are lime with ink text
     };
 
     const getTextColor = () => {
         if (disabled) return isDark ? '#6B7280' : '#9CA3AF';
-        if (variant === 'neon') return '#0D0E13';
+        if (variant === 'neon') return '#0B0B0F';
         if (variant === 'secondary' || variant === 'coral' || variant === 'danger' || variant === 'dark') return '#FFFFFF';
-        if (variant === 'tertiary' || variant === 'mint') return '#0A0D14';
-        if (variant === 'outline') return isDark ? '#FFFFFF' : '#0D0E13';
-        return isDark ? '#0A0D14' : '#FFFFFF';
+        if (variant === 'tertiary' || variant === 'mint') return '#0B0B0F';
+        if (variant === 'outline') return isDark ? '#FFFFFF' : '#0B0B0F';
+        return '#0B0B0F';
     };
 
     const getBorderColor = () => {
@@ -176,11 +176,7 @@ export function CredButton({
                                 { backgroundColor: getTrailingCircleBg() },
                             ]}
                         >
-                            {trailingIcon ? (
-                                trailingIcon
-                            ) : (
-                                <ArrowUpRight size={16} color={textColor} strokeWidth={2.4} />
-                            )}
+                            {trailingIcon}
                         </View>
                     )}
                 </TouchableOpacity>

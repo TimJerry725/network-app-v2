@@ -1,26 +1,26 @@
 import { StyleSheet, TextStyle } from 'react-native';
 
-// Modern Montserrat Font Stack (Single-Lined, Clean, Solid Geometric Grotesque)
+// Pulse style: Plus Jakarta Sans (modern fintech grotesk)
 export const FONT_FAMILIES = {
-    regular: 'Montserrat_400Regular',
-    medium: 'Montserrat_500Medium',
-    semiBold: 'Montserrat_600SemiBold',
-    bold: 'Montserrat_700Bold',
-    extraBold: 'Montserrat_800ExtraBold',
-    black: 'Montserrat_900Black',
+    regular: 'PlusJakartaSans_400Regular',
+    medium: 'PlusJakartaSans_500Medium',
+    semiBold: 'PlusJakartaSans_600SemiBold',
+    bold: 'PlusJakartaSans_700Bold',
+    extraBold: 'PlusJakartaSans_800ExtraBold',
+    black: 'PlusJakartaSans_800ExtraBold',
 
     // Grotesque Aliases
-    sansRegular: 'Montserrat_400Regular',
-    sansMedium: 'Montserrat_500Medium',
-    sansSemiBold: 'Montserrat_600SemiBold',
-    sansBold: 'Montserrat_700Bold',
-    sansExtraBold: 'Montserrat_800ExtraBold',
+    sansRegular: 'PlusJakartaSans_400Regular',
+    sansMedium: 'PlusJakartaSans_500Medium',
+    sansSemiBold: 'PlusJakartaSans_600SemiBold',
+    sansBold: 'PlusJakartaSans_700Bold',
+    sansExtraBold: 'PlusJakartaSans_800ExtraBold',
 
     // Pure Montserrat for headings/display (No double-lined/inline serif fonts)
-    serifDisplay: 'Montserrat_800ExtraBold',
-    serifDisplayBlack: 'Montserrat_900Black',
-    serifHeading: 'Montserrat_800ExtraBold',
-    serifExtraBold: 'Montserrat_900Black',
+    serifDisplay: 'PlusJakartaSans_800ExtraBold',
+    serifDisplayBlack: 'PlusJakartaSans_800ExtraBold',
+    serifHeading: 'PlusJakartaSans_800ExtraBold',
+    serifExtraBold: 'PlusJakartaSans_800ExtraBold',
 };
 
 // Typography tokens with Montserrat hierarchy

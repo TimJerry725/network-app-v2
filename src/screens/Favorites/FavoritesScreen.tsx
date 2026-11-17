@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Alert, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { ArrowUpRight, Heart, MapPin, Zap } from 'lucide-react-native';
+import { Clock3, Heart, MapPin, Route as RouteIcon, Trash2, Zap } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
 import { MOCK_STATIONS, getRecommendedConnector } from '../../constants/Stations';
 import { FONT_FAMILIES, FONTS, RADIUS, SPACING } from '../../constants/Tokens';
@@ -10,55 +10,66 @@ import { useVehicles } from '../../context/VehicleContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
+import { useSavedTrips, SavedTrip } from '../../context/SavedTripsContext';
+import { Segmented } from '../../components/stack/StackKit';
 
+function fmtDur(mins?: number) {
+    if (!mins) return '—';
+    const h = Math.floor(mins / 60);
+    const m = Math.round(mins % 60);
+    return h > 0 ? `${h}h${m ? ` ${m}m` : ''}` : `${m}m`;
+}
+
+// Palette: violet, lime, ink and surface only (same four roles as the rest of the app)
 function getBentoFavTheme(index: number, isDark: boolean) {
     const cycle = index % 4;
     if (cycle === 0) {
         return {
-            bg: '#38BDF8', // Primary: Ice Blue
-            textColor: '#0A0D14',
-            subColor: 'rgba(10, 13, 20, 0.75)',
-            pillBg: 'rgba(0, 0, 0, 0.12)',
-            pillText: '#0A0D14',
-            actionBg: '#0A0D14',
-            actionColor: '#38BDF8',
+            bg: '#7B5CFF',
+            textColor: '#FFFFFF',
+            subColor: 'rgba(255, 255, 255, 0.8)',
+            pillBg: 'rgba(255, 255, 255, 0.2)',
+            pillText: '#FFFFFF',
+            actionBg: '#FFFFFF',
+            actionColor: '#5B3DF0',
             heartBgFav: '#FFFFFF',
             heartColorFav: '#EF4444',
         };
     }
     if (cycle === 1) {
         return {
-            bg: '#FF5B45', // Secondary: Sunset Coral
-            textColor: '#FFFFFF',
-            subColor: 'rgba(255, 255, 255, 0.85)',
-            pillBg: 'rgba(255, 255, 255, 0.22)',
-            pillText: '#FFFFFF',
-            actionBg: '#FFFFFF',
-            actionColor: '#FF5B45',
+            bg: '#A996FF',
+            textColor: '#0B0B0F',
+            subColor: 'rgba(11, 11, 15, 0.65)',
+            pillBg: 'rgba(11, 11, 15, 0.10)',
+            pillText: '#0B0B0F',
+            actionBg: '#0B0B0F',
+            actionColor: '#A996FF',
             heartBgFav: '#FFFFFF',
             heartColorFav: '#EF4444',
         };
     }
     if (cycle === 2) {
         return {
-            bg: '#10B981', // Tertiary: Neo Mint
+            bg: '#15151C',
             textColor: '#FFFFFF',
-            subColor: 'rgba(255, 255, 255, 0.85)',
-            pillBg: 'rgba(255, 255, 255, 0.22)',
+            subColor: 'rgba(255, 255, 255, 0.65)',
+            pillBg: 'rgba(255, 255, 255, 0.12)',
             pillText: '#FFFFFF',
-            actionBg: '#FFFFFF',
-            actionColor: '#10B981',
+            actionBg: '#A996FF',
+            actionColor: '#0B0B0F',
             heartBgFav: '#FFFFFF',
             heartColorFav: '#EF4444',
         };
     }
     return {
-        bg: isDark ? '#16171E' : '#FFFFFF',
-        textColor: isDark ? '#FFFFFF' : '#101114',
-        subColor: isDark ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.6)',
-        pillBg: isDark ? 'rgba(56, 189, 248, 0.14)' : 'rgba(56, 189, 248, 0.10)',
-        actionBg: isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.10)',
-        actionColor: '#38BDF8',
+        bg: isDark ? '#1F1F28' : '#FFFFFF',
+        textColor: isDark ? '#FFFFFF' : '#0B0B0F',
+        subColor: isDark ? 'rgba(255, 255, 255, 0.65)' : 'rgba(11, 11, 15, 0.6)',
+        pillBg: isDark ? 'rgba(123, 92, 255, 0.18)' : 'rgba(123, 92, 255, 0.10)',
+        pillText: isDark ? '#FFFFFF' : '#5B3DF0',
+        actionBg: isDark ? 'rgba(123, 92, 255, 0.2)' : 'rgba(123, 92, 255, 0.10)',
+        actionColor: '#7B5CFF',
         heartBgFav: isDark ? '#FFFFFF' : '#FEE2E2',
         heartColorFav: '#EF4444',
     };
@@ -69,6 +80,8 @@ export default function FavoritesScreen({ navigation }: any) {
     const { selectedVehicle } = useVehicles();
     const { isFavorite, toggleFavorite } = useFavorites();
     const { stations: allStations } = useIndiaChargingStations();
+    const { savedTrips, removeTrip } = useSavedTrips();
+    const [tab, setTab] = useState<'stations' | 'trips'>('stations');
 
     const stationsList = useMemo(() => {
         const pool = allStations && allStations.length > 0 ? allStations : MOCK_STATIONS;
@@ -84,20 +97,103 @@ export default function FavoritesScreen({ navigation }: any) {
             >
                 <View style={styles.header}>
                     <View>
-                        <ThemedText type="title">Favorites</ThemedText>
+                        <ThemedText type="title">Saved</ThemedText>
                         <ThemedText style={{ color: colors.textMuted, ...FONTS.body }}>
-                            Your favorite chargers and network stops
+                            Your saved stations and trips
                         </ThemedText>
                     </View>
                 </View>
 
-                {stationsList.length === 0 ? (
+                <View style={{ marginBottom: SPACING.md }}>
+                    <Segmented
+                        options={[
+                            { value: 'stations', label: `Stations · ${stationsList.length}` },
+                            { value: 'trips', label: `Trips · ${savedTrips.length}` },
+                        ]}
+                        value={tab}
+                        onChange={setTab}
+                    />
+                </View>
+
+                {tab === 'trips' ? (
+                    savedTrips.length === 0 ? (
+                        <View style={styles.emptyContainer}>
+                            <View style={[styles.emptyIconCircle, { backgroundColor: isDark ? '#15151C' : '#FFFFFF', borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]}>
+                                <RouteIcon size={36} color={colors.textMuted} />
+                            </View>
+                            <ThemedText style={[styles.emptyTitle, { color: colors.text }]}>No Saved Trips Yet</ThemedText>
+                            <ThemedText style={[styles.emptySubtitle, { color: colors.textMuted }]}>
+                                Plan a trip and tap Save trip to keep it here.
+                            </ThemedText>
+                        </View>
+                    ) : (
+                        savedTrips.map((trip: SavedTrip, index: number) => {
+                            const theme = getBentoFavTheme(index, isDark);
+                            return (
+                                <TouchableOpacity
+                                    key={trip.id}
+                                    activeOpacity={0.88}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`Open trip ${trip.origin?.name} to ${trip.destination?.name}`}
+                                    onPress={() => {
+                                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                        navigation.navigate('Explore', { openTrip: trip });
+                                    }}
+                                    style={[styles.bentoFavCard, { backgroundColor: theme.bg, borderWidth: index % 4 === 3 ? 1 : 0, borderColor: colors.cardBorder }]}
+                                >
+                                    <View style={styles.cardHeader}>
+                                        <View style={styles.stationTitleWrap}>
+                                            <ThemedText style={[styles.stationName, { color: theme.textColor }]} numberOfLines={2}>
+                                                {trip.origin?.name} → {trip.destination?.name}
+                                            </ThemedText>
+                                            <ThemedText style={[styles.stationMeta, { color: theme.subColor }]}>
+                                                {trip.routeTag ?? 'Trip'} route
+                                            </ThemedText>
+                                        </View>
+                                        <View style={styles.cardTopActions}>
+                                            <TouchableOpacity
+                                                accessibilityRole="button"
+                                                accessibilityLabel="Remove saved trip"
+                                                activeOpacity={0.8}
+                                                style={[styles.favoriteHeartBtn, { backgroundColor: theme.heartBgFav }]}
+                                                onPress={() =>
+                                                    Alert.alert('Remove saved trip?', `${trip.origin?.name} → ${trip.destination?.name}`, [
+                                                        { text: 'Cancel', style: 'cancel' },
+                                                        { text: 'Remove', style: 'destructive', onPress: () => removeTrip(trip.id) },
+                                                    ])
+                                                }
+                                            >
+                                                <Trash2 size={15} color={theme.heartColorFav} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    <View style={styles.bottomMetaRow}>
+                                        <View style={[styles.bentoPill, { backgroundColor: theme.pillBg }]}>
+                                            <MapPin size={11} color={theme.pillText ?? theme.textColor} />
+                                            <ThemedText style={[styles.bentoPillText, { color: theme.pillText ?? theme.textColor }]}>
+                                                {trip.distanceKm ?? '—'} KM
+                                            </ThemedText>
+                                        </View>
+                                        <View style={[styles.bentoPill, { backgroundColor: theme.pillBg }]}>
+                                            <Clock3 size={11} color={theme.pillText ?? theme.textColor} />
+                                            <ThemedText style={[styles.bentoPillText, { color: theme.pillText ?? theme.textColor }]}>
+                                                {fmtDur(trip.durationMins)}
+                                            </ThemedText>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })
+                    )
+                ) : null}
+
+                {tab === 'stations' && stationsList.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <View
                             style={[
                                 styles.emptyIconCircle,
                                 {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                    backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                                     borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                                 },
                             ]}
@@ -111,7 +207,7 @@ export default function FavoritesScreen({ navigation }: any) {
                             Tap the heart icon on any charging station to add it to your favorites.
                         </ThemedText>
                     </View>
-                ) : (
+                ) : tab === 'stations' ? (
                     stationsList.map((station, index) => {
                         const connector = getRecommendedConnector(
                             station,
@@ -182,27 +278,6 @@ export default function FavoritesScreen({ navigation }: any) {
                                             />
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.cardActionCircle,
-                                                {
-                                                    backgroundColor: theme.actionBg,
-                                                },
-                                            ]}
-                                            onPress={() => {
-                                                if (Platform.OS !== 'web') {
-                                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                                }
-                                                navigation.navigate('StationDetails', { stationId: station.id });
-                                            }}
-                                            activeOpacity={0.75}
-                                        >
-                                            <ArrowUpRight
-                                                size={16}
-                                                color={theme.actionColor}
-                                                strokeWidth={2.4}
-                                            />
-                                        </TouchableOpacity>
                                     </View>
                                 </View>
 
@@ -221,7 +296,7 @@ export default function FavoritesScreen({ navigation }: any) {
                             </View>
                         </TouchableOpacity>
                     );
-                }))}
+                })) : null}
             </ScrollView>
         </SafeAreaView>
     );

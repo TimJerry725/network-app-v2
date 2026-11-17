@@ -62,6 +62,8 @@ import {
 } from '../../constants/Stations';
 import { FONT_FAMILIES, FONTS, RADIUS, SHADOWS, SPACING } from '../../constants/Tokens';
 import { useVehicles } from '../../context/VehicleContext';
+import { useCharging } from '../../context/ChargingContext';
+import { allInPrice, formatAgo, isStatusFresh, statusAgeSeconds } from '../../utils/pulse';
 import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import {
@@ -79,29 +81,37 @@ const DARK_MAP_STYLE = [
 ];
 
 const filterOptions = [
-    { id: 'Fastest', label: 'Fastest', icon: 'bolt-lightning' },
-    { id: 'Cheapest', label: 'Cheapest', icon: 'tags' },
+    { id: 'CCS2', label: 'CCS2', icon: 'ccs2' },
+    { id: 'Type 2', label: 'Type 2', icon: 'type2' },
     { id: 'Available', label: 'Available', icon: 'circle-check' },
     { id: '24/7', label: 'Open 24/7', icon: 'clock' },
     { id: 'Amenities', label: 'Amenities', icon: 'mug-hot' },
 ];
 
 export const FILTER_CHIP_COLORS: Record<string, { color: string }> = {
-    Fastest: { color: '#FF5B45' }, // Secondary: Coral (Speed)
-    Cheapest: { color: '#38BDF8' }, // Primary: Ice Blue
-    Available: { color: '#10B981' }, // Tertiary: Mint (Availability)
-    '24/7': { color: '#38BDF8' }, // Primary: Ice Blue
-    Amenities: { color: '#38BDF8' }, // Primary: Ice Blue
+    CCS2: { color: '#7B5CFF' }, // DC fast connector
+    'Type 2': { color: '#7B5CFF' }, // AC connector
+    Available: { color: '#22D38A' }, // Tertiary: Mint (Availability)
+    '24/7': { color: '#7B5CFF' }, // Primary: Ice Blue
+    Amenities: { color: '#7B5CFF' }, // Primary: Ice Blue
 };
 
 function getFilterIcon(id: string, isActive: boolean, isDark: boolean) {
-    const config = FILTER_CHIP_COLORS[id] || { color: '#FF5B45' };
+    const config = FILTER_CHIP_COLORS[id] || { color: '#7B5CFF' };
     const iconColor = isActive ? '#FFFFFF' : config.color;
     switch (id) {
-        case 'Fastest':
-            return <Zap size={13} color={iconColor} fill={isActive ? '#FFFFFF' : 'none'} style={{ marginRight: 6 }} />;
-        case 'Cheapest':
-            return <Zap size={13} color={iconColor} style={{ marginRight: 6 }} />;
+        case 'CCS2':
+            return (
+                <View style={{ marginRight: 6 }}>
+                    <Ccs2Icon size={15} color={iconColor} />
+                </View>
+            );
+        case 'Type 2':
+            return (
+                <View style={{ marginRight: 6 }}>
+                    <Type2Icon size={15} color={iconColor} />
+                </View>
+            );
         case 'Available':
             return <CircleCheck size={13} color={iconColor} style={{ marginRight: 6 }} />;
         case '24/7':
@@ -243,7 +253,8 @@ function getStationDemandSnapshot(
 }
 
 function formatPriceLabel(price: number) {
-    return `$${price.toFixed(2)}/kWh`;
+    // Pulse: show the price users actually pay (incl. 18% GST), in rupees
+    return `₹${allInPrice(price).toFixed(0)}/kWh all-in`;
 }
 
 function formatWaitLabel(
@@ -395,6 +406,7 @@ export default function StationMapScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
     const { selectedVehicle, user, topUpWallet } = useVehicles();
+    const { activeSession } = useCharging();
     const { stations: allStations } = useIndiaChargingStations();
     const mapRef = useRef<MapView>(null);
 
@@ -530,18 +542,10 @@ export default function StationMapScreen({ navigation }: any) {
                 if (!stationMatchesMapFilters({ ...station, connectors: [] , name: '', tagline: '' }, { ...DEFAULT_MAP_FILTERS, amenities: filterCriteria.amenities })) match = false;
 
                 // 6. Quick filter chips — actually filter (not just sort)
-                if (activeFilter === 'Fastest') {
-                    // Show only stations that have fast chargers (50kW+)
-                    const hasFastCharger = station.connectors.some(
-                        c => c.power >= 50 || c.type === 'CCS2' || c.type === 'CHAdeMO'
-                    );
-                    if (!hasFastCharger) match = false;
-                } else if (activeFilter === 'Cheapest') {
-                    // Show only stations with economical rates (<= 16/kWh)
-                    const hasCheapRate = station.connectors.some(
-                        c => c.pricePerKWh <= 16
-                    );
-                    if (!hasCheapRate) match = false;
+                if (activeFilter === 'CCS2' || activeFilter === 'Type 2') {
+                    // Show only stations that have this connector type
+                    const hasConnector = station.connectors.some(c => c.type === activeFilter);
+                    if (!hasConnector) match = false;
                 } else if (activeFilter === 'Available') {
                     // Show only stations that have at least one available connector
                     const hasAvailable = station.connectors.some(c => c.status === 'Available');
@@ -579,18 +583,11 @@ export default function StationMapScreen({ navigation }: any) {
         const sortedStations = [...enrichedStations];
 
         // Sort by the active quick filter for best-first ordering
-        if (activeFilter === 'Fastest') {
-            sortedStations.sort((a, b) => {
-                const bestA = getRecommendedConnector(a, selectedVehicle?.connectorType).power;
-                const bestB = getRecommendedConnector(b, selectedVehicle?.connectorType).power;
-                return bestB - bestA || a.distanceKm - b.distanceKm;
-            });
-        } else if (activeFilter === 'Cheapest') {
-            sortedStations.sort((a, b) => {
-                const bestA = Math.min(...a.connectors.map(c => c.pricePerKWh));
-                const bestB = Math.min(...b.connectors.map(c => c.pricePerKWh));
-                return bestA - bestB || a.distanceKm - b.distanceKm;
-            });
+        if (activeFilter === 'CCS2' || activeFilter === 'Type 2') {
+            // Free connectors of this type first, then nearest
+            const freeOfType = (st: Station) =>
+                st.connectors.filter(c => c.type === activeFilter && c.status === 'Available').length;
+            sortedStations.sort((a, b) => freeOfType(b) - freeOfType(a) || a.distanceKm - b.distanceKm);
         } else if (activeFilter === 'Available') {
             sortedStations.sort((a, b) => {
                 const availableA = a.connectors.filter(
@@ -903,7 +900,7 @@ export default function StationMapScreen({ navigation }: any) {
                         >
                             <DcPinIcon
                                 size={isSelected ? 44 : 36}
-                                color={isSelected ? (isDark ? '#FFFFFF' : '#000000') : (isDark ? '#141418' : '#000000')}
+                                color={isSelected ? (isDark ? '#FFFFFF' : '#000000') : (isDark ? '#121218' : '#000000')}
                                 iconColor={isSelected ? (isDark ? '#000000' : '#FFFFFF') : '#FFFFFF'}
                                 stroke={isDark ? (isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.45)') : (isSelected ? '#000000' : 'rgba(255, 255, 255, 0.35)')}
                                 strokeWidth={isSelected ? 1.5 : 1}
@@ -931,7 +928,7 @@ export default function StationMapScreen({ navigation }: any) {
                         style={[
                             styles.searchBarWrapper,
                             {
-                                backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
@@ -950,7 +947,7 @@ export default function StationMapScreen({ navigation }: any) {
                                 activeOpacity={0.8}
                                 onPress={() => navigation.navigate('Profile' as never)}
                             >
-                                <View style={[styles.profileCircle, { backgroundColor: isDark ? '#22242F' : '#F3F4F8' }]}>
+                                <View style={[styles.profileCircle, { backgroundColor: isDark ? '#22242F' : '#EFEAE2' }]}>
                                     <User size={15} color={colors.text} />
                                 </View>
                             </TouchableOpacity>
@@ -967,7 +964,7 @@ export default function StationMapScreen({ navigation }: any) {
                     >
                         {filterOptions.map((filter) => {
                             const isActive = activeFilter === filter.id;
-                            const chipTheme = FILTER_CHIP_COLORS[filter.id] || { color: '#FF5B45' };
+                            const chipTheme = FILTER_CHIP_COLORS[filter.id] || { color: '#7B5CFF' };
 
                             return (
                                 <TouchableOpacity
@@ -981,7 +978,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                   borderColor: chipTheme.color,
                                               }
                                             : {
-                                                  backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                                                  backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                                                   borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
                                               },
                                     ]}
@@ -1011,22 +1008,45 @@ export default function StationMapScreen({ navigation }: any) {
                     <View style={styles.walletFilterRow} pointerEvents="box-none">
                         <TouchableOpacity
                             activeOpacity={0.8}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Wallet balance ${user.walletBalance.toFixed(0)} rupees`}
                             style={[
                                 styles.walletHeaderPill,
                                 {
-                                    backgroundColor: isDark ? '#16171E' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(0, 0, 0, 0.08)',
+                                    backgroundColor: colors.lime,
+                                    borderColor: colors.lime,
                                 },
                             ]}
-                            onPress={() => navigation.navigate('Profile' as never)}
+                            onPress={() => navigation.navigate('Wallet')}
                         >
-                            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(245, 158, 11, 0.18)', alignItems: 'center', justifyContent: 'center' }}>
-                                <Wallet size={12} color="#F59E0B" />
+                            <View style={{ width: 22, height: 22, borderRadius: 8, backgroundColor: '#0B0B0F', alignItems: 'center', justifyContent: 'center' }}>
+                                <Wallet size={12} color="#A996FF" />
                             </View>
-                            <ThemedText style={[styles.walletHeaderText, { color: colors.text }]}>
-                                ₹{user.walletBalance.toFixed(0)}
+                            <ThemedText style={[styles.walletHeaderText, { color: '#0B0B0F' }]}>
+                                ₹{user.walletBalance.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                             </ThemedText>
                         </TouchableOpacity>
+
+                        {/* Live charge strip: always one tap back to the running session */}
+                        {activeSession ? (
+                            <TouchableOpacity
+                                activeOpacity={0.85}
+                                accessibilityRole="button"
+                                accessibilityLabel="Open live charging session"
+                                style={styles.liveStrip}
+                                onPress={() =>
+                                    navigation.navigate('ChargingSession', {
+                                        stationId: activeSession.stationId,
+                                        connectorId: activeSession.connectorId,
+                                    })
+                                }
+                            >
+                                <View style={styles.liveDot} />
+                                <ThemedText style={styles.liveStripText} numberOfLines={1}>
+                                    {Math.round(activeSession.currentSoc)}% · ₹{activeSession.totalCost.toFixed(0)} · {activeSession.energyDeliveredKwh} kWh
+                                </ThemedText>
+                            </TouchableOpacity>
+                        ) : null}
                     </View>
                 </View>
             </SafeAreaView>
@@ -1046,7 +1066,7 @@ export default function StationMapScreen({ navigation }: any) {
                     style={[
                         styles.floatingActionButton,
                         {
-                            backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                            backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                             borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         },
                     ]}
@@ -1062,7 +1082,7 @@ export default function StationMapScreen({ navigation }: any) {
                     style={[
                         styles.floatingActionButton,
                         {
-                            backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                            backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                             borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         },
                     ]}
@@ -1081,7 +1101,7 @@ export default function StationMapScreen({ navigation }: any) {
                 style={[
                     styles.bottomSheetContainer,
                     {
-                        backgroundColor: isDark ? '#16171E' : '#FFFFFF',
+                        backgroundColor: isDark ? '#15151C' : '#FFFFFF',
                         borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                         height: sheetHeight,
                     },
@@ -1120,7 +1140,7 @@ export default function StationMapScreen({ navigation }: any) {
                                     style={[
                                         styles.countBadge,
                                         {
-                                            backgroundColor: isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFE5E0',
+                                            backgroundColor: isDark ? 'rgba(123, 92, 255, 0.16)' : '#ECE7FF',
                                             borderColor: 'transparent',
                                             paddingVertical: 2,
                                             paddingHorizontal: 8,
@@ -1166,7 +1186,7 @@ export default function StationMapScreen({ navigation }: any) {
                         style={[
                             styles.collapsedPeekRow,
                             {
-                                backgroundColor: isDark ? '#1C1D26' : '#F8FAFC',
+                                backgroundColor: isDark ? '#1C1D26' : '#FBF9F5',
                                 borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
                             },
                         ]}
@@ -1198,7 +1218,7 @@ export default function StationMapScreen({ navigation }: any) {
                                 });
                             }}
                         >
-                            <ArrowUpRight size={16} color={isDark ? '#0A0D14' : '#FFFFFF'} strokeWidth={2.4} />
+                            <ArrowUpRight size={16} color={isDark ? '#0B0B0F' : '#FFFFFF'} strokeWidth={2.4} />
                         </TouchableOpacity>
                     </TouchableOpacity>
                 )}
@@ -1229,22 +1249,22 @@ export default function StationMapScreen({ navigation }: any) {
                             const cardBorder = isSelected
                                 ? colors.primary
                                 : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)');
-                            const nameColor = isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.text;
+                            const nameColor = isSelected ? (isDark ? '#0B0B0F' : '#FFFFFF') : colors.text;
                             const addressColor = isSelected ? (isDark ? 'rgba(10, 13, 20, 0.85)' : 'rgba(255, 255, 255, 0.85)') : colors.textMuted;
                             const metaColor = isSelected ? (isDark ? 'rgba(10, 13, 20, 0.92)' : 'rgba(255, 255, 255, 0.92)') : colors.textMuted;
-                            const btnBg = isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.primary;
-                            const btnTextColor = isSelected ? colors.primary : (isDark ? '#0A0D14' : '#FFFFFF');
+                            const btnBg = isSelected ? (isDark ? '#0B0B0F' : '#FFFFFF') : colors.primary;
+                            const btnTextColor = isSelected ? colors.primary : (isDark ? '#0B0B0F' : '#FFFFFF');
                             const badgeBg = isSelected
                                 ? 'rgba(0, 0, 0, 0.14)'
-                                : (isDark ? 'rgba(255, 91, 69, 0.16)' : '#FFE5E0');
-                            const badgeTextColor = isSelected ? (isDark ? '#0A0D14' : '#FFFFFF') : colors.secondary;
+                                : (isDark ? 'rgba(123, 92, 255, 0.16)' : '#ECE7FF');
+                            const badgeTextColor = isSelected ? (isDark ? '#0B0B0F' : '#FFFFFF') : colors.secondary;
                             const availBadgeBg = isSelected
                                 ? 'rgba(0, 0, 0, 0.14)'
                                 : isDark
-                                ? (availableCount > 0 ? 'rgba(16, 185, 129, 0.16)' : 'rgba(255, 91, 69, 0.16)')
+                                ? (availableCount > 0 ? 'rgba(34, 211, 138, 0.16)' : 'rgba(123, 92, 255, 0.16)')
                                 : (availableCount > 0 ? '#D1FAE5' : '#FEE2E2');
                             const availTextColor = isSelected
-                                ? (isDark ? '#0A0D14' : '#FFFFFF')
+                                ? (isDark ? '#0B0B0F' : '#FFFFFF')
                                 : (availableCount > 0 ? colors.tertiary : colors.secondary);
 
                             return (
@@ -1285,7 +1305,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                             isSelected && { backgroundColor: 'rgba(255, 255, 255, 0.22)' },
                                                         ]}
                                                     >
-                                                        <Star size={10} color={isSelected ? '#FFFFFF' : '#F59E0B'} fill={isSelected ? '#FFFFFF' : '#F59E0B'} />
+                                                        <Star size={10} color={isSelected ? '#FFFFFF' : '#FFC83D'} fill={isSelected ? '#FFFFFF' : '#FFC83D'} />
                                                         <ThemedText style={[styles.ratingText, isSelected && { color: '#FFFFFF' }]}>
                                                             {station.rating.toFixed(1)}
                                                         </ThemedText>
@@ -1369,9 +1389,28 @@ export default function StationMapScreen({ navigation }: any) {
                                                 marginLeft: 'auto',
                                             }}
                                         >
-                                            {station.distanceKm} km • ₹{connector.pricePerKWh.toFixed(0)}/kWh
+                                            {station.distanceKm} km • ₹{allInPrice(connector.pricePerKWh).toFixed(0)}/kWh incl. GST
                                         </ThemedText>
                                     </View>
+
+                                    {/* Status freshness: users need to trust that "available" is real */}
+                                    {(() => {
+                                        const age = statusAgeSeconds(station.id);
+                                        const fresh = isStatusFresh(age);
+                                        return (
+                                            <View style={styles.freshRow}>
+                                                <View
+                                                    style={[
+                                                        styles.freshDot,
+                                                        { backgroundColor: fresh ? colors.mint : colors.sun },
+                                                    ]}
+                                                />
+                                                <ThemedText style={[styles.freshText, { color: metaColor }]}>
+                                                    {fresh ? 'Live status' : 'Status may be stale'} · updated {formatAgo(age)}
+                                                </ThemedText>
+                                            </View>
+                                        );
+                                    })()}
 
                                     {/* Amenities micro chips */}
                                     {station.amenities && station.amenities.length > 0 && (
@@ -1494,9 +1533,10 @@ const styles = StyleSheet.create({
     },
     walletFilterRow: {
         marginTop: 8,
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        justifyContent: 'flex-start',
+        gap: 8,
     },
     walletHeaderPill: {
         flexDirection: 'row',
@@ -1651,7 +1691,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 2,
-        backgroundColor: 'rgba(245, 158, 11, 0.14)',
+        backgroundColor: 'rgba(255, 200, 61, 0.14)',
         paddingHorizontal: 5,
         paddingVertical: 1,
         borderRadius: RADIUS.badge,
@@ -1659,7 +1699,7 @@ const styles = StyleSheet.create({
     ratingText: {
         fontSize: 10,
         fontFamily: FONT_FAMILIES.bold,
-        color: '#F59E0B',
+        color: '#FFC83D',
     },
     sheetStationMetaRow: {
         flexDirection: 'row',
@@ -2243,4 +2283,21 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.bold,
         letterSpacing: 0.6,
     },
+    liveStrip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: '#0B0B0F',
+        borderColor: '#A996FF',
+        borderWidth: 1.5,
+        borderRadius: 999,
+        paddingHorizontal: 12,
+        height: 34,
+        maxWidth: 230,
+    },
+    liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#A996FF' },
+    liveStripText: { color: '#FFFFFF', fontSize: 12, fontFamily: FONT_FAMILIES.bold },
+    freshRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+    freshDot: { width: 7, height: 7, borderRadius: 4 },
+    freshText: { fontSize: 11.5, fontFamily: FONT_FAMILIES.semiBold },
 });

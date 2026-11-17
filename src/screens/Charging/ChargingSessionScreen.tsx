@@ -1,1369 +1,320 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-    Alert,
-    Dimensions,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, {
-    Circle,
-    Defs,
-    Line,
-    LinearGradient as SvgGradient,
-    Path,
-    Rect,
-    Stop,
-} from 'react-native-svg';
+import { Alert, Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import {
-    BatteryCharging,
-    Check,
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    Clock,
-    Coffee,
-    Info,
-    Pencil,
-    ShieldCheck,
-    Users,
-    Wifi,
-    X,
-    Zap,
-} from 'lucide-react-native';
+import { LifeBuoy, Square, Repeat, X, Zap, Check } from 'lucide-react-native';
 import { ThemedText } from '../../components/ThemedText';
-import { CredButton } from '../../components/CredButton';
-import {
-    MOCK_STATIONS,
-    Station,
-    findStationByConnector,
-    getRecommendedConnector,
-    getStationById,
-} from '../../constants/Stations';
-import { FONT_FAMILIES, RADIUS, SPACING } from '../../constants/Tokens';
 import { useAppTheme } from '../../hooks/useAppTheme';
-import { useVehicles, Vehicle } from '../../context/VehicleContext';
+import { useVehicles } from '../../context/VehicleContext';
 import { useCharging } from '../../context/ChargingContext';
+import { MOCK_STATIONS, Station, findStationByConnector, getRecommendedConnector, getStationById } from '../../constants/Stations';
+import { FONT_FAMILIES } from '../../constants/Tokens';
+import { Segmented } from '../../components/stack/StackKit';
+import { PulseButton } from '../../components/pulse/PulseKit';
+import { Divider, HeaderIcon, KeyValue, ON_HIGHLIGHT, Option, Panel, Row, ScreenTitle, Section, StatGrid, flat } from '../../components/flat/FlatKit';
+import { explainSessionStatus, formatRupees, sessionHoldAmount } from '../../utils/pulse';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CHART_HEIGHT = 150;
+const CAR_IMAGE = require('../../../assets/images/profile-car.webp');
+const TARGETS = [80, 85, 90, 100];
+
+function fmtTime(total: number) {
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    const p = (n: number) => String(n).padStart(2, '0');
+    return h > 0 ? `${h}:${p(m)}:${p(s)}` : `${p(m)}:${p(s)}`;
+}
 
 export default function ChargingSessionScreen({ navigation, route }: any) {
-    const { colors, isDark } = useAppTheme();
+    const { colors } = useAppTheme();
     const insets = useSafeAreaInsets();
-    const { vehicles, selectedVehicle, selectVehicle } = useVehicles();
-    const {
-        activeSession,
-        startChargingSession,
-        stopChargingSession,
-    } = useCharging();
+    const { vehicles, selectedVehicle, selectVehicle, updateVehicle } = useVehicles();
+    const { activeSession, startChargingSession, stopChargingSession, updateTargetSoc } = useCharging();
 
-    // ── Station & Connector Resolution ──
     const routeStation = route.params?.stationSnapshot as Station | undefined;
-    const station: Station =
-        routeStation ??
-        getStationById(route.params?.stationId) ??
-        findStationByConnector(route.params?.connectorId)?.station ??
-        MOCK_STATIONS[0];
+    const station: Station = routeStation ?? getStationById(route.params?.stationId) ?? findStationByConnector(route.params?.connectorId)?.station ?? MOCK_STATIONS[0];
+    const connector = station.connectors.find((c) => c.id === route.params?.connectorId) ?? getRecommendedConnector(station);
 
-    const connector =
-        station.connectors.find((item) => item.id === route.params?.connectorId) ??
-        getRecommendedConnector(station);
+    const [target, setTarget] = useState<number>(activeSession?.targetSoc ?? route.params?.targetSoc ?? selectedVehicle?.chargeTarget ?? 80);
+    const [chart, setChart] = useState<'power' | 'battery'>('power');
+    const [confirmStop, setConfirmStop] = useState(false);
+    const [switchCar, setSwitchCar] = useState(false);
+    const [autocharge, setAutocharge] = useState(selectedVehicle?.autochargeEnabled ?? true);
 
-    const initialTargetSoc = route.params?.targetSoc ?? selectedVehicle?.chargeTarget ?? 80;
-
-    // ── Target SoC State & Controller ──
-    const [targetSoc, setTargetSoc] = useState<number>(activeSession?.targetSoc ?? initialTargetSoc);
-
-    // ── Curve Type Toggle: Speed vs. Time ──
-    const [curveType, setCurveType] = useState<'speed' | 'time'>('speed');
-
-    // ── Modals State ──
-    const [isVehicleModalVisible, setIsVehicleModalVisible] = useState(false);
-    const [isStopConfirmVisible, setIsStopConfirmVisible] = useState(false);
-
-    // Start session if none active
     useEffect(() => {
-        if (!activeSession) {
-            startChargingSession({
-                stationId: station.id,
-                stationName: station.name,
-                stationAddress: station.address,
-                chargerId: connector.id,
-                connectorId: connector.id,
-                connectorType: connector.type,
-                powerRatingKw: connector.power,
-                pricePerKWh: connector.pricePerKWh,
-                vehicleId: selectedVehicle?.id ?? '1',
-                vehicleModel: selectedVehicle ? `${selectedVehicle.make} ${selectedVehicle.model}` : 'Hyundai Ioniq 5',
-                vehicleRegNo: selectedVehicle?.registrationNumber ?? 'TN 38 BZ 7927',
-                startSoc: selectedVehicle?.currentBattery ?? 33,
-                targetSoc,
-            });
-        }
-    }, [activeSession, connector, selectedVehicle, startChargingSession, station, targetSoc]);
+        if (activeSession) return;
+        startChargingSession({
+            stationId: station.id,
+            stationName: station.name,
+            stationAddress: station.address,
+            chargerId: connector.id,
+            connectorId: connector.id,
+            connectorType: connector.type,
+            powerRatingKw: connector.power,
+            pricePerKWh: connector.pricePerKWh,
+            vehicleId: selectedVehicle?.id ?? '1',
+            vehicleModel: selectedVehicle ? `${selectedVehicle.make} ${selectedVehicle.model}` : 'Hyundai IONIQ 5',
+            vehicleRegNo: selectedVehicle?.registrationNumber ?? 'TN 38 BZ 9021',
+            startSoc: selectedVehicle?.currentBattery ?? 33,
+            targetSoc: target,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeSession]);
 
+    const soc = activeSession ? Math.round(activeSession.currentSoc) : selectedVehicle?.currentBattery ?? 45;
+    const power = activeSession?.currentPowerKw ?? 0;
+    const kwh = activeSession?.energyDeliveredKwh ?? 0;
+    const cost = activeSession?.totalCost ?? 0;
+    const elapsed = activeSession?.elapsedSeconds ?? 0;
+    const status = activeSession?.status ?? 'CONNECTING';
+    const info = explainSessionStatus(status);
+    const hold = sessionHoldAmount(cost);
+    const minsLeft = Math.max(1, Math.round(Math.max(0, target - soc) * 0.42));
+    const eta = useMemo(() => new Date(Date.now() + minsLeft * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), [minsLeft]);
+    const rangeAdded = selectedVehicle ? Math.round((kwh / selectedVehicle.batteryCapacity) * selectedVehicle.estRangeKm * 1.6) : 0;
+    const history = activeSession?.powerHistory ?? [];
+    const peak = Math.max(1, ...history.map((h) => h.powerKw), connector.power);
+    const car = selectedVehicle;
 
-    // Live Metrics
-    const soc = activeSession ? Math.round(activeSession.currentSoc) : (selectedVehicle?.currentBattery ?? 45);
-    const startSoc = activeSession?.startSoc ?? 33;
-    const currentPower = activeSession ? activeSession.currentPowerKw : Math.min(22, connector.power);
-    const maxPower = connector.power || 24;
-    const deliveredKwh = activeSession ? activeSession.energyDeliveredKwh : 5.50;
-    const totalCost = activeSession ? activeSession.totalCost : Number((deliveredKwh * connector.pricePerKWh).toFixed(2));
-    const elapsedSecondsTotal = activeSession ? activeSession.elapsedSeconds : 15 * 60 + 5;
-
-    // Driver Insights & Calculations
-    const remainingSoc = Math.max(0, targetSoc - soc);
-    const estMinutesRemaining = Math.max(1, Math.round(remainingSoc * 0.42)); // ~14m from 45% to 80%
-    const etaString = useMemo(() => {
-        const d = new Date(Date.now() + estMinutesRemaining * 60 * 1000);
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }, [estMinutesRemaining]);
-
-    const speedEfficiencyPercent = Math.min(100, Math.round((currentPower / maxPower) * 100));
-    const kmPerMinIntake = ((currentPower / (selectedVehicle?.batteryCapacity ?? 72.6)) * (selectedVehicle?.estRangeKm ?? 320) / 60).toFixed(1);
-
-    // Format time as HH : MM : SS
-    const formatTime = (totalSeconds: number) => {
-        const hrs = Math.floor(totalSeconds / 3600);
-        const mins = Math.floor((totalSeconds % 3600) / 60);
-        const secs = totalSeconds % 60;
-        const pad = (n: number) => String(n).padStart(2, '0');
-        if (hrs > 0) {
-            return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
-        }
-        return `${pad(mins)}m ${pad(secs)}s`;
+    const setNewTarget = (t: number) => {
+        setTarget(t);
+        updateTargetSoc(t);
     };
 
-    // Autocharge state
-    const [isAutochargeEnabled, setIsAutochargeEnabled] = useState(selectedVehicle?.autochargeEnabled ?? true);
-
-    // Current Vehicle Display
-    const currentVeh = selectedVehicle ?? vehicles[0] ?? {
-        id: '1',
-        nickname: 'Primary EV',
-        make: 'Hyundai',
-        model: 'Ioniq 5',
-        year: '2024',
-        registrationNumber: 'TN 38 BZ 7927',
-        connectorType: 'CCS2',
-        batteryCapacity: 72.6,
-        maxDcRateKw: 220,
-        currentBattery: 45,
-        estRangeKm: 320,
-        chargeTarget: 80,
-        autochargeEnabled: true,
-        perks: [],
-    };
-
-    const clampedSoc = Math.min(Math.max(soc, 0), 100);
-
-    // ── Chart Geometry: Speed vs SoC & Speed vs Time ──
-    const [cardContentWidth, setCardContentWidth] = useState(SCREEN_WIDTH - 64);
-    const yAxisWidth = 48;
-    const chartW = Math.max(100, cardContentWidth - yAxisWidth);
-    const padTop = 18;
-    const padBottom = 16;
-    const usableH = CHART_HEIGHT - padTop - padBottom;
-    const yPeak = padTop;
-    const yBase = CHART_HEIGHT - padBottom;
-
-    // Speed coordinates
-    const speedCurrX = (clampedSoc / 100) * chartW;
-    const taperX = 0.8 * chartW;
-    const speedCurrY = useMemo(() => {
-        if (clampedSoc <= 80) return yPeak;
-        const t = (clampedSoc - 80) / 20;
-        return yPeak + t * (usableH * 0.78);
-    }, [clampedSoc, yPeak, usableH]);
-
-    const speedFilledPath = useMemo(() => {
-        const rampW = Math.min(20, speedCurrX * 0.35);
-        if (clampedSoc <= 80) {
-            return `M 0 ${yBase} C ${rampW * 0.5} ${yBase}, ${rampW * 0.8} ${yPeak}, ${rampW} ${yPeak} L ${speedCurrX} ${yPeak} L ${speedCurrX} ${yBase} Z`;
-        }
-        return `M 0 ${yBase} C ${rampW * 0.5} ${yBase}, ${rampW * 0.8} ${yPeak}, ${rampW} ${yPeak} L ${taperX} ${yPeak} C ${taperX + 8} ${yPeak}, ${speedCurrX - 8} ${speedCurrY}, ${speedCurrX} ${speedCurrY} L ${speedCurrX} ${yBase} Z`;
-    }, [clampedSoc, speedCurrX, speedCurrY, taperX, yBase, yPeak]);
-
-    const speedCrestPath = useMemo(() => {
-        const rampW = Math.min(20, speedCurrX * 0.35);
-        if (clampedSoc <= 80) {
-            return `M 0 ${yBase} C ${rampW * 0.5} ${yBase}, ${rampW * 0.8} ${yPeak}, ${rampW} ${yPeak} L ${speedCurrX} ${yPeak}`;
-        }
-        return `M 0 ${yBase} C ${rampW * 0.5} ${yBase}, ${rampW * 0.8} ${yPeak}, ${rampW} ${yPeak} L ${taperX} ${yPeak} C ${taperX + 8} ${yPeak}, ${speedCurrX - 8} ${speedCurrY}, ${speedCurrX} ${speedCurrY}`;
-    }, [clampedSoc, speedCurrX, speedCurrY, taperX, yBase, yPeak]);
-
-    // Time coordinates (0 to 30 mins)
-    const elapsedMinutes = Math.min(30, Math.floor(elapsedSecondsTotal / 60));
-    const timeCurrX = Math.max(10, (elapsedMinutes / 30) * chartW);
-    const timeCurrY = yPeak;
-
-    const timeFilledPath = useMemo(() => {
-        const rampW = Math.min(24, timeCurrX * 0.4);
-        return `M 0 ${yBase} C ${rampW * 0.5} ${yBase}, ${rampW * 0.8} ${yPeak}, ${rampW} ${yPeak} L ${timeCurrX} ${yPeak} L ${timeCurrX} ${yBase} Z`;
-    }, [timeCurrX, yBase, yPeak]);
-
-    const timeCrestPath = useMemo(() => {
-        const rampW = Math.min(24, timeCurrX * 0.4);
-        return `M 0 ${yBase} C ${rampW * 0.5} ${yBase}, ${rampW * 0.8} ${yPeak}, ${rampW} ${yPeak} L ${timeCurrX} ${yPeak}`;
-    }, [timeCurrX, yBase, yPeak]);
-
-    // Stop Charging confirmation flow
-    const executeStopCharging = () => {
-        setIsStopConfirmVisible(false);
+    const doStop = () => {
+        setConfirmStop(false);
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
         const receipt = stopChargingSession('Driver initiated stop');
         if (receipt) {
             navigation.navigate('Payment', {
                 receipt,
                 stationSnapshot: station,
                 totalEnergy: receipt.energyDeliveredKwh,
-                totalTime: Math.max(1, Math.floor(elapsedSecondsTotal / 60)),
+                totalTime: Math.max(1, Math.floor(elapsed / 60)),
                 cost: receipt.totalAmountPaid,
                 endingSoc: receipt.endSoc,
             });
         }
     };
 
+    const help = () =>
+        Alert.alert('Need help with this charge?', 'Gun stuck, charge slow or stopped? We are here 24/7.', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Call 1800-419-4747', onPress: () => Linking.openURL('tel:18004194747').catch(() => {}) },
+        ]);
+
     return (
-        <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-            {/* ── 1. Top Navigation Bar with CRED Precision ── */}
-            <View style={styles.topBar}>
-                <TouchableOpacity
-                    style={[
-                        styles.backChevronBtn,
-                        {
-                            backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                            borderBottomColor: isDark ? '#050508' : '#C8C8D0',
-                        },
-                    ]}
-                    activeOpacity={0.8}
-                    onPress={() => {
-                        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        navigation.goBack();
-                    }}
-                >
-                    <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
-                </TouchableOpacity>
-
-                <View style={styles.stationInfoWrap}>
-                    <ThemedText style={[styles.stationTitle, { color: colors.text }]} numberOfLines={1}>
-                        {station.name}
-                    </ThemedText>
-                    <ThemedText style={[styles.stationSub, { color: colors.textMuted }]}>
-                        Bay 02 • {connector.type} {connector.power} kW Fast Charger
-                    </ThemedText>
-                </View>
-            </View>
-
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 28 }]}
-            >
-                {/* ── 2. HERO BATTERY & POWER GRAPH HERO CARD (CRED DOUBLE-BEZEL) ── */}
-                <View
-                    style={[
-                        styles.heroCard,
-                        {
-                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
-                            borderColor: colors.cardBorder,
-                        },
-                    ]}
-                    onLayout={(e) => {
-                        const w = e.nativeEvent.layout.width - 32;
-                        if (w > 0) setCardContentWidth(w);
-                    }}
-                >
-                    {/* Live SoC & Curve Switch Header */}
-                    <View style={styles.chartHeaderRow}>
-                        <View style={styles.heroMetricsCol}>
-                            <View style={styles.heroSocRow}>
-                                <ThemedText style={[styles.heroSocPercent, { color: colors.text }]}>
-                                    {soc}%
-                                </ThemedText>
-                                <View
-                                    style={[
-                                        styles.heroPowerPill,
-                                        {
-                                            backgroundColor: isDark ? 'rgba(56, 189, 248, 0.16)' : '#E0F2FE',
-                                            borderColor: isDark ? 'rgba(56, 189, 248, 0.3)' : '#BAE6FD',
-                                        },
-                                    ]}
-                                >
-                                    <Zap size={13} color={colors.primary} fill={colors.primary} />
-                                    <ThemedText style={[styles.heroPowerText, { color: colors.primary }]}>
-                                        {currentPower} kW Fast
-                                    </ThemedText>
-                                </View>
-                            </View>
-                        </View>
-
-                        {/* Rocker Switch: Speed vs Time */}
-                        <View
-                            style={[
-                                styles.miniToggleWrap,
-                                {
-                                    backgroundColor: isDark ? '#1C1D26' : '#EEF2F6',
-                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : '#E2E8F0',
-                                },
-                            ]}
-                        >
-                            <TouchableOpacity
-                                style={[
-                                    styles.miniToggleBtn,
-                                    curveType === 'speed' && [
-                                        styles.miniToggleBtnActive,
-                                        { backgroundColor: colors.primary, borderColor: colors.primary },
-                                    ],
-                                ]}
-                                activeOpacity={0.8}
-                                onPress={() => {
-                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    setCurveType('speed');
-                                }}
-                            >
-                                <ThemedText
-                                    style={[
-                                        styles.miniToggleText,
-                                        {
-                                            color:
-                                                curveType === 'speed'
-                                                    ? (isDark ? '#0A0D14' : '#FFFFFF')
-                                                    : (isDark ? '#94A3B8' : '#475569'),
-                                        },
-                                    ]}
-                                >
-                                    SoC %
-                                </ThemedText>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[
-                                    styles.miniToggleBtn,
-                                    curveType === 'time' && [
-                                        styles.miniToggleBtnActive,
-                                        { backgroundColor: colors.primary, borderColor: colors.primary },
-                                    ],
-                                ]}
-                                activeOpacity={0.8}
-                                onPress={() => {
-                                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                    setCurveType('time');
-                                }}
-                            >
-                                <ThemedText
-                                    style={[
-                                        styles.miniToggleText,
-                                        {
-                                            color:
-                                                curveType === 'time'
-                                                    ? (isDark ? '#0A0D14' : '#FFFFFF')
-                                                    : (isDark ? '#94A3B8' : '#475569'),
-                                        },
-                                    ]}
-                                >
-                                    Time
-                                </ThemedText>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    {/* Power Flow Analytics Chart */}
-                    <View style={styles.chartContainer}>
-                        {/* High-Contrast Y-Axis Column */}
-                        <View style={styles.yAxisColumn}>
-                            <ThemedText style={[styles.yTickText, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>
-                                {maxPower} kW
-                            </ThemedText>
-                            <ThemedText style={[styles.yTickText, { color: isDark ? '#CBD5E1' : '#334155' }]}>
-                                {Math.round(maxPower / 2)} kW
-                            </ThemedText>
-                            <ThemedText style={[styles.yTickText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
-                                0 kW
-                            </ThemedText>
-                        </View>
-
-                        {/* Chart Area */}
-                        <View style={[styles.canvasBox, { width: chartW, height: CHART_HEIGHT }]}>
-                            <Svg width={chartW} height={CHART_HEIGHT}>
-                                <Defs>
-                                    <SvgGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <Stop offset="0%" stopColor={colors.primary} stopOpacity={isDark ? '0.65' : '0.45'} />
-                                        <Stop offset="100%" stopColor={colors.primary} stopOpacity={isDark ? '0.12' : '0.08'} />
-                                    </SvgGradient>
-                                </Defs>
-
-                                {/* 80% to 100% BMS Taper Zone Background */}
-                                {curveType === 'speed' && (
-                                    <Rect
-                                        x={taperX}
-                                        y={padTop}
-                                        width={chartW - taperX}
-                                        height={usableH}
-                                        fill={isDark ? 'rgba(255, 91, 69, 0.08)' : 'rgba(255, 91, 69, 0.06)'}
-                                    />
-                                )}
-
-                                {/* 80% Taper Divider Line */}
-                                {curveType === 'speed' && (
-                                    <Line
-                                        x1={taperX}
-                                        y1={padTop}
-                                        x2={taperX}
-                                        y2={yBase}
-                                        stroke={isDark ? 'rgba(255, 91, 69, 0.50)' : 'rgba(239, 68, 68, 0.40)'}
-                                        strokeWidth={1.5}
-                                        strokeDasharray="3 3"
-                                    />
-                                )}
-
-                                {/* Baseline Track Line */}
-                                <Line
-                                    x1={0}
-                                    y1={yBase}
-                                    x2={chartW}
-                                    y2={yBase}
-                                    stroke={isDark ? 'rgba(255, 255, 255, 0.22)' : '#CBD5E1'}
-                                    strokeWidth={1.5}
-                                />
-
-                                {/* Filled Curve Wave */}
-                                <Path
-                                    d={curveType === 'speed' ? speedFilledPath : timeFilledPath}
-                                    fill="url(#curveGradient)"
-                                />
-
-                                {/* Top Crest Stroke */}
-                                <Path
-                                    d={curveType === 'speed' ? speedCrestPath : timeCrestPath}
-                                    stroke={colors.primary}
-                                    strokeWidth={2.5}
-                                    fill="none"
-                                    strokeLinecap="round"
-                                />
-
-                                {/* Live Vertical Guideline */}
-                                <Line
-                                    x1={curveType === 'speed' ? speedCurrX : timeCurrX}
-                                    y1={curveType === 'speed' ? speedCurrY : timeCurrY}
-                                    x2={curveType === 'speed' ? speedCurrX : timeCurrX}
-                                    y2={yBase}
-                                    stroke={colors.primary}
-                                    strokeWidth={1.5}
-                                    strokeDasharray="2 2"
-                                />
-
-                                {/* Live Front Point Beacon */}
-                                <Circle
-                                    cx={curveType === 'speed' ? speedCurrX : timeCurrX}
-                                    cy={curveType === 'speed' ? speedCurrY : timeCurrY}
-                                    r={5}
-                                    fill={colors.primary}
-                                />
-                                <Circle
-                                    cx={curveType === 'speed' ? speedCurrX : timeCurrX}
-                                    cy={curveType === 'speed' ? speedCurrY : timeCurrY}
-                                    r={2}
-                                    fill="#FFFFFF"
-                                />
-                            </Svg>
-
-
-
-                            {/* BMS Taper Tag at Top Right */}
-                            {curveType === 'speed' && (
-                                <View
-                                    style={[
-                                        styles.trickleTag,
-                                        {
-                                            backgroundColor: isDark ? 'rgba(255, 91, 69, 0.20)' : '#FFF0ED',
-                                            borderColor: isDark ? 'rgba(255, 91, 69, 0.40)' : '#FFD2CC',
-                                        },
-                                    ]}
-                                    pointerEvents="none"
-                                >
-                                    <ThemedText
-                                        style={[
-                                            styles.trickleTagText,
-                                            { color: isDark ? '#FF8A7A' : '#D93822' },
-                                        ]}
-                                    >
-                                        BMS Taper (80%+)
-                                    </ThemedText>
-                                </View>
-                            )}
-                        </View>
-                    </View>
-
-                    {/* High-Contrast X-Axis Scale */}
-                    <View style={[styles.xAxisRow, { paddingLeft: yAxisWidth }]}>
-                        {curveType === 'speed' ? (
-                            <>
-                                <ThemedText style={[styles.xTickText, { color: isDark ? '#F1F5F9' : '#0F172A' }]}>0%</ThemedText>
-                                <ThemedText style={[styles.xAxisLabel, { color: colors.primary }]}>Battery SoC Curve</ThemedText>
-                                <ThemedText style={[styles.xTickText, { color: isDark ? '#FF8A7A' : '#D93822' }]}>80%</ThemedText>
-                                <ThemedText style={[styles.xTickText, { color: isDark ? '#F1F5F9' : '#0F172A' }]}>100%</ThemedText>
-                            </>
-                        ) : (
-                            <>
-                                <ThemedText style={[styles.xTickText, { color: isDark ? '#F1F5F9' : '#0F172A' }]}>0m</ThemedText>
-                                <ThemedText style={[styles.xAxisLabel, { color: colors.primary }]}>Charging Duration</ThemedText>
-                                <ThemedText style={[styles.xTickText, { color: isDark ? '#94A3B8' : '#475569' }]}>15m</ThemedText>
-                                <ThemedText style={[styles.xTickText, { color: isDark ? '#F1F5F9' : '#0F172A' }]}>30m</ThemedText>
-                            </>
-                        )}
-                    </View>
-
-                    {/* Time Remaining & Target ETA Banner */}
-                    <View
-                        style={[
-                            styles.timeCountdownBanner,
-                            {
-                                backgroundColor: isDark ? '#18181F' : '#F8FAFC',
-                                borderColor: colors.cardBorder,
-                            },
-                        ]}
-                    >
-                        <Clock size={15} color={colors.primary} style={{ marginRight: 6 }} />
-                        <ThemedText style={[styles.countdownPrimaryText, { color: colors.text }]}>
-                            ~{estMinutesRemaining} mins remaining
-                        </ThemedText>
-                        <ThemedText style={[styles.countdownEtaText, { color: colors.textMuted }]}>
-                            • Ready by {etaString} ({targetSoc}%)
-                        </ThemedText>
-                    </View>
-
-
-                </View>
-
-                {/* ── 3. TELEMETRY DASHBOARD (CRED 2×2 QUADRANT) ── */}
-                <View
-                    style={[
-                        styles.telemetryCard,
-                        {
-                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
-                            borderColor: colors.cardBorder,
-                        },
-                    ]}
-                >
-                    <View style={styles.telemetryRow}>
-                        {/* 3A. Charging Speed */}
-                        <View style={styles.telemetryQuadrant}>
-                            <View style={styles.telemetryLabelRow}>
-                                <Zap size={14} color={colors.primary} style={{ marginRight: 5 }} />
-                                <ThemedText style={[styles.telemetryLabel, { color: colors.textMuted }]}>
-                                    Charging Speed
-                                </ThemedText>
-                            </View>
-                            <ThemedText style={[styles.telemetryMainVal, { color: colors.text }]}>
-                                {currentPower} <ThemedText style={[styles.telemetryUnit, { color: colors.textMuted }]}>kW</ThemedText>
-                            </ThemedText>
-                            <ThemedText style={[styles.telemetrySubText, { color: colors.textMuted }]}>
-                                {speedEfficiencyPercent}% Peak • +{kmPerMinIntake} km/m
-                            </ThemedText>
-                        </View>
-
-                        <View style={[styles.verticalDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9' }]} />
-
-                        {/* 3B. Charging Time */}
-                        <View style={styles.telemetryQuadrant}>
-                            <View style={styles.telemetryLabelRow}>
-                                <Clock size={14} color={colors.primary} style={{ marginRight: 5 }} />
-                                <ThemedText style={[styles.telemetryLabel, { color: colors.textMuted }]}>
-                                    Elapsed Time
-                                </ThemedText>
-                            </View>
-                            <ThemedText style={[styles.telemetryMainVal, { color: colors.text }]}>
-                                {formatTime(elapsedSecondsTotal)}
-                            </ThemedText>
-                            <ThemedText style={[styles.telemetrySubText, { color: colors.textMuted }]}>
-                                Session Active
-                            </ThemedText>
-                        </View>
-                    </View>
-
-                    <View style={[styles.horizontalDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9' }]} />
-
-                    <View style={styles.telemetryRow}>
-                        {/* 3C. Energy Delivered */}
-                        <View style={styles.telemetryQuadrant}>
-                            <View style={styles.telemetryLabelRow}>
-                                <BatteryCharging size={14} color={colors.primary} style={{ marginRight: 5 }} />
-                                <ThemedText style={[styles.telemetryLabel, { color: colors.textMuted }]}>
-                                    Energy Delivered
-                                </ThemedText>
-                            </View>
-                            <ThemedText style={[styles.telemetryMainVal, { color: colors.text }]}>
-                                {deliveredKwh.toFixed(2)} <ThemedText style={[styles.telemetryUnit, { color: colors.textMuted }]}>kWh</ThemedText>
-                            </ThemedText>
-                            <ThemedText style={[styles.telemetrySubText, { color: colors.textMuted }]}>
-                                @ ₹{connector.pricePerKWh.toFixed(2)} / kWh
-                            </ThemedText>
-                        </View>
-
-                        <View style={[styles.verticalDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9' }]} />
-
-                        {/* 3D. Live Bill */}
-                        <View style={styles.telemetryQuadrant}>
-                            <View style={styles.telemetryLabelRow}>
-                                <ShieldCheck size={14} color={colors.primary} style={{ marginRight: 5 }} />
-                                <ThemedText style={[styles.telemetryLabel, { color: colors.textMuted }]}>
-                                    Live Session Cost
-                                </ThemedText>
-                            </View>
-                            <ThemedText style={[styles.telemetryMainVal, { color: colors.text }]}>
-                                ₹{totalCost.toFixed(2)}
-                            </ThemedText>
-                            <ThemedText style={[styles.telemetrySubText, { color: colors.primary }]}>
-                                Iris Wallet Auto-pay
-                            </ThemedText>
-                        </View>
-                    </View>
-                </View>
-
-
-                {/* ── 5. CONNECTED VEHICLE & AUTOCHARGE CARD ── */}
-                <View
-                    style={[
-                        styles.vehicleCard,
-                        {
-                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
-                            borderColor: colors.cardBorder,
-                        },
-                    ]}
-                >
-                    <View style={styles.vehicleCardMainRow}>
-                        <View style={styles.vehicleInfoCol}>
-                            <ThemedText style={[styles.vehicleModelName, { color: colors.text }]}>
-                                {currentVeh.make} {currentVeh.model}
-                            </ThemedText>
-                            <ThemedText style={[styles.vehiclePlateSpecs, { color: colors.textMuted }]}>
-                                {currentVeh.registrationNumber} • {currentVeh.batteryCapacity} kWh ({currentVeh.connectorType})
-                            </ThemedText>
-                        </View>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.editPencilBtn,
-                                {
-                                    backgroundColor: isDark ? '#1C1C22' : '#F8FAFC',
-                                    borderColor: colors.cardBorder,
-                                },
-                            ]}
-                            activeOpacity={0.7}
-                            onPress={() => {
-                                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                setIsVehicleModalVisible(true);
-                            }}
-                        >
-                            <Pencil size={16} color={colors.text} />
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* 3D Neo-Brutalist Autocharge Switch */}
-                    <TouchableOpacity
-                        style={[
-                            styles.autochargeRow,
-                            isAutochargeEnabled
-                                ? [styles.autochargeRowActive, { backgroundColor: isDark ? 'rgba(0, 229, 117, 0.12)' : '#F0FDF4' }]
-                                : [styles.autochargeRowInactive, { backgroundColor: isDark ? '#16161B' : '#F8FAFC' }],
-                        ]}
-                        activeOpacity={0.8}
-                        onPress={() => {
-                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                            setIsAutochargeEnabled((prev) => !prev);
-                        }}
-                    >
-                        <View style={[styles.autochargeDot, { backgroundColor: isAutochargeEnabled ? colors.primary : '#94A3B8' }]} />
-                        <ThemedText style={[styles.autochargeRowTitle, { color: colors.text }]}>
-                            {isAutochargeEnabled ? 'Autocharge Active — Plug & Charge enabled' : 'Tap to enable Autocharge'}
-                        </ThemedText>
-                        <View style={[styles.switchIndicatorBadge, { backgroundColor: isAutochargeEnabled ? colors.primary : '#2C2C32' }]}>
-                            <ThemedText style={[styles.switchIndicatorText, { color: isAutochargeEnabled ? '#000000' : '#8E8E93' }]}>
-                                {isAutochargeEnabled ? 'ON' : 'OFF'}
-                            </ThemedText>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-
-                {/* ── 6. STATION AMENITIES WHILE WAITING ── */}
-                <View
-                    style={[
-                        styles.amenitiesCard,
-                        {
-                            backgroundColor: isDark ? colors.surface : '#FFFFFF',
-                            borderColor: colors.cardBorder,
-                        },
-                    ]}
-                >
-                    <ThemedText style={[styles.amenitiesHeader, { color: colors.textMuted }]}>
-                        Amenities at this station
-                    </ThemedText>
-                    <View style={styles.amenitiesRow}>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
-                            <Coffee size={13} color={colors.primary} style={{ marginRight: 5 }} />
-                            <ThemedText style={[styles.amenityText, { color: colors.text }]}>
-                                Coffee Lounge
-                            </ThemedText>
-                        </View>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
-                            <Wifi size={13} color={colors.primary} style={{ marginRight: 5 }} />
-                            <ThemedText style={[styles.amenityText, { color: colors.text }]}>
-                                Free Wi-Fi
-                            </ThemedText>
-                        </View>
-                        <View style={[styles.amenityChip, { backgroundColor: isDark ? '#18181E' : '#F8FAFC', borderColor: colors.cardBorder }]}>
-                            <Users size={13} color={colors.primary} style={{ marginRight: 5 }} />
-                            <ThemedText style={[styles.amenityText, { color: colors.text }]}>
-                                Restrooms
-                            </ThemedText>
-                        </View>
-                    </View>
-                </View>
-
-                {/* ── 7. CRED SIGNATURE STOP CHARGING BUTTON ── */}
-                <CredButton
-                    title="Stop Charging"
-                    variant="danger"
-                    onPress={() => setIsStopConfirmVisible(true)}
+        <View style={[flat.screen, { backgroundColor: colors.background }]}>
+            <ScrollView contentContainerStyle={{ paddingTop: insets.top + 6, paddingHorizontal: 16, paddingBottom: insets.bottom + 120 }} showsVerticalScrollIndicator={false}>
+                <ScreenTitle
+                    title="Charging"
+                    subtitle={`${activeSession?.stationName ?? station.name} · ${activeSession?.chargerId ?? connector.id}`}
+                    onBack={() => navigation.goBack()}
+                    right={
+                        <HeaderIcon label="Help with this charge" onPress={help}>
+                            <LifeBuoy size={18} color={colors.text} />
+                        </HeaderIcon>
+                    }
                 />
-            </ScrollView>
 
-            {/* ── 8. SAFE STOP CHARGING CONFIRMATION MODAL ── */}
-            <Modal
-                visible={isStopConfirmVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setIsStopConfirmVisible(false)}
-            >
-                <TouchableOpacity
-                    style={styles.modalOverlay}
-                    activeOpacity={1}
-                    onPress={() => setIsStopConfirmVisible(false)}
-                >
-                    <View
-                        style={[
-                            styles.modalSheet,
-                            {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                paddingBottom: insets.bottom + 16,
-                            },
-                        ]}
-                        onStartShouldSetResponder={() => true}
-                    >
-                        <View style={styles.modalHeader}>
-                            <ThemedText style={[styles.modalTitle, { color: colors.text }]}>
-                                Stop Charging Session?
-                            </ThemedText>
-                            <TouchableOpacity
-                                style={styles.modalCloseBtn}
-                                onPress={() => setIsStopConfirmVisible(false)}
-                            >
-                                <X size={20} color={colors.textMuted} />
-                            </TouchableOpacity>
-                        </View>
-
-                        <ThemedText style={[styles.modalSub, { color: colors.textMuted }]}>
-                            Battery has reached {soc}%. Your receipt and invoice will be generated immediately.
-                        </ThemedText>
-
-                        {/* Session Snapshot in Modal */}
-                        <View style={[styles.modalSummaryBox, { backgroundColor: isDark ? '#1C1C22' : '#F8FAFC' }]}>
-                            <View style={styles.modalSummaryItem}>
-                                <ThemedText style={[styles.modalSummaryLabel, { color: colors.textMuted }]}>Battery</ThemedText>
-                                <ThemedText style={[styles.modalSummaryVal, { color: colors.text }]}>{soc}%</ThemedText>
-                            </View>
-                            <View style={styles.modalSummaryItem}>
-                                <ThemedText style={[styles.modalSummaryLabel, { color: colors.textMuted }]}>Energy</ThemedText>
-                                <ThemedText style={[styles.modalSummaryVal, { color: colors.text }]}>{deliveredKwh.toFixed(2)} kWh</ThemedText>
-                            </View>
-                            <View style={styles.modalSummaryItem}>
-                                <ThemedText style={[styles.modalSummaryLabel, { color: colors.textMuted }]}>Amount</ThemedText>
-                                <ThemedText style={[styles.modalSummaryVal, { color: colors.primary }]}>₹{totalCost.toFixed(2)}</ThemedText>
-                            </View>
-                        </View>
-
-                        <View style={styles.modalActionButtonsRow}>
-                            <TouchableOpacity
-                                style={[styles.modalCancelBtn, { backgroundColor: isDark ? '#222228' : '#F1F5F9' }]}
-                                activeOpacity={0.8}
-                                onPress={() => setIsStopConfirmVisible(false)}
-                            >
-                                <ThemedText style={[styles.modalCancelText, { color: colors.text }]}>
-                                    Keep Charging
-                                </ThemedText>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[styles.modalConfirmStopBtn, { backgroundColor: '#DC2626' }]}
-                                activeOpacity={0.85}
-                                onPress={executeStopCharging}
-                            >
-                                <ThemedText style={styles.modalConfirmStopText}>
-                                    Confirm & Stop
-                                </ThemedText>
-                            </TouchableOpacity>
+                {/* The one highlight on this screen: live battery and money */}
+                <Panel tone="highlight" style={{ marginTop: 12 }}>
+                    <View style={styles.socRow}>
+                        <ThemedText style={styles.soc}>{soc}</ThemedText>
+                        <ThemedText style={styles.socPct}>%</ThemedText>
+                        <View style={{ flex: 1 }} />
+                        <View style={{ alignItems: 'flex-end' }}>
+                            <ThemedText style={styles.eta}>{target}% by {eta}</ThemedText>
+                            <ThemedText style={[flat.caption, { color: ON_HIGHLIGHT.sub }]}>~{minsLeft} min left</ThemedText>
                         </View>
                     </View>
-                </TouchableOpacity>
-            </Modal>
-
-            {/* ── 9. VEHICLE SELECTION MODAL ── */}
-            <Modal
-                visible={isVehicleModalVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setIsVehicleModalVisible(false)}
-            >
-                <TouchableOpacity
-                    style={styles.modalOverlay}
-                    activeOpacity={1}
-                    onPress={() => setIsVehicleModalVisible(false)}
-                >
-                    <View
-                        style={[
-                            styles.modalSheet,
-                            {
-                                backgroundColor: isDark ? '#141418' : '#FFFFFF',
-                                paddingBottom: insets.bottom + 16,
-                            },
+                    <View style={styles.bar}>
+                        <View style={[styles.barFill, { width: `${Math.min(100, soc)}%` }]} />
+                        <View style={[styles.barTick, { left: `${target}%` }]} />
+                    </View>
+                    <StatGrid
+                        onHighlight
+                        columns={2}
+                        items={[
+                            { label: 'Power', value: `${power} kW` },
+                            { label: 'Added', value: `${kwh.toFixed(2)} kWh` },
+                            { label: 'Cost so far', value: formatRupees(cost, 2) },
+                            { label: 'Time', value: fmtTime(elapsed) },
                         ]}
-                        onStartShouldSetResponder={() => true}
-                    >
-                        <View style={styles.modalHeader}>
-                            <ThemedText style={[styles.modalTitle, { color: colors.text }]}>
-                                Switch Charging Vehicle
-                            </ThemedText>
-                            <TouchableOpacity
-                                style={styles.modalCloseBtn}
-                                onPress={() => setIsVehicleModalVisible(false)}
-                            >
-                                <X size={20} color={colors.textMuted} />
-                            </TouchableOpacity>
-                        </View>
+                    />
+                </Panel>
 
-                        <ThemedText style={[styles.modalSub, { color: colors.textMuted }]}>
-                            Select the vehicle currently connected to this charger
-                        </ThemedText>
+                <Panel tone={info.tone === 'stop' ? 'danger' : info.tone === 'wait' ? 'warning' : 'default'} style={{ marginTop: 12 }}>
+                    <ThemedText style={[flat.h2, { color: colors.text, fontSize: 17 }]}>{info.title}</ThemedText>
+                    <ThemedText style={[flat.body, { color: colors.textMuted, marginTop: 4 }]}>{info.detail}</ThemedText>
+                    <ThemedText style={[flat.caption, { color: colors.text, marginTop: 10 }]}>
+                        {formatRupees(hold)} held from your wallet. Unused amount returns when you stop.
+                    </ThemedText>
+                </Panel>
 
-                        <View style={styles.modalVehicleList}>
-                            {vehicles.map((veh) => {
-                                const isCurrent = currentVeh.id === veh.id;
+                <Section title="Charging speed">
+                    <Panel>
+                        <Segmented
+                            options={[
+                                { value: 'power', label: 'Speed (kW)' },
+                                { value: 'battery', label: 'Battery (%)' },
+                            ]}
+                            value={chart}
+                            onChange={setChart}
+                        />
+                        <View style={styles.chart}>
+                            {(history.length ? history : [{ time: '0:00', powerKw: 0, soc }]).map((h, i, arr) => {
+                                const v = chart === 'power' ? h.powerKw / peak : h.soc / 100;
+                                const last = i === arr.length - 1;
                                 return (
-                                    <TouchableOpacity
-                                        key={`modal-veh-${veh.id}`}
-                                        style={[
-                                            styles.modalVehicleItem,
-                                            {
-                                                backgroundColor: isCurrent
-                                                    ? (isDark ? 'rgba(0, 229, 117, 0.12)' : '#F0FDF4')
-                                                    : (isDark ? '#1C1C22' : '#F8FAFC'),
-                                                borderColor: isCurrent ? colors.primary : colors.cardBorder,
-                                            },
-                                        ]}
-                                        activeOpacity={0.75}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                            selectVehicle(veh.id);
-                                            setIsVehicleModalVisible(false);
-                                        }}
-                                    >
-                                        <View style={{ flex: 1 }}>
-                                            <ThemedText style={[styles.modalVehName, { color: colors.text }]}>
-                                                {veh.make} {veh.model}
-                                            </ThemedText>
-                                            <ThemedText style={[styles.modalVehPlate, { color: colors.textMuted }]}>
-                                                {veh.registrationNumber} • {veh.batteryCapacity} kWh ({veh.connectorType})
-                                            </ThemedText>
-                                        </View>
-
-                                        {isCurrent && (
-                                            <View style={[styles.modalCheckBadge, { backgroundColor: colors.primary }]}>
-                                                <Check size={14} color="#000000" strokeWidth={3} />
-                                            </View>
-                                        )}
-                                    </TouchableOpacity>
+                                    <View key={`${h.time}-${i}`} style={styles.chartCol}>
+                                        <View style={[styles.chartBar, { height: `${Math.max(6, v * 100)}%`, backgroundColor: last ? colors.lime : colors.primary, opacity: last ? 1 : 0.5 }]} />
+                                        <ThemedText style={[styles.chartLbl, { color: colors.textSoft }]}>{h.time}</ThemedText>
+                                    </View>
                                 );
                             })}
                         </View>
+                        <ThemedText style={[flat.caption, { color: colors.textMuted, marginTop: 10 }]}>Speed slows above 80% to protect your battery. That is normal.</ThemedText>
+                    </Panel>
+                </Section>
+
+                <Section title="Details">
+                    <Panel>
+                        <StatGrid
+                            columns={2}
+                            items={[
+                                { label: 'Voltage', value: `${activeSession?.currentVoltageV ?? 0} V` },
+                                { label: 'Current', value: `${activeSession?.currentAmperageA ?? 0} A` },
+                                { label: 'Battery temp', value: `${activeSession?.batteryTempCelsius ?? 31}°C` },
+                                { label: 'Range added', value: `+${rangeAdded} km` },
+                            ]}
+                        />
+                    </Panel>
+                </Section>
+
+                <Section title="Stop automatically at">
+                    <View style={flat.rowGap}>
+                        {TARGETS.map((t) => (
+                            <Option key={t} label={`${t}%`} selected={t === target} onPress={() => setNewTarget(t)} style={{ flex: 1 }} />
+                        ))}
                     </View>
-                </TouchableOpacity>
+                </Section>
+
+                <Section title="Your car">
+                    <Panel padded={false}>
+                        <View style={styles.carRow}>
+                            <View style={{ flex: 1 }}>
+                                <ThemedText style={[styles.carName, { color: colors.text }]} numberOfLines={1}>
+                                    {activeSession?.vehicleModel ?? (car ? `${car.make} ${car.model}` : 'Your EV')}
+                                </ThemedText>
+                                <ThemedText style={[flat.caption, { color: colors.textMuted }]}>{activeSession?.vehicleRegNo ?? car?.registrationNumber}</ThemedText>
+                            </View>
+                            <View style={styles.carImgWrap}>
+                                <Image source={CAR_IMAGE} style={styles.carImg} resizeMode="contain" />
+                            </View>
+                        </View>
+                        <Divider />
+                        <Row
+                            title="Autocharge (plug & charge)"
+                            subtitle="Start automatically when you plug in"
+                            onPress={() => {
+                                setAutocharge((a) => !a);
+                                if (car) updateVehicle(car.id, { autochargeEnabled: !autocharge });
+                            }}
+                            right={
+                                <View style={[styles.toggle, { backgroundColor: autocharge ? colors.lime : colors.surfaceMuted }]}>
+                                    <View style={[styles.knob, { backgroundColor: autocharge ? '#0B0B0F' : '#FFFFFF', transform: [{ translateX: autocharge ? 20 : 0 }] }]} />
+                                </View>
+                            }
+                        />
+                        {vehicles.length > 1 ? (
+                            <>
+                                <Divider />
+                                <Row icon={<Repeat size={16} color={colors.text} />} title="Switch car" onPress={() => setSwitchCar(true)} chevron />
+                            </>
+                        ) : null}
+                    </Panel>
+                </Section>
+
+                {station.amenities?.length ? (
+                    <Section title="While you wait">
+                        <ThemedText style={[flat.body, { color: colors.text }]}>{station.amenities.join(' · ')}</ThemedText>
+                    </Section>
+                ) : null}
+            </ScrollView>
+
+            <View style={[flat.bottomBar, { paddingBottom: insets.bottom + 12, backgroundColor: colors.background, borderTopColor: colors.border }]}>
+                <PulseButton title="Stop charging" variant="danger" icon={<Square size={15} color="#FFFFFF" fill="#FFFFFF" />} onPress={() => setConfirmStop(true)} />
+            </View>
+
+            <Modal visible={confirmStop} transparent animationType="fade" onRequestClose={() => setConfirmStop(false)}>
+                <View style={styles.overlay}>
+                    <View style={[styles.modal, { backgroundColor: colors.surface }]}>
+                        <ThemedText style={[styles.modalTitle, { color: colors.text }]}>Stop at {soc}%?</ThemedText>
+                        <ThemedText style={[flat.body, { color: colors.textMuted, marginTop: 6 }]}>
+                            You pay for {kwh.toFixed(2)} kWh only. Unplug within 15 minutes to avoid idle fees.
+                        </ThemedText>
+                        <View style={{ marginTop: 12 }}>
+                            <KeyValue label="Battery" value={`${soc}%`} />
+                            <KeyValue label="Energy" value={`${kwh.toFixed(2)} kWh`} />
+                            <KeyValue label="To pay" value={formatRupees(cost, 2)} strong />
+                        </View>
+                        <PulseButton title="Yes, stop and pay" variant="danger" onPress={doStop} style={{ marginTop: 16 }} />
+                        <PulseButton title="Keep charging" variant="ghost" icon={<Zap size={15} color={colors.text} />} onPress={() => setConfirmStop(false)} style={{ marginTop: 8 }} />
+                    </View>
+                </View>
             </Modal>
-        </SafeAreaView>
+
+            <Modal visible={switchCar} transparent animationType="slide" onRequestClose={() => setSwitchCar(false)}>
+                <View style={styles.overlay}>
+                    <View style={[styles.modal, { backgroundColor: colors.surface }]}>
+                        <View style={styles.modalHead}>
+                            <ThemedText style={[styles.modalTitle, { color: colors.text }]}>Which car?</ThemedText>
+                            <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={() => setSwitchCar(false)} hitSlop={10}>
+                                <X size={20} color={colors.text} />
+                            </Pressable>
+                        </View>
+                        {vehicles.map((v, i) => (
+                            <View key={v.id}>
+                                {i > 0 ? <Divider /> : null}
+                                <Row
+                                    title={`${v.make} ${v.model}`}
+                                    subtitle={`${v.registrationNumber} · ${v.connectorType} · ${v.currentBattery}%`}
+                                    onPress={() => {
+                                        selectVehicle(v.id);
+                                        setSwitchCar(false);
+                                    }}
+                                    right={v.id === car?.id ? <Check size={18} color={colors.text} /> : undefined}
+                                />
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            </Modal>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-    },
-
-    // ── 1. Top Bar ──
-    topBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: SPACING.md,
-        paddingTop: 8,
-        paddingBottom: 8,
-    },
-    backChevronBtn: {
-        width: 38,
-        height: 38,
-        borderRadius: RADIUS.circle,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 10,
-        borderWidth: 1,
-    },
-    stationInfoWrap: {
-        flex: 1,
-    },
-    stationTitle: {
-        fontSize: 15,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    stationSub: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginTop: 1,
-    },
-
-    content: {
-        paddingHorizontal: SPACING.md,
-        paddingTop: 6,
-        gap: 12,
-    },
-
-    // ── 2. HERO BATTERY & POWER GRAPH HERO CARD ──
-    heroCard: {
-        borderRadius: RADIUS.card,
-        paddingVertical: 16,
-        paddingHorizontal: 16,
-        borderWidth: 1,
-    },
-    chartHeaderRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: 10,
-    },
-    heroMetricsCol: {
-        flex: 1,
-    },
-    heroSocRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    heroSocPercent: {
-        fontSize: 38,
-        fontFamily: FONT_FAMILIES.serifHeading,
-        fontWeight: '800',
-        lineHeight: 42,
-        letterSpacing: -1,
-    },
-    heroPowerPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 9,
-        paddingVertical: 4,
-        borderRadius: RADIUS.pill,
-        borderWidth: 1,
-    },
-    heroPowerText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    miniToggleWrap: {
-        flexDirection: 'row',
-        borderRadius: RADIUS.pill,
-        padding: 3,
-        borderWidth: 1,
-    },
-    miniToggleBtn: {
-        paddingVertical: 5,
-        paddingHorizontal: 11,
-        borderRadius: RADIUS.pill,
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    miniToggleBtnActive: {
-        // dynamic backgroundColor and borderColor
-    },
-    miniToggleBtnInactive: {
-        backgroundColor: 'transparent',
-        borderColor: 'transparent',
-    },
-    miniToggleText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    chartContainer: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        width: '100%',
-    },
-    yAxisColumn: {
-        width: 48,
-        height: CHART_HEIGHT,
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        paddingVertical: 2,
-        paddingRight: 6,
-    },
-    yTickText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    canvasBox: {
-        position: 'relative',
-        borderRadius: RADIUS.chip,
-        overflow: 'hidden',
-    },
-
-    trickleTag: {
-        position: 'absolute',
-        right: 8,
-        top: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: RADIUS.pill,
-        borderWidth: 1,
-    },
-    trickleTagText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    xAxisRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 8,
-        paddingRight: 6,
-        width: '100%',
-    },
-    xTickText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    xAxisLabel: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-
-    // Time Countdown Banner
-    timeCountdownBanner: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        paddingVertical: 10,
-        paddingHorizontal: 14,
-        borderRadius: RADIUS.tile,
-        marginTop: 16,
-        borderWidth: 1,
-    },
-    countdownPrimaryText: {
-        fontSize: 13,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    countdownEtaText: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginLeft: 4,
-    },
-
-
-
-    // ── 3. TELEMETRY DASHBOARD ──
-    telemetryCard: {
-        borderRadius: RADIUS.card,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-        borderWidth: 1,
-    },
-    telemetryRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    telemetryQuadrant: {
-        flex: 1,
-        paddingVertical: 8,
-        paddingHorizontal: 6,
-    },
-    telemetryLabelRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 4,
-    },
-    telemetryLabel: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-    },
-    telemetryMainVal: {
-        fontSize: 18,
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        fontWeight: '800',
-    },
-    telemetryUnit: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-    },
-    telemetrySubText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginTop: 2,
-    },
-    verticalDivider: {
-        width: 1,
-        height: '75%',
-    },
-    horizontalDivider: {
-        height: 1,
-        width: '100%',
-        marginVertical: 4,
-    },
-
-
-
-    // ── 5. CONNECTED VEHICLE CARD ──
-    vehicleCard: {
-        borderRadius: RADIUS.card,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-        gap: 10,
-        borderWidth: 1,
-    },
-    vehicleCardMainRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    vehicleInfoCol: {
-        flex: 1,
-    },
-    vehicleModelName: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    vehiclePlateSpecs: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginTop: 2,
-    },
-    editPencilBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: RADIUS.circle,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-    },
-    autochargeRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        borderRadius: RADIUS.tile,
-        borderWidth: 1,
-    },
-    autochargeRowActive: {
-        borderColor: 'rgba(255, 255, 255, 0.35)',
-    },
-    autochargeRowInactive: {
-        borderColor: 'rgba(255, 255, 255, 0.06)',
-    },
-    autochargeDot: {
-        width: 7,
-        height: 7,
-        borderRadius: RADIUS.circle,
-        marginRight: 8,
-    },
-    autochargeRowTitle: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-        flex: 1,
-    },
-    switchIndicatorBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: RADIUS.chip,
-    },
-    switchIndicatorText: {
-        fontSize: 10,
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        fontWeight: '800',
-    },
-
-    // ── 6. STATION AMENITIES ──
-    amenitiesCard: {
-        borderRadius: RADIUS.card,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-        borderWidth: 1,
-    },
-    amenitiesHeader: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-        marginBottom: 8,
-    },
-    amenitiesRow: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    amenityChip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 6,
-        paddingHorizontal: 10,
-        borderRadius: RADIUS.chip,
-        borderWidth: 1,
-    },
-    amenityText: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansSemiBold,
-        fontWeight: '600',
-    },
-
-    // ── 8. MODALS ──
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.65)',
-        justifyContent: 'flex-end',
-    },
-    modalSheet: {
-        borderTopLeftRadius: RADIUS.bottomSheet,
-        borderTopRightRadius: RADIUS.bottomSheet,
-        paddingHorizontal: SPACING.md,
-        paddingTop: 16,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255, 255, 255, 0.1)',
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 4,
-    },
-    modalTitle: {
-        fontSize: 16,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    modalCloseBtn: {
-        padding: 4,
-    },
-    modalSub: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginBottom: 14,
-    },
-    modalSummaryBox: {
-        flexDirection: 'row',
-        borderRadius: RADIUS.tile,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.08)',
-    },
-    modalSummaryItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    modalSummaryLabel: {
-        fontSize: 11,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginBottom: 2,
-    },
-    modalSummaryVal: {
-        fontSize: 16,
-        fontFamily: FONT_FAMILIES.sansExtraBold,
-        fontWeight: '800',
-    },
-    modalActionButtonsRow: {
-        flexDirection: 'row',
-        gap: 10,
-    },
-    modalCancelBtn: {
-        flex: 1,
-        paddingVertical: 14,
-        borderRadius: RADIUS.button,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalCancelText: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    modalConfirmStopBtn: {
-        flex: 1,
-        paddingVertical: 14,
-        borderRadius: RADIUS.button,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalConfirmStopText: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-        color: '#FFFFFF',
-    },
-
-    modalVehicleList: {
-        gap: 8,
-    },
-    modalVehicleItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-        borderRadius: RADIUS.tile,
-        borderWidth: 1,
-    },
-    modalVehName: {
-        fontSize: 14,
-        fontFamily: FONT_FAMILIES.sansBold,
-        fontWeight: '700',
-    },
-    modalVehPlate: {
-        fontSize: 12,
-        fontFamily: FONT_FAMILIES.sansMedium,
-        fontWeight: '500',
-        marginTop: 2,
-    },
-    modalCheckBadge: {
-        width: 24,
-        height: 24,
-        borderRadius: RADIUS.circle,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+    socRow: { flexDirection: 'row', alignItems: 'flex-end' },
+    soc: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 68, lineHeight: 72, letterSpacing: -3.5, color: '#0B0B0F' },
+    socPct: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 26, marginBottom: 10, marginLeft: 2, color: '#0B0B0F' },
+    eta: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 15, color: '#0B0B0F' },
+    bar: { height: 10, borderRadius: 5, marginTop: 8, marginBottom: 6, backgroundColor: 'rgba(11,11,15,0.12)', justifyContent: 'center' },
+    barFill: { height: 10, borderRadius: 5, backgroundColor: '#0B0B0F' },
+    barTick: { position: 'absolute', width: 3, height: 18, borderRadius: 2, backgroundColor: '#0B0B0F', marginLeft: -1.5 },
+    chart: { flexDirection: 'row', alignItems: 'flex-end', height: 120, gap: 6, marginTop: 14 },
+    chartCol: { flex: 1, height: '100%', justifyContent: 'flex-end', alignItems: 'center' },
+    chartBar: { width: '100%', borderRadius: 6 },
+    chartLbl: { fontFamily: FONT_FAMILIES.medium, fontSize: 9, marginTop: 4 },
+    carRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 10 },
+    carName: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 16 },
+    carImgWrap: { width: 110, height: 60, borderRadius: 12, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+    carImg: { width: 104, height: 56 },
+    toggle: { width: 48, height: 28, borderRadius: 14, padding: 3, justifyContent: 'center' },
+    knob: { width: 22, height: 22, borderRadius: 11 },
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end', padding: 12 },
+    modal: { borderRadius: 24, padding: 20 },
+    modalHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+    modalTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 22, letterSpacing: -0.5 },
 });
