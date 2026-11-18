@@ -40,7 +40,7 @@ import { DEFAULT_MAP_FILTERS, MapFilterSheet, MapFilterState, countMapFilters, s
 import { tripPlannerService } from '../../services/api/tripPlannerService';
 import { buildRouteOptionCoordinates, getRouteCorridorNames } from '../../utils/tripRoutes';
 import { PulseButton } from '../../components/pulse/PulseKit';
-import { CardChip, CardField, SkinCard, SKINS, CardSkin } from '../../components/stack/StackKit';
+import { CardField, SkinCard, SKINS, CardSkin } from '../../components/stack/StackKit';
 import { formatRupees } from '../../utils/pulse';
 
 type RouteOption = {
@@ -432,7 +432,6 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                                         >
                                             <View style={styles.payPad}>
                                                 <View style={styles.payTop}>
-                                                    <CardChip tone={skin === 'ink' ? 'silver' : 'gold'} />
                                                     <View style={styles.payBrandRow}>
                                                         {sel ? <Check size={16} color={sk.fg} strokeWidth={3} /> : null}
                                                         <ThemedText style={[styles.payBrand, { color: sk.fg }]}>{r.tag.toUpperCase()}</ThemedText>
@@ -665,7 +664,7 @@ const styles = StyleSheet.create({
     filterChipText: { fontFamily: FONT_FAMILIES.bold, fontSize: 11 },
     payCard: { width: 272, height: 172, flex: 0 },
     payPad: { flex: 1, padding: 16 },
-    payTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    payTop: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' },
     payBrandRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     payBrand: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 12, letterSpacing: 1.6 },
     payNumber: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18, letterSpacing: 2, marginTop: 16 },
