@@ -33,7 +33,7 @@ export const GlassCard = NeoCard;
 const styles = StyleSheet.create({
     card: {
         borderRadius: RADIUS.cardLg,
-        padding: 18,
+        padding: 16,
         borderWidth: 0,
     },
     gradientBorder: {
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     innerContainer: {
         flex: 1,
         borderRadius: RADIUS.cardLg,
-        padding: 18,
+        padding: 16,
         borderWidth: 0,
     }
 });

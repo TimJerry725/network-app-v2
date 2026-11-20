@@ -13,11 +13,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft } from '../sf/icons';
 import { ThemedText } from '../ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { FONT_FAMILIES } from '../../constants/Tokens';
 import { Squish } from '../pulse/PulseKit';
+import { GlassButton } from '../glass/Glass';
 
 try {
     if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -44,10 +45,10 @@ type SkinDef = {
 
 // Four real skins: violet (money, info), lime (live, go), ink (busy, dark), paper (car, receipts).
 // The older names stay as aliases so nothing breaks, but they all resolve to those four.
-const SKIN_VIOLET: SkinDef = { colors: ['#7B5CFF', '#5B3DF0', '#3B23B8'], fg: '#FFFFFF', sub: 'rgba(255,255,255,0.75)', line: 'rgba(255,255,255,0.16)' };
-const SKIN_LIME: SkinDef = { colors: ['#C2B5FF', '#A996FF', '#8F78FF'], fg: '#0B0B0F', sub: 'rgba(11,11,15,0.65)', line: 'rgba(11,11,15,0.10)' };
-const SKIN_INK: SkinDef = { colors: ['#22222C', '#15151C', '#0B0B0F'], fg: '#FFFFFF', sub: 'rgba(255,255,255,0.6)', line: 'rgba(255,255,255,0.07)' };
-const SKIN_PAPER: SkinDef = { colors: ['#FFFFFF', '#FBF9F5', '#F1ECE3'], fg: '#0B0B0F', sub: '#5F5C66', line: 'rgba(11,11,15,0.06)' };
+const SKIN_VIOLET: SkinDef = { colors: ['#007AFF', '#0A60D6', '#084BA8'], fg: '#FFFFFF', sub: 'rgba(255,255,255,0.75)', line: 'rgba(255,255,255,0.16)' };
+const SKIN_LIME: SkinDef = { colors: ['#4DA3FF', '#007AFF', '#0A60D6'], fg: '#FFFFFF', sub: 'rgba(255,255,255,0.8)', line: 'rgba(255,255,255,0.16)' };
+const SKIN_INK: SkinDef = { colors: ['#2C2C2E', '#1C1C1E', '#000000'], fg: '#FFFFFF', sub: 'rgba(255,255,255,0.6)', line: 'rgba(255,255,255,0.07)' };
+const SKIN_PAPER: SkinDef = { colors: ['#FFFFFF', '#FFFFFF'], fg: '#000000', sub: '#6C6C70', line: 'rgba(0,0,0,0.06)' };
 
 export const SKINS: Record<CardSkin, SkinDef> = {
     violet: SKIN_VIOLET,
@@ -85,7 +86,7 @@ export function SkinCard({
     style,
     onPress,
     accessibilityLabel,
-    pattern = 'arcs',
+    pattern = 'none',
 }: {
     skin: CardSkin;
     children: React.ReactNode;
@@ -301,7 +302,7 @@ export function FanStack<T>({
                         <Pressable accessibilityRole="button" accessibilityState={{ expanded: isOpen }} onPress={() => toggle(key)}>
                             <View style={{ height: cardHeight }}>{renderCard(item, isOpen)}</View>
                         </Pressable>
-                        {isOpen && renderDetail ? <View style={{ marginTop: 10, marginBottom: 14 }}>{renderDetail(item)}</View> : null}
+                        {isOpen && renderDetail ? <View style={{ marginTop: 8, marginBottom: 16 }}>{renderDetail(item)}</View> : null}
                     </View>
                 );
             })}
@@ -327,13 +328,9 @@ export function StackHeader({
         <View style={styles.header}>
             <View style={styles.headerRow}>
                 {onBack ? (
-                    <Squish
-                        onPress={onBack}
-                        accessibilityLabel="Back"
-                        style={[styles.iconBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                    >
-                        <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
-                    </Squish>
+                    <GlassButton label="Back" size={48} onPress={onBack}>
+                        <ChevronLeft size={22} color={colors.text} strokeWidth={2.5} />
+                    </GlassButton>
                 ) : (
                     <View />
                 )}
@@ -358,18 +355,9 @@ export function IconBtn({
 }) {
     const { colors } = useAppTheme();
     return (
-        <Squish
-            onPress={onPress}
-            accessibilityLabel={label}
-            style={[
-                styles.iconBtn,
-                active
-                    ? { backgroundColor: colors.lime, borderColor: colors.lime }
-                    : { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-        >
+        <GlassButton label={label} size={48} onPress={onPress} tint={active ? colors.primary : undefined}>
             {children}
-        </Squish>
+        </GlassButton>
     );
 }
 
@@ -396,12 +384,12 @@ export function Chip({
             style={[
                 styles.chipPill,
                 active
-                    ? { backgroundColor: colors.text, borderColor: colors.text }
-                    : { backgroundColor: colors.surface, borderColor: colors.border },
+                    ? { backgroundColor: colors.primary, borderColor: colors.primary }
+                    : { backgroundColor: colors.surface, borderColor: 'transparent' },
             ]}
         >
             {icon}
-            <ThemedText style={[styles.chipPillText, { color: active ? colors.background : colors.text }]}>{label}</ThemedText>
+            <ThemedText style={[styles.chipPillText, { color: active ? '#FFFFFF' : colors.text }]}>{label}</ThemedText>
         </Pressable>
     );
 }
@@ -417,7 +405,7 @@ export function Segmented<T extends string>({
 }) {
     const { colors } = useAppTheme();
     return (
-        <View style={[styles.segment, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={[styles.segment, { backgroundColor: 'rgba(118,118,128,0.16)' }]}>
             {options.map((o) => {
                 const active = o.value === value;
                 return (
@@ -429,9 +417,9 @@ export function Segmented<T extends string>({
                             tap();
                             onChange(o.value);
                         }}
-                        style={[styles.segmentItem, active && { backgroundColor: colors.lime }]}
+                        style={[styles.segmentItem, active && { backgroundColor: colors.surface, shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 }]}
                     >
-                        <ThemedText style={[styles.segmentText, { color: active ? '#0B0B0F' : colors.textMuted }]}>
+                        <ThemedText style={[styles.segmentText, { color: active ? colors.text : colors.textMuted }]}>
                             {o.label}
                         </ThemedText>
                     </Pressable>
@@ -460,39 +448,39 @@ export const stackStyles = StyleSheet.create({
     bigNumber: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 40, lineHeight: 46, letterSpacing: -1.5 },
     cardTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 22, lineHeight: 27, letterSpacing: -0.6 },
     cardSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 13, lineHeight: 18 },
-    mono: { fontFamily: FONT_FAMILIES.bold, fontSize: 14, letterSpacing: 2.2 },
-    sectionLabel: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 13, letterSpacing: 1.2, textTransform: 'uppercase' },
+    mono: { fontFamily: FONT_FAMILIES.bold, fontSize: 14 },
+    sectionLabel: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 13 },
 });
 
 const styles = StyleSheet.create({
-    card: { borderRadius: 26, overflow: 'hidden', flex: 1 },
+    card: { borderRadius: 24, overflow: 'hidden', flex: 1 },
     arc: { position: 'absolute', borderRadius: 999, borderWidth: 1.5 },
     stripe: { position: 'absolute', top: -60, width: 18, height: 420 },
     chip: { width: 40, height: 30, borderRadius: 7, overflow: 'hidden' },
     chipLineH: { position: 'absolute', left: 0, right: 0, height: 1 },
     chipLineV: { position: 'absolute', top: 0, bottom: 0, left: 19, width: 1 },
-    dots: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginTop: 12 },
+    dots: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 12 },
     dot: { height: 6, borderRadius: 3 },
     dotsMore: { fontFamily: FONT_FAMILIES.bold, fontSize: 11, marginLeft: 4 },
-    header: { marginBottom: 14 },
+    header: { marginBottom: 16 },
     headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 44 },
     headerRight: { flexDirection: 'row', gap: 8 },
-    eyebrow: { fontFamily: FONT_FAMILIES.bold, fontSize: 13, marginTop: 14, letterSpacing: 0.3 },
-    title: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 34, lineHeight: 40, letterSpacing: -1.4, marginTop: 2 },
+    eyebrow: { fontSize: 15, fontWeight: '600', marginTop: 16 },
+    title: { fontSize: 34, fontWeight: '800', lineHeight: 42, letterSpacing: -0.8, marginTop: 4 },
     iconBtn: { width: 44, height: 44, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     chipPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
         height: 38,
-        paddingHorizontal: 14,
+        paddingHorizontal: 16,
         borderRadius: 19,
         borderWidth: 1,
     },
     chipPillText: { fontFamily: FONT_FAMILIES.bold, fontSize: 13 },
-    segment: { flexDirection: 'row', borderRadius: 16, borderWidth: 1, padding: 4 },
-    segmentItem: { flex: 1, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
+    segment: { flexDirection: 'row', borderRadius: 14, padding: 4 },
+    segmentItem: { flex: 1, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
     segmentText: { fontFamily: FONT_FAMILIES.bold, fontSize: 13 },
-    fieldLabel: { fontFamily: FONT_FAMILIES.bold, fontSize: 9.5, letterSpacing: 1.2, textTransform: 'uppercase' },
-    fieldValue: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 15, marginTop: 2 },
+    fieldLabel: { fontFamily: FONT_FAMILIES.bold, fontSize: 11 },
+    fieldValue: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 15, marginTop: 2.0 },
 });

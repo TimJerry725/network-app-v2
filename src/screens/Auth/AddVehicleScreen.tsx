@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, TextInput, TextInputInstance, View, useWindowDimensions } from 'react-native';
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, TextInputInstance, View, useWindowDimensions } from 'react-native';
+import { TextInput } from '../../components/ThemedTextInput';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import * as Haptics from 'expo-haptics';
-import { Car, Check, ChevronDown } from 'lucide-react-native';
+import { Car, Check, ChevronDown } from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { AuthShell, authStyles } from '../../components/auth/AuthShell';
@@ -56,7 +57,7 @@ function Dropdown({
                 onPress={onToggle}
                 style={[
                     styles.select,
-                    { backgroundColor: colors.surface, borderColor: open ? colors.violet : value ? colors.violet : colors.border, opacity: disabled ? 0.5 : 1 },
+                    { backgroundColor: colors.surface, borderColor: open ? colors.primary : value ? colors.primary : colors.border, opacity: disabled ? 0.5 : 1 },
                 ]}
             >
                 <ThemedText style={[styles.selectText, { color: value ? colors.text : colors.textSoft }]} numberOfLines={1}>
@@ -83,7 +84,7 @@ function Dropdown({
                                     ]}
                                 >
                                     <ThemedText style={[styles.optionText, { color: colors.text }]}>{o}</ThemedText>
-                                    {active ? <Check size={16} color={colors.violet} strokeWidth={3} /> : null}
+                                    {active ? <Check size={16} color={colors.primary} strokeWidth={3} /> : null}
                                 </Pressable>
                             );
                         })}
@@ -252,8 +253,8 @@ export default function AddVehicleScreen({ navigation }: any) {
             />
 
             <View style={styles.rangeHead}>
-                <ThemedText style={[authStyles.label, { color: colors.text, marginBottom: 0, marginTop: 0 }]}>Range *</ThemedText>
-                <View style={[styles.rangeTag, { backgroundColor: colors.violet }]}>
+                <ThemedText style={[authStyles.label, { color: colors.text, marginBottom: 0.0, marginTop: 0.0 }]}>Range *</ThemedText>
+                <View style={[styles.rangeTag, { backgroundColor: colors.primary }]}>
                     <ThemedText style={styles.rangeTagText}>{range} km</ThemedText>
                 </View>
             </View>
@@ -265,9 +266,9 @@ export default function AddVehicleScreen({ navigation }: any) {
                     min={100}
                     max={700}
                     step={5}
-                    selectedStyle={{ backgroundColor: colors.violet }}
+                    selectedStyle={{ backgroundColor: colors.primary }}
                     unselectedStyle={{ backgroundColor: colors.surfaceMuted }}
-                    markerStyle={{ backgroundColor: colors.violet, width: 26, height: 26, borderRadius: 13, borderWidth: 3, borderColor: isDark ? '#0B0B0F' : '#FFFFFF' }}
+                    markerStyle={{ backgroundColor: colors.primary, width: 26, height: 26, borderRadius: 13, borderWidth: 3, borderColor: isDark ? '#0B0B0F' : '#FFFFFF' }}
                     containerStyle={{ height: 40 }}
                     trackStyle={{ height: 6, borderRadius: 3 }}
                 />
@@ -281,7 +282,7 @@ export default function AddVehicleScreen({ navigation }: any) {
                     placeholder="Enter registration number"
                     placeholderTextColor={colors.textSoft}
                     autoCapitalize="characters"
-                    style={[authStyles.input, { color: colors.text, backgroundColor: colors.surface, borderColor: tempReg.length >= 4 ? colors.violet : colors.border }]}
+                    style={[authStyles.input, { color: colors.text, backgroundColor: colors.surface, borderColor: tempReg.length >= 4 ? colors.primary : colors.border }]}
                     accessibilityLabel="Temporary registration number"
                 />
             ) : (
@@ -313,7 +314,7 @@ export default function AddVehicleScreen({ navigation }: any) {
                 </View>
             )}
             <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: temp }} onPress={() => { tap(); setTemp((t) => !t); }} style={styles.tempRow}>
-                <View style={[styles.box, { borderColor: colors.border, backgroundColor: temp ? colors.violet : 'transparent' }]}>
+                <View style={[styles.box, { borderColor: colors.border, backgroundColor: temp ? colors.primary : 'transparent' }]}>
                     {temp ? <Check size={13} color="#FFFFFF" strokeWidth={3} /> : null}
                 </View>
                 <ThemedText style={[styles.tempText, { color: colors.textMuted }]}>Temporary or Bharat (BH) registration</ThemedText>
@@ -324,7 +325,7 @@ export default function AddVehicleScreen({ navigation }: any) {
                     <ThemedText style={[styles.defaultText, { color: colors.text }]}>Make this my default car</ThemedText>
                     <ThemedText style={[styles.defaultSub, { color: colors.textMuted }]}>Used to match chargers and plan trips</ThemedText>
                 </View>
-                <View style={[styles.toggle, { backgroundColor: isDefault ? colors.violet : colors.surfaceMuted }]}>
+                <View style={[styles.toggle, { backgroundColor: isDefault ? colors.primary : colors.surfaceMuted }]}>
                     <View style={[styles.knob, { backgroundColor: '#FFFFFF', transform: [{ translateX: isDefault ? 20 : 0 }] }]} />
                 </View>
             </Pressable>
@@ -336,32 +337,32 @@ const styles = StyleSheet.create({
     hero: { borderRadius: 28, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
     ghost: { position: 'absolute', top: 14, left: 12, right: 12, textAlign: 'center', fontFamily: FONT_FAMILIES.extraBold, color: '#EFEAE2', letterSpacing: -3 },
     heroLabel: { position: 'absolute', left: 16, bottom: 12 },
-    heroMake: { fontFamily: FONT_FAMILIES.bold, fontSize: 11.5, color: '#5F5C66', letterSpacing: 1.2, textTransform: 'uppercase' },
-    heroModel: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 20, color: '#0B0B0F', letterSpacing: -0.5 },
+    heroMake: { fontFamily: FONT_FAMILIES.bold, fontSize: 13, color: '#6C6C70' },
+    heroModel: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 20, color: '#000000', letterSpacing: -0.4 },
     empty: { alignItems: 'center', gap: 8 },
     emptyText: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 14 },
-    specs: { flexDirection: 'row', gap: 8, marginTop: 10 },
+    specs: { flexDirection: 'row', gap: 8, marginTop: 8 },
     spec: { flex: 1, borderRadius: 16, borderWidth: 1, padding: 12 },
     specV: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 15 },
-    specL: { fontFamily: FONT_FAMILIES.medium, fontSize: 11.5, marginTop: 2 },
+    specL: { fontFamily: FONT_FAMILIES.medium, fontSize: 11.5, marginTop: 2.0 },
     select: { height: 54, borderRadius: 16, borderWidth: 1.5, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
     selectText: { flex: 1, fontFamily: FONT_FAMILIES.semiBold, fontSize: 16 },
-    menu: { marginTop: 6, borderRadius: 16, borderWidth: 1, overflow: 'hidden' },
+    menu: { marginTop: 8, borderRadius: 16, borderWidth: 1, overflow: 'hidden' },
     option: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, paddingHorizontal: 16 },
     optionText: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 15 },
-    rangeHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 22 },
+    rangeHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24 },
     rangeTag: { paddingHorizontal: 12, height: 28, borderRadius: 10, justifyContent: 'center' },
     rangeTagText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 13, color: '#FFFFFF' },
     plate: { flexDirection: 'row', alignItems: 'center', height: 62, borderRadius: 14, borderWidth: 2, overflow: 'hidden' },
     plateStripe: { width: 30, height: '100%', backgroundColor: '#1F3FBF', alignItems: 'center', justifyContent: 'center' },
     plateStripeText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 9, color: '#FFFFFF', transform: [{ rotate: '-90deg' }], width: 40, textAlign: 'center' },
-    plateInput: { height: '100%', fontFamily: FONT_FAMILIES.extraBold, fontSize: 22, letterSpacing: 1, paddingHorizontal: 2 },
-    tempRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, minHeight: 36 },
+    plateInput: { height: '100%', fontFamily: FONT_FAMILIES.extraBold, fontSize: 22, letterSpacing: 1, paddingHorizontal: 2.0 },
+    tempRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, minHeight: 36 },
     box: { width: 22, height: 22, borderRadius: 7, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
     tempText: { fontFamily: FONT_FAMILIES.medium, fontSize: 13, flex: 1 },
-    defaultRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 20, padding: 14, borderRadius: 18, borderWidth: 1, minHeight: 64 },
+    defaultRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 20, padding: 16, borderRadius: 18, borderWidth: 1, minHeight: 64 },
     defaultText: { fontFamily: FONT_FAMILIES.bold, fontSize: 15 },
-    defaultSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginTop: 1 },
-    toggle: { width: 48, height: 28, borderRadius: 14, padding: 3, justifyContent: 'center' },
+    defaultSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginTop: 1.0 },
+    toggle: { width: 48, height: 28, borderRadius: 14, padding: 4, justifyContent: 'center' },
     knob: { width: 22, height: 22, borderRadius: 11 },
 });

@@ -18,7 +18,7 @@ import {
     ScanLine,
     SlidersHorizontal,
     Zap,
-} from 'lucide-react-native';
+} from '../../components/sf/icons';
 
 import { CredBadge } from '../../components/CredBadge';
 import { CredButton } from '../../components/CredButton';
@@ -68,12 +68,12 @@ function AnimatedToggleSwitch({
                 styles.toggleSwitchPod,
                 {
                     backgroundColor: active
-                        ? '#22D38A'
+                        ? '#34C759'
                         : isDark
                         ? '#1C1C24'
                         : '#E4E4EB',
                     borderColor: active
-                        ? '#22D38A'
+                        ? '#34C759'
                         : isDark
                         ? 'rgba(255, 255, 255, 0.12)'
                         : 'rgba(0, 0, 0, 0.1)',
@@ -323,10 +323,10 @@ export default function DashboardScreen({ navigation }: any) {
                                     width: `${selectedVehicle?.currentBattery ?? 62}%`,
                                     backgroundColor:
                                         (selectedVehicle?.currentBattery ?? 62) > 40
-                                            ? '#22D38A'
+                                            ? '#34C759'
                                             : (selectedVehicle?.currentBattery ?? 62) > 20
-                                            ? '#FFC83D'
-                                            : '#7B5CFF',
+                                            ? '#FF9500'
+                                            : '#007AFF',
                                 },
                             ]}
                         >
@@ -362,10 +362,10 @@ export default function DashboardScreen({ navigation }: any) {
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(34, 211, 138, 0.16)' : '#ECFDF5' }]}>
-                                <Cpu size={14} color="#22D38A" />
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(52, 199, 89, 0.16)' : '#ECFDF5' }]}>
+                                <Cpu size={14} color="#34C759" />
                             </View>
-                            <ThemedText style={[styles.podBadgeLabel, { color: '#22D38A' }]}>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#34C759' }]}>
                                 HEALTH
                             </ThemedText>
                         </View>
@@ -385,10 +385,10 @@ export default function DashboardScreen({ navigation }: any) {
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(2, 132, 199, 0.16)' : '#ECE7FF' }]}>
-                                <Gauge size={14} color="#5B3DF0" />
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(2, 132, 199, 0.16)' : '#E5F1FF' }]}>
+                                <Gauge size={14} color="#0A60D6" />
                             </View>
-                            <ThemedText style={[styles.podBadgeLabel, { color: '#5B3DF0' }]}>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#0A60D6' }]}>
                                 EFFICIENCY
                             </ThemedText>
                         </View>
@@ -408,10 +408,10 @@ export default function DashboardScreen({ navigation }: any) {
                         ]}
                     >
                         <View style={styles.podIconHeader}>
-                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(255, 200, 61, 0.16)' : '#FEF3C7' }]}>
-                                <Zap size={14} color="#FFC83D" fill="#FFC83D" />
+                            <View style={[styles.podIconBadge, { backgroundColor: isDark ? 'rgba(255, 149, 0, 0.16)' : '#FEF3C7' }]}>
+                                <Zap size={14} color="#FF9500" fill="#FF9500" />
                             </View>
-                            <ThemedText style={[styles.podBadgeLabel, { color: '#FFC83D' }]}>
+                            <ThemedText style={[styles.podBadgeLabel, { color: '#FF9500' }]}>
                                 TARIFF
                             </ThemedText>
                         </View>
@@ -930,7 +930,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: RADIUS.pill,
-        backgroundColor: '#7B5CFF',
+        backgroundColor: '#007AFF',
     },
     stationChargeBtnText: {
         fontSize: 11,

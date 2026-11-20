@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import * as Haptics from 'expo-haptics';
-import { ChevronLeft, BatteryCharging, ChevronRight, MapPin, SlidersHorizontal, Sparkles, Zap } from 'lucide-react-native';
+import { ChevronLeft, BatteryCharging, ChevronRight, MapPin, SlidersHorizontal, Sparkles, Zap } from '../../components/sf/icons';
 
 import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { ChademoIcon } from '../../components/ChademoIcon';

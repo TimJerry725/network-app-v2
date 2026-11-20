@@ -23,7 +23,7 @@ import {
     Sparkles,
     Tag,
     Zap,
-} from 'lucide-react-native';
+} from './sf/icons';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { RADIUS } from '../constants/Tokens';
 

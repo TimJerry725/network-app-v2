@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, Platform, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { BedDouble, Check, ChevronLeft, ChevronRight, Coffee, Plug, ShoppingBag, Sofa, Store, Utensils, Wifi, Bath, Zap } from 'lucide-react-native';
+import { BedDouble, Check, ChevronLeft, ChevronRight, Coffee, Plug, ShoppingBag, Sofa, Store, Utensils, Wifi, Bath, Zap } from './sf/icons';
 import { ThemedText } from './ThemedText';
 import { Ccs2Icon } from './Ccs2Icon';
 import { Type2Icon } from './Type2Icon';
@@ -96,7 +96,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
     {
         id: 'statiq',
         name: 'Statiq',
-        bgColor: '#FFC83D',
+        bgColor: '#FF9500',
         renderIcon: () => <Zap size={14} color="#FFFFFF" fill="#FFFFFF" />,
     },
     {
@@ -108,7 +108,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
     {
         id: 'chargezone',
         name: 'ChargeZone',
-        bgColor: '#22D38A',
+        bgColor: '#34C759',
         renderIcon: () => <Zap size={13} color="#FFFFFF" fill="#FFFFFF" />,
     },
     {
@@ -144,7 +144,7 @@ const INDIAN_CHARGER_BRANDS: BrandFilterItem[] = [
     {
         id: 'hpcl',
         name: 'HPCL EV Drive',
-        bgColor: '#DC2626',
+        bgColor: '#FF3B30',
         renderIcon: () => <ThemedText style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 10 }}>HP</ThemedText>,
     },
     {
@@ -334,6 +334,35 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
         setTempFilterCriteria((prev) => ({ ...prev, selectedBrands: isAllBrandsSelected ? [] : [...allBrandNames] }));
     };
 
+    const bottomBar = (onClear: () => void) => (
+        <View style={[styles.filterBottomBar, { paddingBottom: Math.max(insets.bottom, 16), backgroundColor: colors.background, borderTopColor: colors.border }]}>
+            <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Clear selection"
+                style={[styles.filterResetFull, { backgroundColor: colors.surface }]}
+                activeOpacity={0.85}
+                onPress={() => {
+                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    onClear();
+                }}
+            >
+                <ThemedText style={[styles.filterResetFullText, { color: colors.text }]}>Clear</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Done"
+                style={styles.filterSaveFull}
+                activeOpacity={0.85}
+                onPress={() => {
+                    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                    setFilterSheetView('main');
+                }}
+            >
+                <ThemedText style={styles.filterSaveFullText}>Done</ThemedText>
+            </TouchableOpacity>
+        </View>
+    );
+
     return (
             <Modal
                 visible={visible}
@@ -397,9 +426,8 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                         style={[
                                             styles.segmentedControl,
                                             {
-                                                backgroundColor: isDark ? '#1C1C24' : '#F2F2F6',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#060608' : '#D0D0D8',
+                                                backgroundColor: isDark ? 'rgba(118,118,128,0.24)' : 'rgba(118,118,128,0.12)',
+                                                borderColor: 'transparent',
                                             },
                                         ]}
                                     >
@@ -413,7 +441,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                         isSelected && [
                                                             styles.segmentOptionSelected,
                                                             {
-                                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
+                                                                backgroundColor: colors.primary,
                                                             },
                                                         ],
                                                     ]}
@@ -440,7 +468,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                             styles.segmentText,
                                                             {
                                                                 color: isSelected
-                                                                    ? (isDark ? '#000000' : '#FFFFFF')
+                                                                    ? ('#FFFFFF')
                                                                     : colors.textMuted,
                                                             },
                                                             isSelected && styles.segmentTextSelected,
@@ -468,8 +496,8 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                     {visibleConnectors.map((item) => {
                                         const selected = isConnectorSelected(item);
                                         const iconColor = selected
-                                            ? (isDark ? '#FFFFFF' : '#000000')
-                                            : (isDark ? '#8E8E93' : '#4B4B52');
+                                            ? (colors.primary)
+                                            : (colors.textMuted);
                                         return (
                                             <TouchableOpacity
                                                 key={item.id}
@@ -479,18 +507,14 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                     styles.plugInlineCard,
                                                     selected
                                                         ? {
-                                                              backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                              borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                              backgroundColor: isDark ? 'rgba(10,132,255,0.2)' : 'rgba(0,122,255,0.1)',
+                                                              borderColor: colors.primary,
                                                               borderWidth: 2,
-                                                              borderBottomWidth: 4.5,
-                                                              borderBottomColor: isDark ? '#9E9EA8' : '#000000',
                                                           }
                                                         : {
-                                                              backgroundColor: isDark ? '#121216' : '#F6F3EE',
-                                                              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                              borderWidth: 1.5,
-                                                              borderBottomWidth: 3,
-                                                              borderBottomColor: isDark ? '#060608' : '#D0D0D8',
+                                                              backgroundColor: colors.surface,
+                                                              borderColor: 'transparent',
+                                                              borderWidth: 2,
                                                           },
                                                 ]}
                                                 onPress={() => {
@@ -506,8 +530,8 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                         styles.plugCardCheckmarkBadge,
                                                         selected
                                                             ? {
-                                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                                  backgroundColor: colors.primary,
+                                                                  borderColor: colors.primary,
                                                               }
                                                             : {
                                                                   backgroundColor: 'transparent',
@@ -515,7 +539,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                               },
                                                     ]}
                                                 >
-                                                    {selected && <Check size={11} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={3} />}
+                                                    {selected && <Check size={11} color={'#FFFFFF'} strokeWidth={3} />}
                                                 </View>
 
                                                 {/* Connector SVG Icon */}
@@ -540,7 +564,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                         {
                                                             backgroundColor: isDark
                                                                 ? 'rgba(255, 255, 255, 0.14)'
-                                                                : (selected ? '#000000' : '#E5E5EA'),
+                                                                : (selected ? colors.primary : 'rgba(118,118,128,0.14)'),
                                                         },
                                                     ]}
                                                 >
@@ -550,7 +574,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                             {
                                                                 color: isDark
                                                                     ? '#FFFFFF'
-                                                                    : (selected ? '#FFFFFF' : '#000000'),
+                                                                    : (selected ? '#FFFFFF' : colors.text),
                                                             },
                                                         ]}
                                                     >
@@ -567,10 +591,9 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                     style={[
                                         styles.filterNavCard,
                                         {
-                                            backgroundColor: isDark ? '#181820' : '#F6F3EE',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#060608' : '#D0D0D8',
-                                            marginTop: 10,
+                                            backgroundColor: colors.surface,
+                                            borderColor: 'transparent',
+                                            marginTop: 8,
                                         },
                                     ]}
                                     activeOpacity={0.82}
@@ -590,30 +613,30 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
 
                                     {/* Overlapping Brand Logo Avatars */}
                                     <View style={styles.brandLogosCluster}>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF', borderColor: isDark ? '#181820' : '#F6F3EE' }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFFFFF', borderColor: colors.surface }]}>
                                             <Zap size={9} color="#000" fill="#000" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#005AA9', borderColor: colors.surface, marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>EZ</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#009A44', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#009A44', borderColor: colors.surface, marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 8 }]}>bp</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FFC83D', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF9500', borderColor: colors.surface, marginLeft: -8 }]}>
                                             <Zap size={10} color="#FFF" fill="#FFF" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#2563EB', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#2563EB', borderColor: colors.surface, marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>Z</ThemedText>
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#22D38A', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#34C759', borderColor: colors.surface, marginLeft: -8 }]}>
                                             <Zap size={9} color="#FFF" fill="#FFF" />
                                         </View>
-                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: -8 }]}>
+                                        <View style={[styles.brandAvatar, { backgroundColor: '#FF5722', borderColor: colors.surface, marginLeft: -8 }]}>
                                             <ThemedText style={[styles.brandAvatarText, { fontSize: 9 }]}>A</ThemedText>
                                         </View>
                                     </View>
 
-                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
+                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? 'rgba(118,118,128,0.3)' : 'rgba(118,118,128,0.14)' }]}>
                                         <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
                                     </View>
                                 </TouchableOpacity>
@@ -623,10 +646,9 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                     style={[
                                         styles.filterNavCard,
                                         {
-                                            backgroundColor: isDark ? '#181820' : '#F6F3EE',
-                                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                            borderBottomColor: isDark ? '#060608' : '#D0D0D8',
-                                            marginTop: 10,
+                                            backgroundColor: colors.surface,
+                                            borderColor: 'transparent',
+                                            marginTop: 8,
                                         },
                                     ]}
                                     activeOpacity={0.82}
@@ -647,13 +669,13 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                         {AMENITY_ITEMS.slice(0, 4).map((a, i) => (
                                             <View
                                                 key={a.id}
-                                                style={[styles.brandAvatar, { backgroundColor: isDark ? '#262630' : '#ECECF0', borderColor: isDark ? '#181820' : '#F6F3EE', marginLeft: i === 0 ? 0 : -8 }]}
+                                                style={[styles.brandAvatar, { backgroundColor: isDark ? 'rgba(118,118,128,0.3)' : 'rgba(118,118,128,0.14)', borderColor: colors.surface, marginLeft: i === 0 ? 0 : -8 }]}
                                             >
-                                                {a.renderIcon(isDark ? '#FFFFFF' : '#000000', 11)}
+                                                {a.renderIcon(colors.primary, 11)}
                                             </View>
                                         ))}
                                     </View>
-                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? '#262630' : '#ECECF0' }]}>
+                                    <View style={[styles.navChevronCircle, { backgroundColor: isDark ? 'rgba(118,118,128,0.3)' : 'rgba(118,118,128,0.14)' }]}>
                                         <ChevronRight size={15} color={colors.text} strokeWidth={2.5} />
                                     </View>
                                 </TouchableOpacity>
@@ -711,9 +733,8 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                             style={[
                                                 styles.sheetBackCircleBtn,
                                                 {
-                                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                                    borderBottomColor: isDark ? '#060608' : '#C8C8D0',
+                                                    backgroundColor: colors.surface,
+                                                    borderColor: 'transparent',
                                                 },
                                             ]}
                                             activeOpacity={0.8}
@@ -728,40 +749,38 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                             Select Amenities
                                         </ThemedText>
                                     </View>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.filterSaveBtn,
-                                            {
-                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
-                                            },
-                                        ]}
-                                        activeOpacity={0.82}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                                            setFilterSheetView('main');
-                                        }}
-                                    >
-                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
-                                            DONE
-                                        </ThemedText>
-                                    </TouchableOpacity>
                                 </View>
 
                                 <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]} />
 
-                                <ThemedText style={[styles.subModalSubtitle, { color: colors.textMuted }]}>
-                                    Show chargers with these facilities
-                                </ThemedText>
+                                <View style={styles.brandActionBar}>
+                                    <ThemedText style={[styles.brandCountText, { color: colors.textMuted }]}>
+                                        {tempFilterCriteria.amenities.length === 0
+                                            ? 'Show chargers with these facilities'
+                                            : `${tempFilterCriteria.amenities.length} of ${AMENITY_ITEMS.length} selected`}
+                                    </ThemedText>
+                                    <TouchableOpacity
+                                        activeOpacity={0.7}
+                                        onPress={() =>
+                                            setTempFilterCriteria((prev) => ({
+                                                ...prev,
+                                                amenities: prev.amenities.length === AMENITY_ITEMS.length ? [] : AMENITY_ITEMS.map((c) => c.id),
+                                            }))
+                                        }
+                                    >
+                                        <ThemedText style={[styles.brandDeselectText, { color: colors.primary }]}>
+                                            {tempFilterCriteria.amenities.length === AMENITY_ITEMS.length ? 'Deselect all' : 'Select all'}
+                                        </ThemedText>
+                                    </TouchableOpacity>
+                                </View>
 
                                 <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
 <View style={styles.plugFilterCardsGrid}>
                                     {AMENITY_ITEMS.map((item) => {
                                         const selected = isAmenitySelected(item);
                                         const iconColor = selected
-                                            ? (isDark ? '#FFFFFF' : '#000000')
-                                            : (isDark ? '#8E8E93' : '#4B4B52');
+                                            ? (colors.primary)
+                                            : (colors.textMuted);
                                         return (
                                             <TouchableOpacity
                                                 key={item.id}
@@ -770,18 +789,14 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                     styles.plugFilterCard,
                                                     selected
                                                         ? {
-                                                              backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                              borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                              backgroundColor: isDark ? 'rgba(10,132,255,0.2)' : 'rgba(0,122,255,0.1)',
+                                                              borderColor: colors.primary,
                                                               borderWidth: 2,
-                                                              borderBottomWidth: 4.5,
-                                                              borderBottomColor: isDark ? '#9E9EA8' : '#000000',
                                                           }
                                                         : {
-                                                              backgroundColor: isDark ? '#121216' : '#F6F3EE',
-                                                              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                              borderWidth: 1.5,
-                                                              borderBottomWidth: 3,
-                                                              borderBottomColor: isDark ? '#060608' : '#D0D0D8',
+                                                              backgroundColor: colors.surface,
+                                                              borderColor: 'transparent',
+                                                              borderWidth: 2,
                                                           },
                                                 ]}
                                                 onPress={() => {
@@ -797,8 +812,8 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                         styles.plugCardCheckmarkBadge,
                                                         selected
                                                             ? {
-                                                                  backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                                  borderColor: isDark ? '#FFFFFF' : '#000000',
+                                                                  backgroundColor: colors.primary,
+                                                                  borderColor: colors.primary,
                                                               }
                                                             : {
                                                                   backgroundColor: 'transparent',
@@ -806,7 +821,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                               },
                                                     ]}
                                                 >
-                                                    {selected && <Check size={11} color={isDark ? '#000000' : '#FFFFFF'} strokeWidth={3} />}
+                                                    {selected && <Check size={11} color={'#FFFFFF'} strokeWidth={3} />}
                                                 </View>
 
                                                 {/* Connector SVG Icon */}
@@ -829,52 +844,7 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                 </View>
 </ScrollView>
 
-                                <View style={styles.plugsQuickBar}>
-                                    <TouchableOpacity
-                                        activeOpacity={0.8}
-                                        style={[
-                                            styles.quickBarBtn,
-                                            {
-                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#060608' : '#C8C8D0',
-                                            },
-                                        ]}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                            setTempFilterCriteria((prev) => ({
-                                                ...prev,
-                                                amenities: AMENITY_ITEMS.map((c) => c.id),
-                                            }));
-                                        }}
-                                    >
-                                        <ThemedText style={[styles.plugsQuickActionText, { color: colors.text }]}>
-                                            SELECT ALL
-                                        </ThemedText>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        activeOpacity={0.8}
-                                        style={[
-                                            styles.quickBarBtn,
-                                            {
-                                                backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                                                borderBottomColor: isDark ? '#060608' : '#C8C8D0',
-                                            },
-                                        ]}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                            setTempFilterCriteria((prev) => ({
-                                                ...prev,
-                                                amenities: [],
-                                            }));
-                                        }}
-                                    >
-                                        <ThemedText style={[styles.plugsQuickActionText, { color: colors.textMuted }]}>
-                                            CLEAR ALL
-                                        </ThemedText>
-                                    </TouchableOpacity>
-                                </View>
+                                {bottomBar(() => setTempFilterCriteria((prev) => ({ ...prev, amenities: [] })))}
                             </>
                         )}
 
@@ -887,9 +857,8 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                             style={[
                                                 styles.sheetBackCircleBtn,
                                                 {
-                                                    backgroundColor: isDark ? '#1C1C24' : '#FFFFFF',
-                                                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
-                                                    borderBottomColor: isDark ? '#060608' : '#C8C8D0',
+                                                    backgroundColor: colors.surface,
+                                                    borderColor: 'transparent',
                                                 },
                                             ]}
                                             activeOpacity={0.8}
@@ -904,25 +873,6 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                             Select Chargers
                                         </ThemedText>
                                     </View>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.filterSaveBtn,
-                                            {
-                                                backgroundColor: isDark ? '#FFFFFF' : '#000000',
-                                                borderColor: isDark ? '#FFFFFF' : '#000000',
-                                                borderBottomColor: isDark ? '#A0A0A8' : '#333338',
-                                            },
-                                        ]}
-                                        activeOpacity={0.82}
-                                        onPress={() => {
-                                            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                                            setFilterSheetView('main');
-                                        }}
-                                    >
-                                        <ThemedText style={[styles.filterSaveBtnText, { color: isDark ? '#000000' : '#FFFFFF' }]}>
-                                            DONE
-                                        </ThemedText>
-                                    </TouchableOpacity>
                                 </View>
 
                                 <View style={[styles.filterSheetDivider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]} />
@@ -957,9 +907,8 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                 style={[
                                                     styles.brandItemCard,
                                                     {
-                                                        backgroundColor: isDark ? '#181820' : '#FFFFFF',
-                                                        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                                                        borderBottomColor: isDark ? '#060608' : '#D4D4DC',
+                                                        backgroundColor: colors.surface,
+                                                        borderColor: 'transparent',
                                                     },
                                                 ]}
                                                 activeOpacity={0.8}
@@ -984,15 +933,16 @@ export function MapFilterSheet({ visible, criteria, onClose, onApply }: Props) {
                                                     }}
                                                     trackColor={{
                                                         false: isDark ? '#33333E' : '#E2E8F0',
-                                                        true: isDark ? '#FFFFFF' : '#000000',
+                                                        true: colors.success,
                                                     }}
-                                                    thumbColor={selected ? (isDark ? '#000000' : '#FFFFFF') : '#FFFFFF'}
+                                                    thumbColor="#FFFFFF"
                                                     ios_backgroundColor={isDark ? '#33333E' : '#E2E8F0'}
                                                 />
                                             </TouchableOpacity>
                                         );
                                     })}
                                 </ScrollView>
+                                {bottomBar(() => setTempFilterCriteria((prev) => ({ ...prev, selectedBrands: [] })))}
                             </>
                         )}
                 </View>
@@ -1006,7 +956,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginTop: 8,
-        marginBottom: 10,
+        marginBottom: 8,
         paddingVertical: 4,
     },
     brandAvatar: {
@@ -1041,11 +991,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 10,
+        paddingVertical: 8,
         paddingHorizontal: 12,
         borderRadius: RADIUS.tile,
         borderWidth: 1.5,
-        borderBottomWidth: 3,
         marginBottom: 8,
     },
     brandItemLeft: {
@@ -1076,16 +1025,14 @@ const styles = StyleSheet.create({
     filterNavCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 14,
-        paddingHorizontal: 14,
-        borderRadius: RADIUS.card,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
+        paddingVertical: 16,
+        paddingHorizontal: 16,
+        borderRadius: 22,
     },
     filterNavSubtitle: {
         fontSize: 12,
         fontFamily: FONT_FAMILIES.medium,
-        marginTop: 2,
+        marginTop: 2.0,
     },
     filterNavTitle: {
         fontSize: 15,
@@ -1095,22 +1042,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 12,
-        marginTop: 14,
+        marginTop: 16,
         borderRadius: RADIUS.button,
         borderWidth: 1.5,
-        borderBottomWidth: 3,
     },
     filterResetText: {
         fontSize: 12,
         fontFamily: FONT_FAMILIES.extraBold,
-        color: '#DC2626',
+        color: '#FF3B30',
         letterSpacing: 0.8,
     },
     filterRowItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 10,
+        paddingVertical: 8,
     },
     filterRowLabel: {
         fontSize: 15,
@@ -1118,10 +1064,9 @@ const styles = StyleSheet.create({
     },
     filterSaveBtn: {
         paddingHorizontal: 20,
-        paddingVertical: 9,
+        paddingVertical: 8,
         borderRadius: RADIUS.button,
         borderWidth: 1.5,
-        borderBottomWidth: 3.5,
     },
     filterSaveBtnText: {
         fontSize: 12,
@@ -1136,12 +1081,12 @@ const styles = StyleSheet.create({
         paddingTop: 12,
         borderTopWidth: StyleSheet.hairlineWidth,
         flexDirection: 'row',
-        gap: 10,
+        gap: 8,
     },
     filterResetFull: {
         flex: 1,
-        height: 56,
-        borderRadius: 20,
+        height: 54,
+        borderRadius: 27,
         borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
@@ -1152,16 +1097,16 @@ const styles = StyleSheet.create({
     },
     filterSaveFull: {
         flex: 2,
-        height: 56,
-        borderRadius: 20,
-        backgroundColor: '#A996FF',
+        height: 54,
+        borderRadius: 27,
+        backgroundColor: '#007AFF',
         alignItems: 'center',
         justifyContent: 'center',
     },
     filterSaveFullText: {
         fontSize: 16,
         fontFamily: FONT_FAMILIES.extraBold,
-        color: '#0B0B0F',
+        color: '#FFFFFF',
     },
     filterSheetContainer: {
         borderTopLeftRadius: RADIUS.bottomSheet,
@@ -1171,20 +1116,19 @@ const styles = StyleSheet.create({
         paddingTop: 12,
     },
     filterSheetDivider: {
-        height: 1,
-        marginVertical: 14,
+        height: StyleSheet.hairlineWidth,
+        marginVertical: 12,
     },
     filterSheetHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 6,
+        paddingVertical: 8,
     },
     filterSheetTitle: {
-        fontSize: 18,
-        fontFamily: FONT_FAMILIES.bold,
-        letterSpacing: 0.5,
-        textTransform: 'uppercase',
+        fontSize: 28,
+        fontFamily: FONT_FAMILIES.extraBold,
+        letterSpacing: -0.6,
     },
     navChevronCircle: {
         width: 28,
@@ -1207,7 +1151,7 @@ const styles = StyleSheet.create({
     },
     plugFilterCard: {
         width: '48%',
-        borderRadius: RADIUS.card,
+        borderRadius: 22,
         paddingVertical: 16,
         paddingHorizontal: 12,
         alignItems: 'center',
@@ -1227,9 +1171,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     plugsInlineHeader: {
-        marginTop: 14,
-        marginBottom: 10,
-        gap: 2,
+        marginTop: 16,
+        marginBottom: 8,
+        gap: 2.0,
     },
     plugInlineCard: {
         paddingVertical: 12,
@@ -1243,11 +1187,11 @@ const styles = StyleSheet.create({
     },
     plugTypeChip: {
         paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingVertical: 4,
         borderRadius: RADIUS.chip,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 6,
+        marginTop: 8,
     },
     plugTypeChipText: {
         fontSize: 10,
@@ -1261,22 +1205,21 @@ const styles = StyleSheet.create({
     },
     plugsQuickBar: {
         flexDirection: 'row',
-        gap: 10,
+        gap: 8,
         marginTop: 8,
     },
     quickBarBtn: {
         flex: 1,
-        paddingVertical: 10,
+        paddingVertical: 8,
         borderRadius: RADIUS.button,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        borderBottomWidth: 3,
     },
     segmentOption: {
         flex: 1,
-        paddingVertical: 7,
-        borderRadius: RADIUS.chip,
+        paddingVertical: 8,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1289,11 +1232,9 @@ const styles = StyleSheet.create({
     },
     segmentedControl: {
         flexDirection: 'row',
-        borderRadius: RADIUS.button,
-        padding: 3,
-        borderWidth: 1.5,
-        borderBottomWidth: 3,
-        width: 140,
+        borderRadius: 12,
+        padding: 4,
+        width: 150,
     },
     sheetBackCircleBtn: {
         width: 36,
@@ -1302,12 +1243,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        borderBottomWidth: 3,
     },
     sheetHeaderLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 8,
     },
     sheetOverlay: {
         flex: 1,
@@ -1317,7 +1257,7 @@ const styles = StyleSheet.create({
     subModalSubtitle: {
         fontSize: 12,
         fontFamily: FONT_FAMILIES.medium,
-        marginBottom: 14,
+        marginBottom: 16,
     },
     segmentOptionSelected: {},
 });

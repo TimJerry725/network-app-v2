@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, TextInput, TextInputInstance, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInputInstance, View } from 'react-native';
+import { TextInput } from '../../components/ThemedTextInput';
 import * as Haptics from 'expo-haptics';
-import { LogIn } from 'lucide-react-native';
+import { LogIn } from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { AuthShell } from '../../components/auth/AuthShell';
@@ -76,7 +77,7 @@ export default function OtpScreen({ navigation, route }: any) {
                             key={i}
                             style={[
                                 styles.box,
-                                { backgroundColor: colors.surface, borderColor: error ? colors.error : active ? colors.violet : digit ? colors.text : colors.border },
+                                { backgroundColor: colors.surface, borderColor: error ? colors.error : active ? colors.primary : digit ? colors.text : colors.border },
                             ]}
                         >
                             <ThemedText style={[styles.digit, { color: colors.text }]}>{digit}</ThemedText>
@@ -110,7 +111,7 @@ export default function OtpScreen({ navigation, route }: any) {
             </View>
 
             <View style={styles.resendRow}>
-                <ThemedText style={[styles.hint, { color: colors.textMuted, marginTop: 0 }]}>Did not receive the code?</ThemedText>
+                <ThemedText style={[styles.hint, { color: colors.textMuted, marginTop: 0.0 }]}>Did not receive the code?</ThemedText>
                 <Pressable accessibilityRole="button" onPress={resend} disabled={left > 0} hitSlop={10}>
                     <ThemedText style={[styles.resend, { color: left > 0 ? colors.textSoft : colors.primary }]}>
                         {left > 0 ? `Resend in ${left}s` : 'Resend OTP'}
@@ -128,9 +129,9 @@ const styles = StyleSheet.create({
     hidden: { position: 'absolute', opacity: 0, width: 1, height: 1 },
     error: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13, marginTop: 12 },
     hint: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, marginTop: 12 },
-    demo: { marginTop: 16, borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, alignSelf: 'flex-start' },
+    demo: { marginTop: 16, borderRadius: 14, borderWidth: 1, paddingVertical: 8, paddingHorizontal: 16, alignSelf: 'flex-start' },
     demoText: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13 },
     demoCode: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 15, letterSpacing: 3 },
-    resendRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 22 },
+    resendRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 },
     resend: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 13.5 },
 });

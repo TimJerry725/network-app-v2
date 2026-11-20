@@ -1,41 +1,32 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {
-    Platform,
-    Pressable,
-    ScrollView,
-    ScrollViewInstance,
-    StyleSheet,
-    TextInput,
-    View,
-    useWindowDimensions,
-} from 'react-native';
+import { Animated, PanResponder, Platform, Pressable, ScrollView, ScrollViewInstance, StyleSheet, TextInputInstance, View, useWindowDimensions } from 'react-native';
+import { TextInput } from '../../components/ThemedTextInput';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
+import * as Haptics from 'expo-haptics';
 import {
-    Search,
-    SlidersHorizontal,
-    Map as MapIcon,
-    Layers,
-    LocateFixed,
-    CircleCheck,
-    Clock3,
-    Coffee,
-    X,
     Sparkles,
-    MapPinned,
-    Star,
-    Zap,
-} from 'lucide-react-native';
+    Mic,
+    X,
+    Tag,
+    CircleCheck,
+    CreditCard,
+    SlidersHorizontal,
+    LocateFixed,
+    ArrowUpRight,
+    Wifi,
+    ShoppingBag,
+    User,
+    Plug,
+} from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles } from '../../context/VehicleContext';
 import { useCharging } from '../../context/ChargingContext';
-import { useWallet } from '../../context/WalletContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { Station } from '../../constants/Stations';
-import { FONT_FAMILIES } from '../../constants/Tokens';
 import {
     DEFAULT_MAP_FILTERS,
     MapFilterSheet,
@@ -47,59 +38,50 @@ import { DcPinIcon } from '../../components/DcPinIcon';
 import { CarPinIcon } from '../../components/CarPinIcon';
 import { Ccs2Icon } from '../../components/Ccs2Icon';
 import { Type2Icon } from '../../components/Type2Icon';
-import {
-    CardChip,
-    Chip,
-    DeckDots,
-    IconBtn,
-    SkinCard,
-    SKINS,
-    SwipeDeck,
-    stackStyles,
-} from '../../components/stack/StackKit';
-import { StationCard } from '../../components/stack/StationCard';
-import { Squish } from '../../components/pulse/PulseKit';
-import { DEFAULT_REGION, distanceKm, greeting } from '../../utils/geo';
+import { Glass, GlassButton } from '../../components/glass/Glass';
+import { DEFAULT_REGION, distanceKm } from '../../utils/geo';
 import { allInPrice, formatRupees } from '../../utils/pulse';
 
+type QuickFilter = '' | 'CCS2' | 'Type 2' | 'Available';
 
-type QuickFilter = '' | 'CCS2' | 'Type 2' | 'Available' | '24/7' | 'Amenities';
-
-const CARD_W = 280;
-const CARD_GAP = 12;
 const NEARBY_KM = 25;
-const NEARBY_MAX = 10;
+const NEARBY_MAX = 12;
 
 const DARK_MAP_STYLE = [
-    { elementType: 'geometry', stylers: [{ color: '#15151C' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#8C8894' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#0B0B0F' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#262630' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0B0B0F' }] },
+    { elementType: 'geometry', stylers: [{ color: '#14161C' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#8E8E93' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#0B0C10' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#242730' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0B0C10' }] },
 ];
 
+function tap() {
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+}
+
+/**
+ * Home (iOS 27 design): full-screen map, glass search bar with Iris and mic, filter chips,
+ * wallet pill, coloured pins, and a glass bottom sheet with the nearby hubs.
+ */
 export default function HomeScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
-    const { width } = useWindowDimensions();
+    const { width: screenW } = useWindowDimensions();
     const { user, selectedVehicle } = useVehicles();
     const { activeSession } = useCharging();
-    const { rewardVolts } = useWallet();
     const { isFavorite } = useFavorites();
     const { stations: allStations, isLoading } = useIndiaChargingStations();
 
     const mapRef = useRef<MapView>(null);
-    const carouselRef = useRef<ScrollViewInstance>(null);
-    const [mode, setMode] = useState<'deck' | 'map'>('deck');
-    const [searchOpen, setSearchOpen] = useState(false);
+    const listRef = useRef<ScrollViewInstance>(null);
+    const searchRef = useRef<TextInputInstance>(null);
     const [search, setSearch] = useState('');
-    const [quick, setQuick] = useState<QuickFilter>('');
+    const [quick, setQuick] = useState<QuickFilter>('CCS2');
     const [criteria, setCriteria] = useState<MapFilterState>(DEFAULT_MAP_FILTERS);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [userLoc, setUserLoc] = useState<{ latitude: number; longitude: number } | null>(null);
-    const [deckIndex, setDeckIndex] = useState(0);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
 
-    // Locate the driver once (same behaviour as before: last known, then fresh fix)
     useEffect(() => {
         let mounted = true;
         (async () => {
@@ -111,7 +93,7 @@ export default function HomeScreen({ navigation }: any) {
                 const fix = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
                 if (fix && mounted) setUserLoc(fix.coords);
             } catch {
-                // Location is optional; distances fall back to the default region
+                // Location is optional
             }
         })();
         return () => {
@@ -128,375 +110,258 @@ export default function HomeScreen({ navigation }: any) {
                 if (!stationMatchesMapFilters(s, criteria)) return false;
                 if (quick === 'CCS2' || quick === 'Type 2') return s.connectors.some((c) => c.type === quick);
                 if (quick === 'Available') return s.connectors.some((c) => c.status === 'Available');
-                if (quick === '24/7') return s.openTime === '24/7';
-                if (quick === 'Amenities') return (s.amenities?.length ?? 0) > 0;
                 return true;
             })
             .map((s) => {
                 const d = distanceKm(ref.latitude, ref.longitude, s.latitude, s.longitude);
                 return { ...s, distanceKm: Number(d.toFixed(1)), etaMinutes: Math.max(3, Math.round(d * 1.6)) };
             });
-        const freeOf = (s: Station) =>
-            s.connectors.filter((c) => c.status === 'Available' && (quick === 'CCS2' || quick === 'Type 2' ? c.type === quick : true)).length;
-        // Home shows only nearby stations: within NEARBY_KM, at most NEARBY_MAX.
-        // If nothing is that close (or a search is active), fall back to the closest few.
         const byDistance = list.sort((a, b) => a.distanceKm - b.distanceKm);
         const close = byDistance.filter((s) => s.distanceKm <= NEARBY_KM);
         const nearby = (close.length && !q ? close : byDistance).slice(0, NEARBY_MAX);
-        return nearby.sort((a, b) => (quick ? freeOf(b) - freeOf(a) : 0) || a.distanceKm - b.distanceKm);
+        return nearby;
     }, [allStations, search, criteria, quick, userLoc]);
 
-    useEffect(() => {
-        if (deckIndex >= stations.length) setDeckIndex(0);
-    }, [stations.length, deckIndex]);
+    const selected = stations.find((s) => s.id === selectedId) ?? stations[0];
 
-    const current = stations[deckIndex];
-
-    // Keep the map in sync with the deck
     useEffect(() => {
-        if (mode !== 'map' || !current) return;
+        if (!selected) return;
         mapRef.current?.animateToRegion(
-            { latitude: current.latitude - 0.01, longitude: current.longitude, latitudeDelta: 0.05, longitudeDelta: 0.05 },
+            { latitude: selected.latitude - 0.012, longitude: selected.longitude, latitudeDelta: 0.06, longitudeDelta: 0.06 },
             450
         );
-    }, [mode, current?.id]);
-
-    // Keep the bottom carousel on the selected station (e.g. when a map pin is tapped)
-    useEffect(() => {
-        if (mode !== 'map') return;
-        carouselRef.current?.scrollTo({ x: deckIndex * (CARD_W + CARD_GAP), animated: true });
-    }, [deckIndex, mode]);
+    }, [selected?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const openStation = (s: Station) => navigation.navigate('StationDetails', { stationId: s.id, stationSnapshot: s });
-
     const filterCount = countMapFilters(criteria);
-    const quickChips: { id: QuickFilter; label: string; icon: React.ReactNode }[] = [
-        { id: 'CCS2', label: 'CCS2', icon: <Ccs2Icon size={15} color={quick === 'CCS2' ? colors.background : colors.text} /> },
-        { id: 'Type 2', label: 'Type 2', icon: <Type2Icon size={15} color={quick === 'Type 2' ? colors.background : colors.text} /> },
-        { id: 'Available', label: 'Free now', icon: <CircleCheck size={14} color={quick === 'Available' ? colors.background : colors.text} /> },
-        { id: '24/7', label: '24/7', icon: <Clock3 size={14} color={quick === '24/7' ? colors.background : colors.text} /> },
-        { id: 'Amenities', label: 'Amenities', icon: <Coffee size={14} color={quick === 'Amenities' ? colors.background : colors.text} /> },
+
+    const panelBg = isDark ? 'rgba(44,44,46,0.94)' : 'rgba(255,255,255,0.92)';
+    const TILE_W = Math.min(280, screenW - 64);
+    const NAV_H = insets.bottom + 96;
+
+    const chips: { id: QuickFilter; label: string; icon: (c: string) => React.ReactNode }[] = [
+        { id: 'CCS2', label: 'CCS2', icon: (c) => <Ccs2Icon size={16} color={c} /> },
+        { id: 'Type 2', label: 'Type 2', icon: (c) => <Type2Icon size={16} color={c} /> },
+        { id: 'Available', label: 'Available', icon: (c) => <CircleCheck size={16} color={quick === 'Available' ? c : colors.success} /> },
     ];
 
-    const header = (
-        <View style={{ paddingHorizontal: 16 }}>
-            <View style={styles.topRow}>
-                <Squish onPress={() => navigation.navigate('Profile')} accessibilityLabel="Open profile" style={[styles.avatar, { backgroundColor: colors.lime }]}>
-                    <ThemedText style={styles.avatarText}>{user.fullName.charAt(0)}</ThemedText>
-                </Squish>
-                <View style={{ flex: 1 }}>
-                    <ThemedText style={[styles.hello, { color: colors.textMuted }]}>{greeting()}</ThemedText>
-                    <ThemedText style={[styles.name, { color: colors.text }]} numberOfLines={1}>
-                        {user.fullName.split(' ')[0]}
-                    </ThemedText>
-                </View>
-                <IconBtn label="Search stations" active={searchOpen} onPress={() => setSearchOpen((v) => !v)}>
-                    <Search size={18} color={searchOpen ? '#0B0B0F' : colors.text} />
-                </IconBtn>
-                <IconBtn label={mode === 'deck' ? 'Show map' : 'Show cards'} onPress={() => setMode((m) => (m === 'deck' ? 'map' : 'deck'))}>
-                    {mode === 'deck' ? <MapIcon size={18} color={colors.text} /> : <Layers size={18} color={colors.text} />}
-                </IconBtn>
-            </View>
-
-            {searchOpen ? (
-                <View style={[styles.search, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <Search size={16} color={colors.textMuted} />
-                    <TextInput
-                        autoFocus
-                        value={search}
-                        onChangeText={setSearch}
-                        placeholder="Station, area or city"
-                        placeholderTextColor={colors.textSoft}
-                        style={[styles.searchInput, { color: colors.text }]}
-                        returnKeyType="search"
-                        accessibilityLabel="Search stations"
-                    />
-                    {search ? (
-                        <Pressable accessibilityRole="button" accessibilityLabel="Clear search" onPress={() => setSearch('')} hitSlop={10}>
-                            <X size={16} color={colors.textMuted} />
-                        </Pressable>
-                    ) : null}
-                </View>
-            ) : null}
-        </View>
-    );
-
-    const chips = (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-            <Chip
-                label={filterCount ? `Filters · ${filterCount}` : 'Filters'}
-                active={filterCount > 0}
-                onPress={() => setSheetOpen(true)}
-                icon={<SlidersHorizontal size={14} color={filterCount > 0 ? colors.background : colors.text} />}
-            />
-            {quickChips.map((c) => (
-                <Chip key={c.id} label={c.label} icon={c.icon} active={quick === c.id} onPress={() => setQuick((q) => (q === c.id ? '' : c.id))} />
-            ))}
-        </ScrollView>
-    );
-
-    const deck = stations.length ? (
-        <>
-            <SwipeDeck
-                data={stations}
-                index={deckIndex}
-                onIndexChange={setDeckIndex}
-                keyExtractor={(s) => s.id}
-                cardHeight={232}
-                renderCard={(s) => (
-                    <StationCard
-                        station={s}
-                        isFavorite={isFavorite(s.id)}
-                        vehicleConnector={selectedVehicle?.connectorType}
-                        onPress={() => openStation(s)}
-                    />
-                )}
-            />
-            <DeckDots count={stations.length} index={deckIndex} color={colors.text} />
-        </>
-    ) : (
-        <View style={[styles.empty, { borderColor: colors.border }]}>
-            <ThemedText style={[styles.emptyTitle, { color: colors.text }]}>{isLoading ? 'Finding chargers…' : 'No stations match'}</ThemedText>
-            {!isLoading ? (
-                <ThemedText style={[styles.emptySub, { color: colors.textMuted }]}>Try removing a filter or searching another area.</ThemedText>
-            ) : null}
-        </View>
-    );
-
-
-    /* ── MAP MODE ── */
-    if (mode === 'map') {
-        return (
-            <View style={[styles.container, { backgroundColor: colors.background }]}>
-                <MapView
-                    ref={mapRef}
-                    style={StyleSheet.absoluteFill}
-                    provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
-                    initialRegion={current ? { latitude: current.latitude, longitude: current.longitude, latitudeDelta: 0.06, longitudeDelta: 0.06 } : DEFAULT_REGION}
-                    customMapStyle={Platform.OS === 'android' && isDark ? DARK_MAP_STYLE : undefined}
-                    userInterfaceStyle={isDark ? 'dark' : 'light'}
-                    showsUserLocation={false}
-                    showsMyLocationButton={false}
-                >
-                    {stations.map((s, i) => {
-                        const selected = i === deckIndex;
-                        return (
-                            <Marker
-                                key={s.id}
-                                coordinate={{ latitude: s.latitude, longitude: s.longitude }}
-                                anchor={{ x: 0.5, y: 0.95 }}
-                                zIndex={selected ? 999 : 1}
-                                onPress={() => setDeckIndex(i)}
-                            >
-                                <DcPinIcon
-                                    size={selected ? 46 : 34}
-                                    color={selected ? '#A996FF' : '#0B0B0F'}
-                                    iconColor={selected ? '#0B0B0F' : '#FFFFFF'}
-                                    stroke={selected ? '#0B0B0F' : 'rgba(255,255,255,0.5)'}
-                                    strokeWidth={1.2}
-                                />
-                            </Marker>
-                        );
-                    })}
-                    {userLoc ? (
-                        <Marker coordinate={userLoc} anchor={{ x: 0.5, y: 0.5 }} zIndex={1000}>
-                            <View style={{ width: 52, height: 52 }}>
-                                <CarPinIcon size={52} color={colors.primary} />
-                            </View>
-                        </Marker>
-                    ) : null}
-                </MapView>
-
-                <View style={{ paddingTop: insets.top + 6 }} pointerEvents="box-none">
-                    {header}
-                    {chips}
-                </View>
-
-                <View style={[styles.mapBottom, { bottom: insets.bottom + 96 }]} pointerEvents="box-none">
-                    {/* Floating action on the right (filters are in the top chip row) */}
-                    <View style={styles.floatStack} pointerEvents="box-none">
-                        <IconBtn
-                            label="Center on me"
-                            onPress={() =>
-                                userLoc &&
-                                mapRef.current?.animateToRegion({ ...userLoc, latitudeDelta: 0.05, longitudeDelta: 0.05 }, 500)
-                            }
-                        >
-                            <LocateFixed size={18} color={colors.text} />
-                        </IconBtn>
-                    </View>
-
-                    {/* Nearby stations down at the bottom */}
-                    <View style={[styles.countBadge, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                        <MapPinned size={14} color={colors.text} />
-                        <ThemedText style={[styles.countText, { color: colors.text }]}>
-                            {stations.length} {stations.length === 1 ? 'STATION' : 'STATIONS'} NEARBY
-                        </ThemedText>
-                    </View>
-
-                    {stations.length ? (
-                        <ScrollView
-                            ref={carouselRef}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.carouselContent}
-                            snapToInterval={CARD_W + CARD_GAP}
-                            decelerationRate="fast"
-                            onMomentumScrollEnd={(e) => {
-                                const idx = Math.round(e.nativeEvent.contentOffset.x / (CARD_W + CARD_GAP));
-                                if (idx >= 0 && idx < stations.length && idx !== deckIndex) setDeckIndex(idx);
-                            }}
-                        >
-                            {stations.map((st, i) => {
-                                const selected = i === deckIndex;
-                                const best = [...st.connectors].sort((x, y) => y.power - x.power)[0];
-                                const free = st.connectors.filter((c) => c.status === 'Available').length;
-                                const minPrice = Math.min(...st.connectors.map((c) => c.pricePerKWh));
-                                return (
-                                    <Pressable
-                                        key={st.id}
-                                        accessibilityRole="button"
-                                        accessibilityLabel={`${st.name}, ${free} free`}
-                                        onPress={() => {
-                                            if (selected) openStation(st);
-                                            else setDeckIndex(i);
-                                        }}
-                                        style={[
-                                            styles.stationCard,
-                                            { width: CARD_W, backgroundColor: colors.surface, borderColor: selected ? colors.lime : colors.border, borderWidth: selected ? 2 : 1 },
-                                        ]}
-                                    >
-                                        <View style={styles.cardTop}>
-                                            <ThemedText style={[styles.cardName, { color: colors.text }]} numberOfLines={1}>
-                                                {st.name}
-                                            </ThemedText>
-                                            <View style={[styles.freePill, { backgroundColor: free > 0 ? colors.lime : colors.sun }]}>
-                                                <ThemedText style={styles.freePillText}>{free > 0 ? `${free} free` : 'Busy'}</ThemedText>
-                                            </View>
-                                        </View>
-                                        <ThemedText style={[styles.cardAddr, { color: colors.textMuted }]} numberOfLines={1}>
-                                            {st.address}
-                                        </ThemedText>
-                                        <View style={styles.cardMeta}>
-                                            <ThemedText style={[styles.cardMetaText, { color: colors.textMuted }]}>
-                                                {st.distanceKm} km • {st.etaMinutes} min
-                                            </ThemedText>
-                                            <Star size={11} color={colors.sun} fill={colors.sun} />
-                                            <ThemedText style={[styles.cardMetaText, { color: colors.textMuted }]}>{st.rating.toFixed(1)}</ThemedText>
-                                        </View>
-                                        <View style={styles.cardMeta}>
-                                            {best ? (
-                                                <View style={[styles.powerChip, { backgroundColor: colors.surfaceMuted }]}>
-                                                    <Zap size={11} color={colors.text} fill={colors.text} />
-                                                    <ThemedText style={[styles.cardMetaText, { color: colors.text, fontFamily: FONT_FAMILIES.bold }]}>
-                                                        {best.type} {best.power}kW
-                                                    </ThemedText>
-                                                </View>
-                                            ) : null}
-                                            <ThemedText style={[styles.cardMetaText, { color: colors.textMuted }]}>
-                                                ₹{allInPrice(minPrice).toFixed(0)}/kWh all-in
-                                            </ThemedText>
-                                        </View>
-                                    </Pressable>
-                                );
-                            })}
-                        </ScrollView>
-                    ) : (
-                        <View style={[styles.emptyMap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                            <ThemedText style={[styles.emptyTitle, { color: colors.text }]}>{isLoading ? 'Finding chargers…' : 'No stations match'}</ThemedText>
-                        </View>
-                    )}
-                </View>
-
-                <MapFilterSheet visible={sheetOpen} criteria={criteria} onClose={() => setSheetOpen(false)} onApply={(c) => { setCriteria(c); setSheetOpen(false); }} />
-            </View>
-        );
-    }
-
-    /* ── DECK MODE ── */
-    // Wallet card fills the row; when charging, the live card sits beside it and the row scrolls
-    const miniW = activeSession ? Math.min(300, width * 0.72) : width - 32;
+    const pinColor = (s: Station) => {
+        if (s.id === selected?.id) return colors.primary;
+        return s.connectors.some((c) => c.status === 'Available') ? colors.success : colors.error;
+    };
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <ScrollView
-                contentContainerStyle={{ paddingTop: insets.top + 6, paddingBottom: insets.bottom + 120 }}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
+            <MapView
+                ref={mapRef}
+                style={StyleSheet.absoluteFill}
+                provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
+                initialRegion={selected ? { latitude: selected.latitude, longitude: selected.longitude, latitudeDelta: 0.06, longitudeDelta: 0.06 } : DEFAULT_REGION}
+                customMapStyle={Platform.OS === 'android' && isDark ? DARK_MAP_STYLE : undefined}
+                userInterfaceStyle={isDark ? 'dark' : 'light'}
+                showsUserLocation={false}
+                showsMyLocationButton={false}
+                pitchEnabled={false}
             >
-                {header}
-
-                {/* Top row: live charge (while charging) and wallet */}
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={miniW + 10}
-                    decelerationRate="fast"
-                    contentContainerStyle={styles.walletRow}
-                >
-                    {activeSession ? (
-                        <SkinCard
-                            skin="lime"
-                            style={[styles.mini, { width: miniW }]}
-                            onPress={() =>
-                                navigation.navigate('ChargingSession', {
-                                    stationId: activeSession.stationId,
-                                    connectorId: activeSession.connectorId,
-                                })
-                            }
-                            accessibilityLabel="Open live charge"
+                {stations.map((s) => {
+                    const sel = s.id === selected?.id;
+                    return (
+                        <Marker
+                            key={s.id}
+                            coordinate={{ latitude: s.latitude, longitude: s.longitude }}
+                            anchor={{ x: 0.5, y: 0.95 }}
+                            zIndex={sel ? 999 : 1}
+                            onPress={() => {
+                                tap();
+                                setSelectedId(s.id);
+                                const i = stations.findIndex((x) => x.id === s.id);
+                                listRef.current?.scrollTo({ x: Math.max(0, i * (TILE_W + 10)), animated: true });
+                            }}
                         >
-                            <View style={stackStyles.cardPad}>
-                                <View style={stackStyles.cardTopRow}>
-                                    <ThemedText style={[styles.miniLabel, { color: SKINS.lime.sub }]}>CHARGING NOW</ThemedText>
-                                    <View style={styles.liveDot} />
-                                </View>
-                                <ThemedText style={[stackStyles.bigNumber, { color: '#0B0B0F', marginTop: 6 }]}>
-                                    {Math.round(activeSession.currentSoc)}%
-                                </ThemedText>
-                                <ThemedText style={[stackStyles.cardSub, { color: SKINS.lime.sub }]} numberOfLines={1}>
-                                    {formatRupees(activeSession.totalCost, 0)} · {activeSession.energyDeliveredKwh} kWh · {activeSession.stationName}
-                                </ThemedText>
-                            </View>
-                        </SkinCard>
-                    ) : null}
-
-                    <SkinCard skin="violet" style={[styles.mini, { width: miniW }]} onPress={() => navigation.navigate('Wallet')} accessibilityLabel="Open wallet">
-                        <View style={stackStyles.cardPad}>
-                            <View style={stackStyles.cardTopRow}>
-                                <CardChip />
-                                <ThemedText style={[styles.miniLabel, { color: SKINS.violet.sub }]}>IRIS PASS</ThemedText>
-                            </View>
-                            <ThemedText style={[stackStyles.bigNumber, { color: '#FFFFFF', marginTop: 8, fontSize: 32 }]}>
-                                {formatRupees(user.walletBalance, 0)}
-                            </ThemedText>
-                            <View style={styles.rowGap}>
-                                <Sparkles size={12} color="#FFFFFF" />
-                                <ThemedText style={[stackStyles.cardSub, { color: SKINS.violet.sub }]} numberOfLines={1}>
-                                    {rewardVolts.toLocaleString('en-IN')} Volts
-                                </ThemedText>
-                            </View>
+                            <DcPinIcon size={sel ? 54 : 42} color={pinColor(s)} iconColor="#FFFFFF" stroke="#FFFFFF" strokeWidth={1.6} />
+                        </Marker>
+                    );
+                })}
+                {userLoc ? (
+                    <Marker coordinate={userLoc} anchor={{ x: 0.5, y: 0.5 }} zIndex={1000}>
+                        <View style={{ width: 52, height: 52 }}>
+                            <CarPinIcon size={44} color={colors.primary} />
                         </View>
-                    </SkinCard>
+                    </Marker>
+                ) : null}
+            </MapView>
 
+            {/* Top: search, chips, wallet */}
+            <View style={{ paddingTop: insets.top + 6 }} pointerEvents="box-none">
+                <View style={[styles.pad, styles.searchRow]}>
+                    <Glass radius={28} style={[styles.search, { flex: 1, backgroundColor: panelBg }]}>
+                        <Sparkles size={20} color={colors.primary} strokeWidth={2} />
+                        <TextInput
+                            ref={searchRef}
+                            value={search}
+                            onChangeText={setSearch}
+                            placeholder="Ask Iris or search stations…"
+                            placeholderTextColor={colors.textMuted}
+                            returnKeyType="search"
+                            style={[styles.searchInput, { color: colors.text }]}
+                            accessibilityLabel="Search stations or ask Iris"
+                        />
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={search ? 'Clear search' : 'Voice search'}
+                            onPress={() => {
+                                tap();
+                                if (search) setSearch('');
+                                else searchRef.current?.focus();
+                            }}
+                            style={[styles.mic, { backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(120,120,128,0.14)' }]}
+                        >
+                            {search ? <X size={18} color={colors.text} /> : <Mic size={20} color={colors.text} />}
+                        </Pressable>
+                    </Glass>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Open profile" onPress={() => { tap(); navigation.navigate('Profile'); }}>
+                        <Glass radius={24} interactive style={[styles.avatarBtn, { backgroundColor: colors.primary }]}>
+                            <ThemedText style={[styles.avatarText, { color: '#FFFFFF' }]}>{(user.fullName || 'U').charAt(0).toUpperCase()}</ThemedText>
+                        </Glass>
+                    </Pressable>
+                </View>
 
+                <View style={[styles.pad, styles.chipRow]}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={styles.chips}>
+                    {chips.map((c) => {
+                        const active = quick === c.id;
+                        const fg = active ? '#FFFFFF' : colors.text;
+                        return (
+                            <Pressable
+                                key={c.id}
+                                accessibilityRole="button"
+                                accessibilityState={{ selected: active }}
+                                onPress={() => {
+                                    tap();
+                                    setQuick((q) => (q === c.id ? '' : c.id));
+                                }}
+                            >
+                                <Glass radius={22} tint={active ? colors.primary : undefined} style={[styles.chip, { backgroundColor: active ? colors.primary : panelBg }]}>
+                                    {c.icon(fg)}
+                                    <ThemedText style={[styles.chipText, { color: fg }]}>{c.label}</ThemedText>
+                                </Glass>
+                            </Pressable>
+                        );
+                    })}
                 </ScrollView>
 
-                <View style={styles.sectionRow}>
-                    <ThemedText style={[stackStyles.sectionLabel, { color: colors.textMuted }]}>Near you · {stations.length}</ThemedText>
-                    {current ? (
-                        <ThemedText style={[styles.sectionHint, { color: colors.textMuted }]}>
-                            swipe cards · from ₹{allInPrice(Math.min(...current.connectors.map((c) => c.pricePerKWh))).toFixed(0)}/kWh here
-                        </ThemedText>
+                    <Pressable accessibilityRole="button" accessibilityLabel={`Wallet ${formatRupees(user.walletBalance, 2)}`} onPress={() => navigation.navigate('Wallet')}>
+                        <Glass radius={20} style={[styles.wallet, { backgroundColor: panelBg }]}>
+                            <CreditCard size={16} color={colors.success} />
+                            <ThemedText style={[styles.walletValue, { color: colors.text }]}>{formatRupees(user.walletBalance, 2)}</ThemedText>
+                        </Glass>
+                    </Pressable>
+                </View>
+            </View>
+
+            {/* Right-hand glass buttons */}
+            <View style={[styles.side, { bottom: NAV_H + 160 }]} pointerEvents="box-none">
+                <GlassButton label="Filters" size={44} onPress={() => setSheetOpen(true)} tint={filterCount > 0 ? colors.primary : undefined}>
+                    <SlidersHorizontal size={19} color={filterCount > 0 ? '#FFFFFF' : colors.text} />
+                </GlassButton>
+                <GlassButton
+                    label="Center on me"
+                    size={44}
+                    onPress={() => userLoc && mapRef.current?.animateToRegion({ ...userLoc, latitudeDelta: 0.05, longitudeDelta: 0.05 }, 500)}
+                >
+                    <LocateFixed size={19} color={colors.text} />
+                </GlassButton>
+            </View>
+
+            {/* Nearby stations: horizontal tiles */}
+            <View style={[styles.strip, { bottom: NAV_H }]} pointerEvents="box-none">
+                <View style={styles.stripHead}>
+                    <ThemedText style={[styles.sheetTitle, { color: colors.text }]}>
+                        {quick === 'CCS2' || quick === 'Type 2' ? `Nearby ${quick === 'CCS2' ? 'DC fast' : 'AC'} hubs` : 'Nearby stations'}
+                    </ThemedText>
+                    <View style={[styles.live, { backgroundColor: 'rgba(52,199,89,0.16)' }]}>
+                        <View style={[styles.liveDot, { backgroundColor: colors.success }]} />
+                        <ThemedText style={[styles.liveText, { color: colors.success }]}>{stations.length} · {NEARBY_KM} km</ThemedText>
+                    </View>
+                </View>
+                <ScrollView
+                    ref={listRef}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    snapToInterval={TILE_W + 10}
+                    decelerationRate="fast"
+                    contentContainerStyle={styles.list}
+                >
+                    {stations.length === 0 ? (
+                        <View style={[styles.card, { width: TILE_W, backgroundColor: colors.surface, borderColor: 'transparent' }]}>
+                            <ThemedText style={[styles.cardName, { color: colors.text }]}>{isLoading ? 'Finding chargers…' : 'No stations match'}</ThemedText>
+                            {!isLoading ? <ThemedText style={[styles.cardSub, { color: colors.textMuted }]}>Try another filter or search.</ThemedText> : null}
+                        </View>
                     ) : null}
-                </View>
-                {chips}
-
-                <View style={{ paddingHorizontal: 16, marginTop: 6 }}>
-                    {deck}
-                </View>
-
-            </ScrollView>
+                    {stations.map((s) => {
+                        const free = s.connectors.filter((c) => c.status === 'Available').length;
+                        const best = [...s.connectors].sort((a, b) => b.power - a.power)[0];
+                        const minPrice = Math.min(...s.connectors.map((c) => c.pricePerKWh));
+                        const sel = s.id === selected?.id;
+                        const fits = selectedVehicle ? s.connectors.some((c) => c.type === selectedVehicle.connectorType) : true;
+                        const chipBg = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(120,120,128,0.14)';
+                        return (
+                            <Pressable
+                                key={s.id}
+                                accessibilityRole="button"
+                                accessibilityLabel={`${s.name}, ${free} of ${s.connectors.length} available`}
+                                onPress={() => {
+                                    if (sel) openStation(s);
+                                    else {
+                                        tap();
+                                        setSelectedId(s.id);
+                                    }
+                                }}
+                                style={[styles.card, { width: TILE_W, backgroundColor: colors.surface, borderColor: sel ? colors.primary : 'transparent' }]}
+                            >
+                                <View style={styles.cardTop}>
+                                    <View style={[styles.plugTile, { backgroundColor: 'rgba(0,122,255,0.14)' }]}>
+                                        <Plug size={20} color={colors.primary} />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <ThemedText style={[styles.cardName, { color: colors.text }]} numberOfLines={1}>{s.name}</ThemedText>
+                                        <ThemedText style={[styles.cardSub, { color: colors.textMuted }]} numberOfLines={1}>
+                                            {s.distanceKm} km · {s.etaMinutes} min · {s.openTime === '24/7' ? '24 hrs' : s.openTime}
+                                        </ThemedText>
+                                    </View>
+                                    <Pressable
+                                        accessibilityRole="button"
+                                        accessibilityLabel={`Open ${s.name}`}
+                                        onPress={() => openStation(s)}
+                                        style={[styles.arrow, { backgroundColor: chipBg }]}
+                                    >
+                                        <ArrowUpRight size={16} color={colors.text} />
+                                    </Pressable>
+                                </View>
+                                <View style={styles.pills}>
+                                    <View style={[styles.pill, { backgroundColor: free > 0 ? 'rgba(52,199,89,0.16)' : 'rgba(255,59,48,0.14)' }]}>
+                                        <View style={[styles.pillDot, { backgroundColor: free > 0 ? colors.success : colors.error }]} />
+                                        <ThemedText style={[styles.pillText, { color: free > 0 ? colors.success : colors.error }]}>{free}/{s.connectors.length}</ThemedText>
+                                    </View>
+                                    {best ? (
+                                        <View style={[styles.pill, { backgroundColor: chipBg }]}>
+                                            <ThemedText style={[styles.pillText, { color: colors.text }]}>{best.power} kW {best.currentType ?? (best.power >= 50 ? 'DC' : 'AC')}</ThemedText>
+                                        </View>
+                                    ) : null}
+                                    <View style={[styles.pill, { backgroundColor: chipBg }]}>
+                                        <ThemedText style={[styles.pillText, { color: colors.text }]}>₹{allInPrice(minPrice).toFixed(1)}/kWh</ThemedText>
+                                    </View>
+                                    {!fits ? (
+                                        <View style={[styles.pill, { backgroundColor: 'rgba(255,149,0,0.16)' }]}>
+                                            <ThemedText style={[styles.pillText, { color: colors.warning }]}>Plug mismatch</ThemedText>
+                                        </View>
+                                    ) : null}
+                                </View>
+                            </Pressable>
+                        );
+                    })}
+                </ScrollView>
+            </View>
 
             <MapFilterSheet visible={sheetOpen} criteria={criteria} onClose={() => setSheetOpen(false)} onApply={(c) => { setCriteria(c); setSheetOpen(false); }} />
         </View>
@@ -505,57 +370,35 @@ export default function HomeScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    topRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    avatar: { width: 46, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-    avatarText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 20, color: '#0B0B0F' },
-    hello: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13 },
-    name: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 24, letterSpacing: -0.8, lineHeight: 29 },
-    search: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        height: 48,
-        borderRadius: 16,
-        borderWidth: 1,
-        paddingHorizontal: 14,
-        marginTop: 12,
-    },
-    searchInput: { flex: 1, fontFamily: FONT_FAMILIES.semiBold, fontSize: 15 },
-    walletRow: { paddingHorizontal: 16, gap: 10, paddingTop: 16 },
-    mini: { height: 150, flex: 0 },
-    miniLabel: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 10.5, letterSpacing: 1.3 },
-    liveDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#0B0B0F' },
-    rowGap: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-    sectionRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 24 },
-    sectionHint: { fontFamily: FONT_FAMILIES.medium, fontSize: 11.5 },
-    chips: { paddingHorizontal: 16, gap: 8, paddingVertical: 12 },
-    empty: { borderWidth: 1.5, borderStyle: 'dashed', borderRadius: 26, padding: 28, alignItems: 'center' },
-    emptyTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18 },
-    emptySub: { fontFamily: FONT_FAMILIES.medium, fontSize: 13, marginTop: 4, textAlign: 'center' },
-    mapBottom: { position: 'absolute', left: 0, right: 0 },
-    floatStack: { position: 'absolute', right: 16, bottom: 196, gap: 10, alignItems: 'center' },
-    countBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        alignSelf: 'flex-start',
-        marginLeft: 16,
-        marginBottom: 10,
-        paddingHorizontal: 12,
-        height: 34,
-        borderRadius: 17,
-        borderWidth: 1,
-    },
-    countText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 11.5, letterSpacing: 0.8 },
-    carouselContent: { paddingHorizontal: 16, gap: CARD_GAP },
-    stationCard: { borderRadius: 24, padding: 14, minHeight: 150 },
+    pad: { paddingHorizontal: 16 },
+    searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    avatarBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+    avatarText: { fontSize: 18, fontWeight: '800' },
+    search: { height: 48, flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 16, paddingRight: 8 },
+    searchInput: { flex: 1, fontSize: 15, fontWeight: '500' },
+    mic: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+    chipRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
+    chips: { gap: 8, paddingRight: 4 },
+    chip: { height: 36, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
+    chipText: { fontSize: 13, fontWeight: '600' },
+    wallet: { height: 36, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
+    walletValue: { fontSize: 13, fontWeight: '700' },
+    side: { position: 'absolute', right: 16, gap: 8 },
+    strip: { position: 'absolute', left: 0, right: 0 },
+    stripHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 8 },
+    sheetTitle: { fontSize: 17, fontWeight: '700', letterSpacing: -0.3 },
+    live: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 26, paddingHorizontal: 8, borderRadius: 13 },
+    liveDot: { width: 6, height: 6, borderRadius: 3 },
+    liveText: { fontSize: 12, fontWeight: '700' },
+    list: { paddingHorizontal: 16, gap: 8 },
+    card: { borderRadius: 22, padding: 12, borderWidth: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },
     cardTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    cardName: { flex: 1, fontFamily: FONT_FAMILIES.extraBold, fontSize: 16, letterSpacing: -0.3 },
-    freePill: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: 10 },
-    freePillText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 11, color: '#0B0B0F' },
-    cardAddr: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginTop: 2 },
-    cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
-    cardMetaText: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 12 },
-    powerChip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 9 },
-    emptyMap: { marginHorizontal: 16, borderRadius: 22, borderWidth: 1, padding: 22, alignItems: 'center' },
+    plugTile: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    cardName: { fontSize: 15, fontWeight: '700', letterSpacing: -0.2 },
+    cardSub: { fontSize: 12, fontWeight: '500', marginTop: 1.0 },
+    arrow: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+    pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
+    pill: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 26, paddingHorizontal: 8, borderRadius: 13 },
+    pillDot: { width: 6, height: 6, borderRadius: 3 },
+    pillText: { fontSize: 12, fontWeight: '600' },
 });

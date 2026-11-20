@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import { TextInput } from '../../components/ThemedTextInput';
 import * as Haptics from 'expo-haptics';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
@@ -36,7 +37,7 @@ export default function LoginScreen({ navigation }: any) {
                 />
             }
         >
-            <ThemedText style={[authStyles.label, { color: colors.text, marginTop: 0 }]}>Phone number</ThemedText>
+            <ThemedText style={[authStyles.label, { color: colors.text, marginTop: 0.0 }]}>Phone number</ThemedText>
             <View style={styles.row}>
                 <View style={[styles.country, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <ThemedText style={styles.flag}>🇮🇳</ThemedText>
@@ -53,7 +54,7 @@ export default function LoginScreen({ navigation }: any) {
                     placeholder="98765 43210"
                     placeholderTextColor={colors.textSoft}
                     maxLength={10}
-                    style={[authStyles.input, styles.phone, { color: colors.text, backgroundColor: colors.surface, borderColor: phone.length > 0 && !valid ? colors.border : valid ? colors.violet : colors.border }]}
+                    style={[authStyles.input, styles.phone, { color: colors.text, backgroundColor: colors.surface, borderColor: phone.length > 0 && !valid ? colors.border : valid ? colors.primary : colors.border }]}
                     accessibilityLabel="Phone number"
                 />
             </View>
@@ -64,11 +65,11 @@ export default function LoginScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-    row: { flexDirection: 'row', gap: 10 },
-    country: { height: 54, borderRadius: 16, borderWidth: 1.5, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8 },
+    row: { flexDirection: 'row', gap: 8 },
+    country: { height: 54, borderRadius: 16, borderWidth: 1.5, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 },
     flag: { fontSize: 20 },
     code: { fontFamily: FONT_FAMILIES.bold, fontSize: 15 },
     phone: { flex: 1, letterSpacing: 1 },
     error: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13, marginTop: 8 },
-    hint: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, marginTop: 14 },
+    hint: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, marginTop: 16 },
 });

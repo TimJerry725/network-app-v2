@@ -1,19 +1,10 @@
 import React, { useState } from 'react';
-import {
-    Alert,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    TextInput,
-    View,
-} from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { TextInput } from '../../components/ThemedTextInput';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Plus, Trash2, Check, ChevronDown, X } from 'lucide-react-native';
+import { Plus, Trash2, Check, ChevronDown, X } from '../../components/sf/icons';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
 import { FONT_FAMILIES } from '../../constants/Tokens';
@@ -219,7 +210,7 @@ export default function EditProfileScreen() {
                         <Field label={tempReg ? 'Temporary registration' : 'Registration number'} value={reg} onChange={setReg} upper />
                         <Pressable accessibilityRole="switch" accessibilityState={{ checked: tempReg }} onPress={() => { tap(); setTempReg((t) => !t); }} style={styles.tempRow}>
                             <View style={[styles.box, { borderColor: colors.border, backgroundColor: tempReg ? colors.lime : 'transparent' }]}>
-                                {tempReg ? <Check size={13} color="#0B0B0F" strokeWidth={3} /> : null}
+                                {tempReg ? <Check size={13} color="#FFFFFF" strokeWidth={3} /> : null}
                             </View>
                             <ThemedText style={[styles.tempText, { color: colors.text }]}>New car with a temporary number</ThemedText>
                         </Pressable>
@@ -236,19 +227,19 @@ export default function EditProfileScreen() {
                                 const active = c === plug;
                                 return (
                                     <Pressable key={c} accessibilityRole="radio" accessibilityState={{ checked: active }} onPress={() => { tap(); setPlug(c); }} style={[styles.plug, active ? { backgroundColor: colors.lime, borderColor: colors.lime } : { borderColor: colors.border, backgroundColor: colors.surface }]}>
-                                        <ThemedText style={[styles.plugText, { color: active ? '#0B0B0F' : colors.text }]}>{c}</ThemedText>
+                                        <ThemedText style={[styles.plugText, { color: active ? '#FFFFFF' : colors.text }]}>{c}</ThemedText>
                                     </Pressable>
                                 );
                             })}
                         </View>
 
-                        <PulseButton title="Remove this car" variant="ghost" size="md" icon={<Trash2 size={15} color={colors.error} />} onPress={remove} style={{ marginTop: 18 }} />
+                        <PulseButton title="Remove this car" variant="ghost" size="md" icon={<Trash2 size={15} color={colors.error} />} onPress={remove} style={{ marginTop: 16 }} />
                     </>
                 )}
             </ScrollView>
 
             <View style={[styles.saveBar, { paddingBottom: insets.bottom + 12, backgroundColor: colors.background, borderTopColor: colors.border }]}>
-                <PulseButton title="Save changes" icon={<Check size={17} color="#0B0B0F" strokeWidth={3} />} onPress={save} />
+                <PulseButton title="Save changes" icon={<Check size={17} color="#FFFFFF" strokeWidth={3} />} onPress={save} />
             </View>
 
             <Modal visible={picker !== null} transparent animationType="slide" onRequestClose={() => setPicker(null)}>
@@ -272,13 +263,13 @@ export default function EditProfileScreen() {
                                             onPress={() => (picker === 'make' ? pickMake(m) : (tap(), setModel(m), setPicker(null)))}
                                             style={[styles.gridItem, active ? { backgroundColor: colors.lime, borderColor: colors.lime } : { borderColor: colors.border, backgroundColor: colors.background }]}
                                         >
-                                            <ThemedText style={[styles.gridText, { color: active ? '#0B0B0F' : colors.text }]}>{m}</ThemedText>
+                                            <ThemedText style={[styles.gridText, { color: active ? '#FFFFFF' : colors.text }]}>{m}</ThemedText>
                                         </Pressable>
                                     );
                                 })}
                             </View>
                         </ScrollView>
-                        {picker === 'make' ? <ThemedText style={[styles.fieldLabel, { color: colors.textMuted, marginTop: 10 }]}>Battery, range and DC speed fill in automatically.</ThemedText> : null}
+                        {picker === 'make' ? <ThemedText style={[styles.fieldLabel, { color: colors.textMuted, marginTop: 8 }]}>Battery, range and DC speed fill in automatically.</ThemedText> : null}
                     </View>
                 </View>
             </Modal>
@@ -288,20 +279,20 @@ export default function EditProfileScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    preview: { height: 170, flex: 0, marginTop: 16, marginBottom: 6 },
-    kind: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 10.5, letterSpacing: 1.3 },
-    field: { borderRadius: 18, borderWidth: 1, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 8, marginTop: 10 },
+    preview: { height: 170, flex: 0, marginTop: 16, marginBottom: 8 },
+    kind: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 12 },
+    field: { borderRadius: 16, borderWidth: 0, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8, marginTop: 8 },
     fieldLabel: { fontFamily: FONT_FAMILIES.bold, fontSize: 11.5 },
     fieldInput: { fontFamily: FONT_FAMILIES.bold, fontSize: 16, paddingVertical: 4 },
-    strip: { gap: 8, paddingVertical: 14 },
+    strip: { gap: 8, paddingVertical: 16 },
     carCard: { width: 190, height: 130, flex: 0 },
     carName: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 17, lineHeight: 21, marginTop: 8 },
-    addCard: { width: 120, height: 130, borderRadius: 26, borderWidth: 1.5, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', gap: 6 },
+    addCard: { width: 120, height: 130, borderRadius: 26, borderWidth: 1.5, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', gap: 8 },
     addText: { fontFamily: FONT_FAMILIES.bold, fontSize: 13 },
-    pickRow: { flexDirection: 'row', gap: 10 },
-    pick: { flex: 1, borderRadius: 18, borderWidth: 1, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 8 },
-    pickVal: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 },
-    tempRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, minHeight: 40 },
+    pickRow: { flexDirection: 'row', gap: 8 },
+    pick: { flex: 1, borderRadius: 16, borderWidth: 0, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
+    pickVal: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+    tempRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, minHeight: 40 },
     box: { width: 22, height: 22, borderRadius: 7, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
     tempText: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13.5 },
     triple: { flexDirection: 'row', gap: 8 },
@@ -310,10 +301,10 @@ const styles = StyleSheet.create({
     plugText: { fontFamily: FONT_FAMILIES.bold, fontSize: 13.5 },
     saveBar: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth },
     overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-    sheet: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 18 },
+    sheet: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 16 },
     sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     sheetTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 21, letterSpacing: -0.4 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-    gridItem: { paddingHorizontal: 14, height: 42, borderRadius: 14, borderWidth: 1, justifyContent: 'center' },
+    gridItem: { paddingHorizontal: 16, height: 42, borderRadius: 14, borderWidth: 1, justifyContent: 'center' },
     gridText: { fontFamily: FONT_FAMILIES.bold, fontSize: 14 },
 });

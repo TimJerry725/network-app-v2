@@ -1,34 +1,40 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Line, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { LifeBuoy, Square, Repeat, X, Zap, Check } from 'lucide-react-native';
+import { ChevronLeft, Clock, Zap, Gauge, BatteryCharging, Receipt, Square, X, Check } from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles } from '../../context/VehicleContext';
 import { useCharging } from '../../context/ChargingContext';
 import { MOCK_STATIONS, Station, findStationByConnector, getRecommendedConnector, getStationById } from '../../constants/Stations';
-import { FONT_FAMILIES } from '../../constants/Tokens';
-import { Segmented } from '../../components/stack/StackKit';
-import { PulseButton } from '../../components/pulse/PulseKit';
-import { Divider, HeaderIcon, KeyValue, ON_HIGHLIGHT, Option, Panel, Row, ScreenTitle, Section, StatGrid, flat } from '../../components/flat/FlatKit';
+import { GlassButton, Glass } from '../../components/glass/Glass';
 import { explainSessionStatus, formatRupees, sessionHoldAmount } from '../../utils/pulse';
 
-const CAR_IMAGE = require('../../../assets/images/profile-car.webp');
 const TARGETS = [80, 85, 90, 100];
+const HOLD_MS = 900;
 
-function fmtTime(total: number) {
-    const h = Math.floor(total / 3600);
-    const m = Math.floor((total % 3600) / 60);
+function fmtElapsed(total: number) {
+    const m = Math.floor(total / 60);
     const s = total % 60;
-    const p = (n: number) => String(n).padStart(2, '0');
-    return h > 0 ? `${h}:${p(m)}:${p(s)}` : `${p(m)}:${p(s)}`;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+/** Power as a share of the connector's maximum at a given battery level (BMS taper above 80%). */
+function powerAt(soc: number) {
+    if (soc < 4) return 0.55 + soc * 0.1;
+    if (soc <= 55) return 0.95;
+    if (soc <= 80) return 0.95 - ((soc - 55) / 25) * 0.4;
+    return 0.55 - ((soc - 80) / 20) * 0.33;
+}
+
+/** Live charging (iOS 27 design). */
 export default function ChargingSessionScreen({ navigation, route }: any) {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
-    const { vehicles, selectedVehicle, selectVehicle, updateVehicle } = useVehicles();
+    const { width } = useWindowDimensions();
+    const { vehicles, selectedVehicle, selectVehicle } = useVehicles();
     const { activeSession, startChargingSession, stopChargingSession, updateTargetSoc } = useCharging();
 
     const routeStation = route.params?.stationSnapshot as Station | undefined;
@@ -36,10 +42,9 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
     const connector = station.connectors.find((c) => c.id === route.params?.connectorId) ?? getRecommendedConnector(station);
 
     const [target, setTarget] = useState<number>(activeSession?.targetSoc ?? route.params?.targetSoc ?? selectedVehicle?.chargeTarget ?? 80);
-    const [chart, setChart] = useState<'power' | 'battery'>('power');
-    const [confirmStop, setConfirmStop] = useState(false);
+    const [mode, setMode] = useState<'speed' | 'time'>('speed');
     const [switchCar, setSwitchCar] = useState(false);
-    const [autocharge, setAutocharge] = useState(selectedVehicle?.autochargeEnabled ?? true);
+    const [holding, setHolding] = useState(false);
 
     useEffect(() => {
         if (activeSession) return;
@@ -69,20 +74,12 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
     const status = activeSession?.status ?? 'CONNECTING';
     const info = explainSessionStatus(status);
     const hold = sessionHoldAmount(cost);
-    const minsLeft = Math.max(1, Math.round(Math.max(0, target - soc) * 0.42));
+    const maxKw = connector.power || 60;
+    const minsLeft = Math.max(1, Math.round(Math.max(0, Math.min(target, 80) - soc) * 0.42));
     const eta = useMemo(() => new Date(Date.now() + minsLeft * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), [minsLeft]);
-    const rangeAdded = selectedVehicle ? Math.round((kwh / selectedVehicle.batteryCapacity) * selectedVehicle.estRangeKm * 1.6) : 0;
-    const history = activeSession?.powerHistory ?? [];
-    const peak = Math.max(1, ...history.map((h) => h.powerKw), connector.power);
     const car = selectedVehicle;
 
-    const setNewTarget = (t: number) => {
-        setTarget(t);
-        updateTargetSoc(t);
-    };
-
     const doStop = () => {
-        setConfirmStop(false);
         if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
         const receipt = stopChargingSession('Driver initiated stop');
         if (receipt) {
@@ -97,196 +94,222 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
         }
     };
 
-    const help = () =>
-        Alert.alert('Need help with this charge?', 'Gun stuck, charge slow or stopped? We are here 24/7.', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Call 1800-419-4747', onPress: () => Linking.openURL('tel:18004194747').catch(() => {}) },
+    const more = () =>
+        Alert.alert('Session options', `${station.name} · ${activeSession?.chargerId ?? connector.id}`, [
+            { text: `Stop automatically at ${target}%`, onPress: () => cycleTarget() },
+            ...(vehicles.length > 1 ? [{ text: 'Switch car', onPress: () => setSwitchCar(true) }] : []),
+            { text: 'Call 24/7 help', onPress: () => Linking.openURL('tel:18004194747').catch(() => {}) },
+            { text: 'Cancel', style: 'cancel' as const },
         ]);
 
+    const cycleTarget = () => {
+        const next = TARGETS[(TARGETS.indexOf(target) + 1) % TARGETS.length];
+        setTarget(next);
+        updateTargetSoc(next);
+    };
+
+    /* ── Chart ── */
+    const cardW = width - 32;
+    const W = cardW - 40;
+    const H = 190;
+    const padL = 34;
+    const padB = 26;
+    const plotW = W - padL - 6;
+    const plotH = H - padB - 8;
+    const xOf = (p: number) => padL + (p / 100) * plotW;
+    const yOf = (kwFrac: number) => 8 + (1 - kwFrac) * plotH;
+
+    const curve = (upTo: number) => {
+        let d = '';
+        for (let p = 0; p <= upTo; p += 2) {
+            const y = yOf(powerAt(p));
+            d += `${p === 0 ? 'M' : 'L'}${xOf(p).toFixed(1)} ${y.toFixed(1)} `;
+        }
+        return d;
+    };
+    const area = (upTo: number) => `${curve(upTo)}L${xOf(upTo).toFixed(1)} ${yOf(0)} L${xOf(0)} ${yOf(0)} Z`;
+    const history = activeSession?.powerHistory ?? [];
+    const peak = Math.max(1, ...history.map((h) => h.powerKw), maxKw);
+    const timeLine = history.map((h, i) => `${i === 0 ? 'M' : 'L'}${(padL + (i / Math.max(1, history.length - 1)) * plotW).toFixed(1)} ${yOf(h.powerKw / peak).toFixed(1)}`).join(' ');
+
+    const tiles = [
+        { label: 'Charging speed', value: `${power}`, unit: 'kW', icon: <Zap size={20} color={colors.primary} />, tint: 'rgba(0,122,255,0.14)' },
+        { label: 'Elapsed time', value: fmtElapsed(elapsed), unit: 'min', icon: <Clock size={20} color={colors.violet} />, tint: 'rgba(88,86,214,0.14)' },
+        { label: 'Energy delivered', value: kwh.toFixed(1), unit: 'kWh', icon: <BatteryCharging size={20} color={colors.success} />, tint: 'rgba(52,199,89,0.16)' },
+        { label: 'Live session cost', value: formatRupees(cost, 1), unit: '', icon: <Receipt size={20} color={colors.error} />, tint: 'rgba(255,59,48,0.14)' },
+    ];
+
     return (
-        <View style={[flat.screen, { backgroundColor: colors.background }]}>
-            <ScrollView contentContainerStyle={{ paddingTop: insets.top + 6, paddingHorizontal: 16, paddingBottom: insets.bottom + 120 }} showsVerticalScrollIndicator={false}>
-                <ScreenTitle
-                    title="Charging"
-                    subtitle={`${activeSession?.stationName ?? station.name} · ${activeSession?.chargerId ?? connector.id}`}
-                    onBack={() => navigation.goBack()}
-                    right={
-                        <HeaderIcon label="Help with this charge" onPress={help}>
-                            <LifeBuoy size={18} color={colors.text} />
-                        </HeaderIcon>
-                    }
-                />
-
-                {/* The one highlight on this screen: live battery and money */}
-                <Panel tone="highlight" style={{ marginTop: 12 }}>
-                    <View style={styles.socRow}>
-                        <ThemedText style={styles.soc}>{soc}</ThemedText>
-                        <ThemedText style={styles.socPct}>%</ThemedText>
-                        <View style={{ flex: 1 }} />
-                        <View style={{ alignItems: 'flex-end' }}>
-                            <ThemedText style={styles.eta}>{target}% by {eta}</ThemedText>
-                            <ThemedText style={[flat.caption, { color: ON_HIGHLIGHT.sub }]}>~{minsLeft} min left</ThemedText>
-                        </View>
-                    </View>
-                    <View style={styles.bar}>
-                        <View style={[styles.barFill, { width: `${Math.min(100, soc)}%` }]} />
-                        <View style={[styles.barTick, { left: `${target}%` }]} />
-                    </View>
-                    <StatGrid
-                        onHighlight
-                        columns={2}
-                        items={[
-                            { label: 'Power', value: `${power} kW` },
-                            { label: 'Added', value: `${kwh.toFixed(2)} kWh` },
-                            { label: 'Cost so far', value: formatRupees(cost, 2) },
-                            { label: 'Time', value: fmtTime(elapsed) },
-                        ]}
-                    />
-                </Panel>
-
-                <Panel tone={info.tone === 'stop' ? 'danger' : info.tone === 'wait' ? 'warning' : 'default'} style={{ marginTop: 12 }}>
-                    <ThemedText style={[flat.h2, { color: colors.text, fontSize: 17 }]}>{info.title}</ThemedText>
-                    <ThemedText style={[flat.body, { color: colors.textMuted, marginTop: 4 }]}>{info.detail}</ThemedText>
-                    <ThemedText style={[flat.caption, { color: colors.text, marginTop: 10 }]}>
-                        {formatRupees(hold)} held from your wallet. Unused amount returns when you stop.
-                    </ThemedText>
-                </Panel>
-
-                <Section title="Charging speed">
-                    <Panel>
-                        <Segmented
-                            options={[
-                                { value: 'power', label: 'Speed (kW)' },
-                                { value: 'battery', label: 'Battery (%)' },
-                            ]}
-                            value={chart}
-                            onChange={setChart}
-                        />
-                        <View style={styles.chart}>
-                            {(history.length ? history : [{ time: '0:00', powerKw: 0, soc }]).map((h, i, arr) => {
-                                const v = chart === 'power' ? h.powerKw / peak : h.soc / 100;
-                                const last = i === arr.length - 1;
-                                return (
-                                    <View key={`${h.time}-${i}`} style={styles.chartCol}>
-                                        <View style={[styles.chartBar, { height: `${Math.max(6, v * 100)}%`, backgroundColor: last ? colors.lime : colors.primary, opacity: last ? 1 : 0.5 }]} />
-                                        <ThemedText style={[styles.chartLbl, { color: colors.textSoft }]}>{h.time}</ThemedText>
-                                    </View>
-                                );
-                            })}
-                        </View>
-                        <ThemedText style={[flat.caption, { color: colors.textMuted, marginTop: 10 }]}>Speed slows above 80% to protect your battery. That is normal.</ThemedText>
-                    </Panel>
-                </Section>
-
-                <Section title="Details">
-                    <Panel>
-                        <StatGrid
-                            columns={2}
-                            items={[
-                                { label: 'Voltage', value: `${activeSession?.currentVoltageV ?? 0} V` },
-                                { label: 'Current', value: `${activeSession?.currentAmperageA ?? 0} A` },
-                                { label: 'Battery temp', value: `${activeSession?.batteryTempCelsius ?? 31}°C` },
-                                { label: 'Range added', value: `+${rangeAdded} km` },
-                            ]}
-                        />
-                    </Panel>
-                </Section>
-
-                <Section title="Stop automatically at">
-                    <View style={flat.rowGap}>
-                        {TARGETS.map((t) => (
-                            <Option key={t} label={`${t}%`} selected={t === target} onPress={() => setNewTarget(t)} style={{ flex: 1 }} />
-                        ))}
-                    </View>
-                </Section>
-
-                <Section title="Your car">
-                    <Panel padded={false}>
-                        <View style={styles.carRow}>
-                            <View style={{ flex: 1 }}>
-                                <ThemedText style={[styles.carName, { color: colors.text }]} numberOfLines={1}>
-                                    {activeSession?.vehicleModel ?? (car ? `${car.make} ${car.model}` : 'Your EV')}
-                                </ThemedText>
-                                <ThemedText style={[flat.caption, { color: colors.textMuted }]}>{activeSession?.vehicleRegNo ?? car?.registrationNumber}</ThemedText>
-                            </View>
-                            <View style={styles.carImgWrap}>
-                                <Image source={CAR_IMAGE} style={styles.carImg} resizeMode="contain" />
-                            </View>
-                        </View>
-                        <Divider />
-                        <Row
-                            title="Autocharge (plug & charge)"
-                            subtitle="Start automatically when you plug in"
-                            onPress={() => {
-                                setAutocharge((a) => !a);
-                                if (car) updateVehicle(car.id, { autochargeEnabled: !autocharge });
-                            }}
-                            right={
-                                <View style={[styles.toggle, { backgroundColor: autocharge ? colors.lime : colors.surfaceMuted }]}>
-                                    <View style={[styles.knob, { backgroundColor: autocharge ? '#0B0B0F' : '#FFFFFF', transform: [{ translateX: autocharge ? 20 : 0 }] }]} />
-                                </View>
-                            }
-                        />
-                        {vehicles.length > 1 ? (
-                            <>
-                                <Divider />
-                                <Row icon={<Repeat size={16} color={colors.text} />} title="Switch car" onPress={() => setSwitchCar(true)} chevron />
-                            </>
-                        ) : null}
-                    </Panel>
-                </Section>
-
-                {station.amenities?.length ? (
-                    <Section title="While you wait">
-                        <ThemedText style={[flat.body, { color: colors.text }]}>{station.amenities.join(' · ')}</ThemedText>
-                    </Section>
-                ) : null}
-            </ScrollView>
-
-            <View style={[flat.bottomBar, { paddingBottom: insets.bottom + 12, backgroundColor: colors.background, borderTopColor: colors.border }]}>
-                <PulseButton title="Stop charging" variant="danger" icon={<Square size={15} color="#FFFFFF" fill="#FFFFFF" />} onPress={() => setConfirmStop(true)} />
-            </View>
-
-            <Modal visible={confirmStop} transparent animationType="fade" onRequestClose={() => setConfirmStop(false)}>
-                <View style={styles.overlay}>
-                    <View style={[styles.modal, { backgroundColor: colors.surface }]}>
-                        <ThemedText style={[styles.modalTitle, { color: colors.text }]}>Stop at {soc}%?</ThemedText>
-                        <ThemedText style={[flat.body, { color: colors.textMuted, marginTop: 6 }]}>
-                            You pay for {kwh.toFixed(2)} kWh only. Unplug within 15 minutes to avoid idle fees.
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 140 }} showsVerticalScrollIndicator={false}>
+                <View style={styles.topRow}>
+                    <GlassButton label="Back" size={52} onPress={() => navigation.goBack()}>
+                        <ChevronLeft size={22} color={colors.text} strokeWidth={2.5} />
+                    </GlassButton>
+                    <Glass radius={24} style={styles.activePill}>
+                        <View style={[styles.liveDot, { backgroundColor: status === 'CHARGING' ? colors.success : colors.warning }]} />
+                        <ThemedText style={[styles.activeText, { color: status === 'CHARGING' ? colors.success : colors.warning }]}>
+                            {status === 'CHARGING' ? 'Session active' : info.title}
                         </ThemedText>
-                        <View style={{ marginTop: 12 }}>
-                            <KeyValue label="Battery" value={`${soc}%`} />
-                            <KeyValue label="Energy" value={`${kwh.toFixed(2)} kWh`} />
-                            <KeyValue label="To pay" value={formatRupees(cost, 2)} strong />
+                    </Glass>
+                    <GlassButton label="More options" size={52} onPress={more}>
+                        <ThemedText style={[styles.dots, { color: colors.text }]}>•••</ThemedText>
+                    </GlassButton>
+                </View>
+
+                {/* State of charge */}
+                <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <View style={styles.socHead}>
+                        <View>
+                            <ThemedText style={[styles.socLabel, { color: colors.textMuted }]}>State of charge</ThemedText>
+                            <View style={styles.socRow}>
+                                <ThemedText style={[styles.soc, { color: colors.text }]}>{soc}</ThemedText>
+                                <ThemedText style={[styles.socPct, { color: colors.textSoft }]}>%</ThemedText>
+                            </View>
                         </View>
-                        <PulseButton title="Yes, stop and pay" variant="danger" onPress={doStop} style={{ marginTop: 16 }} />
-                        <PulseButton title="Keep charging" variant="ghost" icon={<Zap size={15} color={colors.text} />} onPress={() => setConfirmStop(false)} style={{ marginTop: 8 }} />
+                        <View style={[styles.seg, { backgroundColor: colors.surfaceMuted }]}>
+                            {(['speed', 'time'] as const).map((m) => (
+                                <Pressable
+                                    key={m}
+                                    accessibilityRole="tab"
+                                    accessibilityState={{ selected: mode === m }}
+                                    onPress={() => setMode(m)}
+                                    style={[styles.segItem, mode === m && { backgroundColor: colors.primary }]}
+                                >
+                                    <ThemedText style={[styles.segText, { color: mode === m ? '#FFFFFF' : colors.textMuted }]}>{m}</ThemedText>
+                                </Pressable>
+                            ))}
+                        </View>
+                    </View>
+
+                    <Svg width={W} height={H} style={{ marginTop: 8 }}>
+                        <Defs>
+                            <SvgGradient id="fillBlue" x1="0" y1="0" x2="0" y2="1">
+                                <Stop offset="0" stopColor="#007AFF" stopOpacity="0.28" />
+                                <Stop offset="1" stopColor="#007AFF" stopOpacity="0.14" />
+                            </SvgGradient>
+                        </Defs>
+                        {[0, 1 / 3, 2 / 3, 1].map((f) => (
+                            <SvgText key={f} x={padL - 8} y={yOf(f) + 4} fontSize="12" fill={colors.textMuted} textAnchor="end" fontWeight="600">
+                                {Math.round(f * maxKw)}
+                            </SvgText>
+                        ))}
+                        {mode === 'speed' ? (
+                            <>
+                                <Rect x={xOf(80)} y={8} width={xOf(100) - xOf(80)} height={plotH} fill={isDark ? 'rgba(255,149,0,0.16)' : 'rgba(255,149,0,0.12)'} rx={6} />
+                                <Line x1={xOf(80)} y1={8} x2={xOf(80)} y2={yOf(0)} stroke="#FF9500" strokeWidth={1.5} strokeDasharray="4 4" />
+                                <SvgText x={xOf(80) + 8} y={26} fontSize="11" fontWeight="800" fill="#FF9500" letterSpacing={1}>
+                                    SLOWS AFTER 80%
+                                </SvgText>
+                                <Path d={area(soc)} fill="url(#fillBlue)" />
+                                <Path d={curve(100)} fill="none" stroke={colors.primary} strokeWidth={3} strokeLinecap="round" opacity={0.35} />
+                                <Path d={curve(soc)} fill="none" stroke={colors.primary} strokeWidth={3.5} strokeLinecap="round" />
+                                <Line x1={xOf(soc)} y1={8} x2={xOf(soc)} y2={yOf(0)} stroke={colors.primary} strokeWidth={1.5} opacity={0.5} />
+                                <Circle cx={xOf(soc)} cy={yOf(powerAt(soc))} r={11} fill={colors.primary} opacity={0.22} />
+                                <Circle cx={xOf(soc)} cy={yOf(powerAt(soc))} r={6} fill={colors.primary} />
+                            </>
+                        ) : (
+                            <>
+                                <Path d={timeLine || 'M0 0'} fill="none" stroke={colors.primary} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" />
+                                {history.length ? <Circle cx={padL + plotW} cy={yOf(history[history.length - 1].powerKw / peak)} r={6} fill={colors.primary} /> : null}
+                            </>
+                        )}
+                        <Line x1={padL} y1={yOf(0)} x2={padL + plotW} y2={yOf(0)} stroke={colors.border} strokeWidth={1.5} />
+                        {(mode === 'speed' ? [0, 20, 40, 60, 80, 100] : []).map((p) => (
+                            <SvgText key={p} x={xOf(p)} y={H - 6} fontSize="12" fill={colors.textMuted} textAnchor="middle" fontWeight="600">
+                                {p}%
+                            </SvgText>
+                        ))}
+                        {mode === 'time'
+                            ? history.filter((_, i) => i % 2 === 0).map((h, i, arr) => (
+                                  <SvgText key={h.time + i} x={padL + (i / Math.max(1, arr.length - 1)) * plotW} y={H - 6} fontSize="11" fill={colors.textMuted} textAnchor="middle" fontWeight="600">
+                                      {h.time}
+                                  </SvgText>
+                              ))
+                            : null}
+                    </Svg>
+
+                    <View style={[styles.etaBar, { backgroundColor: colors.surfaceMuted }]}>
+                        <Clock size={20} color={colors.primary} />
+                        <ThemedText style={[styles.etaMain, { color: colors.text }]}>{minsLeft} min to {Math.min(target, 80)}%</ThemedText>
+                        <ThemedText style={[styles.etaSub, { color: colors.textMuted }]}>ETA {eta}</ThemedText>
                     </View>
                 </View>
-            </Modal>
+
+                {/* Tiles */}
+                <View style={styles.tiles}>
+                    {tiles.map((t) => (
+                        <View key={t.label} style={[styles.tile, { backgroundColor: colors.surface }]}>
+                            <View style={styles.tileTop}>
+                                <View style={[styles.tileIcon, { backgroundColor: t.tint }]}>{t.icon}</View>
+                                <ThemedText style={[styles.tileLabel, { color: colors.textMuted }]} numberOfLines={1}>{t.label}</ThemedText>
+                            </View>
+                            <View style={styles.tileValRow}>
+                                <ThemedText style={[styles.tileVal, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit>{t.value}</ThemedText>
+                                {t.unit ? <ThemedText style={[styles.tileUnit, { color: colors.textMuted }]}>{t.unit}</ThemedText> : null}
+                            </View>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={[styles.note, { backgroundColor: info.tone === 'stop' ? 'rgba(255,59,48,0.12)' : info.tone === 'wait' ? 'rgba(255,149,0,0.12)' : colors.surface }]}>
+                    <ThemedText style={[styles.noteTitle, { color: colors.text }]}>{info.title}</ThemedText>
+                    <ThemedText style={[styles.noteBody, { color: colors.textMuted }]}>{info.detail}</ThemedText>
+                    <ThemedText style={[styles.noteBody, { color: colors.text, marginTop: 8 }]}>
+                        {formatRupees(hold)} held from your wallet. Unused amount returns when you stop.
+                    </ThemedText>
+                </View>
+            </ScrollView>
+
+            {/* Stop: hold to confirm */}
+            <View style={[styles.stopWrap, { paddingBottom: Math.max(insets.bottom, 14) }]} pointerEvents="box-none">
+                <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Stop charging"
+                    accessibilityHint="Press and hold to stop and pay from your wallet"
+                    delayLongPress={HOLD_MS}
+                    onPressIn={() => setHolding(true)}
+                    onPressOut={() => setHolding(false)}
+                    onLongPress={doStop}
+                    onPress={() => {
+                        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+                    }}
+                    style={[styles.stopBtn, { backgroundColor: colors.error, transform: [{ scale: holding ? 0.98 : 1 }] }]}
+                >
+                    <Square size={18} color="#FFFFFF" fill="#FFFFFF" />
+                    <View style={{ alignItems: 'center' }}>
+                        <ThemedText style={styles.stopTitle}>Stop Charging</ThemedText>
+                        <ThemedText style={styles.stopSub}>{holding ? 'Keep holding…' : 'Hold to confirm • auto-pay from wallet'}</ThemedText>
+                    </View>
+                </Pressable>
+            </View>
 
             <Modal visible={switchCar} transparent animationType="slide" onRequestClose={() => setSwitchCar(false)}>
                 <View style={styles.overlay}>
-                    <View style={[styles.modal, { backgroundColor: colors.surface }]}>
-                        <View style={styles.modalHead}>
-                            <ThemedText style={[styles.modalTitle, { color: colors.text }]}>Which car?</ThemedText>
+                    <View style={[styles.sheet, { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16 }]}>
+                        <View style={styles.sheetHead}>
+                            <ThemedText style={[styles.sheetTitle, { color: colors.text }]}>Which car?</ThemedText>
                             <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={() => setSwitchCar(false)} hitSlop={10}>
-                                <X size={20} color={colors.text} />
+                                <X size={22} color={colors.text} />
                             </Pressable>
                         </View>
-                        {vehicles.map((v, i) => (
-                            <View key={v.id}>
-                                {i > 0 ? <Divider /> : null}
-                                <Row
-                                    title={`${v.make} ${v.model}`}
-                                    subtitle={`${v.registrationNumber} · ${v.connectorType} · ${v.currentBattery}%`}
-                                    onPress={() => {
-                                        selectVehicle(v.id);
-                                        setSwitchCar(false);
-                                    }}
-                                    right={v.id === car?.id ? <Check size={18} color={colors.text} /> : undefined}
-                                />
-                            </View>
+                        {vehicles.map((v) => (
+                            <Pressable
+                                key={v.id}
+                                accessibilityRole="radio"
+                                accessibilityState={{ checked: v.id === car?.id }}
+                                onPress={() => {
+                                    selectVehicle(v.id);
+                                    setSwitchCar(false);
+                                }}
+                                style={[styles.carRow, { borderTopColor: colors.border }]}
+                            >
+                                <View style={{ flex: 1 }}>
+                                    <ThemedText style={[styles.carName, { color: colors.text }]}>{v.make} {v.model}</ThemedText>
+                                    <ThemedText style={{ color: colors.textMuted, fontSize: 14 }}>{v.registrationNumber} · {v.connectorType} · {v.currentBattery}%</ThemedText>
+                                </View>
+                                {v.id === car?.id ? <Check size={20} color={colors.primary} strokeWidth={3} /> : null}
+                            </Pressable>
                         ))}
                     </View>
                 </View>
@@ -296,25 +319,43 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
 }
 
 const styles = StyleSheet.create({
+    container: { flex: 1 },
+    topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    activePill: { height: 46, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16 },
+    activeText: { fontSize: 17, fontWeight: '600' },
+    liveDot: { width: 9, height: 9, borderRadius: 5 },
+    dots: { fontSize: 18, fontWeight: '800', letterSpacing: 1 },
+    card: { borderRadius: 32, borderWidth: StyleSheet.hairlineWidth * 2, padding: 20, marginTop: 16 },
+    socHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+    socLabel: { fontSize: 18, fontWeight: '500' },
     socRow: { flexDirection: 'row', alignItems: 'flex-end' },
-    soc: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 68, lineHeight: 72, letterSpacing: -3.5, color: '#0B0B0F' },
-    socPct: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 26, marginBottom: 10, marginLeft: 2, color: '#0B0B0F' },
-    eta: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 15, color: '#0B0B0F' },
-    bar: { height: 10, borderRadius: 5, marginTop: 8, marginBottom: 6, backgroundColor: 'rgba(11,11,15,0.12)', justifyContent: 'center' },
-    barFill: { height: 10, borderRadius: 5, backgroundColor: '#0B0B0F' },
-    barTick: { position: 'absolute', width: 3, height: 18, borderRadius: 2, backgroundColor: '#0B0B0F', marginLeft: -1.5 },
-    chart: { flexDirection: 'row', alignItems: 'flex-end', height: 120, gap: 6, marginTop: 14 },
-    chartCol: { flex: 1, height: '100%', justifyContent: 'flex-end', alignItems: 'center' },
-    chartBar: { width: '100%', borderRadius: 6 },
-    chartLbl: { fontFamily: FONT_FAMILIES.medium, fontSize: 9, marginTop: 4 },
-    carRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 10 },
-    carName: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 16 },
-    carImgWrap: { width: 110, height: 60, borderRadius: 12, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
-    carImg: { width: 104, height: 56 },
-    toggle: { width: 48, height: 28, borderRadius: 14, padding: 3, justifyContent: 'center' },
-    knob: { width: 22, height: 22, borderRadius: 11 },
-    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end', padding: 12 },
-    modal: { borderRadius: 24, padding: 20 },
-    modalHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-    modalTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 22, letterSpacing: -0.5 },
+    soc: { fontSize: 84, fontWeight: '900', letterSpacing: -4, lineHeight: 92 },
+    socPct: { fontSize: 36, fontWeight: '500', marginBottom: 16, marginLeft: 2.0 },
+    seg: { flexDirection: 'row', borderRadius: 22, padding: 4, marginTop: 4 },
+    segItem: { height: 38, paddingHorizontal: 16, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+    segText: { fontSize: 15, fontWeight: '800', letterSpacing: 0.5 },
+    etaBar: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 56, borderRadius: 22, paddingHorizontal: 16, marginTop: 8 },
+    etaMain: { fontSize: 19, fontWeight: '700', flex: 1 },
+    etaSub: { fontSize: 17, fontWeight: '500' },
+    tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 12 },
+    tile: { width: '48.4%', borderRadius: 30, padding: 16, minHeight: 124, justifyContent: 'space-between' },
+    tileTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    tileIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    tileLabel: { fontSize: 15.5, fontWeight: '600', flexShrink: 1 },
+    tileValRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 8 },
+    tileVal: { fontSize: 36, fontWeight: '900', letterSpacing: -1.2 },
+    tileUnit: { fontSize: 19, fontWeight: '500', marginBottom: 4 },
+    note: { borderRadius: 24, padding: 16, marginTop: 12 },
+    noteTitle: { fontSize: 17, fontWeight: '700' },
+    noteBody: { fontSize: 14.5, fontWeight: '500', lineHeight: 20, marginTop: 4 },
+    stopWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16 },
+    stopBtn: { height: 72, borderRadius: 36, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16 },
+    stopTitle: { fontSize: 24, fontWeight: '700', color: '#FFFFFF' },
+    stopSub: { fontSize: 15, fontWeight: '500', color: 'rgba(255,255,255,0.9)', marginTop: 1.0 },
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    sheet: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20 },
+    sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+    sheetTitle: { fontSize: 22, fontWeight: '800', letterSpacing: -0.5 },
+    carRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderTopWidth: StyleSheet.hairlineWidth },
+    carName: { fontSize: 17, fontWeight: '700' },
 });

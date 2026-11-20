@@ -65,7 +65,7 @@ export function HeroCardFan({ width, animate = true }: { width: number; animate?
 
 const styles = StyleSheet.create({
     abs: { position: 'absolute' },
-    pad: { padding: 18, flex: 1 },
+    pad: { padding: 16, flex: 1 },
     row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     kind: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 10.5, letterSpacing: 1.3 },
     big: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 52, letterSpacing: -2, marginTop: 'auto' },

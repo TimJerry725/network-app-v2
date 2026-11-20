@@ -29,7 +29,7 @@ import {
     Route as RouteIcon,
     SlidersHorizontal,
     Zap,
-} from 'lucide-react-native';
+} from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles, Vehicle } from '../../context/VehicleContext';
@@ -57,8 +57,8 @@ type RouteOption = {
     plan: TripPlan;
 };
 
-const VIOLET = '#7B5CFF';
-const SOFT = '#A996FF';
+const VIOLET = '#007AFF';
+const SOFT = '#5AA9FF';
 const INK = '#0B0B0F';
 
 function tap(s: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) {
@@ -261,7 +261,7 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
         Linking.openURL(url).catch(() => Alert.alert('Navigation', 'Could not open Google Maps.'));
     };
 
-    const triggerBorder = (open: boolean) => (open ? VIOLET : colors.border);
+    const triggerBorder = (open: boolean) => (open ? VIOLET : 'transparent');
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -338,7 +338,7 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
             <Animated.View style={[styles.sheet, { height: sheetH, backgroundColor: colors.surface, borderColor: colors.border, paddingBottom: Math.max(insets.bottom, 12) }]}>
                 <View {...pan.panHandlers} style={styles.headerWrap}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Expand or collapse trip details" onPress={toggleSheet} style={styles.handleTouch}>
-                        <View style={[styles.handle, { backgroundColor: colors.border }]} />
+                        <View style={[styles.handle, { backgroundColor: 'rgba(60,60,67,0.3)' }]} />
                     </Pressable>
 
                     <View style={styles.headerRow}>
@@ -357,12 +357,12 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                                 accessibilityLabel={saved ? 'Trip saved' : 'Save trip'}
                                 onPress={save}
                                 disabled={saving}
-                                style={[styles.saveBtn, saved ? { backgroundColor: SOFT, borderColor: SOFT } : { backgroundColor: colors.surfaceMuted, borderColor: colors.border }]}
+                                style={[styles.saveBtn, saved ? { backgroundColor: SOFT, borderColor: SOFT } : { backgroundColor: colors.background, borderColor: 'transparent' }]}
                             >
                                 {saving ? <ActivityIndicator size="small" color={colors.text} /> : saved ? <BookmarkCheck size={14} color={INK} /> : <Bookmark size={14} color={colors.text} />}
                                 <ThemedText style={[styles.saveText, { color: saved ? INK : colors.text }]}>{saving ? 'Saving…' : saved ? 'Saved' : 'Save Trip'}</ThemedText>
                             </Pressable>
-                            <Pressable accessibilityRole="button" accessibilityLabel={expanded ? 'Collapse' : 'Expand'} onPress={toggleSheet} style={[styles.chevBtn, { backgroundColor: colors.surfaceMuted }]}>
+                            <Pressable accessibilityRole="button" accessibilityLabel={expanded ? 'Collapse' : 'Expand'} onPress={toggleSheet} style={[styles.chevBtn, { backgroundColor: colors.background }]}>
                                 {expanded ? <ChevronDown size={18} color={colors.text} /> : <ChevronUp size={18} color={colors.text} />}
                             </Pressable>
                         </View>
@@ -377,7 +377,7 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                                     snapTo(SNAP_MID);
                                     setShowChargers(true);
                                 }}
-                                style={[styles.peekChargers, { backgroundColor: 'rgba(123,92,255,0.16)' }]}
+                                style={[styles.peekChargers, { backgroundColor: 'rgba(0,122,255,0.16)' }]}
                             >
                                 <Zap size={13} color={colors.violet} fill={colors.violet} />
                                 <ThemedText style={[styles.peekChargersText, { color: colors.violet }]}>{recommended.length} Chargers • Drag up</ThemedText>
@@ -401,12 +401,12 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                                 tap();
                                 setShowRouteOptions((v) => !v);
                             }}
-                            style={[styles.trigger, { backgroundColor: colors.surfaceMuted, borderColor: triggerBorder(showRouteOptions) }]}
+                            style={[styles.trigger, { backgroundColor: colors.background, borderColor: triggerBorder(showRouteOptions) }]}
                         >
                             <View style={styles.triggerLeft}>
                                 <RouteIcon size={14} color={colors.violet} />
                                 <ThemedText style={[styles.triggerTitle, { color: colors.text }]}>Route Options</ThemedText>
-                                <View style={[styles.tagPill, { backgroundColor: 'rgba(123,92,255,0.18)' }]}>
+                                <View style={[styles.tagPill, { backgroundColor: 'rgba(0,122,255,0.18)' }]}>
                                     <ThemedText style={[styles.tagPillText, { color: colors.violet }]}>{route.tag}</ThemedText>
                                 </View>
                             </View>
@@ -417,64 +417,50 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                         </Pressable>
 
                         {showRouteOptions ? (
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingTop: 10 }}>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingTop: 8 }}>
                                 {routes.map((r) => {
                                     const sel = r.id === route.id;
-                                    const skin: CardSkin = r.tag === 'Fastest' ? 'violet' : r.tag === 'Route 2' ? 'ink' : 'lime';
-                                    const sk = SKINS[skin];
                                     return (
-                                        <SkinCard
+                                        <Pressable
                                             key={r.id}
-                                            skin={skin}
-                                            onPress={() => selectRoute(r.id)}
+                                            accessibilityRole="button"
                                             accessibilityLabel={`${r.tag}, ${r.name}, ${r.distanceKm} kilometres`}
-                                            style={[styles.payCard, sel && { borderWidth: 3, borderColor: colors.text }]}
+                                            onPress={() => selectRoute(r.id)}
+                                            style={[styles.routeCard, { backgroundColor: sel ? 'rgba(0,122,255,0.1)' : colors.background, borderColor: sel ? colors.primary : 'transparent' }]}
                                         >
-                                            <View style={styles.payPad}>
-                                                <View style={styles.payTop}>
-                                                    <View style={styles.payBrandRow}>
-                                                        {sel ? <Check size={16} color={sk.fg} strokeWidth={3} /> : null}
-                                                        <ThemedText style={[styles.payBrand, { color: sk.fg }]}>{r.tag.toUpperCase()}</ThemedText>
-                                                    </View>
+                                            <View style={styles.routeTop}>
+                                                <View style={[styles.routeTag, { backgroundColor: sel ? 'rgba(0,122,255,0.18)' : 'rgba(118,118,128,0.16)' }]}>
+                                                    <ThemedText style={[styles.routeTagText, { color: sel ? colors.primary : colors.textMuted }]}>{r.tag}</ThemedText>
                                                 </View>
-                                                <ThemedText style={[styles.payNumber, { color: sk.fg }]} numberOfLines={1}>
-                                                    {r.distanceKm}  KM  •  {r.stopsCount}  STOP{r.stopsCount === 1 ? '' : 'S'}
-                                                </ThemedText>
-                                                <View style={styles.payBottom}>
-                                                    <View style={{ flex: 1, marginRight: 10 }}>
-                                                        <ThemedText style={[styles.payLbl, { color: sk.sub }]}>VIA</ThemedText>
-                                                        <ThemedText style={[styles.payVal, { color: sk.fg }]} numberOfLines={1}>{r.name.replace(/^Via\s+/i, '')}</ThemedText>
-                                                    </View>
-                                                    <CardField label="Drive" value={fmtDur(r.driveMinutes)} fg={sk.fg} sub={sk.sub} />
-                                                    <View style={{ width: 14 }} />
-                                                    <CardField label="Arrive" value={`${r.arrivalSocPercent}%`} fg={sk.fg} sub={sk.sub} align="right" />
-                                                </View>
+                                                {sel ? <Check size={16} color={colors.primary} strokeWidth={3} /> : null}
                                             </View>
-                                        </SkinCard>
+                                            <ThemedText style={[styles.routeName, { color: sel ? colors.primary : colors.text }]} numberOfLines={1}>
+                                                {r.name}
+                                            </ThemedText>
+                                            <ThemedText style={[styles.routeStats, { color: colors.text }]}>{fmtDur(r.driveMinutes)} · {r.distanceKm} km</ThemedText>
+                                            <ThemedText style={[styles.routeSub, { color: colors.textMuted }]}>
+                                                {r.stopsCount} stop{r.stopsCount === 1 ? '' : 's'} · {r.arrivalSocPercent}% on arrival
+                                            </ThemedText>
+                                        </Pressable>
                                     );
                                 })}
                             </ScrollView>
                         ) : null}
                     </View>
 
-                    {/* KPI tiles */}
-                    <View style={styles.kpiGrid}>
-                        <View style={[styles.kpi, { backgroundColor: VIOLET }]}>
-                            <ThemedText style={[styles.kpiLabel, { color: 'rgba(255,255,255,0.8)' }]}>DISTANCE</ThemedText>
-                            <ThemedText style={[styles.kpiValue, { color: '#FFFFFF' }]}>{plan.totalDistanceKm} km</ThemedText>
-                        </View>
-                        <View style={[styles.kpi, { backgroundColor: INK }]}>
-                            <ThemedText style={[styles.kpiLabel, { color: 'rgba(255,255,255,0.65)' }]}>CHARGING STOPS</ThemedText>
-                            <ThemedText style={[styles.kpiValue, { color: '#FFFFFF' }]}>{stops.length} • {fmtDur(chargeMins)}</ThemedText>
-                        </View>
-                        <View style={[styles.kpi, { backgroundColor: SOFT }]}>
-                            <ThemedText style={[styles.kpiLabel, { color: 'rgba(11,11,15,0.7)' }]}>ENERGY NEEDED</ThemedText>
-                            <ThemedText style={[styles.kpiValue, { color: INK }]}>{plan.energyNeededKWh} kWh</ThemedText>
-                        </View>
-                        <View style={[styles.kpi, { backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: colors.border }]}>
-                            <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>ARRIVAL BATTERY</ThemedText>
-                            <ThemedText style={[styles.kpiValue, { color: colors.text }]}>{plan.arrivalBatteryPercent}%</ThemedText>
-                        </View>
+                    {/* KPI strip */}
+                    <View style={[styles.kpiStrip, { backgroundColor: colors.background }]}>
+                        {[
+                            ['Distance', `${plan.totalDistanceKm} km`, colors.text],
+                            ['Stops', `${stops.length}`, colors.text],
+                            ['Energy', `${plan.energyNeededKWh} kWh`, colors.primary],
+                            ['Arrival', `${plan.arrivalBatteryPercent}%`, plan.arrivalBatteryPercent >= 15 ? colors.success : colors.error],
+                        ].map(([label, value, color]) => (
+                            <View key={label} style={styles.kpiItem}>
+                                <ThemedText style={[styles.kpiLabel, { color: colors.textMuted }]}>{label}</ThemedText>
+                                <ThemedText style={[styles.kpiValue, { color }]} numberOfLines={1}>{value}</ThemedText>
+                            </View>
+                        ))}
                     </View>
 
                     {/* Chargers along the route (collapsible) */}
@@ -487,7 +473,7 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                                     tap();
                                     setShowChargers((v) => !v);
                                 }}
-                                style={[styles.trigger, { backgroundColor: colors.surfaceMuted, borderColor: triggerBorder(showChargers) }]}
+                                style={[styles.trigger, { backgroundColor: colors.background, borderColor: triggerBorder(showChargers) }]}
                             >
                                 <View style={styles.triggerLeft}>
                                     <Zap size={14} color={colors.violet} />
@@ -510,20 +496,20 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                             </Pressable>
 
                             {showChargers ? (
-                                <View style={{ marginTop: 10 }}>
+                                <View style={{ marginTop: 8 }}>
                                     <ThemedText style={[styles.hint, { color: colors.textMuted }]}>Tap + Add to plan extra stops along this corridor</ThemedText>
                                     {recommended.map((rec) => {
                                         const isAuto = plan.stops.some((s) => s.station.id === rec.station.id);
                                         const added = extraStops.includes(rec.station.id);
                                         const inPlan = isAuto || added;
                                         return (
-                                            <View key={`rec-${rec.station.id}`} style={[styles.rec, { backgroundColor: inPlan ? 'rgba(123,92,255,0.12)' : colors.surfaceMuted, borderColor: inPlan ? 'rgba(123,92,255,0.35)' : colors.border }]}>
+                                            <View key={`rec-${rec.station.id}`} style={[styles.rec, { backgroundColor: inPlan ? 'rgba(0,122,255,0.1)' : colors.background, borderColor: inPlan ? 'rgba(0,122,255,0.35)' : 'transparent' }]}>
                                                 <Pressable
                                                     accessibilityRole="button"
                                                     onPress={() => navigation.navigate('StationDetails', { stationId: rec.station.id, stationSnapshot: rec.station })}
                                                     style={styles.recInfo}
                                                 >
-                                                    <View style={[styles.recAvatar, { backgroundColor: inPlan ? VIOLET : colors.surface }]}>
+                                                    <View style={[styles.recAvatar, { backgroundColor: inPlan ? VIOLET : 'rgba(0,122,255,0.12)' }]}>
                                                         <Zap size={14} color={inPlan ? '#FFFFFF' : colors.violet} />
                                                     </View>
                                                     <View style={{ flex: 1 }}>
@@ -534,7 +520,7 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                                                     </View>
                                                 </Pressable>
                                                 {isAuto ? (
-                                                    <View style={[styles.planned, { backgroundColor: 'rgba(123,92,255,0.2)' }]}>
+                                                    <View style={[styles.planned, { backgroundColor: 'rgba(0,122,255,0.2)' }]}>
                                                         <Check size={12} color={colors.violet} />
                                                         <ThemedText style={[styles.plannedText, { color: colors.violet }]}>Planned</ThemedText>
                                                     </View>
@@ -616,8 +602,7 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
                         </View>
                     </View>
 
-                    <PulseButton variant="violet" title="Start navigation" icon={<Navigation size={17} color="#FFFFFF" fill="#FFFFFF" />} onPress={startNavigation} style={{ marginTop: 22 }} />
-                    <ThemedText style={[styles.navHint, { color: colors.textMuted }]}>Turn-by-turn route via Google Maps</ThemedText>
+                    <PulseButton variant="violet" title="Start navigation" icon={<Navigation size={17} color="#FFFFFF" fill="#FFFFFF" />} onPress={startNavigation} style={{ marginTop: 24 }} />
                     <View style={{ height: 24 }} />
                 </ScrollView>
             </Animated.View>
@@ -629,59 +614,66 @@ export default function TripPlanScreen({ navigation, route: navRoute }: any) {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    pin: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
+    pin: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
     pinText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 11, color: '#FFFFFF' },
-    topBar: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16 },
-    iconBtn: { width: 44, height: 44, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    topBar: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16 },
+    iconBtn: { width: 44, height: 44, borderRadius: 22, borderWidth: 0, alignItems: 'center', justifyContent: 'center' },
     titlePill: { flex: 1, height: 44, borderRadius: 22, borderWidth: 1, paddingHorizontal: 16, justifyContent: 'center' },
     titleText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 14 },
-    sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, overflow: 'hidden' },
+    sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, borderTopLeftRadius: 32, borderTopRightRadius: 32, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 16, shadowOffset: { width: 0, height: -4 } },
     headerWrap: { paddingHorizontal: 16, paddingBottom: 8 },
-    handleTouch: { alignItems: 'center', paddingTop: 10, paddingBottom: 10 },
+    handleTouch: { alignItems: 'center', paddingTop: 8, paddingBottom: 8 },
     handle: { width: 42, height: 5, borderRadius: 3 },
     headerRow: { flexDirection: 'row', alignItems: 'center' },
     sheetTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 19, letterSpacing: -0.4 },
-    sheetSubtitle: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, marginTop: 2 },
+    sheetSubtitle: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, marginTop: 2.0 },
     headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    saveBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, height: 36, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1 },
+    saveBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 36, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1 },
     saveText: { fontFamily: FONT_FAMILIES.bold, fontSize: 12.5 },
     chevBtn: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-    peekRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 },
-    peekChargers: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, height: 38, paddingHorizontal: 12, borderRadius: 12 },
+    peekRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
+    peekChargers: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, height: 38, paddingHorizontal: 12, borderRadius: 12 },
     peekChargersText: { flex: 1, fontFamily: FONT_FAMILIES.bold, fontSize: 12.5 },
-    peekNav: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 38, paddingHorizontal: 14, borderRadius: 12 },
+    peekNav: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 38, paddingHorizontal: 16, borderRadius: 12 },
     peekNavText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 12.5, color: '#FFFFFF' },
-    content: { paddingHorizontal: 16, paddingTop: 6 },
-    block: { marginTop: 18 },
-    trigger: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, paddingHorizontal: 12, borderRadius: 14, borderWidth: 1.5 },
+    content: { paddingHorizontal: 16, paddingTop: 8 },
+    block: { marginTop: 16 },
+    trigger: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 52, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1.5 },
     triggerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
     triggerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     triggerTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 14 },
     triggerHint: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 12 },
-    tagPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
+    tagPill: { paddingHorizontal: 8, paddingVertical: 2.0, borderRadius: 8 },
     tagPillText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 10.5 },
     filterChip: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 26, paddingHorizontal: 8, borderRadius: 9 },
     filterChipText: { fontFamily: FONT_FAMILIES.bold, fontSize: 11 },
     payCard: { width: 272, height: 172, flex: 0 },
     payPad: { flex: 1, padding: 16 },
     payTop: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' },
-    payBrandRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    payBrandRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     payBrand: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 12, letterSpacing: 1.6 },
     payNumber: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18, letterSpacing: 2, marginTop: 16 },
     payBottom: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 'auto' },
     payLbl: { fontFamily: FONT_FAMILIES.bold, fontSize: 9.5, letterSpacing: 1.2 },
-    payVal: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 14, marginTop: 2 },
-    kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14 },
-    kpi: { width: '48.5%', borderRadius: 20, padding: 14, minHeight: 78, justifyContent: 'space-between' },
-    kpiLabel: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 10, letterSpacing: 1 },
-    kpiValue: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 20, letterSpacing: -0.5, marginTop: 8 },
-    hint: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginBottom: 8, marginLeft: 2 },
-    rec: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 10, borderRadius: 16, borderWidth: 1, marginBottom: 8 },
-    recInfo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
-    recAvatar: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+    payVal: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 14, marginTop: 2.0 },
+    kpiStrip: { flexDirection: 'row', borderRadius: 16, paddingVertical: 12, paddingHorizontal: 8, marginTop: 16 },
+    kpiItem: { flex: 1, alignItems: 'center' },
+    kpiLabel: { fontSize: 12, fontWeight: '500' },
+    kpiValue: { fontSize: 16, fontWeight: '700', marginTop: 4 },
+    routeCard: { width: 232, borderRadius: 16, borderWidth: 2, padding: 12 },
+    routeTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    routeTag: { paddingHorizontal: 8, height: 22, borderRadius: 11, justifyContent: 'center' },
+    routeTagText: { fontSize: 12, fontWeight: '700' },
+    routeName: { fontSize: 15, fontWeight: '700', marginTop: 8 },
+    routeStats: { fontSize: 14, fontWeight: '600', marginTop: 4 },
+    routeSub: { fontSize: 12, fontWeight: '500', marginTop: 2 },
+    hint: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginBottom: 8, marginLeft: 2.0 },
+    rec: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, borderRadius: 16, borderWidth: 1, marginBottom: 8 },
+    recInfo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
+    recAvatar: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     recName: { fontFamily: FONT_FAMILIES.bold, fontSize: 14 },
-    recMeta: { fontFamily: FONT_FAMILIES.medium, fontSize: 11.5, marginTop: 1 },
-    planned: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 32, paddingHorizontal: 10, borderRadius: 10 },
+    recMeta: { fontFamily: FONT_FAMILIES.medium, fontSize: 11.5, marginTop: 1.0 },
+    planned: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 32, paddingHorizontal: 8, borderRadius: 10 },
     plannedText: { fontFamily: FONT_FAMILIES.bold, fontSize: 11.5 },
     addBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 32, paddingHorizontal: 12, borderRadius: 10 },
     addText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 12 },
@@ -689,10 +681,10 @@ const styles = StyleSheet.create({
     step: { flexDirection: 'row', gap: 12 },
     stepCol: { alignItems: 'center', width: 16 },
     dot: { width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-    line: { width: 2, flex: 1, marginVertical: 2, minHeight: 28 },
+    line: { width: 2, flex: 1, marginVertical: 2.0, minHeight: 28 },
     stepBody: { flex: 1, paddingBottom: 16 },
     stepTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 14.5 },
-    stepSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, lineHeight: 18, marginTop: 2 },
+    stepSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, lineHeight: 18, marginTop: 2.0 },
     stopHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     stopBadge: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 11.5 },
     stopDur: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 11.5 },

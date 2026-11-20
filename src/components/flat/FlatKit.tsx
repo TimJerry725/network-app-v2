@@ -10,9 +10,10 @@ import {
     ViewStyle,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronDown, ChevronLeft, ChevronRight } from '../sf/icons';
 import { ThemedText } from '../ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
+import { GlassButton } from '../glass/Glass';
 import { FONT_FAMILIES } from '../../constants/Tokens';
 
 /* ────────────────────────────────────────────────────────────
@@ -23,6 +24,10 @@ import { FONT_FAMILIES } from '../../constants/Tokens';
 
 function tap() {
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+}
+
+function tintIcon(icon: React.ReactNode, color: string) {
+    return React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<any>, { color }) : icon;
 }
 
 export function ScreenTitle({
@@ -42,15 +47,9 @@ export function ScreenTitle({
             {onBack || right ? (
                 <View style={styles.titleTop}>
                     {onBack ? (
-                        <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel="Back"
-                            onPress={onBack}
-                            hitSlop={8}
-                            style={[styles.back, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                        >
-                            <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
-                        </Pressable>
+                        <GlassButton label="Back" size={48} onPress={onBack}>
+                            <ChevronLeft size={22} color={colors.text} strokeWidth={2.5} />
+                        </GlassButton>
                     ) : (
                         <View />
                     )}
@@ -66,21 +65,9 @@ export function ScreenTitle({
 export function HeaderIcon({ children, onPress, label, active }: { children: React.ReactNode; onPress: () => void; label: string; active?: boolean }) {
     const { colors } = useAppTheme();
     return (
-        <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={label}
-            onPress={() => {
-                tap();
-                onPress();
-            }}
-            hitSlop={6}
-            style={[
-                styles.back,
-                active ? { backgroundColor: colors.lime, borderColor: colors.lime } : { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-        >
+        <GlassButton label={label} size={48} onPress={onPress} tint={active ? colors.primary : undefined}>
             {children}
-        </Pressable>
+        </GlassButton>
     );
 }
 
@@ -102,7 +89,7 @@ export function Section({
         <View style={[styles.section, style]}>
             {title ? (
                 <View style={styles.sectionHead}>
-                    <ThemedText style={[styles.sectionTitle, { color: colors.textMuted }]}>{title}</ThemedText>
+                    <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{title}</ThemedText>
                     {action ? (
                         <Pressable accessibilityRole="button" onPress={onAction} hitSlop={8}>
                             <ThemedText style={[styles.sectionAction, { color: colors.primary }]}>{action}</ThemedText>
@@ -136,10 +123,10 @@ export function Panel({
         tone === 'highlight'
             ? { backgroundColor: colors.lime, borderColor: colors.lime }
             : tone === 'warning'
-            ? { backgroundColor: 'rgba(255,200,61,0.12)', borderColor: colors.sun }
+            ? { backgroundColor: 'rgba(255,149,0,0.12)', borderColor: colors.sun }
             : tone === 'danger'
             ? { backgroundColor: 'rgba(255,90,95,0.10)', borderColor: colors.error }
-            : { backgroundColor: colors.surface, borderColor: colors.border };
+            : { backgroundColor: colors.surface, borderColor: 'transparent' };
     const body = [styles.panel, padded && styles.panelPad, toneStyle, style];
     if (onPress) {
         return (
@@ -160,7 +147,7 @@ export function Panel({
 }
 
 /** Ink text colour helpers for content inside a highlight panel. */
-export const ON_HIGHLIGHT = { fg: '#0B0B0F', sub: 'rgba(11,11,15,0.62)' };
+export const ON_HIGHLIGHT = { fg: '#FFFFFF', sub: 'rgba(255,255,255,0.8)' };
 
 export function Divider({ inset = 0 }: { inset?: number }) {
     const { colors } = useAppTheme();
@@ -187,7 +174,7 @@ export function Row({
     const { colors } = useAppTheme();
     const content = (
         <>
-            {icon ? <View style={[styles.rowIcon, { backgroundColor: colors.surfaceMuted }]}>{icon}</View> : null}
+            {icon ? <View style={[styles.rowIcon, { backgroundColor: 'rgba(0,122,255,0.12)' }]}>{tintIcon(icon, colors.primary)}</View> : null}
             <View style={{ flex: 1 }}>
                 <ThemedText style={[styles.rowTitle, { color: colors.text }, titleStyle]} numberOfLines={1}>
                     {title}
@@ -249,7 +236,7 @@ export function ExpandRow({
                 }}
                 style={styles.row}
             >
-                {icon ? <View style={[styles.rowIcon, { backgroundColor: colors.surfaceMuted }]}>{icon}</View> : null}
+                {icon ? <View style={[styles.rowIcon, { backgroundColor: 'rgba(0,122,255,0.12)' }]}>{tintIcon(icon, colors.primary)}</View> : null}
                 <View style={{ flex: 1 }}>
                     <ThemedText style={[styles.rowTitle, { color: colors.text }]} numberOfLines={1}>
                         {title}
@@ -271,7 +258,7 @@ export function ExpandRow({
 export function KeyValue({ label, value, strong, valueColor }: { label: string; value: string; strong?: boolean; valueColor?: string }) {
     const { colors } = useAppTheme();
     return (
-        <View style={[styles.kv, strong && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, marginTop: 6, paddingTop: 12 }]}>
+        <View style={[styles.kv, strong && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, marginTop: 8, paddingTop: 12 }]}>
             <ThemedText style={[styles.kvLabel, { color: strong ? colors.text : colors.textMuted }, strong && { fontFamily: FONT_FAMILIES.extraBold }]}>{label}</ThemedText>
             <ThemedText style={[styles.kvValue, { color: valueColor ?? colors.text }, strong && { fontSize: 17 }]}>{value}</ThemedText>
         </View>
@@ -336,7 +323,7 @@ export function Option({
             }}
             style={[
                 styles.option,
-                { borderColor: selected ? colors.text : colors.border, backgroundColor: selected ? colors.surfaceMuted : colors.surface },
+                { borderColor: selected ? colors.primary : 'transparent', backgroundColor: selected ? 'rgba(0,122,255,0.1)' : colors.surface },
                 style,
             ]}
         >
@@ -361,7 +348,7 @@ export const flat = StyleSheet.create({
     h2: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 20, letterSpacing: -0.4 },
     body: { fontFamily: FONT_FAMILIES.medium, fontSize: 14, lineHeight: 20 },
     caption: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, lineHeight: 17 },
-    rowGap: { flexDirection: 'row', gap: 10 },
+    rowGap: { flexDirection: 'row', gap: 8 },
     bottomBar: {
         position: 'absolute',
         left: 0,
@@ -374,43 +361,43 @@ export const flat = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-    titleWrap: { marginBottom: 6 },
-    titleTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 44, marginBottom: 10 },
+    titleWrap: { marginBottom: 8 },
+    titleTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 44, marginBottom: 8 },
     titleRight: { flexDirection: 'row', gap: 8 },
     back: { width: 44, height: 44, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-    title: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 28, lineHeight: 34, letterSpacing: -0.9 },
+    title: { fontSize: 34, fontWeight: '800', lineHeight: 42, letterSpacing: -1.2 },
     subtitle: { fontFamily: FONT_FAMILIES.medium, fontSize: 14, marginTop: 4, lineHeight: 20 },
-    section: { marginTop: 22 },
+    section: { marginTop: 24 },
     sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-    sectionTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 13, letterSpacing: 0.2 },
-    sectionAction: { fontFamily: FONT_FAMILIES.bold, fontSize: 13 },
-    panel: { borderRadius: 20, borderWidth: 1, overflow: 'hidden' },
+    sectionTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 18 },
+    sectionAction: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 15 },
+    panel: { borderRadius: 24, borderWidth: 0, overflow: 'hidden' },
     panelPad: { padding: 16 },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, minHeight: 56 },
-    rowIcon: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+    row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 16, minHeight: 56 },
+    rowIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     rowTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 15 },
-    rowSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, marginTop: 1, lineHeight: 17 },
-    expandBody: { paddingHorizontal: 14, paddingBottom: 14 },
-    kv: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, gap: 12 },
+    rowSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, marginTop: 1.0, lineHeight: 17 },
+    expandBody: { paddingHorizontal: 16, paddingBottom: 16 },
+    kv: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, gap: 12 },
     kvLabel: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 14, flexShrink: 1 },
     kvValue: { fontFamily: FONT_FAMILIES.bold, fontSize: 14, textAlign: 'right' },
     grid: { flexDirection: 'row', flexWrap: 'wrap' },
     statValue: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18 },
-    statLabel: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginTop: 1 },
-    status: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    statLabel: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginTop: 1.0 },
+    status: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     statusDot: { width: 8, height: 8, borderRadius: 4 },
     statusText: { fontFamily: FONT_FAMILIES.bold, fontSize: 12.5 },
     option: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
-        borderWidth: 1.5,
-        borderRadius: 14,
+        gap: 8,
+        borderWidth: 2,
+        borderRadius: 16,
         minHeight: 48,
         paddingHorizontal: 12,
         paddingVertical: 8,
     },
     optionLabel: { fontFamily: FONT_FAMILIES.bold, fontSize: 14 },
-    optionSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 11.5, marginTop: 1 },
+    optionSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 11.5, marginTop: 1.0 },
 });

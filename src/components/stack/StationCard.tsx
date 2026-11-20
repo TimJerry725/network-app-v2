@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Heart, Navigation } from 'lucide-react-native';
+import { Heart, Navigation } from '../sf/icons';
 import { ThemedText } from '../ThemedText';
 import { Connector, Station } from '../../constants/Stations';
 import { FONT_FAMILIES } from '../../constants/Tokens';
@@ -8,7 +8,7 @@ import { allInPrice, formatAgo, isStatusFresh, statusAgeSeconds } from '../../ut
 import { Ccs2Icon } from '../Ccs2Icon';
 import { Type2Icon } from '../Type2Icon';
 import { ChademoIcon } from '../ChademoIcon';
-import { Zap } from 'lucide-react-native';
+import { Zap } from '../sf/icons';
 import { CardField, CardSkin, SkinCard, SKINS, stackStyles } from './StackKit';
 import { Sticker } from '../pulse/PulseKit';
 
@@ -72,18 +72,18 @@ export function StationCard({
                     <View style={styles.row}>
                         <Sticker
                             label={free > 0 ? `${free} FREE` : 'ALL BUSY'}
-                            bg={free > 0 ? '#0B0B0F' : '#FFC83D'}
-                            fg={free > 0 ? '#A996FF' : '#0B0B0F'}
+                            bg={free > 0 ? '#0B0B0F' : '#FF9500'}
+                            fg={free > 0 ? '#007AFF' : '#0B0B0F'}
                             tilt={-3}
                         />
-                        {!fits ? <Sticker label="NOT FOR YOUR CAR" bg="#FF5A5F" fg="#FFFFFF" tilt={2} /> : null}
+                        {!fits ? <Sticker label="NOT FOR YOUR CAR" bg="#FF3B30" fg="#FFFFFF" tilt={2} /> : null}
                     </View>
                     <View style={styles.row}>
                         {isFavorite ? <Heart size={16} color={s.fg} fill={s.fg} /> : null}
                     </View>
                 </View>
 
-                <ThemedText style={[stackStyles.cardTitle, { color: s.fg, marginTop: 14 }]} numberOfLines={compact ? 1 : 2}>
+                <ThemedText style={[stackStyles.cardTitle, { color: s.fg, marginTop: 16 }]} numberOfLines={compact ? 1 : 2}>
                     {station.name}
                 </ThemedText>
                 <ThemedText style={[stackStyles.cardSub, { color: s.sub }]} numberOfLines={1}>
@@ -108,7 +108,7 @@ export function StationCard({
                     <CardField label="Distance" value={`${station.distanceKm} km`} fg={s.fg} sub={s.sub} />
                     <View style={{ alignItems: 'flex-end' }}>
                         <View style={styles.row}>
-                            <View style={[styles.freshDot, { backgroundColor: fresh ? '#A996FF' : '#FFC83D' }]} />
+                            <View style={[styles.freshDot, { backgroundColor: fresh ? '#007AFF' : '#FF9500' }]} />
                             <ThemedText style={[styles.fresh, { color: s.sub }]}>{formatAgo(age)}</ThemedText>
                         </View>
                         <View style={[styles.row, { marginTop: 4 }]}>
@@ -123,10 +123,10 @@ export function StationCard({
 }
 
 const styles = StyleSheet.create({
-    row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     arrow: { width: 32, height: 32, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-    plugs: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
-    plug: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 10 },
+    plugs: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+    plug: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
     plugText: { fontFamily: FONT_FAMILIES.bold, fontSize: 11.5 },
     freshDot: { width: 7, height: 7, borderRadius: 4 },
     fresh: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 11 },

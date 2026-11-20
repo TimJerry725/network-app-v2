@@ -46,7 +46,7 @@ import {
     Plug,
     User,
     Filter,
-} from 'lucide-react-native';
+} from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
 import { DcPinIcon } from '../../components/DcPinIcon';
 import { CarPinIcon } from '../../components/CarPinIcon';
@@ -89,15 +89,15 @@ const filterOptions = [
 ];
 
 export const FILTER_CHIP_COLORS: Record<string, { color: string }> = {
-    CCS2: { color: '#7B5CFF' }, // DC fast connector
-    'Type 2': { color: '#7B5CFF' }, // AC connector
-    Available: { color: '#22D38A' }, // Tertiary: Mint (Availability)
-    '24/7': { color: '#7B5CFF' }, // Primary: Ice Blue
-    Amenities: { color: '#7B5CFF' }, // Primary: Ice Blue
+    CCS2: { color: '#007AFF' }, // DC fast connector
+    'Type 2': { color: '#007AFF' }, // AC connector
+    Available: { color: '#34C759' }, // Tertiary: Mint (Availability)
+    '24/7': { color: '#007AFF' }, // Primary: Ice Blue
+    Amenities: { color: '#007AFF' }, // Primary: Ice Blue
 };
 
 function getFilterIcon(id: string, isActive: boolean, isDark: boolean) {
-    const config = FILTER_CHIP_COLORS[id] || { color: '#7B5CFF' };
+    const config = FILTER_CHIP_COLORS[id] || { color: '#007AFF' };
     const iconColor = isActive ? '#FFFFFF' : config.color;
     switch (id) {
         case 'CCS2':
@@ -964,7 +964,7 @@ export default function StationMapScreen({ navigation }: any) {
                     >
                         {filterOptions.map((filter) => {
                             const isActive = activeFilter === filter.id;
-                            const chipTheme = FILTER_CHIP_COLORS[filter.id] || { color: '#7B5CFF' };
+                            const chipTheme = FILTER_CHIP_COLORS[filter.id] || { color: '#007AFF' };
 
                             return (
                                 <TouchableOpacity
@@ -1020,7 +1020,7 @@ export default function StationMapScreen({ navigation }: any) {
                             onPress={() => navigation.navigate('Wallet')}
                         >
                             <View style={{ width: 22, height: 22, borderRadius: 8, backgroundColor: '#0B0B0F', alignItems: 'center', justifyContent: 'center' }}>
-                                <Wallet size={12} color="#A996FF" />
+                                <Wallet size={12} color="#007AFF" />
                             </View>
                             <ThemedText style={[styles.walletHeaderText, { color: '#0B0B0F' }]}>
                                 ₹{user.walletBalance.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
@@ -1140,7 +1140,7 @@ export default function StationMapScreen({ navigation }: any) {
                                     style={[
                                         styles.countBadge,
                                         {
-                                            backgroundColor: isDark ? 'rgba(123, 92, 255, 0.16)' : '#ECE7FF',
+                                            backgroundColor: isDark ? 'rgba(0, 122, 255, 0.16)' : '#E5F1FF',
                                             borderColor: 'transparent',
                                             paddingVertical: 2,
                                             paddingHorizontal: 8,
@@ -1256,12 +1256,12 @@ export default function StationMapScreen({ navigation }: any) {
                             const btnTextColor = isSelected ? colors.primary : (isDark ? '#0B0B0F' : '#FFFFFF');
                             const badgeBg = isSelected
                                 ? 'rgba(0, 0, 0, 0.14)'
-                                : (isDark ? 'rgba(123, 92, 255, 0.16)' : '#ECE7FF');
+                                : (isDark ? 'rgba(0, 122, 255, 0.16)' : '#E5F1FF');
                             const badgeTextColor = isSelected ? (isDark ? '#0B0B0F' : '#FFFFFF') : colors.secondary;
                             const availBadgeBg = isSelected
                                 ? 'rgba(0, 0, 0, 0.14)'
                                 : isDark
-                                ? (availableCount > 0 ? 'rgba(34, 211, 138, 0.16)' : 'rgba(123, 92, 255, 0.16)')
+                                ? (availableCount > 0 ? 'rgba(52, 199, 89, 0.16)' : 'rgba(0, 122, 255, 0.16)')
                                 : (availableCount > 0 ? '#D1FAE5' : '#FEE2E2');
                             const availTextColor = isSelected
                                 ? (isDark ? '#0B0B0F' : '#FFFFFF')
@@ -1305,7 +1305,7 @@ export default function StationMapScreen({ navigation }: any) {
                                                             isSelected && { backgroundColor: 'rgba(255, 255, 255, 0.22)' },
                                                         ]}
                                                     >
-                                                        <Star size={10} color={isSelected ? '#FFFFFF' : '#FFC83D'} fill={isSelected ? '#FFFFFF' : '#FFC83D'} />
+                                                        <Star size={10} color={isSelected ? '#FFFFFF' : '#FF9500'} fill={isSelected ? '#FFFFFF' : '#FF9500'} />
                                                         <ThemedText style={[styles.ratingText, isSelected && { color: '#FFFFFF' }]}>
                                                             {station.rating.toFixed(1)}
                                                         </ThemedText>
@@ -1691,7 +1691,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 2,
-        backgroundColor: 'rgba(255, 200, 61, 0.14)',
+        backgroundColor: 'rgba(255, 149, 0, 0.14)',
         paddingHorizontal: 5,
         paddingVertical: 1,
         borderRadius: RADIUS.badge,
@@ -1699,7 +1699,7 @@ const styles = StyleSheet.create({
     ratingText: {
         fontSize: 10,
         fontFamily: FONT_FAMILIES.bold,
-        color: '#FFC83D',
+        color: '#FF9500',
     },
     sheetStationMetaRow: {
         flexDirection: 'row',
@@ -2146,7 +2146,7 @@ const styles = StyleSheet.create({
     filterResetText: {
         fontSize: 12,
         fontFamily: FONT_FAMILIES.extraBold,
-        color: '#DC2626',
+        color: '#FF3B30',
         letterSpacing: 0.8,
     },
     sheetBackCircleBtn: {
@@ -2288,14 +2288,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
         backgroundColor: '#0B0B0F',
-        borderColor: '#A996FF',
+        borderColor: '#007AFF',
         borderWidth: 1.5,
         borderRadius: 999,
         paddingHorizontal: 12,
         height: 34,
         maxWidth: 230,
     },
-    liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#A996FF' },
+    liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#007AFF' },
     liveStripText: { color: '#FFFFFF', fontSize: 12, fontFamily: FONT_FAMILIES.bold },
     freshRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
     freshDot: { width: 7, height: 7, borderRadius: 4 },

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { TextInput } from '../../components/ThemedTextInput';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { AuthShell, authStyles } from '../../components/auth/AuthShell';
@@ -30,7 +31,7 @@ export default function ProfileSetupScreen({ navigation, route }: any) {
         navigation.navigate('AddVehicle');
     };
 
-    const border = (ok: boolean, hasValue: boolean) => (touched && !ok ? colors.error : ok && hasValue ? colors.violet : colors.border);
+    const border = (ok: boolean, hasValue: boolean) => (touched && !ok ? colors.error : ok && hasValue ? colors.primary : colors.border);
 
     return (
         <AuthShell
@@ -40,7 +41,7 @@ export default function ProfileSetupScreen({ navigation, route }: any) {
             onBack={() => navigation.goBack()}
             footer={<PulseButton variant="violet" title="Save & proceed" onPress={next} disabled={!valid} />}
         >
-            <ThemedText style={[authStyles.label, { color: colors.text, marginTop: 0 }]}>Name *</ThemedText>
+            <ThemedText style={[authStyles.label, { color: colors.text, marginTop: 0.0 }]}>Name *</ThemedText>
             <TextInput
                 value={name}
                 onChangeText={setName}
@@ -77,8 +78,8 @@ export default function ProfileSetupScreen({ navigation, route }: any) {
 }
 
 const styles = StyleSheet.create({
-    readonly: { height: 54, borderRadius: 16, borderWidth: 1.5, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10 },
+    readonly: { height: 54, borderRadius: 16, borderWidth: 1.5, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 },
     flag: { fontSize: 20 },
     phone: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 16 },
-    error: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 12.5, marginTop: 6 },
+    error: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 12.5, marginTop: 8 },
 });

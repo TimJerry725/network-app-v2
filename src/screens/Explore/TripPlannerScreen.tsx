@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { TextInput } from '../../components/ThemedTextInput';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeftRight, Navigation, Plus, Minus, X, Ticket } from 'lucide-react-native';
+import { ArrowLeftRight, Navigation, Plus, Minus, X, Ticket } from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles, Vehicle } from '../../context/VehicleContext';
@@ -30,15 +31,16 @@ function code3(label: string) {
 }
 
 function Stepper({ label, value, unit, onChange, step, min, max }: { label: string; value: number; unit: string; onChange: (v: number) => void; step: number; min: number; max: number }) {
+    const { colors } = useAppTheme();
     return (
-        <View style={styles.stepper}>
-            <ThemedText style={styles.stepLabel}>{label}</ThemedText>
+        <View style={[styles.stepper, { backgroundColor: colors.background }]}>
+            <ThemedText style={[styles.stepLabel, { color: colors.textMuted }]}>{label}</ThemedText>
             <View style={styles.stepRow}>
-                <Pressable accessibilityRole="button" accessibilityLabel={`Decrease ${label}`} onPress={() => { tap(); onChange(Math.max(min, value - step)); }} style={styles.stepBtn}>
+                <Pressable accessibilityRole="button" accessibilityLabel={`Decrease ${label}`} onPress={() => { tap(); onChange(Math.max(min, value - step)); }} style={[styles.stepBtn, { backgroundColor: colors.primary }]}>
                     <Minus size={14} color="#FFFFFF" />
                 </Pressable>
-                <ThemedText style={styles.stepVal}>{value}{unit}</ThemedText>
-                <Pressable accessibilityRole="button" accessibilityLabel={`Increase ${label}`} onPress={() => { tap(); onChange(Math.min(max, value + step)); }} style={styles.stepBtn}>
+                <ThemedText style={[styles.stepVal, { color: colors.text }]}>{value}{unit}</ThemedText>
+                <Pressable accessibilityRole="button" accessibilityLabel={`Increase ${label}`} onPress={() => { tap(); onChange(Math.min(max, value + step)); }} style={[styles.stepBtn, { backgroundColor: colors.primary }]}>
                     <Plus size={14} color="#FFFFFF" />
                 </Pressable>
             </View>
@@ -110,31 +112,31 @@ export default function TripPlannerScreen({ navigation, route: navRoute }: any) 
                 />
 
                 {/* Boarding pass planner */}
-                <SkinCard skin="ink" style={{ flex: 0 }}>
-                    <View style={{ padding: 18 }}>
+                <View style={[styles.passCard, { backgroundColor: colors.surface }]}>
+                    <View style={{ padding: 16 }}>
                         <View style={styles.passRow}>
                             <Pressable accessibilityRole="button" accessibilityLabel={`From ${origin.label}`} onPress={() => setPicker('origin')} style={{ flex: 1 }}>
-                                <ThemedText style={styles.passLbl}>FROM</ThemedText>
-                                <ThemedText style={styles.passCode}>{code3(origin.label)}</ThemedText>
-                                <ThemedText style={styles.passCity} numberOfLines={1}>{origin.label}</ThemedText>
+                                <ThemedText style={[styles.passLbl, { color: colors.textMuted }]}>FROM</ThemedText>
+                                <ThemedText style={[styles.passCode, { color: colors.text }]}>{code3(origin.label)}</ThemedText>
+                                <ThemedText style={[styles.passCity, { color: colors.textMuted }]} numberOfLines={1}>{origin.label}</ThemedText>
                             </Pressable>
                             <Pressable accessibilityRole="button" accessibilityLabel="Swap from and to" onPress={() => { tap(); setOriginId(destinationId); setDestinationId(originId); }} style={styles.swap}>
-                                <ArrowLeftRight size={22} color="#0B0B0F" strokeWidth={2.8} />
+                                <ArrowLeftRight size={20} color="#FFFFFF" strokeWidth={2.4} />
                             </Pressable>
                             <Pressable accessibilityRole="button" accessibilityLabel={`To ${destination.label}`} onPress={() => setPicker('destination')} style={{ flex: 1, alignItems: 'flex-end' }}>
-                                <ThemedText style={styles.passLbl}>TO</ThemedText>
-                                <ThemedText style={styles.passCode}>{code3(destination.label)}</ThemedText>
-                                <ThemedText style={styles.passCity} numberOfLines={1}>{destination.label}</ThemedText>
+                                <ThemedText style={[styles.passLbl, { color: colors.textMuted }]}>TO</ThemedText>
+                                <ThemedText style={[styles.passCode, { color: colors.text }]}>{code3(destination.label)}</ThemedText>
+                                <ThemedText style={[styles.passCity, { color: colors.textMuted }]} numberOfLines={1}>{destination.label}</ThemedText>
                             </Pressable>
                         </View>
                         <View style={styles.perforation}>
-                            {Array.from({ length: 22 }).map((_, i) => <View key={i} style={styles.perfDot} />)}
+                            {Array.from({ length: 22 }).map((_, i) => <View key={i} style={[styles.perfDot, { backgroundColor: colors.border }]} />)}
                         </View>
                         <View style={styles.steppers}>
                             <Stepper label="Leave with" value={leaveSoc} unit="%" step={5} min={10} max={100} onChange={setLeaveSoc} />
                             <Stepper label="Arrive with" value={arriveSoc} unit="%" step={5} min={5} max={60} onChange={setArriveSoc} />
                         </View>
-                        <View style={[styles.steppers, { marginTop: 10 }]}>
+                        <View style={[styles.steppers, { marginTop: 8 }]}>
                             <Stepper label="Full range" value={rangeKm} unit=" km" step={10} min={100} max={700} onChange={setRangeKm} />
                         </View>
                         {vehicles.length > 1 ? (
@@ -147,16 +149,16 @@ export default function TripPlannerScreen({ navigation, route: navRoute }: any) 
                                             accessibilityRole="radio"
                                             accessibilityState={{ checked: active }}
                                             onPress={() => { tap(); setVehId(v.id); setRangeKm(v.estRangeKm || 350); setLeaveSoc(v.currentBattery || 65); }}
-                                            style={[styles.carChip, active && { backgroundColor: '#A996FF', borderColor: '#A996FF' }]}
+                                            style={[styles.carChip, { borderColor: colors.border }, active && { backgroundColor: colors.primary, borderColor: colors.primary }]}
                                         >
-                                            <ThemedText style={[styles.carChipText, { color: active ? '#0B0B0F' : '#FFFFFF' }]}>{v.make} {v.model.split(' ')[0]}</ThemedText>
+                                            <ThemedText style={[styles.carChipText, { color: active ? '#FFFFFF' : colors.text }]}>{v.make} {v.model.split(' ')[0]}</ThemedText>
                                         </Pressable>
                                     );
                                 })}
                             </ScrollView>
                         ) : null}
                     </View>
-                </SkinCard>
+                </View>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 12 }}>
                     {POPULAR_ROUTES.map((r) => (
@@ -164,7 +166,7 @@ export default function TripPlannerScreen({ navigation, route: navRoute }: any) 
                     ))}
                 </ScrollView>
 
-                <PulseButton title="Plan my trip" icon={<Navigation size={17} color="#0B0B0F" />} onPress={() => openPlan()} />
+                <PulseButton title="Plan my trip" icon={<Navigation size={17} color="#FFFFFF" />} onPress={() => openPlan()} />
             </ScrollView>
 
             {/* City picker */}
@@ -264,26 +266,27 @@ export default function TripPlannerScreen({ navigation, route: navRoute }: any) 
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    passRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    passCard: { borderRadius: 28, overflow: 'hidden' },
+    passRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     passLbl: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 10, letterSpacing: 1.4, color: 'rgba(255,255,255,0.55)' },
     passCode: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 40, lineHeight: 46, letterSpacing: -1, color: '#FFFFFF' },
     passCity: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13, color: 'rgba(255,255,255,0.7)' },
-    swap: { width: 48, height: 48, borderRadius: 16, backgroundColor: '#A996FF', borderWidth: 2, borderColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+    swap: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#007AFF', alignItems: 'center', justifyContent: 'center' },
     perforation: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 16 },
-    perfDot: { width: 6, height: 2, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.2)' },
-    steppers: { flexDirection: 'row', gap: 10 },
-    stepper: { flex: 1, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 16, padding: 10 },
+    perfDot: { width: 6, height: 2, borderRadius: 1, backgroundColor: 'rgba(60,60,67,0.2)' },
+    steppers: { flexDirection: 'row', gap: 8 },
+    stepper: { flex: 1, borderRadius: 16, padding: 12 },
     stepLabel: { fontFamily: FONT_FAMILIES.bold, fontSize: 11, color: 'rgba(255,255,255,0.6)' },
-    stepRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
-    stepBtn: { width: 32, height: 32, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
+    stepRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
+    stepBtn: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
     stepVal: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 17, color: '#FFFFFF' },
-    carChip: { height: 34, paddingHorizontal: 12, borderRadius: 17, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', justifyContent: 'center' },
+    carChip: { height: 34, paddingHorizontal: 12, borderRadius: 17, borderWidth: 1, justifyContent: 'center' },
     carChipText: { fontFamily: FONT_FAMILIES.bold, fontSize: 12.5 },
-    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-    sheet: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 18 },
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    sheet: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 16 },
     sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     sheetTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 22, letterSpacing: -0.5 },
-    searchBox: { height: 46, borderRadius: 14, borderWidth: 1, paddingHorizontal: 14, fontFamily: FONT_FAMILIES.semiBold, fontSize: 15, marginBottom: 8 },
+    searchBox: { height: 46, borderRadius: 14, borderWidth: 1, paddingHorizontal: 16, fontFamily: FONT_FAMILIES.semiBold, fontSize: 15, marginBottom: 8 },
     cityRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
     cityCode: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 16, width: 44 },
     cityName: { fontFamily: FONT_FAMILIES.bold, fontSize: 15 },

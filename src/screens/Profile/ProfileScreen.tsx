@@ -3,7 +3,7 @@ import { Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Vie
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Pencil, Moon, Sun, LifeBuoy, Eye, Info, Plus, CreditCard, Crown, Receipt, Heart, Route, Car, Sparkles, LogOut } from 'lucide-react-native';
+import { Pencil, Moon, Sun, LifeBuoy, Eye, Info, Plus, CreditCard, Crown, Receipt, Heart, Route, Car, Sparkles, LogOut } from '../../components/sf/icons';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
 import { FONT_FAMILIES } from '../../constants/Tokens';
@@ -116,7 +116,7 @@ export default function ProfileScreen() {
                             {rewardVolts.toLocaleString('en-IN')} Volts
                         </ThemedText>
                     </Panel>
-                    <PulseButton title="Add money" variant="ghost" size="md" icon={<Plus size={15} color={colors.text} />} onPress={() => navigation.navigate('Wallet', { focusTopUp: true })} style={{ marginTop: 10 }} />
+                    <PulseButton title="Add money" variant="ghost" size="md" icon={<Plus size={15} color={colors.text} />} onPress={() => navigation.navigate('Wallet', { focusTopUp: true })} style={{ marginTop: 8 }} />
                 </Section>
 
                 <Section title="Cards and membership">
@@ -178,33 +178,33 @@ function Toggle({ icon, title, subtitle, value, onToggle }: { icon: React.ReactN
     const { colors } = useAppTheme();
     return (
         <Pressable accessibilityRole="switch" accessibilityState={{ checked: value }} accessibilityLabel={title} onPress={onToggle} style={styles.toggleRow}>
-            <View style={[styles.rowIcon, { backgroundColor: colors.surfaceMuted }]}>{icon}</View>
+            <View style={[styles.rowIcon, { backgroundColor: 'rgba(0,122,255,0.12)' }]}>{React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<any>, { color: colors.primary }) : icon}</View>
             <View style={{ flex: 1 }}>
                 <ThemedText style={[styles.rowTitle, { color: colors.text }]}>{title}</ThemedText>
                 {subtitle ? <ThemedText style={[flat.caption, { color: colors.textMuted }]}>{subtitle}</ThemedText> : null}
             </View>
-            <View style={[styles.toggle, { backgroundColor: value ? colors.lime : colors.surfaceMuted }]}>
-                <View style={[styles.knob, { backgroundColor: value ? '#0B0B0F' : '#FFFFFF', transform: [{ translateX: value ? 20 : 0 }] }]} />
+            <View style={[styles.toggle, { backgroundColor: value ? colors.success : 'rgba(118,118,128,0.3)' }]}>
+                <View style={[styles.knob, { backgroundColor: '#FFFFFF', transform: [{ translateX: value ? 20 : 0 }] }]} />
             </View>
         </Pressable>
     );
 }
 
 const styles = StyleSheet.create({
-    me: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-    avatar: { width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-    avatarText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 24, color: '#0B0B0F' },
+    me: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+    avatar: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
+    avatarText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 24, color: '#FFFFFF' },
     name: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 24, letterSpacing: -0.6 },
-    carImageWrap: { backgroundColor: '#FFFFFF', alignItems: 'center', paddingVertical: 6 },
-    carHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    carImageWrap: { backgroundColor: 'transparent', alignItems: 'center', paddingVertical: 8 },
+    carHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     pct: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 26, letterSpacing: -0.8 },
-    track: { height: 10, borderRadius: 5, marginTop: 12, marginBottom: 6, justifyContent: 'center' },
+    track: { height: 10, borderRadius: 5, marginTop: 12, marginBottom: 8, justifyContent: 'center' },
     fill: { height: 10, borderRadius: 5 },
     tick: { position: 'absolute', width: 3, height: 18, borderRadius: 2, marginLeft: -1.5 },
-    balance: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 34, lineHeight: 42, letterSpacing: -1.2, color: '#0B0B0F', marginVertical: 2 },
-    toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, minHeight: 56 },
-    rowIcon: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+    balance: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 34, lineHeight: 42, letterSpacing: -1.2, color: '#FFFFFF', marginVertical: 2.0 },
+    toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 16, minHeight: 56 },
+    rowIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     rowTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 15 },
-    toggle: { width: 48, height: 28, borderRadius: 14, padding: 3, justifyContent: 'center' },
+    toggle: { width: 48, height: 28, borderRadius: 14, padding: 4, justifyContent: 'center' },
     knob: { width: 22, height: 22, borderRadius: 11 },
 });

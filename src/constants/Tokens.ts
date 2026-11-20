@@ -2,25 +2,25 @@ import { StyleSheet, TextStyle } from 'react-native';
 
 // Pulse style: Plus Jakarta Sans (modern fintech grotesk)
 export const FONT_FAMILIES = {
-    regular: 'PlusJakartaSans_400Regular',
-    medium: 'PlusJakartaSans_500Medium',
-    semiBold: 'PlusJakartaSans_600SemiBold',
-    bold: 'PlusJakartaSans_700Bold',
-    extraBold: 'PlusJakartaSans_800ExtraBold',
-    black: 'PlusJakartaSans_800ExtraBold',
+    // iOS style uses the system font (SF Pro). These markers carry the weight;
+    // ThemedText turns them into fontWeight with the system font.
+    regular: 'SF-400',
+    medium: 'SF-500',
+    semiBold: 'SF-600',
+    bold: 'SF-700',
+    extraBold: 'SF-800',
+    black: 'SF-900',
 
-    // Grotesque Aliases
-    sansRegular: 'PlusJakartaSans_400Regular',
-    sansMedium: 'PlusJakartaSans_500Medium',
-    sansSemiBold: 'PlusJakartaSans_600SemiBold',
-    sansBold: 'PlusJakartaSans_700Bold',
-    sansExtraBold: 'PlusJakartaSans_800ExtraBold',
+    sansRegular: 'SF-400',
+    sansMedium: 'SF-500',
+    sansSemiBold: 'SF-600',
+    sansBold: 'SF-700',
+    sansExtraBold: 'SF-800',
 
-    // Pure Montserrat for headings/display (No double-lined/inline serif fonts)
-    serifDisplay: 'PlusJakartaSans_800ExtraBold',
-    serifDisplayBlack: 'PlusJakartaSans_800ExtraBold',
-    serifHeading: 'PlusJakartaSans_800ExtraBold',
-    serifExtraBold: 'PlusJakartaSans_800ExtraBold',
+    serifDisplay: 'SF-800',
+    serifDisplayBlack: 'SF-900',
+    serifHeading: 'SF-800',
+    serifExtraBold: 'SF-900',
 };
 
 // Typography tokens with Montserrat hierarchy
@@ -82,20 +82,16 @@ export const FONTS = {
     },
     // Signature Micro-Eyebrow Tag
     eyebrow: {
-        fontSize: 10,
-        fontWeight: '800' as TextStyle['fontWeight'],
-        lineHeight: 13,
-        letterSpacing: 1.4,
-        textTransform: 'uppercase' as TextStyle['textTransform'],
-        fontFamily: FONT_FAMILIES.extraBold,
+        fontSize: 13,
+        fontWeight: '600' as TextStyle['fontWeight'],
+        lineHeight: 18,
+        fontFamily: FONT_FAMILIES.semiBold,
     },
     label: {
-        fontSize: 11,
-        fontWeight: '700' as TextStyle['fontWeight'],
-        lineHeight: 15,
-        letterSpacing: 0.8,
-        textTransform: 'uppercase' as TextStyle['textTransform'],
-        fontFamily: FONT_FAMILIES.bold,
+        fontSize: 12,
+        fontWeight: '600' as TextStyle['fontWeight'],
+        lineHeight: 16,
+        fontFamily: FONT_FAMILIES.semiBold,
     },
     monoVal: {
         fontSize: 16,
@@ -140,6 +136,16 @@ export const SPACING = {
     lg: 24,
     xl: 32,
     xxl: 48,
+};
+
+// Apple HIG layout: 4pt sub-grid, 8pt rhythm, 16pt screen margins, 44pt minimum touch target.
+export const LAYOUT = {
+    margin: 16,
+    sectionGap: 24,
+    cardPadding: 16,
+    rowHeight: 56,
+    minTouch: 44,
+    tabBarHeight: 64,
 };
 
 // Radius tokens following UX Concentric Scale (Inner Radius = Outer Radius - Padding)

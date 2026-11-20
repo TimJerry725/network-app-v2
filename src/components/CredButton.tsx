@@ -11,7 +11,7 @@ import {
     ViewStyle,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { ArrowUpRight, ChevronRight } from 'lucide-react-native';
+import { ArrowUpRight, ChevronRight } from './sf/icons';
 import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
 import { useAppTheme } from '../hooks/useAppTheme';
 
@@ -86,7 +86,7 @@ export function CredButton({
         if (variant === 'secondary' || variant === 'coral') return colors.secondary;
         if (variant === 'tertiary' || variant === 'mint') return colors.tertiary;
         if (variant === 'neon') return colors.lime; // Pulse: lime = go
-        if (variant === 'danger') return isDark ? '#EF4444' : '#DC2626';
+        if (variant === 'danger') return isDark ? '#FF3B30' : '#FF3B30';
         if (variant === 'dark') return isDark ? '#121218' : '#121218';
         if (variant === 'outline') return isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
         return colors.lime; // Pulse: primary actions are lime with ink text

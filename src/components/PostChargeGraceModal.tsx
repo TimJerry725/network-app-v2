@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
         ...FONTS.h1,
         fontSize: 48,
         lineHeight: 56,
-        marginTop: 10,
+        marginTop: 8,
         fontVariant: ['tabular-nums'],
     },
     feeNote: {

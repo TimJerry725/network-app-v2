@@ -1,45 +1,72 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
-    Image,
+    Image as RNImage,
     Linking,
+    Modal,
     Platform,
     Pressable,
     ScrollView,
     Share,
     StyleSheet,
     View,
+    useWindowDimensions,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Heart, Share2, Navigation, LifeBuoy, Star, Bell, BellRing, Wallet, Zap, Check, Clock3, Lock, Coffee } from 'lucide-react-native';
+import {
+    ChevronLeft,
+    Share2,
+    Heart,
+    Clock,
+    Navigation,
+    Wifi,
+    ShoppingBag,
+    User,
+    Coffee,
+    Image as PhotoIcon,
+    Plug,
+    CircleCheck,
+    Zap,
+    Headphones,
+    Bell,
+    BellRing,
+    X,
+} from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles } from '../../context/VehicleContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { Connector, MOCK_STATIONS, Station, getStationById, isConnectorCompatible } from '../../constants/Stations';
-import { FONT_FAMILIES } from '../../constants/Tokens';
 import { stationService } from '../../services/api/stationService';
-import { ConnectorIcon } from '../../components/stack/StationCard';
-import { PulseButton } from '../../components/pulse/PulseKit';
-import { Divider, HeaderIcon, KeyValue, Option, Panel, Row, ScreenTitle, Section, StatusText, flat } from '../../components/flat/FlatKit';
+import { Glass, GlassButton } from '../../components/glass/Glass';
 import { allInPrice, formatAgo, formatRupees, isStatusFresh, statusAgeSeconds } from '../../utils/pulse';
 
-const TARGETS = [80, 85, 90, 100];
 const NOTIFY_SECONDS = 59 * 60 + 30;
 const FALLBACK_GALLERY = [
-    'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
-    'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=600',
-    'https://images.unsplash.com/photo-1558441719-7d885a5a7b63?auto=format&fit=crop&q=80&w=600',
+    'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=800',
+    'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800',
+    'https://images.unsplash.com/photo-1558441719-7d885a5a7b63?auto=format&fit=crop&q=80&w=800',
 ];
 
 function tap() {
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
 }
 
+function amenityIcon(name: string, color: string) {
+    const n = name.toLowerCase();
+    if (n.includes('wifi')) return <Wifi size={26} color={color} />;
+    if (n.includes('rest') || n.includes('wash')) return <User size={26} color={color} />;
+    if (n.includes('mall') || n.includes('store') || n.includes('shop')) return <ShoppingBag size={26} color={color} />;
+    return <Coffee size={26} color={color} />;
+}
+
+/** Station details (iOS 27 design). */
 export default function StationDetailScreen({ route, navigation }: any) {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
+    const { width } = useWindowDimensions();
     const { user, selectedVehicle } = useVehicles();
     const { isFavorite, toggleFavorite } = useFavorites();
 
@@ -55,10 +82,10 @@ export default function StationDetailScreen({ route, navigation }: any) {
     }, [route.params?.stationId]);
 
     const vehicleType = selectedVehicle?.connectorType;
-    const firstGood = station.connectors.find((c) => c.status === 'Available' && isConnectorCompatible(c.type, vehicleType)) ?? station.connectors[0];
-    const [selectedId, setSelectedId] = useState<string | null>(firstGood?.id ?? null);
-    const [target, setTarget] = useState(selectedVehicle?.chargeTarget && TARGETS.includes(selectedVehicle.chargeTarget) ? selectedVehicle.chargeTarget : 80);
+    const target = selectedVehicle?.chargeTarget ?? 80;
     const [tracked, setTracked] = useState<Record<string, number>>({});
+    const [photoIdx, setPhotoIdx] = useState(0);
+    const [tariffOpen, setTariffOpen] = useState(false);
 
     useEffect(() => {
         const t = setInterval(() => {
@@ -77,24 +104,11 @@ export default function StationDetailScreen({ route, navigation }: any) {
         return () => clearInterval(t);
     }, []);
 
-    const groups = useMemo(() => {
-        const map: Record<string, Connector[]> = {};
-        station.connectors.forEach((c, i) => {
-            const key = c.chargerId || c.id.split('-')[0] || `CP${i + 1}`;
-            (map[key] ??= []).push(c);
-        });
-        return Object.entries(map).map(([chargerId, connectors]) => ({ chargerId, connectors }));
-    }, [station.connectors]);
-
-    const selected = station.connectors.find((c) => c.id === selectedId) ?? null;
-    const selectedOk = !!selected && selected.status === 'Available' && isConnectorCompatible(selected.type, vehicleType);
     const fav = isFavorite(station.id);
-    const minPrice = Math.min(...station.connectors.map((c) => c.pricePerKWh));
     const age = statusAgeSeconds(station.id);
     const gallery = station.galleryImages?.length ? station.galleryImages : FALLBACK_GALLERY;
-    const estKwh = selectedVehicle ? Math.max(0, ((target - selectedVehicle.currentBattery) / 100) * selectedVehicle.batteryCapacity) : 0;
-    const estCost = selected ? estKwh * allInPrice(selected.pricePerKWh) : 0;
-    const lowBalance = estCost > 0 && user.walletBalance < estCost;
+    const minPrice = Math.min(...station.connectors.map((c) => c.pricePerKWh));
+    const chargers = useMemo(() => [...station.connectors], [station.connectors]);
 
     const share = async () => {
         try {
@@ -112,222 +126,303 @@ export default function StationDetailScreen({ route, navigation }: any) {
             { text: 'Cancel', style: 'cancel' },
             { text: 'Call 1800-419-4747', onPress: () => Linking.openURL('tel:18004194747').catch(() => {}) },
         ]);
-    const go = () => navigation.navigate('ChargingSession', { stationId: station.id, stationSnapshot: station, connectorId: selected!.id, targetSoc: target });
-    const start = () => {
-        if (!selected) return;
-        if (!selectedOk) {
-            Alert.alert(
-                selected.status !== 'Available' ? 'This connector is busy' : 'Not compatible',
-                selected.status !== 'Available' ? 'Pick a free connector, or tap “Notify me”.' : `Your car uses ${vehicleType}. Choose a matching connector.`
-            );
-            return;
-        }
-        if (lowBalance) {
-            Alert.alert('Top up first?', `This charge is about ${formatRupees(estCost)} and your wallet has ${formatRupees(user.walletBalance)}.`, [
+
+    const go = (c: Connector) =>
+        navigation.navigate('ChargingSession', { stationId: station.id, stationSnapshot: station, connectorId: c.id, targetSoc: target });
+
+    const start = (c: Connector) => {
+        const est = selectedVehicle
+            ? Math.max(0, ((target - selectedVehicle.currentBattery) / 100) * selectedVehicle.batteryCapacity) * allInPrice(c.pricePerKWh)
+            : 0;
+        if (est > 0 && user.walletBalance < est) {
+            Alert.alert('Top up first?', `This charge is about ${formatRupees(est)} and your wallet has ${formatRupees(user.walletBalance)}.`, [
                 { text: 'Add money', onPress: () => navigation.navigate('Wallet', { focusTopUp: true }) },
-                { text: 'Start anyway', onPress: go },
+                { text: 'Start anyway', onPress: () => go(c) },
                 { text: 'Cancel', style: 'cancel' },
             ]);
             return;
         }
-        go();
+        go(c);
     };
 
+    const chipBg = isDark ? 'rgba(255,255,255,0.10)' : '#FFFFFF';
+
     return (
-        <View style={[flat.screen, { backgroundColor: colors.background }]}>
-            <ScrollView contentContainerStyle={{ paddingTop: insets.top + 6, paddingHorizontal: 16, paddingBottom: insets.bottom + 130 }} showsVerticalScrollIndicator={false}>
-                <ScreenTitle
-                    title={station.name}
-                    subtitle={station.address}
-                    onBack={() => navigation.goBack()}
-                    right={
-                        <>
-                            <HeaderIcon label="Share station" onPress={share}>
-                                <Share2 size={18} color={colors.text} />
-                            </HeaderIcon>
-                            <HeaderIcon label={fav ? 'Remove from saved' : 'Save station'} active={fav} onPress={() => toggleFavorite(station.id)}>
-                                <Heart size={18} color={fav ? '#0B0B0F' : colors.text} fill={fav ? '#0B0B0F' : 'none'} />
-                            </HeaderIcon>
-                        </>
-                    }
-                />
-
-                <View style={styles.meta}>
-                    <View style={styles.metaItem}>
-                        <Star size={13} color={colors.sun} fill={colors.sun} />
-                        <ThemedText style={[styles.metaText, { color: colors.text }]}>{station.rating.toFixed(1)}</ThemedText>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: insets.bottom + 130 }} showsVerticalScrollIndicator={false}>
+                {/* Glass header buttons */}
+                <View style={[styles.topRow, styles.pad]}>
+                    <GlassButton label="Back" size={48} onPress={() => navigation.goBack()}>
+                        <ChevronLeft size={22} color={colors.text} strokeWidth={2.5} />
+                    </GlassButton>
+                    <View style={styles.topRight}>
+                        <GlassButton label="Share station" size={48} onPress={share}>
+                            <Share2 size={21} color={colors.text} />
+                        </GlassButton>
+                        <GlassButton
+                            label={fav ? 'Remove from favorites' : 'Add to favorites'}
+                            size={48}
+                            tint={fav ? 'rgba(255,59,48,0.35)' : undefined}
+                            onPress={() => {
+                                tap();
+                                toggleFavorite(station.id);
+                            }}
+                        >
+                            <Heart size={21} color={fav ? colors.error : colors.text} fill={fav ? colors.error : 'none'} />
+                        </GlassButton>
                     </View>
-                    <ThemedText style={[styles.metaText, { color: colors.textMuted }]}>· {station.distanceKm} km</ThemedText>
-                    <ThemedText style={[styles.metaText, { color: colors.textMuted }]}>· from ₹{allInPrice(minPrice).toFixed(0)}/kWh</ThemedText>
-                </View>
-                <View style={{ marginTop: 8 }}>
-                    <StatusText tone={isStatusFresh(age) ? 'ok' : 'wait'} label={`${isStatusFresh(age) ? 'Live status' : 'Status may be stale'} · updated ${formatAgo(age)}`} />
                 </View>
 
-                <View style={[flat.rowGap, { marginTop: 14 }]}>
-                    <PulseButton title="Directions" variant="ink" size="md" icon={<Navigation size={16} color={colors.background} />} onPress={directions} style={{ flex: 1 }} />
-                    <PulseButton title="Help" variant="ghost" size="md" icon={<LifeBuoy size={16} color={colors.text} />} onPress={help} style={{ flex: 1 }} />
-                </View>
+                <View style={styles.pad}>
+                    <ThemedText style={[styles.title, { color: colors.text }]}>{station.name}</ThemedText>
+                    <ThemedText style={[styles.address, { color: colors.textMuted }]}>{station.address}</ThemedText>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: 16 }}>
-                    {gallery.map((uri, i) => (
-                        <Image key={i} source={{ uri }} style={styles.photo} accessibilityLabel={`${station.name} photo ${i + 1}`} />
-                    ))}
-                </ScrollView>
-
-                <Section title="Connectors">
-                    <Panel padded={false}>
-                        {groups.map((g, gi) => {
-                            const anyFree = g.connectors.some((c) => c.status === 'Available');
-                            const secs = tracked[g.chargerId];
-                            return (
-                                <Fragment key={g.chargerId}>
-                                    {gi > 0 ? <Divider /> : null}
-                                    <View style={styles.groupHead}>
-                                        <ThemedText style={[styles.groupId, { color: colors.textMuted }]}>Charger {g.chargerId}</ThemedText>
-                                        {!anyFree ? (
-                                            <Pressable
-                                                accessibilityRole="button"
-                                                onPress={() => {
-                                                    tap();
-                                                    setTracked((p) => {
-                                                        const c = { ...p };
-                                                        if (c[g.chargerId]) delete c[g.chargerId];
-                                                        else c[g.chargerId] = NOTIFY_SECONDS;
-                                                        return c;
-                                                    });
-                                                }}
-                                                hitSlop={8}
-                                                style={styles.notify}
-                                            >
-                                                {secs ? <BellRing size={14} color={colors.primary} /> : <Bell size={14} color={colors.primary} />}
-                                                <ThemedText style={[styles.notifyText, { color: colors.primary }]}>
-                                                    {secs ? `Watching · ${Math.floor(secs / 60)}m` : 'Notify me when free'}
-                                                </ThemedText>
-                                            </Pressable>
-                                        ) : null}
-                                    </View>
-                                    {g.connectors.map((c) => {
-                                        const isSel = c.id === selectedId;
-                                        const ok = isConnectorCompatible(c.type, vehicleType);
-                                        const free = c.status === 'Available';
-                                        return (
-                                            <Pressable
-                                                key={c.id}
-                                                accessibilityRole="radio"
-                                                accessibilityState={{ checked: isSel }}
-                                                accessibilityLabel={`${c.type} ${c.power} kilowatt, ${c.status}`}
-                                                onPress={() => {
-                                                    tap();
-                                                    setSelectedId(c.id);
-                                                }}
-                                                style={[styles.conn, isSel && { backgroundColor: colors.surfaceMuted }]}
-                                            >
-                                                <View style={[styles.radio, { borderColor: isSel ? colors.lime : colors.border, backgroundColor: isSel ? colors.lime : 'transparent' }]}>
-                                                    {isSel ? <Check size={12} color="#0B0B0F" strokeWidth={3} /> : null}
-                                                </View>
-                                                <ConnectorIcon type={c.type} size={20} color={colors.text} />
-                                                <View style={{ flex: 1 }}>
-                                                    <ThemedText style={[styles.connTitle, { color: colors.text }]}>
-                                                        {c.gunLabel ? `${c.gunLabel} · ` : ''}
-                                                        {c.type} · {c.currentType ?? (c.power >= 50 ? 'DC' : 'AC')} · {c.power} kW
-                                                    </ThemedText>
-                                                    <ThemedText style={[styles.connSub, { color: colors.textMuted }]}>
-                                                        ₹{allInPrice(c.pricePerKWh).toFixed(0)}/kWh incl. GST{!ok ? ' · not for your car' : ''}
-                                                    </ThemedText>
-                                                </View>
-                                                <StatusText
-                                                    tone={free ? 'ok' : c.status === 'Preparing' ? 'wait' : 'muted'}
-                                                    label={free ? 'Free' : c.status === 'Busy' && c.waitMinutes ? `Busy · ${c.waitMinutes}m` : c.status}
-                                                />
-                                            </Pressable>
-                                        );
-                                    })}
-                                </Fragment>
-                            );
-                        })}
-                    </Panel>
-                </Section>
-
-                <Section title="Charge to">
-                    <View style={flat.rowGap}>
-                        {TARGETS.map((t) => (
-                            <Option key={t} label={`${t}%`} selected={t === target} onPress={() => setTarget(t)} style={{ flex: 1 }} />
-                        ))}
+                    <View style={styles.statusRow}>
+                        <View style={[styles.chip, { backgroundColor: 'rgba(52,199,89,0.16)' }]}>
+                            <View style={[styles.dot, { backgroundColor: colors.success }]} />
+                            <ThemedText style={[styles.chipText, { color: colors.success }]}>{isStatusFresh(age) ? 'Open' : 'Check status'}</ThemedText>
+                        </View>
+                        <View style={[styles.chip, { backgroundColor: chipBg }]}>
+                            <Clock size={16} color={colors.textMuted} />
+                            <ThemedText style={[styles.chipText, { color: colors.text }]}>{station.openTime === '24/7' ? '24 hrs' : `${station.openTime} – ${station.closeTime}`}</ThemedText>
+                        </View>
+                        <View style={[styles.chip, { backgroundColor: chipBg }]}>
+                            <Navigation size={16} color={colors.primary} />
+                            <ThemedText style={[styles.chipText, { color: colors.text }]}>
+                                {station.distanceKm} km · ETA: {station.etaMinutes} min
+                            </ThemedText>
+                        </View>
                     </View>
-                    {selected && selectedVehicle ? (
-                        <ThemedText style={[flat.caption, { color: colors.textMuted, marginTop: 8 }]}>
-                            {selectedVehicle.currentBattery}% → {target}% ≈ {estKwh.toFixed(1)} kWh ≈ {formatRupees(estCost)} incl. GST
-                        </ThemedText>
+                    <ThemedText style={[styles.fresh, { color: colors.textMuted }]}>Live status · updated {formatAgo(age)}</ThemedText>
+
+                    {/* Amenities */}
+                    {station.amenities?.length ? (
+                        <View style={styles.amenRow}>
+                            {station.amenities.slice(0, 4).map((a) => (
+                                <View key={a} style={styles.amen}>
+                                    <View style={[styles.amenTile, { backgroundColor: 'rgba(0,122,255,0.12)' }]}>{amenityIcon(a, colors.primary)}</View>
+                                    <ThemedText style={[styles.amenLabel, { color: colors.textMuted }]} numberOfLines={1}>{a}</ThemedText>
+                                </View>
+                            ))}
+                        </View>
                     ) : null}
-                </Section>
 
-                <Section title="What you pay">
-                    <Panel>
-                        <KeyValue label="Energy" value={`₹${(selected?.pricePerKWh ?? minPrice).toFixed(2)} / kWh`} />
-                        <KeyValue label="GST (CGST 9% + SGST 9%)" value="+18%" />
-                        <KeyValue label="Idle fee grace" value="15 min free" />
-                        <KeyValue label="Idle fee after that" value="₹5 / min" valueColor={colors.error} />
-                        <KeyValue label="You pay" value={`₹${allInPrice(selected?.pricePerKWh ?? minPrice).toFixed(2)} / kWh`} strong />
-                    </Panel>
-                </Section>
+                    {/* Photos */}
+                    <View style={[styles.photoWrap, { width: width - 32 }]}>
+                        <ScrollView
+                            horizontal
+                            pagingEnabled
+                            showsHorizontalScrollIndicator={false}
+                            onMomentumScrollEnd={(e) => setPhotoIdx(Math.round(e.nativeEvent.contentOffset.x / (width - 32)))}
+                        >
+                            {gallery.map((uri, i) => (
+                                <View key={uri + i} style={{ width: width - 32, height: 224 }}>
+                                    <LinearGradient colors={isDark ? ['#1C3A5E', '#3A2A5C'] : ['#A8CCFA', '#F2C8D0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+                                    <RNImage source={{ uri }} style={StyleSheet.absoluteFill} resizeMode="cover" accessibilityLabel={`${station.name} photo ${i + 1}`} />
+                                </View>
+                            ))}
+                        </ScrollView>
+                        <Glass radius={20} style={styles.photoBadge}>
+                            <PhotoIcon size={16} color={colors.text} />
+                            <ThemedText style={[styles.photoBadgeText, { color: colors.text }]}>
+                                {photoIdx + 1} / {gallery.length} photos
+                            </ThemedText>
+                        </Glass>
+                    </View>
 
-                <Section title="About this station">
-                    <Panel padded={false}>
-                        <Row icon={<Clock3 size={16} color={colors.text} />} title={station.openTime === '24/7' ? 'Open 24/7' : `${station.openTime} – ${station.closeTime}`} subtitle="Hours" />
-                        <Divider inset={60} />
-                        <Row icon={<Lock size={16} color={colors.text} />} title={station.accessType ?? 'Public'} subtitle="Access" />
-                        {station.amenities?.length ? (
-                            <>
-                                <Divider inset={60} />
-                                <Row icon={<Coffee size={16} color={colors.text} />} title={station.amenities.join(', ')} subtitle="Amenities" />
-                            </>
-                        ) : null}
-                    </Panel>
-                    {station.tagline ? <ThemedText style={[flat.caption, { color: colors.textMuted, marginTop: 10 }]}>{station.tagline}</ThemedText> : null}
-                </Section>
+                    <ThemedText style={[styles.section, { color: colors.textMuted }]}>Chargers</ThemedText>
+
+                    {chargers.map((c, i) => {
+                        const free = c.status === 'Available';
+                        const fits = isConnectorCompatible(c.type, vehicleType);
+                        const secs = tracked[c.chargerId ?? c.id];
+                        const est = selectedVehicle
+                            ? Math.max(0, ((target - selectedVehicle.currentBattery) / 100) * selectedVehicle.batteryCapacity) * allInPrice(c.pricePerKWh)
+                            : 0;
+                        const accent = free ? colors.primary : colors.error;
+                        return (
+                            <View key={c.id} style={[styles.chargerCard, { backgroundColor: colors.surface }]}>
+                                <View style={styles.chargerTop}>
+                                    <View style={[styles.plugTile, { backgroundColor: free ? 'rgba(0,122,255,0.14)' : 'rgba(255,59,48,0.14)' }]}>
+                                        <Plug size={32} color={accent} />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <ThemedText style={[styles.chargerName, { color: colors.text }]} numberOfLines={1}>
+                                            {c.type} · Charger {c.gunLabel?.replace(/\D/g, '') || i + 1}
+                                        </ThemedText>
+                                        <ThemedText style={[styles.chargerSub, { color: colors.textMuted }]}>
+                                            {c.power} kW {c.currentType ?? (c.power >= 50 ? 'DC' : 'AC')}
+                                            {free ? ' • 200–920 V' : c.waitMinutes ? ` • Next free in ${c.waitMinutes} min` : ''}
+                                        </ThemedText>
+                                    </View>
+                                    {free ? (
+                                        <View style={{ alignItems: 'flex-end' }}>
+                                            <ThemedText style={[styles.price, { color: colors.text }]}>₹{allInPrice(c.pricePerKWh).toFixed(1)}</ThemedText>
+                                            <ThemedText style={[styles.priceUnit, { color: colors.textMuted }]}>/kWh</ThemedText>
+                                        </View>
+                                    ) : (
+                                        <View style={[styles.chip, { backgroundColor: 'rgba(255,59,48,0.14)' }]}>
+                                            <View style={[styles.dot, { backgroundColor: colors.error }]} />
+                                            <ThemedText style={[styles.chipText, { color: colors.error }]}>{c.status === 'Busy' ? 'Occupied' : c.status}</ThemedText>
+                                        </View>
+                                    )}
+                                </View>
+
+                                {free ? (
+                                    <>
+                                        <View style={styles.pillRow}>
+                                            <View style={[styles.chip, { backgroundColor: 'rgba(52,199,89,0.16)' }]}>
+                                                <View style={[styles.dot, { backgroundColor: colors.success }]} />
+                                                <ThemedText style={[styles.chipText, { color: colors.success }]}>Available</ThemedText>
+                                            </View>
+                                            {fits ? (
+                                                <View style={[styles.chip, { backgroundColor: 'rgba(0,122,255,0.14)' }]}>
+                                                    <CircleCheck size={16} color={colors.primary} />
+                                                    <ThemedText style={[styles.chipText, { color: colors.primary }]}>EV match</ThemedText>
+                                                </View>
+                                            ) : (
+                                                <View style={[styles.chip, { backgroundColor: 'rgba(255,149,0,0.16)' }]}>
+                                                    <ThemedText style={[styles.chipText, { color: colors.warning }]}>Not for your car</ThemedText>
+                                                </View>
+                                            )}
+                                        </View>
+                                        {est > 0 ? (
+                                            <ThemedText style={[styles.estimate, { color: colors.textMuted }]}>
+                                                Est. {selectedVehicle?.currentBattery}→{target}% • ≈ {formatRupees(est)} incl. GST
+                                            </ThemedText>
+                                        ) : null}
+                                        <Pressable
+                                            accessibilityRole="button"
+                                            accessibilityLabel={`Start charging on ${c.type}`}
+                                            disabled={!fits}
+                                            onPress={() => {
+                                                tap();
+                                                start(c);
+                                            }}
+                                            style={({ pressed }) => [styles.startBtn, { backgroundColor: fits ? colors.primary : colors.surfaceMuted, opacity: pressed ? 0.8 : 1 }]}
+                                        >
+                                            <Zap size={22} color={fits ? '#FFFFFF' : colors.textSoft} fill={fits ? '#FFFFFF' : 'none'} />
+                                            <ThemedText style={[styles.startText, { color: fits ? '#FFFFFF' : colors.textSoft }]}>Start Charging</ThemedText>
+                                        </Pressable>
+                                    </>
+                                ) : (
+                                    <Pressable
+                                        accessibilityRole="button"
+                                        onPress={() => {
+                                            tap();
+                                            const key = c.chargerId ?? c.id;
+                                            setTracked((p) => {
+                                                const n = { ...p };
+                                                if (n[key]) delete n[key];
+                                                else n[key] = NOTIFY_SECONDS;
+                                                return n;
+                                            });
+                                        }}
+                                        style={styles.notify}
+                                    >
+                                        {secs ? <BellRing size={17} color={colors.primary} /> : <Bell size={17} color={colors.primary} />}
+                                        <ThemedText style={[styles.notifyText, { color: colors.primary }]}>
+                                            {secs ? `Watching · ${Math.floor(secs / 60)}m left` : 'Notify me when free'}
+                                        </ThemedText>
+                                    </Pressable>
+                                )}
+                            </View>
+                        );
+                    })}
+
+                    <Pressable accessibilityRole="button" onPress={() => setTariffOpen(true)} style={styles.tariffLink}>
+                        <ThemedText style={[styles.tariffLinkText, { color: colors.primary }]}>View full tariff and penalty schedule</ThemedText>
+                    </Pressable>
+                </View>
             </ScrollView>
 
-            <View style={[flat.bottomBar, styles.bar, { paddingBottom: insets.bottom + 12, backgroundColor: colors.background, borderTopColor: colors.border }]}>
-                <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Open wallet"
-                    onPress={() => navigation.navigate('Wallet', { focusTopUp: true })}
-                    style={[styles.wallet, { borderColor: lowBalance ? colors.sun : colors.border }]}
-                >
-                    <Wallet size={15} color={lowBalance ? colors.sun : colors.text} />
-                    <View>
-                        <ThemedText style={[styles.walletVal, { color: colors.text }]}>{formatRupees(user.walletBalance)}</ThemedText>
-                        <ThemedText style={[styles.walletLbl, { color: lowBalance ? colors.sun : colors.textMuted }]}>{lowBalance ? 'Top up' : 'Wallet'}</ThemedText>
-                    </View>
+            {/* Bottom actions */}
+            <Glass radius={0} style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 14) }]}>
+                <Pressable accessibilityRole="button" onPress={help} style={({ pressed }) => [styles.bottomBtn, styles.helpBtn, { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.8 : 1 }]}>
+                    <Headphones size={22} color={colors.text} />
+                    <ThemedText style={[styles.bottomText, { color: colors.text }]}>Help Support</ThemedText>
                 </Pressable>
-                <PulseButton
-                    title={selectedOk ? `Start · ${selected?.type} ${selected?.power}kW` : 'Pick a free connector'}
-                    icon={<Zap size={17} color="#0B0B0F" fill="#0B0B0F" />}
-                    onPress={start}
-                    disabled={!selected}
-                    style={{ flex: 1 }}
-                />
-            </View>
+                <Pressable accessibilityRole="button" onPress={directions} style={({ pressed }) => [styles.bottomBtn, { backgroundColor: isDark ? '#FFFFFF' : '#000000', opacity: pressed ? 0.8 : 1 }]}>
+                    <Navigation size={22} color={isDark ? '#000000' : '#FFFFFF'} />
+                    <ThemedText style={[styles.bottomText, { color: isDark ? '#000000' : '#FFFFFF' }]}>Get Direction</ThemedText>
+                </Pressable>
+            </Glass>
+
+            {/* Tariff and penalty schedule */}
+            <Modal visible={tariffOpen} transparent animationType="slide" onRequestClose={() => setTariffOpen(false)}>
+                <View style={styles.overlay}>
+                    <View style={[styles.tariffSheet, { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16 }]}>
+                        <View style={styles.tariffHead}>
+                            <ThemedText style={[styles.tariffTitle, { color: colors.text }]}>Tariff & penalty schedule</ThemedText>
+                            <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={() => setTariffOpen(false)} hitSlop={10}>
+                                <X size={22} color={colors.text} />
+                            </Pressable>
+                        </View>
+                        <ThemedText style={[styles.tariffSub, { color: colors.textMuted }]}>{station.name}</ThemedText>
+                        {[
+                            ['Energy', `₹${minPrice.toFixed(2)} / kWh`],
+                            ['GST (CGST 9% + SGST 9%)', '+18%'],
+                            ['You pay', `₹${allInPrice(minPrice).toFixed(2)} / kWh`],
+                            ['Idle fee grace', '15 min free'],
+                            ['Idle fee after that', '₹5 / min'],
+                        ].map(([k, v], i) => (
+                            <View key={k} style={[styles.tariffRow, { borderTopColor: colors.border }, i === 2 && { borderTopWidth: StyleSheet.hairlineWidth }]}>
+                                <ThemedText style={[styles.tariffKey, { color: i === 2 ? colors.text : colors.textMuted, fontWeight: i === 2 ? '700' : '500' }]}>{k}</ThemedText>
+                                <ThemedText style={[styles.tariffVal, { color: i === 4 ? colors.error : colors.text }]}>{v}</ThemedText>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    meta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, flexWrap: 'wrap' },
-    metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    metaText: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13.5 },
-    photo: { width: 200, height: 120, borderRadius: 16, backgroundColor: '#1F1F28' },
-    groupHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingTop: 12, paddingBottom: 4 },
-    groupId: { fontFamily: FONT_FAMILIES.bold, fontSize: 12.5 },
-    notify: { flexDirection: 'row', alignItems: 'center', gap: 5, minHeight: 28 },
-    notifyText: { fontFamily: FONT_FAMILIES.bold, fontSize: 12.5 },
-    conn: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, minHeight: 60 },
-    radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
-    connTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 14 },
-    connSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginTop: 1 },
-    bar: { flexDirection: 'row', gap: 10 },
-    wallet: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, borderRadius: 18, borderWidth: 1.5, height: 58 },
-    walletVal: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 14 },
-    walletLbl: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 11 },
+    container: { flex: 1 },
+    pad: { paddingHorizontal: 16 },
+    topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    topRight: { flexDirection: 'row', gap: 8 },
+    title: { fontSize: 34, fontWeight: '800', letterSpacing: -1, lineHeight: 40, marginTop: 16 },
+    address: { fontSize: 17, fontWeight: '500', marginTop: 8 },
+    statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 16 },
+    chip: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 38, paddingHorizontal: 16, borderRadius: 19 },
+    dot: { width: 8, height: 8, borderRadius: 4 },
+    chipText: { fontSize: 15, fontWeight: '600' },
+    fresh: { fontSize: 12.5, fontWeight: '500', marginTop: 8 },
+    amenRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+    amen: { alignItems: 'center', width: 76 },
+    amenTile: { width: 56, height: 56, borderRadius: 16, borderWidth: 0, alignItems: 'center', justifyContent: 'center' },
+    amenLabel: { fontSize: 14, fontWeight: '500', marginTop: 8 },
+    photoWrap: { marginTop: 20, height: 224, borderRadius: 28, overflow: 'hidden' },
+    photoBadge: { position: 'absolute', left: 14, bottom: 14, flexDirection: 'row', alignItems: 'center', gap: 8, height: 40, paddingHorizontal: 16 },
+    photoBadgeText: { fontSize: 15, fontWeight: '700' },
+    section: { fontSize: 17, fontWeight: '600', marginTop: 24, marginBottom: 8 },
+    chargerCard: { borderRadius: 28, padding: 16, marginBottom: 12 },
+    chargerTop: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+    plugTile: { width: 56, height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+    chargerName: { fontSize: 20, fontWeight: '800', letterSpacing: -0.4 },
+    chargerSub: { fontSize: 15.5, fontWeight: '500', marginTop: 4 },
+    price: { fontSize: 22, fontWeight: '800', letterSpacing: -0.5 },
+    priceUnit: { fontSize: 15, fontWeight: '500' },
+    pillRow: { flexDirection: 'row', gap: 8, marginTop: 16 },
+    estimate: { fontSize: 14, fontWeight: '500', marginTop: 12 },
+    startBtn: { height: 62, borderRadius: 31, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16 },
+    startText: { fontSize: 20, fontWeight: '700' },
+    notify: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12, minHeight: 36 },
+    notifyText: { fontSize: 15.5, fontWeight: '600' },
+    tariffLink: { alignItems: 'center', paddingVertical: 16 },
+    tariffLinkText: { fontSize: 17, fontWeight: '700' },
+    bottomBar: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', gap: 12, paddingHorizontal: 16, paddingTop: 16, borderTopLeftRadius: 28, borderTopRightRadius: 28 },
+    bottomBtn: { flex: 1, height: 62, borderRadius: 31, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+    helpBtn: { borderWidth: StyleSheet.hairlineWidth * 2 },
+    bottomText: { fontSize: 18, fontWeight: '700' },
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    tariffSheet: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20 },
+    tariffHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    tariffTitle: { fontSize: 22, fontWeight: '800', letterSpacing: -0.5 },
+    tariffSub: { fontSize: 15, fontWeight: '500', marginTop: 4, marginBottom: 8 },
+    tariffRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 16 },
+    tariffKey: { fontSize: 16 },
+    tariffVal: { fontSize: 16, fontWeight: '700' },
 });

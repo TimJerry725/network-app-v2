@@ -10,7 +10,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     X,
     Zap,
@@ -18,7 +18,7 @@ import {
     CircleGauge,
     Share2,
     Download,
-} from 'lucide-react-native';
+} from './sf/icons';
 import { ThemedText } from './ThemedText';
 import { FONT_FAMILIES, RADIUS, SPACING } from '../constants/Tokens';
 import { CompletedSessionReceipt } from '../context/ChargingContext';
@@ -32,6 +32,7 @@ interface SessionReceiptModalProps {
 
 export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceiptModalProps) {
     const { colors, isDark } = useAppTheme();
+    const insets = useSafeAreaInsets();
 
     if (!receipt) return null;
 
@@ -74,35 +75,37 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
         );
     };
 
-    const textColor = isDark ? '#FFFFFF' : '#111827';
-    const textMutedColor = isDark ? '#9CA3AF' : '#8E8E93';
-    const cardBg = isDark ? '#181924' : '#FFFFFF';
-    const dividerColor = isDark ? 'rgba(255, 255, 255, 0.12)' : '#E5E7EB';
-    const subDividerColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#F3F4F6';
-    const footerBg = isDark ? 'rgba(255, 255, 255, 0.04)' : '#F9FAFB';
-    const dockBg = isDark ? '#181924' : '#FFFFFF';
+    const textColor = colors.text;
+    const textMutedColor = colors.textMuted;
+    const cardBg = colors.surface;
+    const dividerColor = colors.border;
+    const subDividerColor = colors.border;
+    const footerBg = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(118,118,128,0.08)';
+    const dockBg = colors.background;
 
     return (
         <Modal
             visible={visible}
             animationType="slide"
             transparent={false}
-            presentationStyle="fullScreen"
+            presentationStyle="pageSheet"
             onRequestClose={onClose}
         >
-            <View style={styles.modalBackdrop}>
-                <StatusBar style="light" />
-                <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+            <View style={[styles.modalBackdrop, { backgroundColor: colors.background }]}>
+                <StatusBar style={isDark ? 'light' : 'dark'} />
+                <View style={[styles.safeArea, { paddingTop: Platform.OS === 'ios' ? 8 : insets.top }]}>
                     {/* Top Bar: Title & Circular Close Button */}
                     <View style={styles.topHeader}>
-                        <ThemedText style={styles.summaryTitle}>Summary</ThemedText>
+                        <ThemedText style={[styles.summaryTitle, { color: colors.text }]}>Receipt</ThemedText>
                         <TouchableOpacity
-                            style={styles.closeCircle}
+                            accessibilityRole="button"
+                            accessibilityLabel="Close receipt"
+                            style={[styles.closeCircle, { backgroundColor: 'rgba(118,118,128,0.2)' }]}
                             onPress={onClose}
                             activeOpacity={0.8}
                             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                         >
-                            <X size={18} color="#FFFFFF" strokeWidth={2.5} />
+                            <X size={18} color={colors.text} strokeWidth={2.5} />
                         </TouchableOpacity>
                     </View>
 
@@ -129,7 +132,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
                                 <View style={styles.metricsRow}>
                                     {/* Energy Column */}
                                     <View style={styles.metricCol}>
-                                        <Zap size={16} color="#7B5CFF" fill="#7B5CFF" />
+                                        <Zap size={16} color="#007AFF" fill="#007AFF" />
                                         <ThemedText style={[styles.metricVal, { color: textColor }]}>
                                             {receipt.energyDeliveredKwh} kWh
                                         </ThemedText>
@@ -140,7 +143,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
 
                                     {/* Duration Column */}
                                     <View style={styles.metricCol}>
-                                        <Clock size={16} color="#7B5CFF" />
+                                        <Clock size={16} color="#007AFF" />
                                         <ThemedText style={[styles.metricVal, { color: textColor }]}>
                                             {receipt.durationFormatted}
                                         </ThemedText>
@@ -151,7 +154,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
 
                                     {/* Avg Speed Column */}
                                     <View style={styles.metricCol}>
-                                        <CircleGauge size={16} color="#7B5CFF" />
+                                        <CircleGauge size={16} color="#007AFF" />
                                         <ThemedText style={[styles.metricVal, { color: textColor }]}>
                                             {avgSpeed}
                                         </ThemedText>
@@ -261,18 +264,18 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
                     </ScrollView>
 
                     {/* Bottom Floating Action Dock */}
-                    <View style={[styles.bottomDock, { backgroundColor: dockBg }]}>
+                    <View style={[styles.bottomDock, { backgroundColor: dockBg, paddingBottom: Math.max(insets.bottom, 16) }]}>
                         {/* Share Button */}
                         <TouchableOpacity
                             style={[
                                 styles.dockBtn,
-                                { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : '#F3F4F6' },
+                                { backgroundColor: colors.surface },
                             ]}
                             onPress={handleShare}
                             activeOpacity={0.8}
                         >
-                            <Share2 size={16} color={isDark ? '#FFFFFF' : '#111827'} strokeWidth={2.2} />
-                            <ThemedText style={[styles.dockBtnText, { color: isDark ? '#FFFFFF' : '#111827' }]}>
+                            <Share2 size={16} color={colors.text} strokeWidth={2.2} />
+                            <ThemedText style={[styles.dockBtnText, { color: colors.text }]}>
                                 Share
                             </ThemedText>
                         </TouchableOpacity>
@@ -281,7 +284,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
                         <TouchableOpacity
                             style={[
                                 styles.dockBtn,
-                                { backgroundColor: colors.coral },
+                                { backgroundColor: colors.primary },
                             ]}
                             onPress={handleDownload}
                             activeOpacity={0.8}
@@ -292,7 +295,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
                             </ThemedText>
                         </TouchableOpacity>
                     </View>
-                </SafeAreaView>
+                </View>
             </View>
         </Modal>
     );
@@ -301,7 +304,7 @@ export function SessionReceiptModal({ visible, receipt, onClose }: SessionReceip
 const styles = StyleSheet.create({
     modalBackdrop: {
         flex: 1,
-        backgroundColor: '#7B5CFF', // Sunset Coral signature backdrop matching app
+        backgroundColor: '#F2F2F7',
     },
     safeArea: {
         flex: 1,
@@ -311,22 +314,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingTop: Platform.OS === 'android' ? 12 : 8,
-        paddingBottom: 14,
+        paddingHorizontal: 16,
+        paddingTop: 8,
+        paddingBottom: 12,
     },
     summaryTitle: {
-        fontSize: 22,
-        fontFamily: FONT_FAMILIES.bold,
-        color: '#FFFFFF',
-        letterSpacing: -0.3,
-        lineHeight: 28,
+        fontSize: 32,
+        fontWeight: '800',
+        letterSpacing: -0.8,
+        lineHeight: 38,
     },
     closeCircle: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -335,13 +336,8 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     receiptCard: {
-        borderRadius: RADIUS.cardLg,
+        borderRadius: 24,
         overflow: 'hidden',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.18,
-        shadowRadius: 20,
-        elevation: 8,
     },
     receiptCardInner: {
         paddingTop: 24,
@@ -353,14 +349,13 @@ const styles = StyleSheet.create({
         fontFamily: FONT_FAMILIES.bold,
         letterSpacing: 0.8,
         textAlign: 'center',
-        textTransform: 'uppercase',
-        marginBottom: 6,
+        marginBottom: 8,
     },
     giantAmountText: {
-        fontSize: 38,
-        fontFamily: FONT_FAMILIES.bold,
-        lineHeight: 46,
-        minHeight: 46,
+        fontSize: 36,
+        fontWeight: '800',
+        lineHeight: 44,
+        minHeight: 44,
         textAlign: 'center',
         letterSpacing: -0.8,
         marginBottom: 20,
@@ -380,7 +375,7 @@ const styles = StyleSheet.create({
     metricVal: {
         fontSize: 15,
         fontFamily: FONT_FAMILIES.bold,
-        marginTop: 2,
+        marginTop: 2.0,
     },
     metricCaption: {
         fontSize: 11,
@@ -390,10 +385,10 @@ const styles = StyleSheet.create({
         height: 0,
         borderTopWidth: 1.5,
         borderStyle: 'dashed',
-        marginVertical: 18,
+        marginVertical: 16,
     },
     detailsSection: {
-        gap: 10,
+        gap: 8,
     },
     detailRow: {
         flexDirection: 'row',
@@ -401,25 +396,25 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     detailLabel: {
-        fontSize: 13,
+        fontSize: 14,
         fontFamily: FONT_FAMILIES.medium,
         flex: 1,
     },
     detailValue: {
-        fontSize: 13,
+        fontSize: 14,
         textAlign: 'right',
         flex: 1,
     },
     solidDivider: {
         height: 1,
-        marginTop: 18,
-        marginBottom: 14,
+        marginTop: 16,
+        marginBottom: 16,
     },
     grandTotalRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 2,
+        paddingVertical: 2.0,
     },
     grandTotalLabel: {
         fontSize: 16,
@@ -446,19 +441,12 @@ const styles = StyleSheet.create({
         gap: 12,
         paddingHorizontal: 20,
         paddingTop: 16,
-        paddingBottom: Platform.OS === 'ios' ? 24 : 16,
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-        elevation: 8,
+        paddingBottom: 16,
     },
     dockBtn: {
         flex: 1,
-        height: 48,
-        borderRadius: RADIUS.button,
+        height: 52,
+        borderRadius: 26,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',

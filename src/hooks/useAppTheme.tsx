@@ -8,8 +8,8 @@ type ThemeContextType = {
     setTheme: (theme: ThemeName) => void;
 };
 
-// Pulse style is dark-first (payment-app feel); light "paper" mode stays available in Profile.
-const DEFAULT_THEME: ThemeName = 'dark' as ThemeName;
+// iOS style: light by default, dark mode in Profile.
+const DEFAULT_THEME: ThemeName = 'light' as ThemeName;
 
 const ThemeContext = createContext<ThemeContextType>({
     theme: DEFAULT_THEME,

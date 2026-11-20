@@ -9,7 +9,7 @@ import {
     ViewStyle,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { ScanLine } from 'lucide-react-native';
+import { ScanLine } from './sf/icons';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { getLucideIcon, getOutlinedIcon } from './Neo3DMorphIcon';
 import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
@@ -174,7 +174,7 @@ export function Neo3DIcon({
             ? (isSelected ? '#000000' : '#FFFFFF')
             : '#FFFFFF';
         const borderColor = isDark
-            ? (isSelected ? '#7B5CFF' : 'rgba(255, 255, 255, 0.18)')
+            ? (isSelected ? '#007AFF' : 'rgba(255, 255, 255, 0.18)')
             : '#000000';
 
         return (
@@ -223,7 +223,7 @@ export function Neo3DIcon({
                             <View
                                 style={[
                                     styles.heroActivePip,
-                                    { backgroundColor: isDark ? '#7B5CFF' : '#FFFFFF' },
+                                    { backgroundColor: isDark ? '#007AFF' : '#FFFFFF' },
                                 ]}
                             />
                         )}

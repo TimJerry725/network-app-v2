@@ -1,15 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import {
-    View,
-    StyleSheet,
-    ScrollView,
-    TextInput,
-    Alert,
-    Pressable,
-    KeyboardAvoidingView,
-    Platform,
-    Linking,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Pressable, KeyboardAvoidingView, Platform, Linking } from 'react-native';
+import { TextInput } from '../../components/ThemedTextInput';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -26,7 +17,7 @@ import {
     Smartphone,
     CreditCard,
     Landmark,
-} from 'lucide-react-native';
+} from '../../components/sf/icons';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
 import { FONT_FAMILIES } from '../../constants/Tokens';
@@ -143,7 +134,7 @@ export default function WalletScreen() {
                     <ThemedText style={styles.passBalance}>{formatRupees(hold > 0 ? spendable : user.walletBalance, 2)}</ThemedText>
                     {hold > 0 ? (
                         <View style={styles.holdRow}>
-                            <Lock size={12} color="#0B0B0F" />
+                            <Lock size={12} color="#FFFFFF" />
                             <ThemedText style={styles.holdText}>
                                 {formatRupees(hold)} held for your live charge · unused hold comes back when you stop
                             </ThemedText>
@@ -224,8 +215,8 @@ export default function WalletScreen() {
                         title={amountValue > 0 ? `Add ${formatRupees(amountValue)} via ${methodLabel}` : 'Enter an amount'}
                         onPress={onAdd}
                         disabled={amountValue <= 0}
-                        icon={<Plus size={18} color="#0B0B0F" strokeWidth={3} />}
-                        style={{ marginTop: 14 }}
+                        icon={<Plus size={18} color="#FFFFFF" strokeWidth={3} />}
+                        style={{ marginTop: 16 }}
                     />
                     <ThemedText style={[styles.fine, { color: colors.textMuted }]}>
                         Unused balance is refundable to source anytime. No hidden fees.
@@ -235,7 +226,7 @@ export default function WalletScreen() {
                 {/* Volts */}
                 <View style={[styles.voltsCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <View style={{ flex: 1 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                             <Sparkles size={16} color={colors.text} />
                             <ThemedText style={[styles.voltsTitle, { color: colors.text }]}>{rewardVolts.toLocaleString('en-IN')} Volts</ThemedText>
                         </View>
@@ -262,7 +253,7 @@ export default function WalletScreen() {
                         const ticket = disputed[c.transactionId];
                         return (
                             <View key={row.id} style={[styles.txn, { borderTopColor: colors.border }]}>
-                                <View style={[styles.txnIcon, { backgroundColor: colors.surfaceMuted }]}>
+                                <View style={[styles.txnIcon, { backgroundColor: 'rgba(0,122,255,0.12)' }]}>
                                     <ArrowUpRight size={16} color={colors.text} />
                                 </View>
                                 <View style={{ flex: 1 }}>
@@ -273,7 +264,7 @@ export default function WalletScreen() {
                                         {c.energyDeliveredKwh} kWh · {c.startTime} · incl. GST
                                     </ThemedText>
                                     {ticket ? (
-                                        <StatusChip label={`Dispute ${ticket} · reply in 24h`} tone="wait" style={{ marginTop: 6 }} />
+                                        <StatusChip label={`Dispute ${ticket} · reply in 24h`} tone="wait" style={{ marginTop: 8 }} />
                                     ) : (
                                         <Pressable
                                             accessibilityRole="button"
@@ -313,8 +304,8 @@ function LedgerRow({ txn }: { txn: WalletTxn }) {
     const tone = txn.status === 'Success' || txn.status === 'Refunded' ? 'ok' : txn.status === 'Failed' ? 'stop' : 'wait';
     return (
         <View style={[styles.txn, { borderTopColor: colors.border }]}>
-            <View style={[styles.txnIcon, { backgroundColor: incoming ? 'rgba(169,150,255,0.18)' : colors.surfaceMuted }]}>
-                <Icon size={16} color={incoming ? (colors.background === '#0B0B0F' ? colors.lime : '#4A7A00') : colors.text} />
+            <View style={[styles.txnIcon, { backgroundColor: incoming ? 'rgba(52,199,89,0.14)' : 'rgba(0,122,255,0.12)' }]}>
+                <Icon size={16} color={incoming ? colors.success : colors.text} />
             </View>
             <View style={{ flex: 1 }}>
                 <ThemedText style={[styles.txnTitle, { color: colors.text }]}>{txn.title}</ThemedText>
@@ -322,7 +313,7 @@ function LedgerRow({ txn }: { txn: WalletTxn }) {
                     {txn.subtitle} · {txn.dateLabel}
                 </ThemedText>
                 {txn.status !== 'Success' ? (
-                    <StatusChip label={txn.etaLabel ? `${txn.status} · ${txn.etaLabel}` : txn.status} tone={tone} style={{ marginTop: 6 }} />
+                    <StatusChip label={txn.etaLabel ? `${txn.status} · ${txn.etaLabel}` : txn.status} tone={tone} style={{ marginTop: 8 }} />
                 ) : null}
             </View>
             <ThemedText style={[styles.txnAmount, { color: incoming ? colors.mint : colors.text }]}>
@@ -336,40 +327,40 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     title: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 20, letterSpacing: -0.4 },
-    circleBtn: { width: 44, height: 44, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    circleBtn: { width: 44, height: 44, borderRadius: 22, borderWidth: 0, alignItems: 'center', justifyContent: 'center' },
 
     passTop: { flexDirection: 'row', justifyContent: 'space-between' },
-    passLabel: { fontFamily: FONT_FAMILIES.bold, fontSize: 13, color: 'rgba(11,11,15,0.7)' },
-    passMasked: { fontFamily: FONT_FAMILIES.bold, fontSize: 12, color: 'rgba(11,11,15,0.7)', letterSpacing: 1 },
-    passSmall: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13, color: 'rgba(11,11,15,0.65)', marginTop: 12 },
-    passBalance: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 40, lineHeight: 48, color: '#0B0B0F', letterSpacing: -1.4 },
+    passLabel: { fontFamily: FONT_FAMILIES.bold, fontSize: 13, color: 'rgba(255,255,255,0.85)' },
+    passMasked: { fontFamily: FONT_FAMILIES.bold, fontSize: 12, color: 'rgba(255,255,255,0.85)', letterSpacing: 1 },
+    passSmall: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 12 },
+    passBalance: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 40, lineHeight: 48, color: '#FFFFFF', letterSpacing: -1.4 },
     holdRow: {
         flexDirection: 'row',
-        gap: 6,
+        gap: 8,
         alignItems: 'flex-start',
-        backgroundColor: 'rgba(11,11,15,0.08)',
+        backgroundColor: 'rgba(255,255,255,0.16)',
         borderRadius: 12,
-        padding: 10,
-        marginTop: 10,
+        padding: 8,
+        marginTop: 8,
     },
-    holdText: { flex: 1, fontFamily: FONT_FAMILIES.semiBold, fontSize: 12, color: '#0B0B0F', lineHeight: 16 },
+    holdText: { flex: 1, fontFamily: FONT_FAMILIES.semiBold, fontSize: 12, color: '#FFFFFF', lineHeight: 16 },
     passStats: {
         flexDirection: 'row',
         marginTop: 16,
-        backgroundColor: 'rgba(11,11,15,0.08)',
+        backgroundColor: 'rgba(255,255,255,0.16)',
         borderRadius: 16,
         paddingVertical: 12,
     },
     passStat: { flex: 1, alignItems: 'center' },
-    passStatValue: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18, color: '#0B0B0F' },
-    passStatLabel: { fontFamily: FONT_FAMILIES.medium, fontSize: 11, color: 'rgba(11,11,15,0.65)', marginTop: 2 },
-    passStatDivider: { width: 1, backgroundColor: 'rgba(11,11,15,0.15)' },
+    passStatValue: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18, color: '#FFFFFF' },
+    passStatLabel: { fontFamily: FONT_FAMILIES.medium, fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2.0 },
+    passStatDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.3)' },
 
-    card: { borderRadius: 26, borderWidth: 1, padding: 16 },
+    card: { borderRadius: 24, borderWidth: 0, padding: 16 },
     amountRow: { flexDirection: 'row', alignItems: 'center' },
     rupee: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 34, marginRight: 4 },
     amountInput: { flex: 1, fontFamily: FONT_FAMILIES.extraBold, fontSize: 42, letterSpacing: -1.2, paddingVertical: 4 },
-    presetRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
+    presetRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
     preset: { flex: 1, height: 40, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     presetText: { fontFamily: FONT_FAMILIES.bold, fontSize: 13.5 },
     methodRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
@@ -379,37 +370,37 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         borderWidth: 1.5,
         flexDirection: 'row',
-        gap: 6,
+        gap: 8,
         alignItems: 'center',
         justifyContent: 'center',
     },
     methodText: { fontFamily: FONT_FAMILIES.bold, fontSize: 13 },
-    fine: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, textAlign: 'center', marginTop: 10 },
+    fine: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, textAlign: 'center', marginTop: 8 },
 
     step: { flexDirection: 'row', gap: 12, minHeight: 36 },
     stepRail: { alignItems: 'center', width: 20 },
     stepDot: { width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
-    stepLine: { width: 2, flex: 1, marginVertical: 2 },
-    stepLabel: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 14, paddingTop: 1 },
+    stepLine: { width: 2, flex: 1, marginVertical: 2.0 },
+    stepLabel: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 14, paddingTop: 1.0 },
 
-    voltsCard: { marginTop: 16, borderRadius: 20, borderWidth: 1, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
-    voltsTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18, color: '#0B0B0F' },
-    voltsSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, color: '#0B0B0F', opacity: 0.75, marginTop: 2 },
-    voltsBtn: { backgroundColor: '#A996FF', borderRadius: 14, paddingHorizontal: 14, height: 42, justifyContent: 'center' },
-    voltsBtnText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 13, color: '#0B0B0F' },
+    voltsCard: { marginTop: 16, borderRadius: 22, borderWidth: 0, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+    voltsTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18, color: '#FFFFFF' },
+    voltsSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12.5, color: '#FFFFFF', opacity: 0.75, marginTop: 2.0 },
+    voltsBtn: { backgroundColor: '#007AFF', borderRadius: 14, paddingHorizontal: 16, height: 42, justifyContent: 'center' },
+    voltsBtnText: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 13, color: '#FFFFFF' },
 
-    list: { borderRadius: 24, borderWidth: 1, overflow: 'hidden' },
+    list: { borderRadius: 24, borderWidth: 0, overflow: 'hidden' },
     txn: {
         flexDirection: 'row',
         alignItems: 'flex-start',
         gap: 12,
-        padding: 14,
+        padding: 16,
         borderTopWidth: StyleSheet.hairlineWidth,
     },
-    txnIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    txnIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     txnTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 14.5 },
-    txnSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginTop: 1 },
+    txnSub: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, marginTop: 1.0 },
     txnAmount: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 15 },
-    disputeBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, minHeight: 24 },
+    disputeBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8, minHeight: 24 },
     disputeText: { fontFamily: FONT_FAMILIES.bold, fontSize: 12 },
 });

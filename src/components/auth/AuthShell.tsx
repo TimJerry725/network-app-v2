@@ -1,7 +1,7 @@
 import React from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft } from '../sf/icons';
 import { ThemedText } from '../ThemedText';
 import { AppLogo } from '../AppLogo';
 import { useAppTheme } from '../../hooks/useAppTheme';
@@ -46,7 +46,7 @@ export function AuthShell({
                     ) : (
                         <View style={styles.back} />
                     )}
-                    <AppLogo width={96} height={20} solidColor={isDark ? '#FFFFFF' : '#0B0B0F'} />
+                    <AppLogo width={104} height={22} solidColor={isDark ? '#FFFFFF' : '#000000'} />
                     <View style={styles.back} />
                 </View>
 
@@ -56,7 +56,7 @@ export function AuthShell({
                             key={i}
                             style={[
                                 styles.dot,
-                                { backgroundColor: i < step ? colors.violet : colors.surfaceMuted, flex: i === step - 1 ? 2 : 1 },
+                                { backgroundColor: i < step ? colors.primary : isDark ? '#3A3A3C' : '#D1D1D6', flex: i === step - 1 ? 2.2 : 1 },
                             ]}
                         />
                     ))}
@@ -65,7 +65,7 @@ export function AuthShell({
                 <ThemedText style={[styles.title, { color: colors.text }]}>{title}</ThemedText>
                 {subtitle ? <ThemedText style={[styles.subtitle, { color: colors.textMuted }]}>{subtitle}</ThemedText> : null}
 
-                <View style={{ marginTop: 22 }}>{children}</View>
+                <View style={{ marginTop: 24 }}>{children}</View>
             </ScrollView>
 
             <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 14), backgroundColor: colors.background, borderTopColor: colors.border }]}>
@@ -76,14 +76,14 @@ export function AuthShell({
 }
 
 export const authStyles = StyleSheet.create({
-    label: { fontFamily: FONT_FAMILIES.bold, fontSize: 13.5, marginBottom: 8, marginTop: 18 },
+    label: { fontSize: 15, fontWeight: '600', marginBottom: 8, marginTop: 16 },
     input: {
-        height: 54,
-        borderRadius: 16,
-        borderWidth: 1.5,
-        paddingHorizontal: 16,
-        fontFamily: FONT_FAMILIES.semiBold,
-        fontSize: 16,
+        height: 62,
+        borderRadius: 22,
+        borderWidth: 2,
+        paddingHorizontal: 20,
+        fontWeight: '600',
+        fontSize: 20,
     },
 });
 
@@ -91,9 +91,9 @@ const styles = StyleSheet.create({
     root: { flex: 1 },
     top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     back: { width: 44, height: 44, borderRadius: 14, borderWidth: 0, alignItems: 'center', justifyContent: 'center' },
-    dots: { flexDirection: 'row', gap: 6, marginTop: 18 },
-    dot: { height: 5, borderRadius: 3 },
-    title: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 30, lineHeight: 36, letterSpacing: -1, marginTop: 22 },
-    subtitle: { fontFamily: FONT_FAMILIES.medium, fontSize: 14.5, lineHeight: 21, marginTop: 6 },
+    dots: { flexDirection: 'row', gap: 8, marginTop: 16 },
+    dot: { height: 6, borderRadius: 3 },
+    title: { fontSize: 42, fontWeight: '800', lineHeight: 48, letterSpacing: -1.4, marginTop: 24 },
+    subtitle: { fontSize: 18, fontWeight: '500', lineHeight: 25, marginTop: 8 },
     footer: { paddingHorizontal: 20, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth },
 });

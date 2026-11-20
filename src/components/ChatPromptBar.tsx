@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
-import {
-    Animated,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { Animated, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TextInput } from './ThemedTextInput';
 import * as Haptics from 'expo-haptics';
-import { Mic, Plus, Search, Sparkles, Zap, MapPin, BatteryCharging, ArrowUpRight, Route, CheckCircle2 } from 'lucide-react-native';
+import { Mic, Plus, Search, Sparkles, Zap, MapPin, BatteryCharging, ArrowUpRight, Route, CheckCircle2 } from './sf/icons';
 import { ThemedText } from './ThemedText';
 import { FONT_FAMILIES, RADIUS } from '../constants/Tokens';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -68,28 +61,28 @@ export function ChatPromptBar({
             label: 'Plan Trip to Mysuru',
             icon: <Route size={13} color={colors.primary} />,
             color: colors.primary,
-            bg: isDark ? 'rgba(123, 92, 255, 0.16)' : '#ECE7FF',
+            bg: isDark ? 'rgba(0, 122, 255, 0.16)' : '#E5F1FF',
         },
         {
             id: 'fast',
             label: '60kW+ Fast Chargers',
             icon: <Zap size={13} color={colors.secondary} fill={colors.secondary} />,
             color: colors.secondary,
-            bg: isDark ? 'rgba(123, 92, 255, 0.16)' : '#FFF0ED',
+            bg: isDark ? 'rgba(0, 122, 255, 0.16)' : '#FFF0ED',
         },
         {
             id: 'avail',
             label: 'Available Right Now',
             icon: <CheckCircle2 size={13} color={colors.tertiary} />,
             color: colors.tertiary,
-            bg: isDark ? 'rgba(34, 211, 138, 0.16)' : '#ECFDF5',
+            bg: isDark ? 'rgba(52, 199, 89, 0.16)' : '#ECFDF5',
         },
         {
             id: 'battery',
             label: 'Check Range',
             icon: <BatteryCharging size={13} color={colors.primary} />,
             color: colors.primary,
-            bg: isDark ? 'rgba(123, 92, 255, 0.16)' : '#ECE7FF',
+            bg: isDark ? 'rgba(0, 122, 255, 0.16)' : '#E5F1FF',
         },
     ];
 
@@ -217,20 +210,20 @@ export function ChatPromptBar({
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        gap: 10,
+        gap: 8,
     },
     chipsRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        paddingHorizontal: 2,
+        paddingHorizontal: 2.0,
     },
     chipPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
         paddingHorizontal: 12,
-        paddingVertical: 7,
+        paddingVertical: 8,
         borderRadius: RADIUS.pill,
         borderWidth: 1,
     },
@@ -258,7 +251,7 @@ const styles = StyleSheet.create({
         borderWidth: 1.2,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 14,
+        paddingHorizontal: 16,
     },
     searchIcon: {
         marginRight: 8,
@@ -268,10 +261,10 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontFamily: FONT_FAMILIES.sansMedium,
         fontWeight: '500',
-        paddingVertical: 0,
+        paddingVertical: 0.0,
     },
     micBtn: {
-        paddingLeft: 6,
+        paddingLeft: 8,
         paddingVertical: 4,
         alignItems: 'center',
         justifyContent: 'center',
@@ -279,7 +272,7 @@ const styles = StyleSheet.create({
     waveformWrap: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 2,
+        gap: 2.0,
         paddingHorizontal: 4,
     },
     waveBar: {
