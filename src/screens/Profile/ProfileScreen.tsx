@@ -1,9 +1,9 @@
-import React from 'react';
-import { Alert, Linking, Platform, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Linking, Platform, ScrollView, StyleSheet, Switch, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { ChevronLeft, Moon, Sun, Wallet, Plus, User, LifeBuoy, Pencil, CarFront } from 'lucide-react-native';
+import { ChevronLeft, Moon, Sun, Plus, User, LifeBuoy, Pencil, CarFront, X } from 'lucide-react-native';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { ThemedText } from '../../components/ThemedText';
 import { useVehicles } from '../../context/VehicleContext';
@@ -24,17 +24,16 @@ export default function ProfileScreen() {
             { text: 'Call 1800-419-4747', onPress: () => Linking.openURL('tel:18004194747').catch(() => {}) },
             { text: 'Not now', style: 'cancel' },
         ]);
-    const addMoney = () =>
-        Alert.alert('Add money', `Balance ₹${user.walletBalance.toFixed(2)}`, [
-            ...[200, 500, 1000, 2000].map((amt) => ({
-                text: `Add ₹${amt}`,
-                onPress: () => {
-                    topUpWallet(amt);
-                    Alert.alert('Wallet recharged', `₹${amt.toFixed(2)} added to your Iris EV Wallet.`);
-                },
-            })),
-            { text: 'Cancel', style: 'cancel' as const },
-        ]);
+    const [adding, setAdding] = useState(false);
+    const [amount, setAmount] = useState('500');
+    const amountValue = parseFloat(amount) || 0;
+    const onAdd = () => {
+        if (amountValue <= 0) return;
+        if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        topUpWallet(amountValue);
+        Alert.alert('Money added', `₹${amountValue.toFixed(2)} is in your Iris EV Wallet.`);
+        setAdding(false);
+    };
 
     const card = { backgroundColor: colors.surface, borderColor: colors.border };
     const soft = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
@@ -117,7 +116,75 @@ export default function ProfileScreen() {
                     ) : null}
                 </View>
 
-                {/* Dark mode, help, wallet */}
+                {/* One wallet card: balance, turns into the add-money card when tapped */}
+                {adding ? (
+                    <View style={[styles.card, card]}>
+                        <View style={styles.addHead}>
+                            <ThemedText style={[styles.name, { color: colors.text }]}>Add money</ThemedText>
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to balance" hitSlop={10} onPress={() => setAdding(false)}>
+                                <X size={20} color={colors.text} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.amountRow}>
+                            <ThemedText style={[styles.rupee, { color: colors.textMuted }]}>₹</ThemedText>
+                            <TextInput
+                                value={amount}
+                                onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ''))}
+                                keyboardType="number-pad"
+                                maxLength={6}
+                                placeholder="0"
+                                placeholderTextColor={colors.textMuted}
+                                style={[styles.amountInput, { color: colors.text }]}
+                                accessibilityLabel="Amount to add"
+                            />
+                        </View>
+                        <View style={styles.stats}>
+                            {[200, 500, 1000, 2000].map((p) => {
+                                const active = amountValue === p;
+                                return (
+                                    <TouchableOpacity
+                                        key={p}
+                                        accessibilityRole="button"
+                                        onPress={() => setAmount(String(p))}
+                                        style={[styles.stat, { backgroundColor: active ? colors.primary : soft }]}
+                                    >
+                                        <ThemedText style={[styles.statValue, { color: active ? '#FFFFFF' : colors.text }]}>+{p}</ThemedText>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            disabled={amountValue <= 0}
+                            onPress={onAdd}
+                            activeOpacity={0.85}
+                            style={[styles.addBtn, { backgroundColor: colors.primary, opacity: amountValue > 0 ? 1 : 0.4 }]}
+                        >
+                            <Plus size={18} color="#FFFFFF" strokeWidth={3} />
+                            <ThemedText style={styles.addBtnText}>{amountValue > 0 ? `Add ₹${amountValue}` : 'Enter an amount'}</ThemedText>
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <>
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel="Wallet balance. Tap to add money"
+                            activeOpacity={0.9}
+                            onPress={() => setAdding(true)}
+                            style={[styles.walletCard, { backgroundColor: colors.primary }]}
+                        >
+                            <ThemedText style={styles.walletLabel}>Iris Wallet</ThemedText>
+                            <ThemedText style={styles.walletBalance}>₹{user.walletBalance.toFixed(2)}</ThemedText>
+                            <ThemedText style={styles.walletHint}>Balance</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} onPress={() => setAdding(true)} style={[styles.addBtn, { backgroundColor: colors.text }]}>
+                            <Plus size={18} color={colors.background} strokeWidth={3} />
+                            <ThemedText style={[styles.addBtnText, { color: colors.background }]}>Add money</ThemedText>
+                        </TouchableOpacity>
+                    </>
+                )}
+
+                {/* Dark mode and help */}
                 <View style={[styles.card, card, { paddingVertical: 4 }]}>
                     <View style={styles.listRow}>
                         {theme === 'dark' ? <Moon size={20} color={colors.primary} /> : <Sun size={20} color={colors.primary} />}
@@ -139,15 +206,6 @@ export default function ProfileScreen() {
                             <ThemedText style={[styles.listTitle, { color: colors.text }]}>Help</ThemedText>
                             <ThemedText style={[styles.sub, { color: colors.textMuted }]}>24/7 helpline · 1800-419-4747</ThemedText>
                         </View>
-                    </TouchableOpacity>
-                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                    <TouchableOpacity accessibilityRole="button" style={styles.listRow} onPress={addMoney} activeOpacity={0.7}>
-                        <Wallet size={20} color={colors.primary} />
-                        <View style={{ flex: 1 }}>
-                            <ThemedText style={[styles.listTitle, { color: colors.text }]}>Wallet</ThemedText>
-                            <ThemedText style={[styles.sub, { color: colors.textMuted }]}>₹{user.walletBalance.toFixed(2)}</ThemedText>
-                        </View>
-                        <Plus size={18} color={colors.primary} />
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -173,4 +231,14 @@ const styles = StyleSheet.create({
     listRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },
     listTitle: { flex: 1, fontSize: 16, fontWeight: '600' },
     divider: { height: StyleSheet.hairlineWidth },
+    addHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+    amountRow: { flexDirection: 'row', alignItems: 'center' },
+    rupee: { fontSize: 32, fontWeight: '800', marginRight: 4 },
+    amountInput: { flex: 1, fontSize: 40, fontWeight: '800', paddingVertical: 4 },
+    addBtn: { height: 52, borderRadius: 26, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14 },
+    addBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+    walletCard: { borderRadius: 24, padding: 20 },
+    walletLabel: { fontSize: 14, fontWeight: '600', color: 'rgba(255,255,255,0.85)' },
+    walletBalance: { fontSize: 38, fontWeight: '800', color: '#FFFFFF', marginTop: 8 },
+    walletHint: { fontSize: 13, fontWeight: '500', color: 'rgba(255,255,255,0.8)', marginTop: 2 },
 });
