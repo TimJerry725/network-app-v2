@@ -62,6 +62,10 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
             vehicleRegNo: selectedVehicle?.registrationNumber ?? 'TN 38 BZ 9021',
             startSoc: selectedVehicle?.currentBattery ?? 33,
             targetSoc: target,
+            maxSpend: route.params?.maxSpend,
+            maxMinutes: route.params?.maxMinutes,
+            maxEnergyKwh: route.params?.maxEnergyKwh,
+            powerLimitPct: route.params?.powerLimitPct,
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeSession]);
@@ -133,10 +137,10 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
     const timeLine = history.map((h, i) => `${i === 0 ? 'M' : 'L'}${(padL + (i / Math.max(1, history.length - 1)) * plotW).toFixed(1)} ${yOf(h.powerKw / peak).toFixed(1)}`).join(' ');
 
     const tiles = [
-        { label: 'Charging speed', value: `${power}`, unit: 'kW', icon: <Zap size={20} color={colors.primary} />, tint: 'rgba(0,122,255,0.14)' },
-        { label: 'Elapsed time', value: fmtElapsed(elapsed), unit: 'min', icon: <Clock size={20} color={colors.violet} />, tint: 'rgba(88,86,214,0.14)' },
-        { label: 'Energy delivered', value: kwh.toFixed(1), unit: 'kWh', icon: <BatteryCharging size={20} color={colors.success} />, tint: 'rgba(52,199,89,0.16)' },
-        { label: 'Live session cost', value: formatRupees(cost, 1), unit: '', icon: <Receipt size={20} color={colors.error} />, tint: 'rgba(255,59,48,0.14)' },
+        { label: 'Charging speed', value: `${power}`, unit: 'kW', icon: <Zap size={20} color="#0B0B0F" fill="#0B0B0F" />, bg: '#6DB8F2', fg: '#0B0B0F', sub: 'rgba(11,11,15,0.62)' },
+        { label: 'Elapsed time', value: fmtElapsed(elapsed), unit: 'min', icon: <Clock size={20} color="#0B0B0F" />, bg: '#F5C14D', fg: '#0B0B0F', sub: 'rgba(11,11,15,0.62)' },
+        { label: 'Energy delivered', value: kwh.toFixed(1), unit: 'kWh', icon: <BatteryCharging size={20} color="#FFFFFF" />, bg: '#52BE89', fg: '#FFFFFF', sub: 'rgba(255,255,255,0.85)' },
+        { label: 'Live session cost', value: formatRupees(cost, 1), unit: '', icon: <Receipt size={20} color="#FFFFFF" />, bg: '#EE6C58', fg: '#FFFFFF', sub: 'rgba(255,255,255,0.85)' },
     ];
 
     return (
@@ -158,7 +162,7 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 </View>
 
                 {/* State of charge */}
-                <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <View style={[styles.card, { backgroundColor: colors.surface }]}>
                     <View style={styles.socHead}>
                         <View>
                             <ThemedText style={[styles.socLabel, { color: colors.textMuted }]}>State of charge</ThemedText>
@@ -239,14 +243,14 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                 {/* Tiles */}
                 <View style={styles.tiles}>
                     {tiles.map((t) => (
-                        <View key={t.label} style={[styles.tile, { backgroundColor: colors.surface }]}>
+                        <View key={t.label} style={[styles.tile, { backgroundColor: t.bg }]}>
                             <View style={styles.tileTop}>
-                                <View style={[styles.tileIcon, { backgroundColor: t.tint }]}>{t.icon}</View>
-                                <ThemedText style={[styles.tileLabel, { color: colors.textMuted }]} numberOfLines={1}>{t.label}</ThemedText>
+                                <View style={[styles.tileIcon, { backgroundColor: 'rgba(255,255,255,0.28)' }]}>{t.icon}</View>
+                                <ThemedText style={[styles.tileLabel, { color: t.sub, flex: 1 }]} numberOfLines={2}>{t.label}</ThemedText>
                             </View>
-                            <View style={styles.tileValRow}>
-                                <ThemedText style={[styles.tileVal, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit>{t.value}</ThemedText>
-                                {t.unit ? <ThemedText style={[styles.tileUnit, { color: colors.textMuted }]}>{t.unit}</ThemedText> : null}
+                            <View style={[styles.tileValRow, { marginTop: 10 }]}>
+                                <ThemedText style={[styles.tileVal, { color: t.fg }]} numberOfLines={1} adjustsFontSizeToFit>{t.value}</ThemedText>
+                                {t.unit ? <ThemedText style={[styles.tileUnit, { color: t.sub }]}>{t.unit}</ThemedText> : null}
                             </View>
                         </View>
                     ))}
@@ -338,7 +342,7 @@ const styles = StyleSheet.create({
     etaMain: { fontSize: 19, fontWeight: '700', flex: 1 },
     etaSub: { fontSize: 17, fontWeight: '500' },
     tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 12 },
-    tile: { width: '48.4%', borderRadius: 30, padding: 16, minHeight: 124, justifyContent: 'space-between' },
+    tile: { width: '48.4%', borderRadius: 28, padding: 14 },
     tileTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     tileIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     tileLabel: { fontSize: 15.5, fontWeight: '600', flexShrink: 1 },

@@ -81,8 +81,8 @@ export type AppTheme = {
  *  Neutral   iOS grouped greys / white cards (light), near-black and #1C1C1E (dark)
  *  Status    green #34C759 (ok), orange #FF9500 (warn), red #FF3B30 (error): meaning only
  */
-const BLUE = '#007AFF';
-const BLUE_DEEP = '#0A60D6';
+const BLUE = '#2F8CF0';
+const BLUE_DEEP = '#1F6FCB';
 const INDIGO = '#5856D6';
 const GREEN = '#34C759';
 const ORANGE = '#FF9500';
@@ -93,14 +93,14 @@ export const Colors: Record<ThemeName, AppTheme> = {
   light: {
     primary: BLUE,
     primaryStrong: BLUE_DEEP,
-    primarySoft: 'rgba(0, 122, 255, 0.12)',
+    primarySoft: 'rgba(47, 140, 240, 0.14)',
     secondary: INDIGO,
     secondarySoft: 'rgba(88, 86, 214, 0.12)',
     tertiary: GREEN,
     tertiarySoft: 'rgba(52, 199, 89, 0.14)',
     accent: BLUE,
-    background: '#F2F2F7',
-    backgroundAlt: '#E9E9EE',
+    background: '#F4F5F7',
+    backgroundAlt: '#E9EBEF',
     surface: '#FFFFFF',
     surfaceMuted: '#EBEBF0',
     card: '#FFFFFF',
@@ -232,3 +232,30 @@ export const Colors: Record<ThemeName, AppTheme> = {
     limeGradient: ['#409CFF', '#0A84FF'],
   },
 };
+
+/**
+ * Neo-bento tiles: soft pastel blocks on a calm grey page. Pair each tile with its `on` text colour.
+ */
+export const BENTO = {
+  light: {
+    page: '#F4F5F7',
+    white: { bg: '#FFFFFF', fg: '#0B0B0F', sub: '#6C6C70', chip: 'rgba(11,11,15,0.06)' },
+    blue: { bg: '#6DB8F2', fg: '#0B0B0F', sub: 'rgba(11,11,15,0.62)', chip: 'rgba(11,11,15,0.12)' },
+    coral: { bg: '#EE6C58', fg: '#FFFFFF', sub: 'rgba(255,255,255,0.82)', chip: 'rgba(255,255,255,0.22)' },
+    mint: { bg: '#52BE89', fg: '#FFFFFF', sub: 'rgba(255,255,255,0.85)', chip: 'rgba(255,255,255,0.22)' },
+    sun: { bg: '#F5C14D', fg: '#0B0B0F', sub: 'rgba(11,11,15,0.62)', chip: 'rgba(11,11,15,0.12)' },
+    lilac: { bg: '#B9A6F2', fg: '#0B0B0F', sub: 'rgba(11,11,15,0.62)', chip: 'rgba(11,11,15,0.12)' },
+    ink: { bg: '#0B0B0F', fg: '#FFFFFF', sub: 'rgba(255,255,255,0.65)', chip: 'rgba(255,255,255,0.14)' },
+  },
+  dark: {
+    page: '#0B0C10',
+    white: { bg: '#1C1C1E', fg: '#FFFFFF', sub: '#A1A1A6', chip: 'rgba(255,255,255,0.10)' },
+    blue: { bg: '#4E9EDB', fg: '#0B0B0F', sub: 'rgba(11,11,15,0.65)', chip: 'rgba(11,11,15,0.14)' },
+    coral: { bg: '#D95A47', fg: '#FFFFFF', sub: 'rgba(255,255,255,0.82)', chip: 'rgba(255,255,255,0.22)' },
+    mint: { bg: '#3FA874', fg: '#FFFFFF', sub: 'rgba(255,255,255,0.85)', chip: 'rgba(255,255,255,0.22)' },
+    sun: { bg: '#D9A93A', fg: '#0B0B0F', sub: 'rgba(11,11,15,0.65)', chip: 'rgba(11,11,15,0.14)' },
+    lilac: { bg: '#9886DB', fg: '#0B0B0F', sub: 'rgba(11,11,15,0.65)', chip: 'rgba(11,11,15,0.14)' },
+    ink: { bg: '#2C2C2E', fg: '#FFFFFF', sub: 'rgba(255,255,255,0.65)', chip: 'rgba(255,255,255,0.14)' },
+  },
+} as const;
+export type BentoTone = 'white' | 'blue' | 'coral' | 'mint' | 'sun' | 'lilac' | 'ink';

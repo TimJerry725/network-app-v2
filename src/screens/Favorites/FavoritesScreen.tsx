@@ -10,6 +10,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useSavedTrips, SavedTrip } from '../../context/SavedTripsContext';
+import { BackButton } from '../../components/BackButton';
 import { Segmented } from '../../components/stack/StackKit';
 
 function fmtDur(mins?: number) {
@@ -33,7 +34,7 @@ export default function FavoritesScreen({ navigation }: any) {
         return pool.filter((s) => isFavorite(s.id)).sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
     }, [allStations, isFavorite]);
 
-    const tint = isDark ? 'rgba(10,132,255,0.22)' : 'rgba(0,122,255,0.12)';
+    const tint = isDark ? '#4E9EDB' : '#6DB8F2';
     const light = () => {
         if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     };
@@ -49,6 +50,7 @@ export default function FavoritesScreen({ navigation }: any) {
     return (
         <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+                <BackButton onPress={() => navigation.navigate('Map')} />
                 <ThemedText style={[styles.title, { color: colors.text }]}>Saved</ThemedText>
                 <ThemedText style={[styles.subtitle, { color: colors.textMuted }]}>Your saved stations and trips</ThemedText>
 
@@ -79,8 +81,8 @@ export default function FavoritesScreen({ navigation }: any) {
                                   style={[styles.card, { backgroundColor: colors.surface }]}
                               >
                                   <View style={styles.row}>
-                                      <View style={[styles.tile, { backgroundColor: tint }]}>
-                                          <RouteIcon size={22} color={colors.primary} />
+                                      <View style={[styles.tile, { backgroundColor: isDark ? '#9886DB' : '#B9A6F2' }]}>
+                                          <RouteIcon size={20} color="#0B0B0F" />
                                       </View>
                                       <View style={styles.flex}>
                                           <ThemedText style={[styles.name, { color: colors.text }]} numberOfLines={2}>
@@ -134,7 +136,7 @@ export default function FavoritesScreen({ navigation }: any) {
                                   >
                                       <View style={styles.row}>
                                           <View style={[styles.tile, { backgroundColor: tint }]}>
-                                              <Zap size={22} color={colors.primary} fill={colors.primary} />
+                                              <Zap size={20} color="#0B0B0F" fill="#0B0B0F" />
                                           </View>
                                           <View style={styles.flex}>
                                               <ThemedText style={[styles.name, { color: colors.text }]} numberOfLines={1}>{station.name}</ThemedText>
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
     content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 140 },
     title: { fontSize: 34, fontWeight: '800', letterSpacing: -0.8 },
     subtitle: { fontSize: 16, fontWeight: '500', marginTop: 2.0, marginBottom: 16 },
-    card: { borderRadius: 24, padding: 16, marginBottom: 12 },
+    card: { borderRadius: 28, padding: 16, marginBottom: 12 },
     row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     flex: { flex: 1 },
     tile: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },

@@ -33,14 +33,14 @@ function code3(label: string) {
 function Stepper({ label, value, unit, onChange, step, min, max }: { label: string; value: number; unit: string; onChange: (v: number) => void; step: number; min: number; max: number }) {
     const { colors } = useAppTheme();
     return (
-        <View style={[styles.stepper, { backgroundColor: colors.background }]}>
-            <ThemedText style={[styles.stepLabel, { color: colors.textMuted }]}>{label}</ThemedText>
+        <View style={[styles.stepper, { backgroundColor: 'rgba(255,255,255,0.6)' }]}>
+            <ThemedText style={[styles.stepLabel, { color: 'rgba(11,11,15,0.65)' }]}>{label}</ThemedText>
             <View style={styles.stepRow}>
-                <Pressable accessibilityRole="button" accessibilityLabel={`Decrease ${label}`} onPress={() => { tap(); onChange(Math.max(min, value - step)); }} style={[styles.stepBtn, { backgroundColor: colors.primary }]}>
+                <Pressable accessibilityRole="button" accessibilityLabel={`Decrease ${label}`} onPress={() => { tap(); onChange(Math.max(min, value - step)); }} style={[styles.stepBtn, { backgroundColor: '#0B0B0F' }]}>
                     <Minus size={14} color="#FFFFFF" />
                 </Pressable>
-                <ThemedText style={[styles.stepVal, { color: colors.text }]}>{value}{unit}</ThemedText>
-                <Pressable accessibilityRole="button" accessibilityLabel={`Increase ${label}`} onPress={() => { tap(); onChange(Math.min(max, value + step)); }} style={[styles.stepBtn, { backgroundColor: colors.primary }]}>
+                <ThemedText style={[styles.stepVal, { color: '#0B0B0F' }]}>{value}{unit}</ThemedText>
+                <Pressable accessibilityRole="button" accessibilityLabel={`Increase ${label}`} onPress={() => { tap(); onChange(Math.min(max, value + step)); }} style={[styles.stepBtn, { backgroundColor: '#0B0B0F' }]}>
                     <Plus size={14} color="#FFFFFF" />
                 </Pressable>
             </View>
@@ -102,6 +102,7 @@ export default function TripPlannerScreen({ navigation, route: navRoute }: any) 
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView contentContainerStyle={{ paddingTop: insets.top + 6, paddingHorizontal: 16, paddingBottom: insets.bottom + 130 }} showsVerticalScrollIndicator={false}>
                 <StackHeader
+                    onBack={() => navigation.navigate('Map')}
                     eyebrow="Road trip"
                     title="Plan a trip"
                     right={
@@ -112,25 +113,25 @@ export default function TripPlannerScreen({ navigation, route: navRoute }: any) 
                 />
 
                 {/* Boarding pass planner */}
-                <View style={[styles.passCard, { backgroundColor: colors.surface }]}>
+                <View style={[styles.passCard, { backgroundColor: '#6DB8F2' }]}>
                     <View style={{ padding: 16 }}>
                         <View style={styles.passRow}>
                             <Pressable accessibilityRole="button" accessibilityLabel={`From ${origin.label}`} onPress={() => setPicker('origin')} style={{ flex: 1 }}>
-                                <ThemedText style={[styles.passLbl, { color: colors.textMuted }]}>FROM</ThemedText>
-                                <ThemedText style={[styles.passCode, { color: colors.text }]}>{code3(origin.label)}</ThemedText>
-                                <ThemedText style={[styles.passCity, { color: colors.textMuted }]} numberOfLines={1}>{origin.label}</ThemedText>
+                                <ThemedText style={[styles.passLbl, { color: 'rgba(11,11,15,0.6)' }]}>FROM</ThemedText>
+                                <ThemedText style={[styles.passCode, { color: '#0B0B0F' }]}>{code3(origin.label)}</ThemedText>
+                                <ThemedText style={[styles.passCity, { color: 'rgba(11,11,15,0.7)' }]} numberOfLines={1}>{origin.label}</ThemedText>
                             </Pressable>
                             <Pressable accessibilityRole="button" accessibilityLabel="Swap from and to" onPress={() => { tap(); setOriginId(destinationId); setDestinationId(originId); }} style={styles.swap}>
                                 <ArrowLeftRight size={20} color="#FFFFFF" strokeWidth={2.4} />
                             </Pressable>
                             <Pressable accessibilityRole="button" accessibilityLabel={`To ${destination.label}`} onPress={() => setPicker('destination')} style={{ flex: 1, alignItems: 'flex-end' }}>
-                                <ThemedText style={[styles.passLbl, { color: colors.textMuted }]}>TO</ThemedText>
-                                <ThemedText style={[styles.passCode, { color: colors.text }]}>{code3(destination.label)}</ThemedText>
-                                <ThemedText style={[styles.passCity, { color: colors.textMuted }]} numberOfLines={1}>{destination.label}</ThemedText>
+                                <ThemedText style={[styles.passLbl, { color: 'rgba(11,11,15,0.6)' }]}>TO</ThemedText>
+                                <ThemedText style={[styles.passCode, { color: '#0B0B0F' }]}>{code3(destination.label)}</ThemedText>
+                                <ThemedText style={[styles.passCity, { color: 'rgba(11,11,15,0.7)' }]} numberOfLines={1}>{destination.label}</ThemedText>
                             </Pressable>
                         </View>
                         <View style={styles.perforation}>
-                            {Array.from({ length: 22 }).map((_, i) => <View key={i} style={[styles.perfDot, { backgroundColor: colors.border }]} />)}
+                            {Array.from({ length: 22 }).map((_, i) => <View key={i} style={[styles.perfDot, { backgroundColor: 'rgba(11,11,15,0.25)' }]} />)}
                         </View>
                         <View style={styles.steppers}>
                             <Stepper label="Leave with" value={leaveSoc} unit="%" step={5} min={10} max={100} onChange={setLeaveSoc} />
@@ -149,9 +150,9 @@ export default function TripPlannerScreen({ navigation, route: navRoute }: any) 
                                             accessibilityRole="radio"
                                             accessibilityState={{ checked: active }}
                                             onPress={() => { tap(); setVehId(v.id); setRangeKm(v.estRangeKm || 350); setLeaveSoc(v.currentBattery || 65); }}
-                                            style={[styles.carChip, { borderColor: colors.border }, active && { backgroundColor: colors.primary, borderColor: colors.primary }]}
+                                            style={[styles.carChip, { borderColor: 'rgba(11,11,15,0.25)' }, active && { backgroundColor: '#0B0B0F', borderColor: '#0B0B0F' }]}
                                         >
-                                            <ThemedText style={[styles.carChipText, { color: active ? '#FFFFFF' : colors.text }]}>{v.make} {v.model.split(' ')[0]}</ThemedText>
+                                            <ThemedText style={[styles.carChipText, { color: active ? '#FFFFFF' : '#0B0B0F' }]}>{v.make} {v.model.split(' ')[0]}</ThemedText>
                                         </Pressable>
                                     );
                                 })}
@@ -266,12 +267,12 @@ export default function TripPlannerScreen({ navigation, route: navRoute }: any) 
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    passCard: { borderRadius: 28, overflow: 'hidden' },
+    passCard: { borderRadius: 32, overflow: 'hidden' },
     passRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     passLbl: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 10, letterSpacing: 1.4, color: 'rgba(255,255,255,0.55)' },
     passCode: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 40, lineHeight: 46, letterSpacing: -1, color: '#FFFFFF' },
     passCity: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 13, color: 'rgba(255,255,255,0.7)' },
-    swap: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#007AFF', alignItems: 'center', justifyContent: 'center' },
+    swap: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#0B0B0F', alignItems: 'center', justifyContent: 'center' },
     perforation: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 16 },
     perfDot: { width: 6, height: 2, borderRadius: 1, backgroundColor: 'rgba(60,60,67,0.2)' },
     steppers: { flexDirection: 'row', gap: 8 },

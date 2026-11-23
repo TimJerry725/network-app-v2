@@ -5,6 +5,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     ChevronLeft,
+    X,
     Plus,
     Sparkles,
     ArrowDownLeft,
@@ -29,11 +30,6 @@ import { Panel } from '../../components/flat/FlatKit';
 import { formatRupees, sessionHoldAmount } from '../../utils/pulse';
 
 const PRESETS = [200, 500, 1000, 2000];
-const METHODS = [
-    { id: 'upi', label: 'UPI', icon: Smartphone },
-    { id: 'card', label: 'Card', icon: CreditCard },
-    { id: 'netbanking', label: 'Netbanking', icon: Landmark },
-] as const;
 
 export default function WalletScreen() {
     const { colors } = useAppTheme();
@@ -41,23 +37,23 @@ export default function WalletScreen() {
     const route = useRoute<any>();
     const insets = useSafeAreaInsets();
     const { user } = useVehicles();
-    const { ledger, rewardVolts, addMoney, raiseDispute, redeemVolts } = useWallet();
+    const { ledger, addMoney, raiseDispute } = useWallet();
     const { sessionHistory, activeSession } = useCharging();
 
     const [amount, setAmount] = useState(route.params?.focusTopUp ? '500' : '500');
-    const [method, setMethod] = useState<(typeof METHODS)[number]['id']>('upi');
+    const [adding, setAdding] = useState(!!route.params?.focusTopUp);
     const [disputed, setDisputed] = useState<Record<string, string>>({});
 
     const hold = activeSession ? sessionHoldAmount(activeSession.totalCost) : 0;
     const spendable = Math.max(0, user.walletBalance - hold);
     const amountValue = parseFloat(amount) || 0;
 
-    const methodLabel = METHODS.find((m) => m.id === method)?.label ?? 'UPI';
 
     const onAdd = () => {
         if (amountValue <= 0) return;
-        addMoney(amountValue, `${methodLabel} · instant`);
-        Alert.alert('Money added', `${formatRupees(amountValue)} is in your wallet. +${Math.floor(amountValue / 20)} Volts earned.`);
+        addMoney(amountValue, 'Wallet top-up · instant');
+        Alert.alert('Money added', `${formatRupees(amountValue)} is in your wallet.`);
+        setAdding(false);
     };
 
     const onDispute = (ref: string, station: string, total: number) => {
@@ -123,126 +119,85 @@ export default function WalletScreen() {
                     </Squish>
                 </View>
 
-                {/* Pass */}
-                <Panel tone="highlight" style={{ marginTop: 16 }}>
-                    <View>
-                    <View style={styles.passTop}>
-                        <ThemedText style={styles.passLabel}>Iris Wallet</ThemedText>
-                        <ThemedText style={styles.passMasked}>•••• {user.rfidTag.slice(-4)}</ThemedText>
-                    </View>
-                    <ThemedText style={styles.passSmall}>{hold > 0 ? 'Spendable now' : 'Balance'}</ThemedText>
-                    <ThemedText style={styles.passBalance}>{formatRupees(hold > 0 ? spendable : user.walletBalance, 2)}</ThemedText>
-                    {hold > 0 ? (
-                        <View style={styles.holdRow}>
-                            <Lock size={12} color="#FFFFFF" />
-                            <ThemedText style={styles.holdText}>
-                                {formatRupees(hold)} held for your live charge · unused hold comes back when you stop
-                            </ThemedText>
+                {/* One wallet card: shows the balance, and turns into the add-money card when tapped */}
+                {adding ? (
+                    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, marginTop: 16 }]}>
+                        <View style={styles.addHead}>
+                            <ThemedText style={[styles.addTitle, { color: colors.text }]}>Add money</ThemedText>
+                            <Pressable accessibilityRole="button" accessibilityLabel="Back to balance" hitSlop={10} onPress={() => setAdding(false)}>
+                                <X size={20} color={colors.text} />
+                            </Pressable>
                         </View>
-                    ) : null}
-                    <View style={styles.passStats}>
-                        <View style={styles.passStat}>
-                            <ThemedText style={styles.passStatValue}>{rewardVolts.toLocaleString('en-IN')}</ThemedText>
-                            <ThemedText style={styles.passStatLabel}>Volts (10 = ₹1)</ThemedText>
+                        <View style={styles.amountRow}>
+                            <ThemedText style={[styles.rupee, { color: colors.textMuted }]}>₹</ThemedText>
+                            <TextInput
+                                value={amount}
+                                onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ''))}
+                                keyboardType="number-pad"
+                                maxLength={6}
+                                placeholder="0"
+                                placeholderTextColor={colors.textSoft}
+                                style={[styles.amountInput, { color: colors.text }]}
+                                accessibilityLabel="Amount to add"
+                            />
                         </View>
-                    </View>
-                    </View>
-                </Panel>
-
-                {/* Add money */}
-                <SectionTitle title="Add money" />
-                <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <View style={styles.amountRow}>
-                        <ThemedText style={[styles.rupee, { color: colors.textMuted }]}>₹</ThemedText>
-                        <TextInput
-                            value={amount}
-                            onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ''))}
-                            keyboardType="number-pad"
-                            maxLength={6}
-                            placeholder="0"
-                            placeholderTextColor={colors.textSoft}
-                            style={[styles.amountInput, { color: colors.text }]}
-                            accessibilityLabel="Amount to add"
+                        <View style={styles.presetRow}>
+                            {PRESETS.map((p) => {
+                                const active = amountValue === p;
+                                return (
+                                    <Pressable
+                                        key={p}
+                                        accessibilityRole="button"
+                                        accessibilityState={{ selected: active }}
+                                        onPress={() => setAmount(String(p))}
+                                        style={[
+                                            styles.preset,
+                                            active
+                                                ? { backgroundColor: colors.text, borderColor: colors.text }
+                                                : { borderColor: colors.border, backgroundColor: colors.surfaceMuted },
+                                        ]}
+                                    >
+                                        <ThemedText style={[styles.presetText, { color: active ? colors.background : colors.text }]}>
+                                            +{p}
+                                        </ThemedText>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                        <PulseButton
+                            title={amountValue > 0 ? `Add ${formatRupees(amountValue)}` : 'Enter an amount'}
+                            onPress={onAdd}
+                            disabled={amountValue <= 0}
+                            icon={<Plus size={18} color="#FFFFFF" strokeWidth={3} />}
+                            style={{ marginTop: 16 }}
                         />
+                        <ThemedText style={[styles.fine, { color: colors.textMuted }]}>
+                            Unused balance is refundable to source anytime. No hidden fees.
+                        </ThemedText>
                     </View>
-                    <View style={styles.presetRow}>
-                        {PRESETS.map((p) => {
-                            const active = amountValue === p;
-                            return (
-                                <Pressable
-                                    key={p}
-                                    accessibilityRole="button"
-                                    accessibilityState={{ selected: active }}
-                                    onPress={() => setAmount(String(p))}
-                                    style={[
-                                        styles.preset,
-                                        active
-                                            ? { backgroundColor: colors.text, borderColor: colors.text }
-                                            : { borderColor: colors.border, backgroundColor: colors.surfaceMuted },
-                                    ]}
-                                >
-                                    <ThemedText style={[styles.presetText, { color: active ? colors.background : colors.text }]}>
-                                        +{p}
+                ) : (
+                    <>
+                        <Panel tone="highlight" onPress={() => setAdding(true)} accessibilityLabel="Wallet balance. Tap to add money" style={{ marginTop: 16, backgroundColor: '#EE6C58', borderColor: '#EE6C58' }}>
+                            <ThemedText style={styles.passLabel}>Iris Wallet</ThemedText>
+                            <ThemedText style={styles.passSmall}>{hold > 0 ? 'Spendable now' : 'Balance'}</ThemedText>
+                            <ThemedText style={styles.passBalance}>{formatRupees(hold > 0 ? spendable : user.walletBalance, 2)}</ThemedText>
+                            {hold > 0 ? (
+                                <View style={styles.holdRow}>
+                                    <Lock size={12} color="#FFFFFF" />
+                                    <ThemedText style={styles.holdText}>
+                                        {formatRupees(hold)} held for your live charge · unused hold comes back when you stop
                                     </ThemedText>
-                                </Pressable>
-                            );
-                        })}
-                    </View>
-                    <View style={styles.methodRow}>
-                        {METHODS.map((m) => {
-                            const active = m.id === method;
-                            const Icon = m.icon;
-                            return (
-                                <Pressable
-                                    key={m.id}
-                                    accessibilityRole="radio"
-                                    accessibilityState={{ checked: active }}
-                                    onPress={() => setMethod(m.id)}
-                                    style={[
-                                        styles.method,
-                                        { borderColor: active ? colors.primary : colors.border, backgroundColor: active ? colors.primarySoft : 'transparent' },
-                                    ]}
-                                >
-                                    <Icon size={16} color={active ? colors.primary : colors.textMuted} />
-                                    <ThemedText style={[styles.methodText, { color: active ? colors.primary : colors.textMuted }]}>
-                                        {m.label}
-                                    </ThemedText>
-                                </Pressable>
-                            );
-                        })}
-                    </View>
-                    <PulseButton
-                        title={amountValue > 0 ? `Add ${formatRupees(amountValue)} via ${methodLabel}` : 'Enter an amount'}
-                        onPress={onAdd}
-                        disabled={amountValue <= 0}
-                        icon={<Plus size={18} color="#FFFFFF" strokeWidth={3} />}
-                        style={{ marginTop: 16 }}
-                    />
-                    <ThemedText style={[styles.fine, { color: colors.textMuted }]}>
-                        Unused balance is refundable to source anytime. No hidden fees.
-                    </ThemedText>
-                </View>
-
-                {/* Volts */}
-                <View style={[styles.voltsCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <View style={{ flex: 1 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                            <Sparkles size={16} color={colors.text} />
-                            <ThemedText style={[styles.voltsTitle, { color: colors.text }]}>{rewardVolts.toLocaleString('en-IN')} Volts</ThemedText>
-                        </View>
-                        <ThemedText style={[styles.voltsSub, { color: colors.textMuted }]}>Earn on every top-up and off-peak charge.</ThemedText>
-                    </View>
-                    <Squish
-                        onPress={() => {
-                            const ok = redeemVolts(1000);
-                            Alert.alert(ok ? 'Redeemed' : 'Not enough Volts', ok ? '₹100 added to your wallet.' : 'You need 1,000 Volts to redeem ₹100.');
-                        }}
-                        accessibilityLabel="Redeem 1000 Volts for 100 rupees"
-                        style={styles.voltsBtn}
-                    >
-                        <ThemedText style={styles.voltsBtnText}>Redeem ₹100</ThemedText>
-                    </Squish>
-                </View>
+                                </View>
+                            ) : null}
+                        </Panel>
+                        <PulseButton
+                            title="Add money"
+                            onPress={() => setAdding(true)}
+                            icon={<Plus size={18} color="#FFFFFF" strokeWidth={3} />}
+                            style={{ marginTop: 12 }}
+                        />
+                    </>
+                )}
 
                 {/* Transactions */}
                 <SectionTitle title={`Transactions · ${allTxns.length}`} />
@@ -375,6 +330,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     methodText: { fontFamily: FONT_FAMILIES.bold, fontSize: 13 },
+    addHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+    addTitle: { fontFamily: FONT_FAMILIES.extraBold, fontSize: 18 },
     fine: { fontFamily: FONT_FAMILIES.medium, fontSize: 12, textAlign: 'center', marginTop: 8 },
 
     step: { flexDirection: 'row', gap: 12, minHeight: 36 },

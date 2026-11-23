@@ -34,51 +34,25 @@ export function Glass({
     tint?: string;
     clear?: boolean;
 }) {
-    const { isDark } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const flat = StyleSheet.flatten(style) ?? {};
-    const shape: ViewStyle = { borderRadius: radius, overflow: 'hidden' };
-
-    if (HAS_GLASS) {
-        return (
-            <GlassView
-                glassEffectStyle={clear ? 'clear' : 'regular'}
-                colorScheme={isDark ? 'dark' : 'light'}
-                tintColor={tint}
-                isInteractive={interactive}
-                style={[shape, flat]}
-            >
-                {children}
-            </GlassView>
-        );
-    }
-
+    // Neo-bento: solid white/ink surfaces with a soft shadow instead of blur
     return (
         <View
             style={[
-                shape,
                 {
-                    borderWidth: StyleSheet.hairlineWidth * 2,
-                    borderColor: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.85)',
+                    borderRadius: radius,
+                    overflow: 'hidden',
+                    backgroundColor: tint ?? colors.surface,
                     shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 6 },
-                    shadowOpacity: isDark ? 0.35 : 0.10,
-                    shadowRadius: 18,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: isDark ? 0.3 : 0.07,
+                    shadowRadius: 14,
+                    elevation: 2,
                 },
                 flat,
             ]}
         >
-            <BlurView
-                intensity={isDark ? 60 : 70}
-                tint={isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
-                style={StyleSheet.absoluteFill}
-            />
-            <View
-                pointerEvents="none"
-                style={[
-                    StyleSheet.absoluteFill,
-                    { backgroundColor: tint ?? (isDark ? 'rgba(44,44,46,0.35)' : 'rgba(255,255,255,0.55)') },
-                ]}
-            />
             {children}
         </View>
     );

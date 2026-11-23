@@ -102,15 +102,15 @@ export default function PaymentScreen({ route, navigation }: any) {
                 </View>
 
                 <View style={styles.tiles}>
-                    <View style={[styles.tile, { backgroundColor: isDark ? 'rgba(52,199,89,0.18)' : '#D6EBDF' }]}>
-                        <Leaf size={26} color={colors.success} />
-                        <ThemedText style={[styles.tileLabel, { color: colors.textMuted }]}>CO₂ offset</ThemedText>
-                        <ThemedText style={[styles.tileVal, { color: colors.text }]}>{co2} kg</ThemedText>
+                    <View style={[styles.tile, { backgroundColor: '#52BE89' }]}>
+                        <Leaf size={26} color="#FFFFFF" />
+                        <ThemedText style={[styles.tileLabel, { color: 'rgba(255,255,255,0.85)' }]}>CO₂ offset</ThemedText>
+                        <ThemedText style={[styles.tileVal, { color: '#FFFFFF' }]}>{co2} kg</ThemedText>
                     </View>
-                    <View style={[styles.tile, { backgroundColor: isDark ? 'rgba(0,122,255,0.20)' : '#D3E2F6' }]}>
-                        <BatteryCharging size={26} color={colors.primary} />
-                        <ThemedText style={[styles.tileLabel, { color: colors.textMuted }]}>Battery level</ThemedText>
-                        <ThemedText style={[styles.tileVal, { color: colors.text }]}>{startSoc} → {endSoc}%</ThemedText>
+                    <View style={[styles.tile, { backgroundColor: '#6DB8F2' }]}>
+                        <BatteryCharging size={26} color="#0B0B0F" />
+                        <ThemedText style={[styles.tileLabel, { color: 'rgba(11,11,15,0.62)' }]}>Battery level</ThemedText>
+                        <ThemedText style={[styles.tileVal, { color: '#0B0B0F' }]}>{startSoc} → {endSoc}%</ThemedText>
                     </View>
                 </View>
 

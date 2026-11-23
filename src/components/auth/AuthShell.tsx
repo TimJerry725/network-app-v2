@@ -40,7 +40,7 @@ export function AuthShell({
             >
                 <View style={styles.top}>
                     {onBack ? (
-                        <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={onBack} hitSlop={8} style={[styles.back, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={onBack} hitSlop={8} style={[styles.back, { backgroundColor: colors.surface, borderColor: 'transparent' }]}>
                             <ChevronLeft size={20} color={colors.text} strokeWidth={2.5} />
                         </Pressable>
                     ) : (
@@ -56,7 +56,7 @@ export function AuthShell({
                             key={i}
                             style={[
                                 styles.dot,
-                                { backgroundColor: i < step ? colors.primary : isDark ? '#3A3A3C' : '#D1D1D6', flex: i === step - 1 ? 2.2 : 1 },
+                                { backgroundColor: i < step ? (isDark ? '#FFFFFF' : '#0B0B0F') : isDark ? '#3A3A3C' : '#D9DCE1', flex: i === step - 1 ? 2.2 : 1 },
                             ]}
                         />
                     ))}

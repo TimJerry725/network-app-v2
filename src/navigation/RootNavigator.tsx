@@ -11,6 +11,7 @@ import StationDetailScreen from '../screens/Station/StationDetailScreen';
 import ScanScreen from '../screens/Charging/ScanScreen';
 import ChargingSessionScreen from '../screens/Charging/ChargingSessionScreen';
 import PaymentScreen from '../screens/Charging/PaymentScreen';
+import MapScreen from '../screens/Home/MapScreen';
 import FilterScreen from '../screens/Home/FilterScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import EditProfileScreen from '../screens/Profile/EditProfileScreen';
@@ -55,6 +56,7 @@ export default function RootNavigator() {
                 <Stack.Screen name="Scan" component={ScanScreen} />
                 <Stack.Screen name="ChargingSession" component={ChargingSessionScreen} />
                 <Stack.Screen name="Payment" component={PaymentScreen} />
+                <Stack.Screen name="NearbyMap" component={MapScreen} options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="Filter" component={FilterScreen} />
                 <Stack.Screen name="Profile" component={ProfileScreen} />
                 <Stack.Screen name="EditProfile" component={EditProfileScreen} />

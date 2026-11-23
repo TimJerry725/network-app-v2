@@ -1,86 +1,41 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, PanResponder, Platform, Pressable, ScrollView, ScrollViewInstance, StyleSheet, TextInputInstance, View, useWindowDimensions } from 'react-native';
-import { TextInput } from '../../components/ThemedTextInput';
+import { LayoutAnimation, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
+import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
-import * as Haptics from 'expo-haptics';
-import {
-    Sparkles,
-    Mic,
-    X,
-    Tag,
-    CircleCheck,
-    CreditCard,
-    SlidersHorizontal,
-    LocateFixed,
-    ArrowUpRight,
-    Wifi,
-    ShoppingBag,
-    User,
-    Plug,
-} from '../../components/sf/icons';
+import { Sparkles, Mic, Zap, ArrowUpRight, Plus, Route, Heart, History, ChevronDown, ChevronUp } from '../../components/sf/icons';
 import { ThemedText } from '../../components/ThemedText';
+import { Tile, Eyebrow, BigNumber, IconDot, Pill, useBento } from '../../components/bento/Bento';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useVehicles } from '../../context/VehicleContext';
 import { useCharging } from '../../context/ChargingContext';
 import { useFavorites } from '../../context/FavoritesContext';
+import { useSavedTrips } from '../../context/SavedTripsContext';
 import { useIndiaChargingStations } from '../../hooks/useIndiaChargingStations';
-import { Station } from '../../constants/Stations';
-import {
-    DEFAULT_MAP_FILTERS,
-    MapFilterSheet,
-    MapFilterState,
-    countMapFilters,
-    stationMatchesMapFilters,
-} from '../../components/MapFilterSheet';
-import { DcPinIcon } from '../../components/DcPinIcon';
-import { CarPinIcon } from '../../components/CarPinIcon';
-import { Ccs2Icon } from '../../components/Ccs2Icon';
-import { Type2Icon } from '../../components/Type2Icon';
-import { Glass, GlassButton } from '../../components/glass/Glass';
-import { DEFAULT_REGION, distanceKm } from '../../utils/geo';
-import { allInPrice, formatRupees } from '../../utils/pulse';
+import { DEFAULT_REGION, distanceKm, greeting } from '../../utils/geo';
+import { formatRupees } from '../../utils/pulse';
 
-type QuickFilter = '' | 'CCS2' | 'Type 2' | 'Available';
+const NEAR_KM = 5;
+const FALLBACK_KM = 25;
 
-const NEARBY_KM = 25;
-const NEARBY_MAX = 12;
-
-const DARK_MAP_STYLE = [
-    { elementType: 'geometry', stylers: [{ color: '#14161C' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#8E8E93' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#0B0C10' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#242730' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0B0C10' }] },
-];
-
-function tap() {
-    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-}
-
-/**
- * Home (iOS 27 design): full-screen map, glass search bar with Iris and mic, filter chips,
- * wallet pill, coloured pins, and a glass bottom sheet with the nearby hubs.
- */
+/** Home (neo-bento): one calm grid of pastel tiles. Each tile answers one question. */
 export default function HomeScreen({ navigation }: any) {
     const { colors, isDark } = useAppTheme();
     const insets = useSafeAreaInsets();
-    const { width: screenW } = useWindowDimensions();
-    const { user, selectedVehicle } = useVehicles();
-    const { activeSession } = useCharging();
-    const { isFavorite } = useFavorites();
-    const { stations: allStations, isLoading } = useIndiaChargingStations();
-
-    const mapRef = useRef<MapView>(null);
-    const listRef = useRef<ScrollViewInstance>(null);
-    const searchRef = useRef<TextInputInstance>(null);
-    const [search, setSearch] = useState('');
-    const [quick, setQuick] = useState<QuickFilter>('CCS2');
-    const [criteria, setCriteria] = useState<MapFilterState>(DEFAULT_MAP_FILTERS);
-    const [sheetOpen, setSheetOpen] = useState(false);
+    const { width } = useWindowDimensions();
+    const { user } = useVehicles();
+    const { activeSession, sessionHistory } = useCharging();
+    const { favoriteIds } = useFavorites() as any;
+    const { savedTrips } = useSavedTrips();
+    const { stations: all } = useIndiaChargingStations();
     const [userLoc, setUserLoc] = useState<{ latitude: number; longitude: number } | null>(null);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const mapRef = useRef<MapView>(null);
+    const [fastOpen, setFastOpen] = useState(false);
+    const toggleFast = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setFastOpen((v) => !v);
+    };
 
     useEffect(() => {
         let mounted = true;
@@ -93,7 +48,7 @@ export default function HomeScreen({ navigation }: any) {
                 const fix = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
                 if (fix && mounted) setUserLoc(fix.coords);
             } catch {
-                // Location is optional
+                // optional
             }
         })();
         return () => {
@@ -101,304 +56,344 @@ export default function HomeScreen({ navigation }: any) {
         };
     }, []);
 
-    const stations = useMemo(() => {
-        const ref = userLoc ?? DEFAULT_REGION;
-        const q = search.trim().toLowerCase();
-        const list = allStations
-            .filter((s) => {
-                if (q && !`${s.name} ${s.address}`.toLowerCase().includes(q)) return false;
-                if (!stationMatchesMapFilters(s, criteria)) return false;
-                if (quick === 'CCS2' || quick === 'Type 2') return s.connectors.some((c) => c.type === quick);
-                if (quick === 'Available') return s.connectors.some((c) => c.status === 'Available');
-                return true;
-            })
-            .map((s) => {
-                const d = distanceKm(ref.latitude, ref.longitude, s.latitude, s.longitude);
-                return { ...s, distanceKm: Number(d.toFixed(1)), etaMinutes: Math.max(3, Math.round(d * 1.6)) };
-            });
-        const byDistance = list.sort((a, b) => a.distanceKm - b.distanceKm);
-        const close = byDistance.filter((s) => s.distanceKm <= NEARBY_KM);
-        const nearby = (close.length && !q ? close : byDistance).slice(0, NEARBY_MAX);
-        return nearby;
-    }, [allStations, search, criteria, quick, userLoc]);
+    const ref = userLoc ?? DEFAULT_REGION;
+    const withDistance = useMemo(
+        () =>
+            all
+                .map((s) => ({ ...s, dist: distanceKm(ref.latitude, ref.longitude, s.latitude, s.longitude) }))
+                .sort((a, b) => a.dist - b.dist),
+        [all, ref.latitude, ref.longitude]
+    );
+    const radius = withDistance.some((s) => s.dist <= NEAR_KM) ? NEAR_KM : FALLBACK_KM;
+    const nearby = withDistance.filter((s) => s.dist <= radius);
+    const fastAll = withDistance.filter((s) => s.connectors.some((c) => c.power >= 50));
+    const fastList = (fastAll.length >= 5 ? fastAll : withDistance).slice(0, 5);
 
-    const selected = stations.find((s) => s.id === selectedId) ?? stations[0];
-
+    const blue = useBento('blue');
+    const ink = useBento('ink');
+    const gap = 8;
+    const favCount = Array.isArray(favoriteIds) ? favoriteIds.length : 0;
     useEffect(() => {
-        if (!selected) return;
-        mapRef.current?.animateToRegion(
-            { latitude: selected.latitude - 0.012, longitude: selected.longitude, latitudeDelta: 0.06, longitudeDelta: 0.06 },
-            450
-        );
-    }, [selected?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const openStation = (s: Station) => navigation.navigate('StationDetails', { stationId: s.id, stationSnapshot: s });
-    const filterCount = countMapFilters(criteria);
-
-    const panelBg = isDark ? 'rgba(44,44,46,0.94)' : 'rgba(255,255,255,0.92)';
-    const TILE_W = Math.min(280, screenW - 64);
-    const NAV_H = insets.bottom + 96;
-
-    const chips: { id: QuickFilter; label: string; icon: (c: string) => React.ReactNode }[] = [
-        { id: 'CCS2', label: 'CCS2', icon: (c) => <Ccs2Icon size={16} color={c} /> },
-        { id: 'Type 2', label: 'Type 2', icon: (c) => <Type2Icon size={16} color={c} /> },
-        { id: 'Available', label: 'Available', icon: (c) => <CircleCheck size={16} color={quick === 'Available' ? c : colors.success} /> },
-    ];
-
-    const pinColor = (s: Station) => {
-        if (s.id === selected?.id) return colors.primary;
-        return s.connectors.some((c) => c.status === 'Available') ? colors.success : colors.error;
-    };
+        const pts = (fastOpen ? fastList : fastList.slice(0, 1)).map((f) => ({ latitude: f.latitude, longitude: f.longitude }));
+        if (!pts.length) return;
+        mapRef.current?.fitToCoordinates([...pts, { latitude: ref.latitude, longitude: ref.longitude }], {
+            edgePadding: { top: 30, right: 30, bottom: 30, left: 30 },
+            animated: true,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fastOpen, fastList.map((f) => f.id).join(',')]);
+    const openMap = () => navigation.navigate('NearbyMap');
+    const initial = (user.fullName || 'U').charAt(0).toUpperCase();
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <MapView
-                ref={mapRef}
-                style={StyleSheet.absoluteFill}
-                provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
-                initialRegion={selected ? { latitude: selected.latitude, longitude: selected.longitude, latitudeDelta: 0.06, longitudeDelta: 0.06 } : DEFAULT_REGION}
-                customMapStyle={Platform.OS === 'android' && isDark ? DARK_MAP_STYLE : undefined}
-                userInterfaceStyle={isDark ? 'dark' : 'light'}
-                showsUserLocation={false}
-                showsMyLocationButton={false}
-                pitchEnabled={false}
+            <ScrollView
+                contentContainerStyle={{ paddingTop: insets.top + 4, paddingHorizontal: 12, paddingBottom: insets.bottom + 96 }}
+                showsVerticalScrollIndicator={false}
             >
-                {stations.map((s) => {
-                    const sel = s.id === selected?.id;
-                    return (
-                        <Marker
-                            key={s.id}
-                            coordinate={{ latitude: s.latitude, longitude: s.longitude }}
-                            anchor={{ x: 0.5, y: 0.95 }}
-                            zIndex={sel ? 999 : 1}
-                            onPress={() => {
-                                tap();
-                                setSelectedId(s.id);
-                                const i = stations.findIndex((x) => x.id === s.id);
-                                listRef.current?.scrollTo({ x: Math.max(0, i * (TILE_W + 10)), animated: true });
-                            }}
-                        >
-                            <DcPinIcon size={sel ? 54 : 42} color={pinColor(s)} iconColor="#FFFFFF" stroke="#FFFFFF" strokeWidth={1.6} />
-                        </Marker>
-                    );
-                })}
-                {userLoc ? (
-                    <Marker coordinate={userLoc} anchor={{ x: 0.5, y: 0.5 }} zIndex={1000}>
-                        <View style={{ width: 52, height: 52 }}>
-                            <CarPinIcon size={44} color={colors.primary} />
-                        </View>
-                    </Marker>
-                ) : null}
-            </MapView>
+                {/* Header */}
+                <View style={styles.header}>
+                    <View style={{ flex: 1 }}>
+                        <ThemedText style={[styles.hello, { color: colors.textMuted }]}>{greeting()}</ThemedText>
+                        <ThemedText style={[styles.title, { color: colors.text }]}>Where to charge?</ThemedText>
+                    </View>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Open profile" onPress={() => navigation.navigate('Profile')} style={[styles.avatar, { backgroundColor: isDark ? '#FFFFFF' : '#0B0B0F' }]}>
+                        <ThemedText style={[styles.avatarText, { color: isDark ? '#0B0B0F' : '#FFFFFF' }]}>{initial}</ThemedText>
+                    </Pressable>
+                </View>
 
-            {/* Top: search, chips, wallet */}
-            <View style={{ paddingTop: insets.top + 6 }} pointerEvents="box-none">
-                <View style={[styles.pad, styles.searchRow]}>
-                    <Glass radius={28} style={[styles.search, { flex: 1, backgroundColor: panelBg }]}>
-                        <Sparkles size={20} color={colors.primary} strokeWidth={2} />
-                        <TextInput
-                            ref={searchRef}
-                            value={search}
-                            onChangeText={setSearch}
-                            placeholder="Ask Iris or search stations…"
-                            placeholderTextColor={colors.textMuted}
-                            returnKeyType="search"
-                            style={[styles.searchInput, { color: colors.text }]}
-                            accessibilityLabel="Search stations or ask Iris"
-                        />
+                {/* Search */}
+                <Pressable accessibilityRole="search" accessibilityLabel="Ask Iris or search stations" onPress={openMap} style={[styles.search, { backgroundColor: colors.surface }]}>
+                    <Sparkles size={18} color={colors.primary} />
+                    <ThemedText style={[styles.searchText, { color: colors.textMuted }]} numberOfLines={1}>
+                        Ask Iris or search stations…
+                    </ThemedText>
+                    <View style={[styles.mic, { backgroundColor: colors.background }]}>
+                        <Mic size={16} color={colors.text} />
+                    </View>
+                </Pressable>
+
+                {/* Nearest fast chargers: collapsed = the closest one beside wallet/trips; expanded = full-width list of five */}
+                {(() => {
+                    const walletTile = (
+                        <Tile tone="coral" style={{ flex: 1 }} onPress={() => navigation.navigate('Wallet')} label="Wallet">
+                            <Eyebrow tone="coral">WALLET</Eyebrow>
+                            <ThemedText style={[styles.walletAmount, { color: '#FFFFFF' }]} numberOfLines={1} adjustsFontSizeToFit>
+                                {formatRupees(user.walletBalance, 0)}
+                            </ThemedText>
+                            <Pill tone="coral" onPress={() => navigation.navigate('Wallet', { focusTopUp: true })} style={{ marginTop: 6 }}>
+                                <Plus size={13} color="#FFFFFF" />
+                                <ThemedText style={styles.pillText}>Top up</ThemedText>
+                            </Pill>
+                        </Tile>
+                    );
+                    const tripTile = (
+                        <Tile tone="lilac" style={{ flex: 1 }} onPress={() => navigation.navigate('Main', { screen: 'Explore' })} label="Plan a trip">
+                            <IconDot tone="lilac" size={40}>
+                                <Route size={18} color="#0B0B0F" />
+                            </IconDot>
+                            <ThemedText style={[styles.planTitle, { color: '#0B0B0F', marginTop: 6 }]} numberOfLines={1}>Plan a trip</ThemedText>
+                            <ThemedText style={[styles.planSub, { color: 'rgba(11,11,15,0.62)' }]} numberOfLines={1}>
+                                {savedTrips.length ? `${savedTrips.length} saved` : 'Charge on the way'}
+                            </ThemedText>
+                        </Tile>
+                    );
+                    const head = (
                         <Pressable
                             accessibilityRole="button"
-                            accessibilityLabel={search ? 'Clear search' : 'Voice search'}
-                            onPress={() => {
-                                tap();
-                                if (search) setSearch('');
-                                else searchRef.current?.focus();
-                            }}
-                            style={[styles.mic, { backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(120,120,128,0.14)' }]}
+                            accessibilityState={{ expanded: fastOpen }}
+                            accessibilityLabel={fastOpen ? 'Collapse nearest fast chargers' : 'Expand to see 5 nearest fast chargers'}
+                            onPress={toggleFast}
+                            style={[styles.sideHead, fastOpen && { padding: 14, paddingBottom: 10 }]}
                         >
-                            {search ? <X size={18} color={colors.text} /> : <Mic size={20} color={colors.text} />}
+                            <IconDot tone="blue" size={fastOpen ? 40 : 36}>
+                                <Zap size={16} color={blue.fg} fill={blue.fg} />
+                            </IconDot>
+                            {fastOpen ? (
+                                <View style={{ flex: 1, marginLeft: 12 }}>
+                                    <Eyebrow tone="blue">NEAREST FAST CHARGERS</Eyebrow>
+                                    <ThemedText style={[styles.tileTitle, { color: blue.fg, marginTop: 0 }]}>
+                                        {fastList.length} within {fastList.length ? Math.ceil(fastList[fastList.length - 1].dist) : 0} km
+                                    </ThemedText>
+                                </View>
+                            ) : null}
+                            <IconDot tone="ink" size={32}>
+                                {fastOpen ? <ChevronUp size={15} color="#FFFFFF" /> : <ChevronDown size={15} color="#FFFFFF" />}
+                            </IconDot>
                         </Pressable>
-                    </Glass>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Open profile" onPress={() => { tap(); navigation.navigate('Profile'); }}>
-                        <Glass radius={24} interactive style={[styles.avatarBtn, { backgroundColor: colors.primary }]}>
-                            <ThemedText style={[styles.avatarText, { color: '#FFFFFF' }]}>{(user.fullName || 'U').charAt(0).toUpperCase()}</ThemedText>
-                        </Glass>
-                    </Pressable>
-                </View>
+                    );
 
-                <View style={[styles.pad, styles.chipRow]}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={styles.chips}>
-                    {chips.map((c) => {
-                        const active = quick === c.id;
-                        const fg = active ? '#FFFFFF' : colors.text;
+                    if (!fastOpen) {
                         return (
-                            <Pressable
-                                key={c.id}
-                                accessibilityRole="button"
-                                accessibilityState={{ selected: active }}
-                                onPress={() => {
-                                    tap();
-                                    setQuick((q) => (q === c.id ? '' : c.id));
-                                }}
-                            >
-                                <Glass radius={22} tint={active ? colors.primary : undefined} style={[styles.chip, { backgroundColor: active ? colors.primary : panelBg }]}>
-                                    {c.icon(fg)}
-                                    <ThemedText style={[styles.chipText, { color: fg }]}>{c.label}</ThemedText>
-                                </Glass>
-                            </Pressable>
-                        );
-                    })}
-                </ScrollView>
-
-                    <Pressable accessibilityRole="button" accessibilityLabel={`Wallet ${formatRupees(user.walletBalance, 2)}`} onPress={() => navigation.navigate('Wallet')}>
-                        <Glass radius={20} style={[styles.wallet, { backgroundColor: panelBg }]}>
-                            <CreditCard size={16} color={colors.success} />
-                            <ThemedText style={[styles.walletValue, { color: colors.text }]}>{formatRupees(user.walletBalance, 2)}</ThemedText>
-                        </Glass>
-                    </Pressable>
-                </View>
-            </View>
-
-            {/* Right-hand glass buttons */}
-            <View style={[styles.side, { bottom: NAV_H + 160 }]} pointerEvents="box-none">
-                <GlassButton label="Filters" size={44} onPress={() => setSheetOpen(true)} tint={filterCount > 0 ? colors.primary : undefined}>
-                    <SlidersHorizontal size={19} color={filterCount > 0 ? '#FFFFFF' : colors.text} />
-                </GlassButton>
-                <GlassButton
-                    label="Center on me"
-                    size={44}
-                    onPress={() => userLoc && mapRef.current?.animateToRegion({ ...userLoc, latitudeDelta: 0.05, longitudeDelta: 0.05 }, 500)}
-                >
-                    <LocateFixed size={19} color={colors.text} />
-                </GlassButton>
-            </View>
-
-            {/* Nearby stations: horizontal tiles */}
-            <View style={[styles.strip, { bottom: NAV_H }]} pointerEvents="box-none">
-                <View style={styles.stripHead}>
-                    <ThemedText style={[styles.sheetTitle, { color: colors.text }]}>
-                        {quick === 'CCS2' || quick === 'Type 2' ? `Nearby ${quick === 'CCS2' ? 'DC fast' : 'AC'} hubs` : 'Nearby stations'}
-                    </ThemedText>
-                    <View style={[styles.live, { backgroundColor: 'rgba(52,199,89,0.16)' }]}>
-                        <View style={[styles.liveDot, { backgroundColor: colors.success }]} />
-                        <ThemedText style={[styles.liveText, { color: colors.success }]}>{stations.length} · {NEARBY_KM} km</ThemedText>
-                    </View>
-                </View>
-                <ScrollView
-                    ref={listRef}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={TILE_W + 10}
-                    decelerationRate="fast"
-                    contentContainerStyle={styles.list}
-                >
-                    {stations.length === 0 ? (
-                        <View style={[styles.card, { width: TILE_W, backgroundColor: colors.surface, borderColor: 'transparent' }]}>
-                            <ThemedText style={[styles.cardName, { color: colors.text }]}>{isLoading ? 'Finding chargers…' : 'No stations match'}</ThemedText>
-                            {!isLoading ? <ThemedText style={[styles.cardSub, { color: colors.textMuted }]}>Try another filter or search.</ThemedText> : null}
-                        </View>
-                    ) : null}
-                    {stations.map((s) => {
-                        const free = s.connectors.filter((c) => c.status === 'Available').length;
-                        const best = [...s.connectors].sort((a, b) => b.power - a.power)[0];
-                        const minPrice = Math.min(...s.connectors.map((c) => c.pricePerKWh));
-                        const sel = s.id === selected?.id;
-                        const fits = selectedVehicle ? s.connectors.some((c) => c.type === selectedVehicle.connectorType) : true;
-                        const chipBg = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(120,120,128,0.14)';
-                        return (
-                            <Pressable
-                                key={s.id}
-                                accessibilityRole="button"
-                                accessibilityLabel={`${s.name}, ${free} of ${s.connectors.length} available`}
-                                onPress={() => {
-                                    if (sel) openStation(s);
-                                    else {
-                                        tap();
-                                        setSelectedId(s.id);
-                                    }
-                                }}
-                                style={[styles.card, { width: TILE_W, backgroundColor: colors.surface, borderColor: sel ? colors.primary : 'transparent' }]}
-                            >
-                                <View style={styles.cardTop}>
-                                    <View style={[styles.plugTile, { backgroundColor: 'rgba(0,122,255,0.14)' }]}>
-                                        <Plug size={20} color={colors.primary} />
-                                    </View>
-                                    <View style={{ flex: 1 }}>
-                                        <ThemedText style={[styles.cardName, { color: colors.text }]} numberOfLines={1}>{s.name}</ThemedText>
-                                        <ThemedText style={[styles.cardSub, { color: colors.textMuted }]} numberOfLines={1}>
-                                            {s.distanceKm} km · {s.etaMinutes} min · {s.openTime === '24/7' ? '24 hrs' : s.openTime}
+                            <View style={[styles.row, { gap, alignItems: 'stretch' }]}>
+                                <Tile tone="blue" padded={false} style={{ flex: 1.15 }}>
+                                    {head}
+                                    <View style={styles.sideBody}>
+                                        <Eyebrow tone="blue">NEAREST FAST CHARGER</Eyebrow>
+                                        <ThemedText style={[styles.tileTitle, { color: blue.fg }]} numberOfLines={2}>
+                                            {fastList[0]?.name ?? 'Finding chargers…'}
                                         </ThemedText>
-                                    </View>
-                                    <Pressable
-                                        accessibilityRole="button"
-                                        accessibilityLabel={`Open ${s.name}`}
-                                        onPress={() => openStation(s)}
-                                        style={[styles.arrow, { backgroundColor: chipBg }]}
-                                    >
-                                        <ArrowUpRight size={16} color={colors.text} />
-                                    </Pressable>
-                                </View>
-                                <View style={styles.pills}>
-                                    <View style={[styles.pill, { backgroundColor: free > 0 ? 'rgba(52,199,89,0.16)' : 'rgba(255,59,48,0.14)' }]}>
-                                        <View style={[styles.pillDot, { backgroundColor: free > 0 ? colors.success : colors.error }]} />
-                                        <ThemedText style={[styles.pillText, { color: free > 0 ? colors.success : colors.error }]}>{free}/{s.connectors.length}</ThemedText>
-                                    </View>
-                                    {best ? (
-                                        <View style={[styles.pill, { backgroundColor: chipBg }]}>
-                                            <ThemedText style={[styles.pillText, { color: colors.text }]}>{best.power} kW {best.currentType ?? (best.power >= 50 ? 'DC' : 'AC')}</ThemedText>
+                                        {fastList[0] ? (
+                                            <ThemedText style={[styles.tileSub, { color: blue.sub }]}>
+                                                {fastList[0].dist.toFixed(1)} km · {Math.max(3, Math.round(fastList[0].dist * 1.6))} min
+                                            </ThemedText>
+                                        ) : null}
+                                        <View style={{ marginTop: 2 }}>
+                                            <BigNumber tone="blue" unit="kW" size={36}>
+                                                {fastList[0] ? [...fastList[0].connectors].sort((x, y) => y.power - x.power)[0]?.power ?? '—' : '—'}
+                                            </BigNumber>
                                         </View>
-                                    ) : null}
-                                    <View style={[styles.pill, { backgroundColor: chipBg }]}>
-                                        <ThemedText style={[styles.pillText, { color: colors.text }]}>₹{allInPrice(minPrice).toFixed(1)}/kWh</ThemedText>
+                                        <ThemedText style={[styles.hint, { color: blue.sub }]}>Tap for 5 nearest</ThemedText>
                                     </View>
-                                    {!fits ? (
-                                        <View style={[styles.pill, { backgroundColor: 'rgba(255,149,0,0.16)' }]}>
-                                            <ThemedText style={[styles.pillText, { color: colors.warning }]}>Plug mismatch</ThemedText>
-                                        </View>
-                                    ) : null}
+                                </Tile>
+                                <View style={{ flex: 1, gap }}>
+                                    {walletTile}
+                                    {tripTile}
                                 </View>
-                            </Pressable>
+                            </View>
                         );
-                    })}
-                </ScrollView>
-            </View>
+                    }
+                    return (
+                        <>
+                            <Tile tone="blue" padded={false}>
+                                {head}
+                                <View style={styles.fastList}>
+                                    {fastList.map((st, i) => {
+                                        const best = [...st.connectors].sort((x, y) => y.power - x.power)[0];
+                                        const free = st.connectors.filter((c) => c.status === 'Available').length;
+                                        const total = st.connectors.length;
+                                        return (
+                                            <Pressable
+                                                key={st.id}
+                                                accessibilityRole="button"
+                                                accessibilityLabel={`${st.name}, ${st.dist.toFixed(1)} kilometres, ${best?.power ?? 0} kilowatt, ${free} of ${total} free`}
+                                                onPress={() => navigation.navigate('StationDetails', { stationId: st.id, stationSnapshot: st })}
+                                                style={({ pressed }) => [styles.fastCard, { backgroundColor: colors.surface, opacity: pressed ? 0.85 : 1 }]}
+                                            >
+                                                <View style={styles.rank}>
+                                                    <ThemedText style={styles.rankText}>{i + 1}</ThemedText>
+                                                </View>
+                                                <View style={{ flex: 1 }}>
+                                                    <ThemedText style={[styles.fastName, { color: colors.text }]} numberOfLines={1}>{st.name}</ThemedText>
+                                                    <ThemedText style={[styles.fastSub, { color: colors.textMuted }]} numberOfLines={1}>
+                                                        {st.dist.toFixed(1)} km · {Math.max(3, Math.round(st.dist * 1.6))} min
+                                                    </ThemedText>
+                                                </View>
+                                                <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                                                    <View style={styles.kwPill}>
+                                                        <ThemedText style={styles.kwText}>{best?.power ?? '—'} kW</ThemedText>
+                                                    </View>
+                                                    <View style={styles.freeRow}>
+                                                        <View style={[styles.freeDot, { backgroundColor: free > 0 ? '#2E9E68' : '#EE6C58' }]} />
+                                                        <ThemedText style={[styles.freeText, { color: free > 0 ? '#2E9E68' : '#EE6C58' }]}>{free}/{total} free</ThemedText>
+                                                    </View>
+                                                </View>
+                                            </Pressable>
+                                        );
+                                    })}
+                                </View>
+                            </Tile>
+                            <View style={[styles.row, { gap, marginTop: gap }]}>
+                                {walletTile}
+                                {tripTile}
+                            </View>
+                        </>
+                    );
+                })()}
 
-            <MapFilterSheet visible={sheetOpen} criteria={criteria} onClose={() => setSheetOpen(false)} onApply={(c) => { setCriteria(c); setSheetOpen(false); }} />
+                {/* Around you: full-width map that follows the chargers list */}
+                <Tile tone="white" padded={false} style={{ marginTop: gap }} onPress={openMap} label="Open map">
+                    <View style={styles.aroundHead}>
+                        <View style={{ flex: 1 }}>
+                            <Eyebrow tone="white">AROUND YOU</Eyebrow>
+                            <ThemedText style={[styles.tileTitle, { color: colors.text }]}>
+                                {nearby.length} station{nearby.length === 1 ? '' : 's'} within {radius} km
+                            </ThemedText>
+                        </View>
+                        <IconDot tone="white" size={40}>
+                            <ArrowUpRight size={18} color={colors.text} />
+                        </IconDot>
+                    </View>
+                    <View style={styles.mapWrap} pointerEvents="none">
+                        <MapView
+                            ref={mapRef}
+                            style={StyleSheet.absoluteFill}
+                            provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
+                            initialRegion={{ latitude: ref.latitude, longitude: ref.longitude, latitudeDelta: radius * 0.02, longitudeDelta: radius * 0.02 }}
+                            scrollEnabled={false}
+                            zoomEnabled={false}
+                            rotateEnabled={false}
+                            pitchEnabled={false}
+                            userInterfaceStyle={isDark ? 'dark' : 'light'}
+                            showsUserLocation={false}
+                            toolbarEnabled={false}
+                        >
+                            {nearby
+                                .filter((s) => !fastList.some((f) => f.id === s.id))
+                                .slice(0, 10)
+                                .map((s) => (
+                                    <Marker key={s.id} coordinate={{ latitude: s.latitude, longitude: s.longitude }} anchor={{ x: 0.5, y: 0.5 }}>
+                                        <View style={[styles.mapDot, { backgroundColor: '#B8BDC7' }]} />
+                                    </Marker>
+                                ))}
+                            {fastList.slice(0, fastOpen ? 5 : 1).map((s, i) => (
+                                <Marker key={`f-${s.id}`} coordinate={{ latitude: s.latitude, longitude: s.longitude }} anchor={{ x: 0.5, y: 0.5 }} zIndex={10}>
+                                    <View style={[styles.rankPin, { backgroundColor: i === 0 ? '#6DB8F2' : '#0B0B0F' }]}>
+                                        <ThemedText style={[styles.rankPinText, { color: i === 0 ? '#0B0B0F' : '#FFFFFF' }]}>{i + 1}</ThemedText>
+                                    </View>
+                                </Marker>
+                            ))}
+                            <Marker coordinate={{ latitude: ref.latitude, longitude: ref.longitude }} anchor={{ x: 0.5, y: 0.5 }}>
+                                <View style={[styles.mapDot, styles.me]} />
+                            </Marker>
+                        </MapView>
+                    </View>
+                </Tile>
+
+                {/* Live charge */}
+                {activeSession ? (
+                    <Tile
+                        tone="ink"
+                        style={{ marginTop: gap }}
+                        onPress={() => navigation.navigate('ChargingSession', { stationId: activeSession.stationId, connectorId: activeSession.connectorId })}
+                        label="Open live charge"
+                    >
+                        <View style={styles.liveRow}>
+                            <IconDot tone="ink" size={44}>
+                                <Zap size={20} color={ink.fg} fill={ink.fg} />
+                            </IconDot>
+                            <View style={{ flex: 1 }}>
+                                <Eyebrow tone="ink">CHARGING NOW</Eyebrow>
+                                <ThemedText style={[styles.tileTitle, { color: ink.fg }]} numberOfLines={1}>
+                                    {activeSession.stationName}
+                                </ThemedText>
+                            </View>
+                            <ThemedText style={[styles.livePct, { color: ink.fg }]}>{Math.round(activeSession.currentSoc)}%</ThemedText>
+                        </View>
+                    </Tile>
+                ) : null}
+
+                {/* Row: plan a trip + favourites */}
+                <View style={[styles.row, { gap, marginTop: gap }]}>
+                    <Tile tone="white" style={{ flex: 1 }} onPress={() => navigation.navigate('Main', { screen: 'Vehicles' })} label="Sessions">
+                        <View style={styles.planRow}>
+                            <IconDot tone="mint" size={40}>
+                                <History size={18} color="#52BE89" />
+                            </IconDot>
+                            <View style={{ flex: 1 }}>
+                                <ThemedText style={[styles.planTitle, { color: colors.text }]}>Sessions</ThemedText>
+                                <ThemedText style={[styles.planSub, { color: colors.textMuted }]} numberOfLines={1}>
+                                    {sessionHistory.length ? `${sessionHistory.length} charges` : 'Your history'}
+                                </ThemedText>
+                            </View>
+                        </View>
+                    </Tile>
+                    <Tile tone="ink" style={{ flex: 1 }} onPress={() => navigation.navigate('Main', { screen: 'Favorite' })} label="Favourites">
+                        <View style={styles.planRow}>
+                            <IconDot tone="coral" size={40}>
+                                <Heart size={18} color="#EE6C58" fill="#EE6C58" />
+                            </IconDot>
+                            <View style={{ flex: 1 }}>
+                                <ThemedText style={[styles.planTitle, { color: '#FFFFFF' }]}>Favourites</ThemedText>
+                                <ThemedText style={[styles.planSub, { color: 'rgba(255,255,255,0.65)' }]} numberOfLines={1}>
+                                    {favCount ? `${favCount} saved` : 'Save your spots'}
+                                </ThemedText>
+                            </View>
+                        </View>
+                    </Tile>
+                </View>
+            </ScrollView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    pad: { paddingHorizontal: 16 },
-    searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    avatarBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+    header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    hello: { fontSize: 13, fontWeight: '600' },
+    title: { fontSize: 30, lineHeight: 36, fontWeight: '800', letterSpacing: -0.8 },
+    avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
     avatarText: { fontSize: 18, fontWeight: '800' },
-    search: { height: 48, flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 16, paddingRight: 8 },
-    searchInput: { flex: 1, fontSize: 15, fontWeight: '500' },
+    search: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 48, borderRadius: 24, paddingLeft: 16, paddingRight: 6, marginTop: 8, marginBottom: 8 },
+    searchText: { flex: 1, fontSize: 15, fontWeight: '500' },
     mic: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-    chipRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
-    chips: { gap: 8, paddingRight: 4 },
-    chip: { height: 36, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
-    chipText: { fontSize: 13, fontWeight: '600' },
-    wallet: { height: 36, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
-    walletValue: { fontSize: 13, fontWeight: '700' },
-    side: { position: 'absolute', right: 16, gap: 8 },
-    strip: { position: 'absolute', left: 0, right: 0 },
-    stripHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 8 },
-    sheetTitle: { fontSize: 17, fontWeight: '700', letterSpacing: -0.3 },
-    live: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 26, paddingHorizontal: 8, borderRadius: 13 },
-    liveDot: { width: 6, height: 6, borderRadius: 3 },
-    liveText: { fontSize: 12, fontWeight: '700' },
-    list: { paddingHorizontal: 16, gap: 8 },
-    card: { borderRadius: 22, padding: 12, borderWidth: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },
-    cardTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    plugTile: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-    cardName: { fontSize: 15, fontWeight: '700', letterSpacing: -0.2 },
-    cardSub: { fontSize: 12, fontWeight: '500', marginTop: 1.0 },
-    arrow: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-    pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
-    pill: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 26, paddingHorizontal: 8, borderRadius: 13 },
-    pillDot: { width: 6, height: 6, borderRadius: 3 },
-    pillText: { fontSize: 12, fontWeight: '600' },
+    row: { flexDirection: 'row' },
+    fastHead: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, paddingBottom: 10 },
+    fastList: { gap: 8, paddingHorizontal: 12, paddingBottom: 12 },
+    fastRow: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 20, paddingHorizontal: 12, height: 60 },
+    rank: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#0B0B0F', alignItems: 'center', justifyContent: 'center' },
+    rankText: { fontSize: 13, fontWeight: '800', color: '#FFFFFF' },
+    fastName: { fontSize: 15, fontWeight: '800', color: '#0B0B0F' },
+    fastSub: { fontSize: 12, fontWeight: '600', color: 'rgba(11,11,15,0.62)', marginTop: 1 },
+    kwPill: { height: 28, paddingHorizontal: 12, borderRadius: 14, justifyContent: 'center', backgroundColor: '#0B0B0F' },
+    kwText: { fontSize: 13, fontWeight: '800', color: '#FFFFFF' },
+    sideHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, paddingBottom: 0 },
+    fastCard: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 10 },
+    freeRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+    freeText: { fontSize: 11, fontWeight: '700' },
+    sideBody: { padding: 12, paddingTop: 6 },
+    hint: { fontSize: 11, fontWeight: '700', marginTop: 4 },
+    miniRow: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 14, paddingHorizontal: 8, height: 42 },
+    miniName: { fontSize: 13, fontWeight: '800', color: '#0B0B0F' },
+    miniSub: { fontSize: 11, fontWeight: '600', color: 'rgba(11,11,15,0.62)', marginTop: 1 },
+    freeDot: { width: 8, height: 8, borderRadius: 4 },
+    mapBadge: { position: 'absolute', left: 10, top: 10, right: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 32, paddingHorizontal: 12, borderRadius: 16 },
+    mapBadgeText: { fontSize: 12, fontWeight: '800' },
+    tileTop: { flexDirection: 'row', justifyContent: 'space-between' },
+    tileTitle: { fontSize: 18, lineHeight: 23, fontWeight: '800', letterSpacing: -0.3, marginTop: 4 },
+    tileSub: { fontSize: 13, fontWeight: '500', marginTop: 2 },
+    walletAmount: { fontSize: 24, lineHeight: 28, fontWeight: '800', letterSpacing: -0.6, marginTop: 2 },
+    pillText: { fontSize: 13, fontWeight: '700', color: '#FFFFFF' },
+    freeNumber: { fontSize: 28, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6, color: '#FFFFFF', marginTop: 6 },
+    liveRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    livePct: { fontSize: 28, fontWeight: '800' },
+    aroundHead: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, paddingBottom: 8 },
+    mapWrap: { height: 220, marginHorizontal: 8, marginBottom: 8, borderRadius: 20, overflow: 'hidden' },
+    rankPin: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+    rankPinText: { fontSize: 12, fontWeight: '800' },
+    mapDot: { width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: '#FFFFFF' },
+    me: { backgroundColor: '#2F8CF0', width: 18, height: 18, borderRadius: 9 },
+    planRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    planTitle: { fontSize: 15, fontWeight: '800' },
+    planSub: { fontSize: 12, fontWeight: '500', marginTop: 1 },
 });

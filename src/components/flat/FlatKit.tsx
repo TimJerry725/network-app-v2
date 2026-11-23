@@ -121,7 +121,7 @@ export function Panel({
     const { colors } = useAppTheme();
     const toneStyle =
         tone === 'highlight'
-            ? { backgroundColor: colors.lime, borderColor: colors.lime }
+            ? { backgroundColor: '#6DB8F2', borderColor: '#6DB8F2' }
             : tone === 'warning'
             ? { backgroundColor: 'rgba(255,149,0,0.12)', borderColor: colors.sun }
             : tone === 'danger'
@@ -147,7 +147,7 @@ export function Panel({
 }
 
 /** Ink text colour helpers for content inside a highlight panel. */
-export const ON_HIGHLIGHT = { fg: '#FFFFFF', sub: 'rgba(255,255,255,0.8)' };
+export const ON_HIGHLIGHT = { fg: '#0B0B0F', sub: 'rgba(11,11,15,0.62)' };
 
 export function Divider({ inset = 0 }: { inset?: number }) {
     const { colors } = useAppTheme();
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
     sectionTitle: { fontFamily: FONT_FAMILIES.bold, fontSize: 18 },
     sectionAction: { fontFamily: FONT_FAMILIES.semiBold, fontSize: 15 },
-    panel: { borderRadius: 24, borderWidth: 0, overflow: 'hidden' },
+    panel: { borderRadius: 28, borderWidth: 0, overflow: 'hidden' },
     panelPad: { padding: 16 },
     row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 16, minHeight: 56 },
     rowIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },

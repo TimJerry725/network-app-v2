@@ -258,7 +258,7 @@ export default function ScanScreen({ navigation, route }: any) {
                                 }}
                                 style={[styles.connCard, { backgroundColor: colors.background, borderColor: sel ? colors.primary : 'transparent' }]}
                             >
-                                <View style={[styles.plugTile, { backgroundColor: free ? 'rgba(0,122,255,0.14)' : 'rgba(255,59,48,0.14)' }]}>
+                                <View style={[styles.plugTile, { backgroundColor: free ? '#6DB8F2' : '#EE6C58' }]}>
                                     <Plug size={30} color={free ? colors.primary : colors.error} />
                                 </View>
                                 <View style={{ flex: 1 }}>

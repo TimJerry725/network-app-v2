@@ -11,7 +11,7 @@ import ScanScreen from '../screens/Charging/ScanScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useCharging } from '../context/ChargingContext';
-import { Glass } from '../components/glass/Glass';
+import { BENTO } from '../constants/Colors';
 import { ThemedText } from '../components/ThemedText';
 
 const Tab = createBottomTabNavigator();
@@ -23,9 +23,6 @@ const Tab = createBottomTabNavigator();
  */
 const ITEMS = [
     { name: 'Map', label: 'Home', Icon: House },
-    { name: 'Explore', label: 'Trips', Icon: Compass },
-    { name: 'Favorite', label: 'Favorites', Icon: Heart },
-    { name: 'Vehicles', label: 'Sessions', Icon: History },
 ] as const;
 
 function tap() {
@@ -53,33 +50,11 @@ function AppTabBar({ state, navigation }: BottomTabBarProps) {
     const goRoot = (name: string, params?: object) =>
         (navigation as any).getParent()?.navigate(name, params) ?? (navigation as any).navigate(name, params);
 
-    const renderItem = ({ name, label, Icon }: (typeof ITEMS)[number]) => {
-        const focused = focusedName === name;
-        const tint = focused ? colors.primary : colors.textMuted;
-        return (
-            <Pressable
-                key={name}
-                accessibilityRole="button"
-                accessibilityState={{ selected: focused }}
-                accessibilityLabel={label}
-                onPress={() => {
-                    tap();
-                    goTab(name);
-                }}
-                style={styles.itemWrap}
-            >
-                <Icon size={26} color={tint} strokeWidth={2} fill={focused ? tint : 'none'} />
-                <ThemedText style={[styles.label, { color: tint }]} numberOfLines={1}>
-                    {label}
-                </ThemedText>
-            </Pressable>
-        );
-    };
-
+    const onScanScreen = focusedName === 'Scan';
     return (
-        <View style={[styles.outer, { bottom: Math.max(10, insets.bottom - 4) }]} pointerEvents="box-none">
-            <Glass radius={32} style={styles.dock}>
-                {ITEMS.slice(0, 2).map(renderItem)}
+        <View style={[styles.outer, { bottom: Math.max(16, insets.bottom + 4) }]} pointerEvents="box-none">
+            <View />
+            {!onScanScreen ? (
                 <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={live ? `Charging ${Math.round(activeSession?.currentSoc ?? 0)} percent. Open live charge` : 'Scan to charge'}
@@ -88,19 +63,18 @@ function AppTabBar({ state, navigation }: BottomTabBarProps) {
                         if (live && activeSession) goRoot('ChargingSession', { stationId: activeSession.stationId, connectorId: activeSession.connectorId });
                         else goTab('Scan');
                     }}
-                    style={({ pressed }) => [styles.scan, { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 }]}
+                    style={({ pressed }) => [styles.scan, { backgroundColor: BENTO.light.blue.bg, opacity: pressed ? 0.88 : 1 }]}
                 >
                     {live ? (
-                        <View style={styles.liveCol}>
-                            <Zap size={18} color="#FFFFFF" fill="#FFFFFF" />
-                            <ThemedText style={styles.livePct}>{Math.round(activeSession?.currentSoc ?? 0)}%</ThemedText>
+                        <View style={{ alignItems: 'center' }}>
+                            <Zap size={20} color="#0B0B0F" fill="#0B0B0F" />
+                            <ThemedText style={styles.scanLabel}>{Math.round(activeSession?.currentSoc ?? 0)}%</ThemedText>
                         </View>
                     ) : (
-                        <ScanLine size={30} color="#FFFFFF" strokeWidth={2.2} />
+                        <ScanLine size={30} color="#0B0B0F" strokeWidth={2.2} />
                     )}
                 </Pressable>
-                {ITEMS.slice(2).map(renderItem)}
-            </Glass>
+            ) : null}
         </View>
     );
 }
@@ -125,11 +99,8 @@ export default function TabNavigator() {
 }
 
 const styles = StyleSheet.create({
-    outer: { position: 'absolute', left: 20, right: 20, zIndex: 99999, elevation: 999 },
-    dock: { height: 72, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 },
-    itemWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3, height: 64 },
-    label: { fontSize: 11, fontWeight: '600' },
-    scan: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center', marginHorizontal: 4 },
-    liveCol: { alignItems: 'center', justifyContent: 'center' },
-    livePct: { fontSize: 11, fontWeight: '800', color: '#FFFFFF' },
+    outer: { position: 'absolute', left: 16, right: 16, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', zIndex: 99999, elevation: 999 },
+    home: { width: 56, height: 56, borderRadius: 22, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+    scan: { width: 68, height: 68, borderRadius: 26, alignItems: 'center', justifyContent: 'center', shadowColor: '#6DB8F2', shadowOpacity: 0.5, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
+    scanLabel: { fontSize: 11, fontWeight: '800', color: '#0B0B0F' },
 });

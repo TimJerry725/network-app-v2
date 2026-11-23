@@ -92,10 +92,10 @@ export function PulseButton({
 }) {
     const { colors, isDark } = useAppTheme();
     const palette: Record<ButtonVariant, { bg: string; fg: string; border: string }> = {
-        lime: { bg: colors.lime, fg: '#FFFFFF', border: colors.lime },
+        lime: { bg: isDark ? '#3A3A3C' : '#0B0B0F', fg: '#FFFFFF', border: 'transparent' },
         ink: { bg: isDark ? '#FFFFFF' : '#000000', fg: isDark ? '#000000' : '#FFFFFF', border: 'transparent' },
-        ghost: { bg: colors.surface, fg: colors.text, border: colors.border },
-        violet: { bg: colors.lime, fg: '#FFFFFF', border: colors.lime },
+        ghost: { bg: colors.surface, fg: colors.text, border: 'transparent' },
+        violet: { bg: isDark ? '#3A3A3C' : '#0B0B0F', fg: '#FFFFFF', border: 'transparent' },
         danger: { bg: colors.error, fg: '#FFFFFF', border: colors.error },
     };
     const p = palette[variant];

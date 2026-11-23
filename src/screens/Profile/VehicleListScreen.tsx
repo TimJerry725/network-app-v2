@@ -1,14 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Clock, ChevronDown, Zap, Leaf } from '../../components/sf/icons';
+import { BackButton } from '../../components/BackButton';
+import { Clock, ChevronDown, Zap } from '../../components/sf/icons';
+import { Tile, Eyebrow, BigNumber, IconDot } from '../../components/bento/Bento';
 import { ThemedText } from '../../components/ThemedText';
 import { useCharging, CompletedSessionReceipt } from '../../context/ChargingContext';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { SessionReceiptModal } from '../../components/SessionReceiptModal';
 
 /** Sessions (iOS 27 style): large title, blue summary card, white receipt cards. */
-export default function VehicleListScreen() {
+export default function VehicleListScreen({ navigation }: any) {
     const { colors } = useAppTheme();
     const { sessionHistory } = useCharging();
     const [showAll, setShowAll] = useState(false);
@@ -32,20 +34,27 @@ export default function VehicleListScreen() {
 
     const header = (
         <View>
+            <BackButton onPress={() => navigation.navigate('Map')} />
             <ThemedText style={[styles.title, { color: colors.text }]}>Sessions</ThemedText>
-            <View style={[styles.hero, { backgroundColor: colors.primary }]}>
-                <View style={styles.heroTop}>
-                    <Zap size={14} color="#FFFFFF" fill="#FFFFFF" />
-                    <ThemedText style={styles.heroLabel}>Total energy charged</ThemedText>
-                </View>
-                <ThemedText style={styles.heroVal}>{totalEnergy} kWh</ThemedText>
-                <ThemedText style={styles.heroSub}>Saved ₹{totalSavings} · Avg speed 48 kW</ThemedText>
-                <View style={styles.co2}>
-                    <View style={styles.heroTop}>
-                        <Leaf size={14} color="#FFFFFF" />
-                        <ThemedText style={styles.heroLabel}>CO₂ avoided</ThemedText>
+            <View style={styles.bentoRow}>
+                <Tile tone="blue" style={{ flex: 1.25 }}>
+                    <IconDot tone="blue" size={40}>
+                        <Zap size={18} color="#0B0B0F" fill="#0B0B0F" />
+                    </IconDot>
+                    <View style={{ marginTop: 10 }}>
+                        <Eyebrow tone="blue">TOTAL ENERGY</Eyebrow>
+                        <BigNumber tone="blue" unit="kWh" size={38}>{totalEnergy}</BigNumber>
                     </View>
-                    <ThemedText style={styles.co2Val}>{co2} kg</ThemedText>
+                </Tile>
+                <View style={{ flex: 1, gap: 12 }}>
+                    <Tile tone="coral" style={{ flex: 1 }}>
+                        <Eyebrow tone="coral">SAVED</Eyebrow>
+                        <ThemedText style={styles.sideNum}>₹{totalSavings}</ThemedText>
+                    </Tile>
+                    <Tile tone="mint" style={{ flex: 1 }}>
+                        <Eyebrow tone="mint">CO₂ AVOIDED</Eyebrow>
+                        <ThemedText style={styles.sideNum}>{co2} kg</ThemedText>
+                    </Tile>
                 </View>
             </View>
             <View style={styles.sectionRow}>
@@ -137,6 +146,8 @@ const styles = StyleSheet.create({
     safe: { flex: 1 },
     list: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 140 },
     title: { fontSize: 34, lineHeight: 42, fontWeight: '800', letterSpacing: -0.8, marginBottom: 16 },
+    bentoRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+    sideNum: { fontSize: 24, lineHeight: 30, fontWeight: '800', color: '#FFFFFF', marginTop: 4 },
     hero: { borderRadius: 28, padding: 20, marginBottom: 20 },
     heroTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     heroLabel: { color: 'rgba(255,255,255,0.85)', fontSize: 14, fontWeight: '600' },
@@ -156,7 +167,7 @@ const styles = StyleSheet.create({
     sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 },
     section: { fontSize: 22, fontWeight: '700' },
     count: { fontSize: 14, fontWeight: '500' },
-    card: { borderRadius: 24, padding: 16, marginBottom: 12 },
+    card: { borderRadius: 28, padding: 16, marginBottom: 12 },
     cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
     flex: { flex: 1 },
     name: { fontSize: 17, fontWeight: '700' },
