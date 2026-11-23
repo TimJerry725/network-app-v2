@@ -30,6 +30,11 @@ export type SessionTelemetry = {
     startSoc: number;
     currentSoc: number;
     targetSoc: number;
+    /** Optional charge settings chosen before starting */
+    maxSpend?: number; // stop when the bill reaches this amount (₹)
+    maxMinutes?: number; // stop after this many minutes
+    maxEnergyKwh?: number; // stop after this much energy (kWh)
+    powerLimitPct?: number; // cap charging speed (100 = full speed)
     currentPowerKw: number;
     currentVoltageV: number;
     currentAmperageA: number;
@@ -91,6 +96,10 @@ type ChargingContextType = {
         vehicleRegNo: string;
         startSoc: number;
         targetSoc?: number;
+        maxSpend?: number;
+        maxMinutes?: number;
+        maxEnergyKwh?: number;
+        powerLimitPct?: number;
     }) => void;
     stopChargingSession: (reason?: string) => CompletedSessionReceipt | null;
     clearSession: () => void;
@@ -300,7 +309,10 @@ export function ChargingProvider({ children }: { children: React.ReactNode }) {
                 if (!prev || prev.status !== 'CHARGING') return prev;
 
                 // Stop condition reached
-                if (prev.currentSoc >= prev.targetSoc) {
+                const hitSpend = !!prev.maxSpend && prev.totalCost >= prev.maxSpend;
+                const hitEnergy = !!prev.maxEnergyKwh && prev.energyDeliveredKwh >= prev.maxEnergyKwh;
+                const hitTime = !!prev.maxMinutes && prev.elapsedSeconds >= prev.maxMinutes * 60;
+                if (prev.currentSoc >= prev.targetSoc || hitSpend || hitTime || hitEnergy) {
                     return {
                         ...prev,
                         status: 'COMPLETED',
@@ -324,6 +336,7 @@ export function ChargingProvider({ children }: { children: React.ReactNode }) {
                 } else if (nextSoc > 65) {
                     targetPower = prev.maxConnectorPowerKw * 0.65;
                 }
+                if (prev.powerLimitPct && prev.powerLimitPct < 100) targetPower *= prev.powerLimitPct / 100;
                 const jitter = (Math.random() - 0.5) * 4;
                 const currentPowerKw = Math.max(12, Math.min(prev.maxConnectorPowerKw, Math.round(targetPower + jitter)));
                 const currentVoltageV = Math.round(380 + (nextSoc * 0.4));
@@ -386,6 +399,10 @@ export function ChargingProvider({ children }: { children: React.ReactNode }) {
             startSoc: params.startSoc,
             currentSoc: params.startSoc,
             targetSoc: params.targetSoc || 85,
+            maxSpend: params.maxSpend,
+            maxMinutes: params.maxMinutes,
+            maxEnergyKwh: params.maxEnergyKwh,
+            powerLimitPct: params.powerLimitPct,
             currentPowerKw: initialPower,
             currentVoltageV: 400,
             currentAmperageA: Math.round((initialPower * 1000) / 400),

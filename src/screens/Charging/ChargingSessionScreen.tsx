@@ -62,6 +62,10 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
             vehicleRegNo: selectedVehicle?.registrationNumber ?? 'TN 38 BZ 9021',
             startSoc: selectedVehicle?.currentBattery ?? 33,
             targetSoc: target,
+            maxSpend: route.params?.maxSpend,
+            maxMinutes: route.params?.maxMinutes,
+            maxEnergyKwh: route.params?.maxEnergyKwh,
+            powerLimitPct: route.params?.powerLimitPct,
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeSession]);

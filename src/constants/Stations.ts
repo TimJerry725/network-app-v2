@@ -38,7 +38,7 @@ const CONNECTOR_COMPATIBILITY: Record<Connector['type'], Connector['type'][]> = 
     'GB/T': ['GB/T'],
 };
 
-export const MOCK_STATIONS: Station[] = [
+const RAW_STATIONS: Station[] = [
     {
         id: 'cbe-casagrand-01',
         name: 'Casa Grand Techno City',
@@ -647,6 +647,77 @@ export const MOCK_STATIONS: Station[] = [
         tagline: 'Scenic tea-estate fast charger on the way to Ooty',
     },
 ];
+
+function seedOf(text: string) {
+    let h = 7;
+    for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) >>> 0;
+    return h;
+}
+
+type Gun = Pick<Connector, 'type' | 'currentType' | 'power'>;
+const CHARGER_TEMPLATES: [Gun, Gun][] = [
+    [{ type: 'CCS2', currentType: 'DC', power: 60 }, { type: 'CCS2', currentType: 'DC', power: 60 }],
+    [{ type: 'CCS2', currentType: 'DC', power: 120 }, { type: 'CHAdeMO', currentType: 'DC', power: 50 }],
+    [{ type: 'Type 2', currentType: 'AC', power: 22 }, { type: 'Type 2', currentType: 'AC', power: 22 }],
+    [{ type: 'CCS2', currentType: 'DC', power: 150 }, { type: 'GB/T', currentType: 'DC', power: 60 }],
+    [{ type: 'Type 2', currentType: 'AC', power: 7 }, { type: 'Type 2', currentType: 'AC', power: 7 }],
+    [{ type: 'CCS2', currentType: 'DC', power: 180 }, { type: 'CCS2', currentType: 'DC', power: 180 }],
+    [{ type: 'CCS2', currentType: 'DC', power: 30 }, { type: 'Type 2', currentType: 'AC', power: 11 }],
+    [{ type: 'CHAdeMO', currentType: 'DC', power: 50 }, { type: 'GB/T', currentType: 'DC', power: 30 }],
+];
+
+/**
+ * Real stations have several chargers, each with two connectors (guns) of different types.
+ * The sample data only listed one or two, so fill each station out to 6 to 9 chargers.
+ */
+function withMoreChargers(st: Station): Station {
+    const h = seedOf(st.id);
+    const firstChargerNo = 1200 + (h % 60) * 4;
+    const baseRate = st.connectors[0]?.pricePerKWh ?? 14;
+    const out: Connector[] = [];
+
+    st.connectors.forEach((c, i) => {
+        const n = Math.floor(i / 2);
+        out.push({
+            ...c,
+            chargerId: c.chargerId ?? `CP${firstChargerNo + n}`,
+            gunLabel: c.gunLabel ?? `Gun ${(i % 2) + 1}`,
+            currentType: c.currentType ?? (c.power >= 50 || c.type === 'CCS2' || c.type === 'CHAdeMO' || c.type === 'GB/T' ? 'DC' : 'AC'),
+        });
+    });
+
+    const wanted = 6 + (h % 4);
+    let chargerCount = Math.ceil(st.connectors.length / 2);
+    let t = h % CHARGER_TEMPLATES.length;
+    while (chargerCount < wanted) {
+        const chargerId = `CP${firstChargerNo + chargerCount}`;
+        CHARGER_TEMPLATES[t % CHARGER_TEMPLATES.length].forEach((g, gi) => {
+            const roll = (h >> (chargerCount * 3 + gi)) % 10;
+            const status: Connector['status'] = roll < 5 ? 'Available' : roll < 8 ? 'Busy' : roll < 9 ? 'Preparing' : 'Maintenance';
+            out.push({
+                id: `${chargerId}-G${gi + 1}`,
+                chargerId,
+                gunLabel: `Gun ${gi + 1}`,
+                type: g.type,
+                currentType: g.currentType,
+                power: g.power,
+                status,
+                pricePerKWh: Number((g.currentType === 'AC' ? baseRate * 0.8 : baseRate).toFixed(2)),
+                waitMinutes: status === 'Busy' ? 4 + roll : 0,
+            });
+        });
+        chargerCount += 1;
+        t += 1;
+    }
+    return { ...st, connectors: out };
+}
+
+export const MOCK_STATIONS: Station[] = RAW_STATIONS.map(withMoreChargers);
+
+/** Stations from the live or Google sources often list a single connector: fill those out too. */
+export function ensureChargers(st: Station): Station {
+    return st.connectors.length >= 6 ? st : withMoreChargers(st);
+}
 
 export function isConnectorCompatible(
     connectorType: Connector['type'],
