@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Animated, Linking, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Line, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -13,7 +13,6 @@ import { GlassButton, Glass } from '../../components/glass/Glass';
 import { explainSessionStatus, formatRupees, sessionHoldAmount } from '../../utils/pulse';
 
 const TARGETS = [80, 85, 90, 100];
-const HOLD_MS = 900;
 
 function fmtElapsed(total: number) {
     const m = Math.floor(total / 60);
@@ -27,6 +26,60 @@ function powerAt(soc: number) {
     if (soc <= 55) return 0.95;
     if (soc <= 80) return 0.95 - ((soc - 55) / 25) * 0.4;
     return 0.55 - ((soc - 80) / 20) * 0.33;
+}
+
+/** Slide the thumb all the way across to stop charging. */
+function SlideToStop({ onComplete, color }: { onComplete: () => void; color: string }) {
+    const THUMB = 56;
+    const [trackW, setTrackW] = useState(0);
+    const x = useRef(new Animated.Value(0)).current;
+    const max = Math.max(0, trackW - THUMB - 8);
+    const maxRef = useRef(0);
+    maxRef.current = max;
+    const doneRef = useRef(onComplete);
+    doneRef.current = onComplete;
+
+    const pan = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderMove: (_e, g) => x.setValue(Math.max(0, Math.min(maxRef.current, g.dx))),
+            onPanResponderRelease: (_e, g) => {
+                if (maxRef.current > 0 && g.dx >= maxRef.current * 0.9) {
+                    Animated.timing(x, { toValue: maxRef.current, duration: 80, useNativeDriver: true }).start(() => {
+                        doneRef.current();
+                        x.setValue(0);
+                    });
+                } else {
+                    Animated.spring(x, { toValue: 0, useNativeDriver: true, bounciness: 6 }).start();
+                }
+            },
+            onPanResponderTerminate: () => Animated.spring(x, { toValue: 0, useNativeDriver: true }).start(),
+        })
+    ).current;
+
+    const labelOpacity = x.interpolate({ inputRange: [0, Math.max(1, max * 0.6)], outputRange: [1, 0], extrapolate: 'clamp' });
+
+    return (
+        <View
+            onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
+            accessible
+            accessibilityRole="adjustable"
+            accessibilityLabel="Slide to stop charging"
+            accessibilityHint="Swipe right with one finger to stop charging"
+            accessibilityActions={[{ name: 'activate', label: 'Stop charging' }]}
+            onAccessibilityAction={() => onComplete()}
+            style={[styles.slideTrack, { backgroundColor: color }]}
+        >
+            <Animated.View style={[styles.slideLabelWrap, { opacity: labelOpacity }]} pointerEvents="none">
+                <ThemedText style={styles.slideLabel}>Slide to stop</ThemedText>
+                <ThemedText style={styles.slideSub}>Auto-pay from wallet</ThemedText>
+            </Animated.View>
+            <Animated.View {...pan.panHandlers} style={[styles.slideThumb, { transform: [{ translateX: x }] }]}>
+                <Square size={20} color={color} fill={color} />
+            </Animated.View>
+        </View>
+    );
 }
 
 /** Live charging (iOS 27 design). */
@@ -44,7 +97,6 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
     const [target, setTarget] = useState<number>(activeSession?.targetSoc ?? route.params?.targetSoc ?? selectedVehicle?.chargeTarget ?? 80);
     const [mode, setMode] = useState<'speed' | 'time'>('speed');
     const [switchCar, setSwitchCar] = useState(false);
-    const [holding, setHolding] = useState(false);
 
     useEffect(() => {
         if (activeSession) return;
@@ -114,8 +166,8 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
 
     /* ── Chart ── */
     const cardW = width - 32;
-    const W = cardW - 40;
-    const H = 190;
+    const W = cardW - 32;
+    const H = 180;
     const padL = 34;
     const padB = 26;
     const plotW = W - padL - 6;
@@ -136,57 +188,63 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
     const peak = Math.max(1, ...history.map((h) => h.powerKw), maxKw);
     const timeLine = history.map((h, i) => `${i === 0 ? 'M' : 'L'}${(padL + (i / Math.max(1, history.length - 1)) * plotW).toFixed(1)} ${yOf(h.powerKw / peak).toFixed(1)}`).join(' ');
 
-    const tiles = [
-        { label: 'Charging speed', value: `${power}`, unit: 'kW', icon: <Zap size={20} color={colors.primary} />, tint: 'rgba(0,122,255,0.14)' },
-        { label: 'Elapsed time', value: fmtElapsed(elapsed), unit: 'min', icon: <Clock size={20} color={colors.violet} />, tint: 'rgba(88,86,214,0.14)' },
-        { label: 'Energy delivered', value: kwh.toFixed(1), unit: 'kWh', icon: <BatteryCharging size={20} color={colors.success} />, tint: 'rgba(52,199,89,0.16)' },
-        { label: 'Live session cost', value: formatRupees(cost, 1), unit: '', icon: <Receipt size={20} color={colors.error} />, tint: 'rgba(255,59,48,0.14)' },
+    const rows = [
+        { label: 'Charging speed', value: `${power} kW`, icon: <Zap size={18} color={colors.primary} fill={colors.primary} />, tint: 'rgba(0,122,255,0.14)' },
+        { label: 'Elapsed time', value: fmtElapsed(elapsed), icon: <Clock size={18} color={colors.violet} />, tint: 'rgba(88,86,214,0.14)' },
+        { label: 'Energy delivered', value: `${kwh.toFixed(1)} kWh`, icon: <BatteryCharging size={18} color={colors.success} />, tint: 'rgba(52,199,89,0.16)' },
+        { label: 'Session cost', value: formatRupees(cost, 1), icon: <Receipt size={18} color={colors.warning} />, tint: 'rgba(255,149,0,0.16)' },
     ];
+
+    const live = status === 'CHARGING';
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 140 }} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 130 }} showsVerticalScrollIndicator={false}>
                 <View style={styles.topRow}>
-                    <GlassButton label="Back" size={52} onPress={() => navigation.goBack()}>
+                    <GlassButton label="Back" size={44} onPress={() => navigation.goBack()}>
                         <ChevronLeft size={22} color={colors.text} strokeWidth={2.5} />
                     </GlassButton>
-                    <Glass radius={24} style={styles.activePill}>
-                        <View style={[styles.liveDot, { backgroundColor: status === 'CHARGING' ? colors.success : colors.warning }]} />
-                        <ThemedText style={[styles.activeText, { color: status === 'CHARGING' ? colors.success : colors.warning }]}>
-                            {status === 'CHARGING' ? 'Session active' : info.title}
+                    <Glass radius={22} style={styles.activePill}>
+                        <View style={[styles.liveDot, { backgroundColor: live ? colors.success : colors.warning }]} />
+                        <ThemedText style={[styles.activeText, { color: live ? colors.success : colors.warning }]}>
+                            {live ? 'Session active' : info.title}
                         </ThemedText>
                     </Glass>
-                    <GlassButton label="More options" size={52} onPress={more}>
+                    <GlassButton label="More options" size={44} onPress={more}>
                         <ThemedText style={[styles.dots, { color: colors.text }]}>•••</ThemedText>
                     </GlassButton>
                 </View>
 
-                {/* State of charge */}
-                <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <ThemedText style={[styles.title, { color: colors.text }]}>Charging</ThemedText>
+                <ThemedText style={[styles.subtitle, { color: colors.textMuted }]} numberOfLines={2}>
+                    {station.name} · {activeSession?.chargerId ?? connector.id} · {connector.type} {connector.power} kW
+                </ThemedText>
+
+                {/* State of charge with the graph */}
+                <View style={[styles.chartCard, { backgroundColor: colors.surface, marginTop: 16 }]}>
                     <View style={styles.socHead}>
                         <View>
                             <ThemedText style={[styles.socLabel, { color: colors.textMuted }]}>State of charge</ThemedText>
                             <View style={styles.socRow}>
                                 <ThemedText style={[styles.soc, { color: colors.text }]}>{soc}</ThemedText>
-                                <ThemedText style={[styles.socPct, { color: colors.textSoft }]}>%</ThemedText>
+                                <ThemedText style={[styles.socPct, { color: colors.textMuted }]}>%</ThemedText>
                             </View>
                         </View>
-                        <View style={[styles.seg, { backgroundColor: colors.surfaceMuted }]}>
+                        <View style={[styles.seg, { backgroundColor: isDark ? 'rgba(118,118,128,0.24)' : 'rgba(118,118,128,0.12)' }]}>
                             {(['speed', 'time'] as const).map((m) => (
                                 <Pressable
                                     key={m}
                                     accessibilityRole="tab"
                                     accessibilityState={{ selected: mode === m }}
                                     onPress={() => setMode(m)}
-                                    style={[styles.segItem, mode === m && { backgroundColor: colors.primary }]}
+                                    style={[styles.segItem, mode === m && { backgroundColor: colors.background }]}
                                 >
-                                    <ThemedText style={[styles.segText, { color: mode === m ? '#FFFFFF' : colors.textMuted }]}>{m}</ThemedText>
+                                    <ThemedText style={[styles.segText, { color: mode === m ? colors.text : colors.textMuted }]}>{m === 'speed' ? 'By battery' : 'By time'}</ThemedText>
                                 </Pressable>
                             ))}
                         </View>
                     </View>
-
-                    <Svg width={W} height={H} style={{ marginTop: 8 }}>
+                    <Svg width={W} height={H}>
                         <Defs>
                             <SvgGradient id="fillBlue" x1="0" y1="0" x2="0" y2="1">
                                 <Stop offset="0" stopColor="#007AFF" stopOpacity="0.28" />
@@ -202,8 +260,8 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                             <>
                                 <Rect x={xOf(80)} y={8} width={xOf(100) - xOf(80)} height={plotH} fill={isDark ? 'rgba(255,149,0,0.16)' : 'rgba(255,149,0,0.12)'} rx={6} />
                                 <Line x1={xOf(80)} y1={8} x2={xOf(80)} y2={yOf(0)} stroke="#FF9500" strokeWidth={1.5} strokeDasharray="4 4" />
-                                <SvgText x={xOf(80) + 8} y={26} fontSize="11" fontWeight="800" fill="#FF9500" letterSpacing={1}>
-                                    SLOWS AFTER 80%
+                                <SvgText x={xOf(80) + 8} y={26} fontSize="11" fontWeight="700" fill="#FF9500">
+                                    Slows after 80%
                                 </SvgText>
                                 <Path d={area(soc)} fill="url(#fillBlue)" />
                                 <Path d={curve(100)} fill="none" stroke={colors.primary} strokeWidth={3} strokeLinecap="round" opacity={0.35} />
@@ -232,60 +290,23 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
                               ))
                             : null}
                     </Svg>
-
-                    <View style={[styles.etaBar, { backgroundColor: colors.surfaceMuted }]}>
-                        <Clock size={20} color={colors.primary} />
-                        <ThemedText style={[styles.etaMain, { color: colors.text }]}>{minsLeft} min to {Math.min(target, 80)}%</ThemedText>
-                        <ThemedText style={[styles.etaSub, { color: colors.textMuted }]}>ETA {eta}</ThemedText>
-                    </View>
                 </View>
 
-                {/* Tiles */}
-                <View style={styles.tiles}>
-                    {tiles.map((t) => (
-                        <View key={t.label} style={[styles.tile, { backgroundColor: colors.surface }]}>
-                            <View style={styles.tileTop}>
-                                <View style={[styles.tileIcon, { backgroundColor: t.tint }]}>{t.icon}</View>
-                                <ThemedText style={[styles.tileLabel, { color: colors.textMuted }]} numberOfLines={1}>{t.label}</ThemedText>
-                            </View>
-                            <View style={styles.tileValRow}>
-                                <ThemedText style={[styles.tileVal, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit>{t.value}</ThemedText>
-                                {t.unit ? <ThemedText style={[styles.tileUnit, { color: colors.textMuted }]}>{t.unit}</ThemedText> : null}
-                            </View>
+                {/* Live numbers as an inset grouped list */}
+                <View style={[styles.group, { backgroundColor: colors.surface }]}>
+                    {rows.map((r, i) => (
+                        <View key={r.label} style={[styles.groupRow, i > 0 && { borderTopColor: colors.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+                            <View style={[styles.groupIcon, { backgroundColor: r.tint }]}>{r.icon}</View>
+                            <ThemedText style={[styles.groupLabel, { color: colors.text }]}>{r.label}</ThemedText>
+                            <ThemedText style={[styles.groupValue, { color: colors.text }]}>{r.value}</ThemedText>
                         </View>
                     ))}
                 </View>
-
-                <View style={[styles.note, { backgroundColor: info.tone === 'stop' ? 'rgba(255,59,48,0.12)' : info.tone === 'wait' ? 'rgba(255,149,0,0.12)' : colors.surface }]}>
-                    <ThemedText style={[styles.noteTitle, { color: colors.text }]}>{info.title}</ThemedText>
-                    <ThemedText style={[styles.noteBody, { color: colors.textMuted }]}>{info.detail}</ThemedText>
-                    <ThemedText style={[styles.noteBody, { color: colors.text, marginTop: 8 }]}>
-                        {formatRupees(hold)} held from your wallet. Unused amount returns when you stop.
-                    </ThemedText>
-                </View>
             </ScrollView>
 
-            {/* Stop: hold to confirm */}
+            {/* Stop: slide to confirm */}
             <View style={[styles.stopWrap, { paddingBottom: Math.max(insets.bottom, 14) }]} pointerEvents="box-none">
-                <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Stop charging"
-                    accessibilityHint="Press and hold to stop and pay from your wallet"
-                    delayLongPress={HOLD_MS}
-                    onPressIn={() => setHolding(true)}
-                    onPressOut={() => setHolding(false)}
-                    onLongPress={doStop}
-                    onPress={() => {
-                        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
-                    }}
-                    style={[styles.stopBtn, { backgroundColor: colors.error, transform: [{ scale: holding ? 0.98 : 1 }] }]}
-                >
-                    <Square size={18} color="#FFFFFF" fill="#FFFFFF" />
-                    <View style={{ alignItems: 'center' }}>
-                        <ThemedText style={styles.stopTitle}>Stop Charging</ThemedText>
-                        <ThemedText style={styles.stopSub}>{holding ? 'Keep holding…' : 'Hold to confirm • auto-pay from wallet'}</ThemedText>
-                    </View>
-                </Pressable>
+                <SlideToStop color={colors.error} onComplete={doStop} />
             </View>
 
             <Modal visible={switchCar} transparent animationType="slide" onRequestClose={() => setSwitchCar(false)}>
@@ -325,37 +346,43 @@ export default function ChargingSessionScreen({ navigation, route }: any) {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    activePill: { height: 46, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16 },
-    activeText: { fontSize: 17, fontWeight: '600' },
+    activePill: { height: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16 },
+    activeText: { fontSize: 15, fontWeight: '600' },
     liveDot: { width: 9, height: 9, borderRadius: 5 },
     dots: { fontSize: 18, fontWeight: '800', letterSpacing: 1 },
-    card: { borderRadius: 32, borderWidth: StyleSheet.hairlineWidth * 2, padding: 20, marginTop: 16 },
+    title: { fontSize: 34, lineHeight: 41, fontWeight: '800', letterSpacing: -0.6, marginTop: 14 },
+    subtitle: { fontSize: 15, fontWeight: '500', marginTop: 4 },
     socHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-    socLabel: { fontSize: 18, fontWeight: '500' },
+    socLabel: { fontSize: 15, fontWeight: '600' },
     socRow: { flexDirection: 'row', alignItems: 'flex-end' },
-    soc: { fontSize: 84, fontWeight: '900', letterSpacing: -4, lineHeight: 92 },
-    socPct: { fontSize: 36, fontWeight: '500', marginBottom: 16, marginLeft: 2.0 },
-    seg: { flexDirection: 'row', borderRadius: 22, padding: 4, marginTop: 4 },
-    segItem: { height: 38, paddingHorizontal: 16, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
-    segText: { fontSize: 15, fontWeight: '800', letterSpacing: 0.5 },
-    etaBar: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 56, borderRadius: 22, paddingHorizontal: 16, marginTop: 8 },
-    etaMain: { fontSize: 19, fontWeight: '700', flex: 1 },
-    etaSub: { fontSize: 17, fontWeight: '500' },
-    tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 12 },
-    tile: { width: '48.4%', borderRadius: 30, padding: 16, minHeight: 124, justifyContent: 'space-between' },
-    tileTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    tileIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-    tileLabel: { fontSize: 15.5, fontWeight: '600', flexShrink: 1 },
-    tileValRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 8 },
-    tileVal: { fontSize: 36, fontWeight: '900', letterSpacing: -1.2 },
-    tileUnit: { fontSize: 19, fontWeight: '500', marginBottom: 4 },
-    note: { borderRadius: 24, padding: 16, marginTop: 12 },
-    noteTitle: { fontSize: 17, fontWeight: '700' },
-    noteBody: { fontSize: 14.5, fontWeight: '500', lineHeight: 20, marginTop: 4 },
+    soc: { fontSize: 56, fontWeight: '800', letterSpacing: -2, lineHeight: 64 },
+    socPct: { fontSize: 24, fontWeight: '600', marginBottom: 8, marginLeft: 2 },
+    etaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 48, borderRadius: 16, paddingHorizontal: 14, marginTop: 14 },
+    etaMain: { fontSize: 16, fontWeight: '700', flex: 1 },
+    etaSub: { fontSize: 14, fontWeight: '500' },
+    group: { borderRadius: 22, overflow: 'hidden', marginTop: 12 },
+    groupRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, minHeight: 56 },
+    groupIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+    groupLabel: { flex: 1, fontSize: 16, fontWeight: '500' },
+    groupValue: { fontSize: 16, fontWeight: '700' },
+    sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 22, paddingHorizontal: 4 },
+    sectionTitle: { fontSize: 20, fontWeight: '800' },
+    sectionAction: { fontSize: 14, fontWeight: '600' },
+    limitRow: { paddingHorizontal: 16, paddingVertical: 12 },
+    limitTop: { flexDirection: 'row', alignItems: 'center' },
+    limitValue: { fontSize: 14, fontWeight: '600' },
+    bar: { height: 6, borderRadius: 3, marginTop: 10, overflow: 'hidden' },
+    barFill: { height: 6, borderRadius: 3 },
+    seg: { flexDirection: 'row', borderRadius: 11, padding: 3 },
+    segItem: { height: 30, paddingHorizontal: 12, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+    segText: { fontSize: 12, fontWeight: '700' },
+    chartCard: { borderRadius: 22, padding: 16, marginTop: 10 },
     stopWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16 },
-    stopBtn: { height: 72, borderRadius: 36, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16 },
-    stopTitle: { fontSize: 24, fontWeight: '700', color: '#FFFFFF' },
-    stopSub: { fontSize: 15, fontWeight: '500', color: 'rgba(255,255,255,0.9)', marginTop: 1.0 },
+    slideTrack: { height: 64, borderRadius: 32, justifyContent: 'center', padding: 4 },
+    slideLabelWrap: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
+    slideLabel: { fontSize: 18, fontWeight: '700', color: '#FFFFFF' },
+    slideSub: { fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.85)', marginTop: 1 },
+    slideThumb: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
     overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
     sheet: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20 },
     sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
