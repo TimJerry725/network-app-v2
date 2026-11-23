@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MOCK_STATIONS, Station } from '../constants/Stations';
+import { MOCK_STATIONS, Station, ensureChargers } from '../constants/Stations';
 import { stationService } from '../services/api/stationService';
 import { fetchIndiaGoogleChargingStations } from '../services/googlePlaces';
 
@@ -8,7 +8,7 @@ let realStationsPromise: Promise<Station[]> | null = null;
 
 export function useIndiaChargingStations() {
     const [stations, setStations] = useState<Station[]>(
-        cachedRealStations ?? MOCK_STATIONS
+        (cachedRealStations ?? MOCK_STATIONS).map(ensureChargers)
     );
     const [isLoading, setIsLoading] = useState(!cachedRealStations);
 
@@ -17,7 +17,7 @@ export function useIndiaChargingStations() {
 
         const loadStations = async () => {
             if (cachedRealStations && cachedRealStations.length > 0) {
-                setStations(cachedRealStations);
+                setStations(cachedRealStations.map(ensureChargers));
                 setIsLoading(false);
                 return;
             }
@@ -51,7 +51,7 @@ export function useIndiaChargingStations() {
                     return MOCK_STATIONS;
                 })();
 
-                const fetchedStations = await realStationsPromise;
+                const fetchedStations = (await realStationsPromise).map(ensureChargers);
                 cachedRealStations = fetchedStations;
 
                 if (isCancelled) {
