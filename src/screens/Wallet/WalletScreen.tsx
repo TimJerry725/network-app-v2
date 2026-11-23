@@ -39,10 +39,6 @@ import { Panel } from '../../components/flat/FlatKit';
 import { formatRupees, sessionHoldAmount } from '../../utils/pulse';
 
 const PRESETS = [200, 500, 1000, 2000];
-const METHODS = [
-    { id: 'upi', label: 'UPI', icon: Smartphone },
-    { id: 'netbanking', label: 'Netbanking', icon: Landmark },
-] as const;
 
 export default function WalletScreen() {
     const { colors } = useAppTheme();
@@ -54,7 +50,6 @@ export default function WalletScreen() {
     const { sessionHistory, activeSession } = useCharging();
 
     const [amount, setAmount] = useState(route.params?.focusTopUp ? '500' : '500');
-    const [method, setMethod] = useState<(typeof METHODS)[number]['id']>('upi');
     const [adding, setAdding] = useState(!!route.params?.focusTopUp);
     const [disputed, setDisputed] = useState<Record<string, string>>({});
 
@@ -62,11 +57,10 @@ export default function WalletScreen() {
     const spendable = Math.max(0, user.walletBalance - hold);
     const amountValue = parseFloat(amount) || 0;
 
-    const methodLabel = METHODS.find((m) => m.id === method)?.label ?? 'UPI';
 
     const onAdd = () => {
         if (amountValue <= 0) return;
-        addMoney(amountValue, `${methodLabel} · instant`);
+        addMoney(amountValue, 'Wallet top-up · instant');
         Alert.alert('Money added', `${formatRupees(amountValue)} is in your wallet.`);
         setAdding(false);
     };
@@ -179,31 +173,8 @@ export default function WalletScreen() {
                                 );
                             })}
                         </View>
-                        <View style={styles.methodRow}>
-                            {METHODS.map((m) => {
-                                const active = m.id === method;
-                                const Icon = m.icon;
-                                return (
-                                    <Pressable
-                                        key={m.id}
-                                        accessibilityRole="radio"
-                                        accessibilityState={{ checked: active }}
-                                        onPress={() => setMethod(m.id)}
-                                        style={[
-                                            styles.method,
-                                            { borderColor: active ? colors.primary : colors.border, backgroundColor: active ? colors.primarySoft : 'transparent' },
-                                        ]}
-                                    >
-                                        <Icon size={16} color={active ? colors.primary : colors.textMuted} />
-                                        <ThemedText style={[styles.methodText, { color: active ? colors.primary : colors.textMuted }]}>
-                                            {m.label}
-                                        </ThemedText>
-                                    </Pressable>
-                                );
-                            })}
-                        </View>
                         <PulseButton
-                            title={amountValue > 0 ? `Add ${formatRupees(amountValue)} via ${methodLabel}` : 'Enter an amount'}
+                            title={amountValue > 0 ? `Add ${formatRupees(amountValue)}` : 'Enter an amount'}
                             onPress={onAdd}
                             disabled={amountValue <= 0}
                             icon={<Plus size={18} color="#FFFFFF" strokeWidth={3} />}
